@@ -1,0 +1,107 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.5/schema.json",
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "complexity": {
+        "noBannedTypes": "error",
+        "noForEach": "warn",
+        "noStaticOnlyClass": "error",
+        "useOptionalChain": "error",
+        "useSimplifiedLogicExpression": "error",
+        "useLiteralKeys": "off",
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 22
+          }
+        }
+      },
+      "correctness": {
+        "noUnusedVariables": "error",
+        "noUndeclaredVariables": "error"
+      },
+      "style": {
+        "noNonNullAssertion": "error",
+        "useConst": "error",
+        "useDefaultParameterLast": "error",
+        "useTemplate": "error",
+        "noParameterAssign": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "error",
+        "noConsole": "error"
+      }
+    }
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100,
+    "includes": [
+      "**",
+      "!**/*.md",
+      "!**/*.yml",
+      "!**/*.yaml"
+    ]
+  },
+  "files": {
+    "ignoreUnknown": true,
+    "includes": [
+      "**/scripts/**/*.ts",
+      "**/scripts/**/*.js",
+      "**/lang/typescript/src/**/*.ts",
+      "**/lang/typescript/src/**/*.js",
+      "**/*.config.{ts,js,mjs,cjs}",
+      "!**/.DS_Store",
+      "!**/*.log",
+      "!**/*.temp",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/bin",
+      "!**/.plans",
+      "!**/*.gen.ts",
+      "!**/*.gen.js",
+      "!**/*.json",
+      "!**/*.md",
+      "!**/*.yaml",
+      "!**/*.yml"
+    ]
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "jsxQuoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    },
+    "globals": [
+      "BufferEncoding",
+      "Bun"
+    ]
+  },
+  "overrides": [
+    {
+      "includes": [
+        "**/scripts/**/*.ts",
+        "**/scripts/**/*.js"
+      ],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    }
+  ]
+}

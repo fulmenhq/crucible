@@ -1,0 +1,21 @@
+name: Validate Schemas
+on: [push, pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install validator
+        run: npm install -g ajv-cli
+      - name: Validate terminal configs
+        run: |
+          for config in schemas/terminal/v1.0.0/catalog/*.yaml; do
+            echo "Validating $config"
+            ajv validate -s schemas/terminal/v1.0.0/schema.json -d "$config"
+          done
+      - name: Validate policy examples
+        run: |-
+          for config in schemas/policy/v1.0.0/examples/*.yaml; do
+            echo "Validating $config"
+            ajv validate -s schemas/policy/v1.0.0/schema.json -d "$config"
+          done

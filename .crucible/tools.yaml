@@ -1,0 +1,22 @@
+version: v1.0.0
+binDir: ./bin
+tools:
+  - id: goneat
+    description: Fulmen DX CLI for formatting, linting, security checks
+    required: true
+    install:
+      type: download
+      url: https://github.com/fulmenhq/goneat/releases/download/v0.2.11/goneat_v0.2.11_{{os}}_{{arch}}.tar.gz
+      binName: goneat
+      destination: ./bin
+      checksum:
+        darwin-amd64: f8bba61d9b729e156ea02d429a53798ef33ee9a57cf38c1a08d3d0428fc57033
+        darwin-arm64: c01581b7835362a2f12b41225cada8ca3af1dc65fc454a0c8e68374831869283
+        linux-amd64: 35066fb7b6ba615e780aa29bb52ae88771340cccfb54b4e984d79f0e80474ad2
+        linux-arm64: e9fbe921a869625a7aef99b111cfbcfc0ce1da527f5ad1664307021472692e00
+  - id: curl
+    description: HTTP client used for fetching remote assets
+    required: true
+    install:
+      type: verify
+      command: curl

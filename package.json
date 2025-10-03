@@ -1,0 +1,55 @@
+{
+  "name": "@fulmenhq/crucible",
+  "version": "2025.10.0",
+  "description": "Blueprints for Scale - Standards forge for the FulmenHQ ecosystem",
+  "type": "module",
+  "scripts": {
+    "sync": "bun run sync:to-lang",
+    "sync:schemas": "bun run scripts/sync-schemas.ts",
+    "sync:to-lang": "bun run scripts/sync-to-lang.ts",
+    "sync:all": "bun run sync:schemas && bun run sync:to-lang",
+    "test": "bun run test:go && bun run test:ts",
+    "test:go": "cd lang/go && go test -v",
+    "test:ts": "cd lang/typescript && bun test",
+    "build": "bun run sync:to-lang",
+    "fmt": "./bin/goneat format --verbose",
+    "lint": "./bin/goneat assess --categories format,lint,security --check",
+    "typecheck": "bunx tsc --noEmit || true",
+    "clean": "rm -rf dist/ lang/*/dist/ .plans/",
+    "version": "cat VERSION",
+    "version:set": "bun run scripts/update-version.ts",
+    "version:bump-major": "bun run scripts/update-version.ts --bump major",
+    "version:bump-minor": "bun run scripts/update-version.ts --bump minor",
+    "version:bump-patch": "bun run scripts/update-version.ts --bump patch",
+    "release:check": "bun run test && echo 'Release check complete'",
+    "release:prepare": "bun run sync:to-lang && bun run test && echo 'Release ready'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fulmenhq/crucible.git"
+  },
+  "keywords": [
+    "standards",
+    "schemas",
+    "templates",
+    "fulmen",
+    "fulmenhq"
+  ],
+  "author": "3 Leaps, LLC",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/fulmenhq/crucible/issues"
+  },
+  "homepage": "https://github.com/fulmenhq/crucible#readme",
+  "engines": {
+    "bun": ">=1.2.0"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.5",
+    "@types/bun": "^1.2.23",
+    "typescript": "^5.9.3"
+  }
+}

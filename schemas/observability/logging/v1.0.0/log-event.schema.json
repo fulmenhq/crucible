@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.fulmenhq.dev/crucible/observability/logging/log-event-v1.0.0.json",
+  "title": "LogEvent",
+  "description": "Structured log event envelope for consistent telemetry across Fulmen libraries",
+  "type": "object",
+  "properties": {
+    "timestamp": {
+      "$ref": "definitions.schema.json#/$defs/rfc3339Nano"
+    },
+    "severity": {
+      "$ref": "definitions.schema.json#/$defs/severityName"
+    },
+    "severityLevel": {
+      "$ref": "definitions.schema.json#/$defs/severityLevel",
+      "description": "Numeric severity for sorting/filtering (optional but recommended for runtime events)"
+    },
+    "message": {
+      "$ref": "definitions.schema.json#/$defs/logMessage"
+    },
+    "service": {
+      "$ref": "definitions.schema.json#/$defs/serviceName"
+    },
+    "component": {
+      "$ref": "definitions.schema.json#/$defs/componentName"
+    },
+    "logger": {
+      "$ref": "definitions.schema.json#/$defs/loggerName"
+    },
+    "environment": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Deployment environment (e.g., 'dev', 'staging', 'production')"
+    },
+    "context": {
+      "$ref": "definitions.schema.json#/$defs/context"
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192,
+          "description": "Error message"
+        },
+        "type": {
+          "type": "string",
+          "maxLength": 256,
+          "description": "Error type or class"
+        },
+        "stack": {
+          "type": "string",
+          "maxLength": 65536,
+          "description": "Stack trace (max 64KB)"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "description": "Error information (required for ERROR/FATAL severity)"
+    },
+    "traceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Distributed trace ID (optional, for future tracing integration)"
+    },
+    "spanId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Span ID within trace (optional, for future tracing integration)"
+    },
+    "tags": {
+      "$ref": "definitions.schema.json#/$defs/tags"
+    },
+    "eventId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Unique event identifier (optional)"
+    }
+  },
+  "required": [
+    "timestamp",
+    "severity",
+    "severityLevel",
+    "message",
+    "service"
+  ],
+  "examples": [
+    {
+      "timestamp": "2025-10-02T12:34:56.789012Z",
+      "severity": "INFO",
+      "severityLevel": 20,
+      "message": "Pathfinder scan completed",
+      "logger": "gofulmen.pathfinder",
+      "service": "gofulmen",
+      "component": "pathfinder",
+      "environment": "production",
+      "context": {
+        "filesScanned": 1234,
+        "duration": "2.5s"
+      },
+      "tags": [
+        "scan",
+        "success"
+      ]
+    },
+    {
+      "timestamp": "2025-10-02T12:35:01.123456Z",
+      "severity": "ERROR",
+      "severityLevel": 40,
+      "message": "Failed to read file",
+      "logger": "gofulmen.pathfinder",
+      "service": "gofulmen",
+      "component": "pathfinder",
+      "environment": "production",
+      "error": {
+        "message": "permission denied",
+        "type": "PathAccessError",
+        "stack": "..."
+      },
+      "context": {
+        "path": "/restricted/file.txt"
+      },
+      "tags": [
+        "error",
+        "filesystem"
+      ]
+    }
+  ]
+}

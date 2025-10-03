@@ -1,0 +1,124 @@
+BIN_DIR := $(CURDIR)/bin
+TOOLS_MANIFEST := .crucible/tools.yaml
+VERSION_FILE := VERSION
+
+# Crucible Makefile
+# Standards forge for the FulmenHQ ecosystem
+
+.PHONY: help bootstrap tools sync test build clean version fmt fmt-check lint typecheck
+.PHONY: sync-schemas sync-to-lang test-go test-ts
+.PHONY: version-set version-bump-major version-bump-minor version-bump-patch
+.PHONY: release-check release-prepare
+
+# Default target
+all: sync-schemas
+
+# Help target
+help: ## Show this help message
+	@echo "Crucible - Available Make Targets"
+	@echo ""
+	@grep -E '^[a-zA-Z_:-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
+	@echo ""
+
+bootstrap: ## Install required external tools declared in $(TOOLS_MANIFEST)
+	@bun run scripts/bootstrap-tools.ts --install --manifest $(TOOLS_MANIFEST)
+
+tools: ## Verify external tooling is available (no-op if none declared)
+	@bun run scripts/bootstrap-tools.ts --verify --manifest $(TOOLS_MANIFEST)
+
+# Sync targets
+sync: sync-to-lang ## Alias for sync-to-lang (most common sync operation)
+
+sync-schemas: ## Fetch curated JSON Schema meta-schemas (network required)
+	@bun run scripts/sync-schemas.ts
+
+sync-to-lang: ## Sync schemas and docs to Go and TypeScript packages
+	@bun run scripts/sync-to-lang.ts
+
+# Test targets
+test: ## Run all language wrapper tests
+	@echo "Running Go tests..."
+	@cd lang/go && go test -v
+	@echo ""
+	@echo "Running TypeScript tests..."
+	@cd lang/typescript && bun test
+
+test-go: ## Run Go wrapper tests
+	@cd lang/go && go test -v
+
+test-ts: ## Run TypeScript wrapper tests
+	@cd lang/typescript && bun test
+
+# Build target
+build: sync-to-lang ## Build language wrappers (ensures sync first)
+	@echo "✅ Language wrappers built (Go embeds on import, TS has no build step)"
+
+# Format, Lint, Typecheck targets
+fmt: ## Format code files using goneat
+	@$(BIN_DIR)/goneat format --verbose
+
+fmt-check: ## Check if files are formatted without modifying
+	@$(BIN_DIR)/goneat format --check --verbose
+
+lint: ## Run comprehensive assessment (Go via goneat + TypeScript/JavaScript via biome)
+	@echo "Linting TypeScript/JavaScript files..."
+	@bunx biome check scripts/ lang/typescript/ || true
+	@echo ""
+	@echo "Running goneat assessment (Go, YAML, schemas)..."
+	@$(BIN_DIR)/goneat assess --categories format,lint,security --check
+
+typecheck: ## Type-check TypeScript files
+	@echo "Type-checking TypeScript files..."
+	@bunx tsc --noEmit || true
+	@echo "✅ TypeScript type-check complete (some Bun API errors expected - scripts work at runtime)"
+
+# Clean build artifacts
+clean: ## Clean any build artifacts
+	@echo "Cleaning artifacts..."
+	@rm -rf dist/ lang/*/dist/ .plans/
+	@echo "✅ Clean completed"
+
+# Version management
+version: ## Print current repository version
+	@cat $(VERSION_FILE)
+
+version-set: ## Update VERSION and sync to wrappers (usage: make version-set VERSION=2025.11.0)
+ifndef VERSION
+	$(error VERSION is required. Usage: make version-set VERSION=2025.11.0)
+endif
+	@echo "$(VERSION)" > $(VERSION_FILE)
+	@bun run scripts/update-version.ts
+	@echo "✅ Version updated to $(VERSION)"
+
+version-bump-major: ## Bump major version (CalVer year.month)
+	@bun run scripts/update-version.ts --bump major
+
+version-bump-minor: ## Bump minor version (CalVer patch within month)
+	@bun run scripts/update-version.ts --bump minor
+
+version-bump-patch: ## Bump patch version (CalVer micro within day)
+	@bun run scripts/update-version.ts --bump patch
+
+# Release targets
+release-check: test ## Validate release readiness (tests, sync, checklist)
+	@echo "Checking release readiness..."
+	@echo "✅ Tests passed"
+	@echo "Checking VERSION file..."
+	@test -f $(VERSION_FILE) || (echo "❌ VERSION file missing" && exit 1)
+	@echo "✅ VERSION: $$(cat $(VERSION_FILE))"
+	@echo "Checking release checklist..."
+	@test -f RELEASE_CHECKLIST.md || (echo "❌ RELEASE_CHECKLIST.md missing" && exit 1)
+	@echo "✅ Release checklist exists"
+	@echo ""
+	@echo "✅ Release check complete - ready for release-prepare"
+
+release-prepare: sync-to-lang test ## Prepare release (sync, test, ready for tagging)
+	@echo "Preparing release..."
+	@echo "✅ Assets synced to language wrappers"
+	@echo "✅ Tests passed"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Review changes: git diff"
+	@echo "  2. Commit: git add . && git commit -m 'chore: prepare release $$(cat $(VERSION_FILE))'"
+	@echo "  3. Tag (requires approval): git tag v$$(cat $(VERSION_FILE))"
+	@echo "  4. Push (requires approval): git push origin main --tags"

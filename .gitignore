@@ -1,0 +1,8 @@
+# Build artifacts
+bin/
+dist/
+lang/*/dist/
+node_modules/
+
+# Planning files (agent session notes)
+.plans/
