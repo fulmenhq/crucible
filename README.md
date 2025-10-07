@@ -112,7 +112,7 @@ cp ../crucible/scripts/pull/crucible-pull.ts scripts/
 bun run scripts/crucible-pull.ts --schemas --docs
 ```
 
-**Full Integration Guide**: See [docs/guides/integration-guide.md](docs/guides/integration-guide.md)
+**Full Integration Guide**: See [docs/guides/integration-guide.md](docs/guides/integration-guide.md) (and for sync workflows, [Sync Consumers Guide](docs/guides/sync-consumers-guide.md)).
 
 ## What's Available
 
@@ -352,12 +352,16 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for deta
 
 ## Licensing
 
-Crucible uses a hybrid license model:
+Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete details.
 
-- Code (language wrappers and automation) is MIT-licensed.
-- Schemas, registries, documentation, and templates are dedicated to the public domain under CC0 1.0.
+**Trademarks**: "Fulmen" and "3 Leaps" are trademarks of 3 Leaps, LLC. While code is open source, please use distinct names for derivative works to prevent confusion.
 
-See `LICENSE` for details and https://github.com/3leaps/oss-policies for the 3 Leaps open-source policies that govern contributions and usage.
+### OSS Policies (Organization-wide)
+
+- Authoritative policies repository: https://github.com/3leaps/oss-policies/
+- Code of Conduct: https://github.com/3leaps/oss-policies/blob/main/CODE_OF_CONDUCT.md
+- Security Policy: https://github.com/3leaps/oss-policies/blob/main/SECURITY.md
+- Contributing Guide: https://github.com/3leaps/oss-policies/blob/main/CONTRIBUTING.md
 
 ## Status
 
@@ -369,15 +373,15 @@ Bootstrap phase. Schemas and standards under active development for FulmenHQ eco
 
 <div align="center">
 
-🔥 **Blueprints for Scale** 🔥
+⚡ **Start Fast. Thrive on Scale.** ⚡
 
 _Standards forge for the FulmenHQ ecosystem_
 
 <br><br>
 
-**Built with ⚡ by the 3 Leaps team** **Part of the [Fulmen Ecosystem](https://fulmenhq.dev) -
-Lightning-fast enterprise development**
+**Built with ⚡ by the 3 Leaps team**  
+**Part of the [Fulmen Ecosystem](https://fulmenhq.dev) - Lightning-fast enterprise development**
 
-**Bootstrap Release** • **Schema Standards** • **Single Source of Truth**
+**Initial Release** • **Schema Standards** • **Single Source of Truth**
 
 </div>

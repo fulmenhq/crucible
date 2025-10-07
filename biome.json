@@ -1,11 +1,18 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.5/schema.json",
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "ignoreUnknown": true
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
   },
   "linter": {
     "enabled": true,
@@ -42,41 +49,6 @@
       }
     }
   },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100,
-    "includes": [
-      "**",
-      "!**/*.md",
-      "!**/*.yml",
-      "!**/*.yaml"
-    ]
-  },
-  "files": {
-    "ignoreUnknown": true,
-    "includes": [
-      "**/scripts/**/*.ts",
-      "**/scripts/**/*.js",
-      "**/lang/typescript/src/**/*.ts",
-      "**/lang/typescript/src/**/*.js",
-      "**/*.config.{ts,js,mjs,cjs}",
-      "!**/.DS_Store",
-      "!**/*.log",
-      "!**/*.temp",
-      "!**/node_modules",
-      "!**/dist",
-      "!**/bin",
-      "!**/.plans",
-      "!**/*.gen.ts",
-      "!**/*.gen.js",
-      "!**/*.json",
-      "!**/*.md",
-      "!**/*.yaml",
-      "!**/*.yml"
-    ]
-  },
   "javascript": {
     "formatter": {
       "quoteStyle": "double",
@@ -92,13 +64,25 @@
   "overrides": [
     {
       "includes": [
-        "**/scripts/**/*.ts",
-        "**/scripts/**/*.js"
+        "scripts/**/*.ts",
+        "scripts/**/*.js"
       ],
       "linter": {
         "rules": {
           "suspicious": {
             "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "scripts/bootstrap-tools.ts"
+      ],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off"
           }
         }
       }

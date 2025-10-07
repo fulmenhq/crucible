@@ -1,7 +1,7 @@
-import { readFileSync, readdirSync, statSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import * as yaml from 'js-yaml';
+import { readdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import * as yaml from "js-yaml";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,21 +18,14 @@ export interface TerminalConfig {
   };
 }
 
-export function loadTerminalCatalog(
-  version: string = 'v1.0.0'
-): Map<string, TerminalConfig> {
+export function loadTerminalCatalog(version: string = "v1.0.0"): Map<string, TerminalConfig> {
   const catalog = new Map<string, TerminalConfig>();
-  const catalogPath = join(
-    __dirname,
-    '../schemas/terminal',
-    version,
-    'catalog'
-  );
+  const catalogPath = join(__dirname, "../schemas/terminal", version, "catalog");
 
-  const files = readdirSync(catalogPath).filter(f => f.endsWith('.yaml'));
+  const files = readdirSync(catalogPath).filter((f) => f.endsWith(".yaml"));
 
   for (const file of files) {
-    const content = readFileSync(join(catalogPath, file), 'utf-8');
+    const content = readFileSync(join(catalogPath, file), "utf-8");
     const config = yaml.load(content) as TerminalConfig;
     catalog.set(config.name, config);
   }
@@ -42,28 +35,25 @@ export function loadTerminalCatalog(
 
 export function getTerminalConfig(
   name: string,
-  version: string = 'v1.0.0'
+  version: string = "v1.0.0",
 ): TerminalConfig | undefined {
   const catalog = loadTerminalCatalog(version);
   return catalog.get(name);
 }
 
-export function getTerminalSchema(version: string = 'v1.0.0'): object {
-  const schemaPath = join(
-    __dirname,
-    '../schemas/terminal',
-    version,
-    'schema.json'
-  );
-  return JSON.parse(readFileSync(schemaPath, 'utf-8'));
+export function getTerminalSchema(version: string = "v1.0.0"): object {
+  const schemaPath = join(__dirname, "../schemas/terminal", version, "schema.json");
+  return JSON.parse(readFileSync(schemaPath, "utf-8"));
 }
 
 export function validateTerminalConfig(config: unknown): config is TerminalConfig {
-  const c = config as any;
+  if (typeof config !== "object" || config === null) {
+    return false;
+  }
+  const c = config as Record<string, unknown>;
   return (
-    typeof c === 'object' &&
-    typeof c.name === 'string' &&
-    typeof c.detection === 'object' &&
-    typeof c.overrides === 'object'
+    typeof c["name"] === "string" &&
+    typeof c["detection"] === "object" &&
+    typeof c["overrides"] === "object"
   );
 }

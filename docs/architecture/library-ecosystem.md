@@ -94,4 +94,5 @@ To keep imports clear:
 - [Crucible Sync Model](sync-model.md)
 - [Makefile Standard](../standards/makefile-standard.md)
 - [Fulmen Config Path Standard](../standards/config/fulmen-config-paths.md)
+- [Fulmen Helper Library Standard](fulmen-helper-library-standard.md)
 - [Observability Standards](../standards/observability/README.md)

@@ -45,7 +45,7 @@ $defs:
     properties:
       type:
         type: string
-        enum: [go, verify, download]
+        enum: [go, verify, download, link]
       module:
         type: string
         description: Go module path (for type=go).
@@ -65,6 +65,9 @@ $defs:
         type: string
         format: uri
         description: Remote artifact URL (for type=download).
+      source:
+        type: string
+        description: Local file path to copy from (for type=link).
       checksum:
         oneOf:
           - type: string

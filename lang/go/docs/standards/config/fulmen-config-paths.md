@@ -51,6 +51,10 @@ Ecosystem helpers SHOULD be provided:
 
 Language foundations MUST implement these defaults when XDG variables are absent.
 
+## Configuration Defaults in Crucible
+
+Crucible mirrors certain schema families with canonical defaults under the `config/` directory. For example, terminal overrides live at `config/terminal/v1.0.0/terminal-overrides-defaults.yaml`. Language foundations SHOULD embed these defaults as the first layer in their configuration stack.
+
 ## JSON Schema
 
 Tooling manifests referencing config locations SHOULD use the schema at `schemas/config/fulmen-ecosystem/v1.0.0/fulmen-config-paths.schema.json`.

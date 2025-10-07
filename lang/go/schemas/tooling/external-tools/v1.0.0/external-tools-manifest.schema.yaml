@@ -45,7 +45,7 @@ $defs:
     properties:
       type:
         type: string
-        enum: [go, verify, download]
+        enum: [go, verify, download, link]
       module:
         type: string
         description: Go module path (for type=go).
@@ -65,8 +65,19 @@ $defs:
         type: string
         format: uri
         description: Remote artifact URL (for type=download).
-      checksum:
+      source:
         type: string
-        pattern: '^[a-f0-9]{64}$'
-        description: Optional SHA-256 checksum (hex) for downloaded artifacts. Highly recommended for security.
+        description: Local file path to copy from (for type=link).
+      checksum:
+        oneOf:
+          - type: string
+            pattern: '^[a-f0-9]{64}$'
+            description: Single checksum for all platforms
+          - type: object
+            patternProperties:
+              '^(darwin|linux|windows)-(amd64|arm64)$':
+                type: string
+                pattern: '^[a-f0-9]{64}$'
+            description: Platform-specific checksums keyed by os-arch
+        description: SHA-256 checksum(s) (hex) for downloaded artifacts. Highly recommended for security. Use object form for platform-specific binaries.
     additionalProperties: false

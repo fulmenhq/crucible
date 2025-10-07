@@ -15,10 +15,10 @@
  * Designed to be copied and adapted for your repository's needs.
  */
 
-import { parseArgs } from "util";
-import { mkdirSync, writeFileSync, readFileSync, existsSync } from "fs";
-import { join } from "path";
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { parseArgs } from "node:util";
 
 interface PullOptions {
   version?: string;
@@ -91,16 +91,12 @@ async function main() {
     schemas: parseInclude(args.values.schemas, config.include?.schemas),
     docs: parseInclude(args.values.docs, config.include?.docs),
     templates: parseInclude(args.values.templates, config.include?.templates),
-    force: args.values.force || false,
-    dryRun: args.values["dry-run"] || false,
+    force: args.values.force,
+    dryRun: args.values["dry-run"],
     gitignore: args.values.gitignore ?? config.gitignore ?? true,
   };
 
-  if (
-    !options.schemas &&
-    !options.docs &&
-    !options.templates
-  ) {
+  if (!(options.schemas || options.docs || options.templates)) {
     options.schemas = true;
     options.docs = true;
     options.templates = true;
@@ -116,7 +112,7 @@ async function main() {
       options.templates && "templates",
     ]
       .filter(Boolean)
-      .join(", ")}`
+      .join(", ")}`,
   );
 
   if (options.dryRun) {
@@ -130,7 +126,7 @@ async function main() {
 
 function parseInclude(
   argValues: string[] | undefined,
-  configValues: string[] | undefined
+  configValues: string[] | undefined,
 ): boolean | string[] {
   if (argValues && argValues.length > 0) {
     return argValues;
@@ -157,10 +153,9 @@ async function pullCrucible(options: PullOptions) {
         cloneRef = `v${options.version}`;
       }
 
-      execSync(
-        `git clone --depth 1 --branch ${cloneRef} ${CRUCIBLE_REPO} ${tmpDir}`,
-        { stdio: "inherit" }
-      );
+      execSync(`git clone --depth 1 --branch ${cloneRef} ${CRUCIBLE_REPO} ${tmpDir}`, {
+        stdio: "inherit",
+      });
     }
 
     if (options.schemas) {
@@ -169,18 +164,12 @@ async function pullCrucible(options: PullOptions) {
         options.output,
         "schemas",
         options.schemas,
-        options.dryRun
+        options.dryRun ?? false,
       );
     }
 
     if (options.docs) {
-      await syncDirectory(
-        tmpDir,
-        options.output,
-        "docs",
-        options.docs,
-        options.dryRun
-      );
+      await syncDirectory(tmpDir, options.output, "docs", options.docs, options.dryRun ?? false);
     }
 
     if (options.templates) {
@@ -189,7 +178,7 @@ async function pullCrucible(options: PullOptions) {
         options.output,
         "templates",
         options.templates,
-        options.dryRun
+        options.dryRun ?? false,
       );
     }
 
@@ -199,9 +188,7 @@ async function pullCrucible(options: PullOptions) {
 
     if (!options.dryRun) {
       const versionFile = join(options.output, ".crucible-version");
-      const version = options.version === "latest"
-        ? readVersionFromRepo(tmpDir)
-        : options.version;
+      const version = options.version === "latest" ? readVersionFromRepo(tmpDir) : options.version;
       writeFileSync(versionFile, `${version}\n`);
       console.log(`📝 Wrote version: ${version}`);
     }
@@ -218,7 +205,7 @@ async function syncDirectory(
   outputRoot: string,
   dirName: string,
   include: boolean | string[],
-  dryRun: boolean
+  dryRun: boolean,
 ) {
   const sourcePath = join(sourceRoot, dirName);
   const outputPath = join(outputRoot, dirName);
@@ -241,7 +228,7 @@ async function syncDirectory(
     for (const item of include) {
       const itemPath = join(sourcePath, item);
       const itemOutput = join(outputPath, item);
-  
+
       if (!existsSync(itemPath)) {
         console.warn(`   ⚠️  ${item} not found, skipping`);
         continue;

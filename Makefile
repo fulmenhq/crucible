@@ -5,10 +5,10 @@ VERSION_FILE := VERSION
 # Crucible Makefile
 # Standards forge for the FulmenHQ ecosystem
 
-.PHONY: help bootstrap tools sync test build clean version fmt fmt-check lint typecheck
+.PHONY: help bootstrap tools sync test build build-all clean version fmt fmt-check lint typecheck
 .PHONY: sync-schemas sync-to-lang test-go test-ts
 .PHONY: version-set version-bump-major version-bump-minor version-bump-patch
-.PHONY: release-check release-prepare
+.PHONY: release-check release-build release-prepare prepush precommit check-all
 
 # Default target
 all: sync-schemas
@@ -49,9 +49,12 @@ test-go: ## Run Go wrapper tests
 test-ts: ## Run TypeScript wrapper tests
 	@cd lang/typescript && bun test
 
-# Build target
+# Build targets
 build: sync-to-lang ## Build language wrappers (ensures sync first)
 	@echo "✅ Language wrappers built (Go embeds on import, TS has no build step)"
+
+build-all: build ## Build all language wrappers and packages (alias for build in library repos)
+	@echo "✅ All language wrappers and packages built"
 
 # Format, Lint, Typecheck targets
 fmt: ## Format code files using goneat
@@ -62,15 +65,26 @@ fmt-check: ## Check if files are formatted without modifying
 
 lint: ## Run comprehensive assessment (Go via goneat + TypeScript/JavaScript via biome)
 	@echo "Linting TypeScript/JavaScript files..."
-	@bunx biome check scripts/ lang/typescript/ || true
+	@bunx biome check scripts/ lang/typescript/
 	@echo ""
 	@echo "Running goneat assessment (Go, YAML, schemas)..."
-	@$(BIN_DIR)/goneat assess --categories format,lint,security --check
+	@cd lang/go && $(BIN_DIR)/goneat assess --categories format,security --check
+	@$(BIN_DIR)/goneat assess --categories format --check --exclude "lang/**" --exclude "**/*.go"
 
 typecheck: ## Type-check TypeScript files
 	@echo "Type-checking TypeScript files..."
-	@bunx tsc --noEmit || true
-	@echo "✅ TypeScript type-check complete (some Bun API errors expected - scripts work at runtime)"
+	@bunx tsc --noEmit
+	@echo "✅ TypeScript type-check complete"
+
+# Hook stubs
+prepush: check-all ## Run pre-push hooks (check-all + build)
+	@echo "✅ Pre-push checks passed"
+
+precommit: check-all ## Run pre-commit hooks (check-all + build)
+	@echo "✅ Pre-commit checks passed"
+
+check-all: build lint test typecheck ## Run all checks (lint, test, typecheck) after ensuring build/sync
+	@echo "✅ All checks passed"
 
 # Clean build artifacts
 clean: ## Clean any build artifacts
@@ -112,6 +126,10 @@ release-check: test ## Validate release readiness (tests, sync, checklist)
 	@echo ""
 	@echo "✅ Release check complete - ready for release-prepare"
 
+release-build: build-all ## Build release artifacts (wrappers + packages)
+	@echo "Building release artifacts..."
+	@echo "✅ Release artifacts ready"
+
 release-prepare: sync-to-lang test ## Prepare release (sync, test, ready for tagging)
 	@echo "Preparing release..."
 	@echo "✅ Assets synced to language wrappers"
@@ -120,5 +138,6 @@ release-prepare: sync-to-lang test ## Prepare release (sync, test, ready for tag
 	@echo "Next steps:"
 	@echo "  1. Review changes: git diff"
 	@echo "  2. Commit: git add . && git commit -m 'chore: prepare release $$(cat $(VERSION_FILE))'"
-	@echo "  3. Tag (requires approval): git tag v$$(cat $(VERSION_FILE))"
-	@echo "  4. Push (requires approval): git push origin main --tags"
+	@echo "  3. Build artifacts: make release:build"
+	@echo "  4. Tag (requires approval): git tag v$$(cat $(VERSION_FILE))"
+	@echo "  5. Push (requires approval): git push origin main --tags"

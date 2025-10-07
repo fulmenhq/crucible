@@ -8,9 +8,9 @@
  *   bun run scripts/bootstrap-tools.ts --verify [--manifest path]
  */
 
-import { parseArgs } from "util";
-import { existsSync, mkdirSync, readFileSync } from "fs";
-import { resolve, join } from "path";
+import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { parseArgs } from "node:util";
 import { load as parseYaml } from "js-yaml";
 
 interface ToolManifest {
@@ -27,13 +27,14 @@ interface ToolDefinition {
 }
 
 interface InstallDefinition {
-  type: "go" | "verify" | "download";
+  type: "go" | "verify" | "download" | "link";
   module?: string;
   version?: string;
   binName?: string;
   destination?: string;
   command?: string;
   url?: string;
+  source?: string;
   checksum?: string | Record<string, string>;
 }
 
@@ -54,7 +55,7 @@ if (args.values.help) {
   process.exit(0);
 }
 
-const manifestPath = resolve(args.values.manifest);
+const manifestPath = resolveManifestPath(args.values.manifest ?? ".crucible/tools.yaml");
 const mode = args.values.install ? "install" : args.values.verify ? "verify" : "verify";
 
 const manifest = loadManifest(manifestPath);
@@ -78,6 +79,16 @@ const defaultBinDir = resolve(manifest.binDir ?? "bin");
   console.log(`✅ External tools ${mode === "install" ? "installed" : "verified"} successfully.`);
 })();
 
+function resolveManifestPath(manifest: string): string {
+  const resolved = resolve(manifest);
+  const localCandidate = resolved.replace(/\.(ya?ml)$/i, ".local.yaml");
+  if (localCandidate !== resolved && existsSync(localCandidate)) {
+    console.log(`ℹ️  Using local tool manifest override: ${localCandidate}`);
+    return localCandidate;
+  }
+  return resolved;
+}
+
 function loadManifest(path: string): ToolManifest {
   if (!existsSync(path)) {
     console.error(`Manifest not found: ${path}`);
@@ -85,36 +96,54 @@ function loadManifest(path: string): ToolManifest {
   }
   const text = readFileSync(path, "utf-8");
   const data = parseYaml(text) as ToolManifest;
-  if (!data || !Array.isArray(data.tools)) {
+  if (!(data && Array.isArray(data.tools))) {
     console.error(`Invalid manifest: ${path}`);
     process.exit(1);
   }
   return data;
 }
 
-async function handleTool(tool: ToolDefinition, mode: "install" | "verify", force: boolean): Promise<boolean> {
+async function handleTool(
+  tool: ToolDefinition,
+  mode: "install" | "verify",
+  force: boolean,
+): Promise<boolean> {
   switch (tool.install.type) {
     case "go":
       if (mode === "install") {
         return await installGoTool(tool, force);
       }
-      return verifyBinary(tool.install.binName ?? tool.id, resolveDirectory(tool.install.destination));
+      return verifyBinary(
+        tool.install.binName ?? tool.id,
+        resolveDirectory(tool.install.destination),
+      );
     case "verify":
       return verifyCommand(tool.install.command ?? tool.id, tool.required !== false);
     case "download":
       if (mode === "install") {
         return await installDownloadTool(tool, force);
       }
-      return verifyBinary(tool.install.binName ?? tool.id, resolveDirectory(tool.install.destination));
+      return verifyBinary(
+        tool.install.binName ?? tool.id,
+        resolveDirectory(tool.install.destination),
+      );
+    case "link":
+      if (mode === "install") {
+        return await installLinkTool(tool, force);
+      }
+      return verifyBinary(
+        tool.install.binName ?? tool.id,
+        resolveDirectory(tool.install.destination),
+      );
     default:
-      console.error(`Unknown install type '${(tool.install as any).type}' for tool ${tool.id}`);
+      console.error(`Unknown install type '${tool.install.type as string}' for tool ${tool.id}`);
       return false;
   }
 }
 
 async function installGoTool(tool: ToolDefinition, force: boolean): Promise<boolean> {
   const install = tool.install;
-  if (!install.module || !install.version) {
+  if (!(install.module && install.version)) {
     console.error(`Tool ${tool.id}: go installer requires 'module' and 'version'.`);
     return false;
   }
@@ -173,7 +202,7 @@ async function installDownloadTool(tool: ToolDefinition, force: boolean): Promis
     .replace(/\{\{platform\}\}/g, getPlatformOS());
 
   console.log(`• Downloading ${tool.id} from ${resolvedUrl}`);
-  
+
   try {
     const response = await fetch(resolvedUrl);
     if (!response.ok) {
@@ -199,11 +228,11 @@ async function installDownloadTool(tool: ToolDefinition, force: boolean): Promis
 
     // Verify checksum if available
     if (expectedChecksum) {
-      const crypto = await import("crypto");
+      const crypto = await import("node:crypto");
       const hash = crypto.createHash("sha256");
       hash.update(buffer);
       const actualChecksum = hash.digest("hex");
-  
+
       if (actualChecksum !== expectedChecksum) {
         console.error(`Tool ${tool.id}: checksum mismatch!`);
         console.error(`  Expected: ${expectedChecksum}`);
@@ -218,22 +247,22 @@ async function installDownloadTool(tool: ToolDefinition, force: boolean): Promis
       console.log(`  ✓ Extracting tar.gz archive...`);
       const tempArchive = join(destination, `${binName}.tar.gz`);
       await Bun.write(tempArchive, buffer);
-  
+
       // Extract using tar
       const tar = Bun.spawn({
         cmd: ["tar", "-xzf", tempArchive, "-C", destination],
         stdio: ["inherit", "pipe", "pipe"],
       });
       const tarStatus = await tar.exited;
-  
+
       // Clean up archive
       await Bun.spawn({ cmd: ["rm", tempArchive] }).exited;
-  
+
       if (tarStatus !== 0) {
         console.error(`Tool ${tool.id}: tar extraction failed`);
         return false;
       }
-  
+
       // Binary should now exist
       if (!existsSync(binaryPath)) {
         console.error(`Tool ${tool.id}: expected binary not found after extraction: ${binaryPath}`);
@@ -247,13 +276,13 @@ async function installDownloadTool(tool: ToolDefinition, force: boolean): Promis
         stdout: "pipe",
         stderr: "pipe",
       });
-  
+
       gunzip.stdin.write(buffer);
       gunzip.stdin.end();
-  
+
       const decompressed = await new Response(gunzip.stdout).arrayBuffer();
       await Bun.write(binaryPath, Buffer.from(decompressed));
-  
+
       const gunzipStatus = await gunzip.exited;
       if (gunzipStatus !== 0) {
         console.error(`Tool ${tool.id}: gunzip decompression failed`);
@@ -263,7 +292,7 @@ async function installDownloadTool(tool: ToolDefinition, force: boolean): Promis
       // Write raw binary
       await Bun.write(binaryPath, buffer);
     }
-  
+
     // Make executable (Unix-like systems)
     if (process.platform !== "win32") {
       await Bun.spawn({
@@ -275,25 +304,81 @@ async function installDownloadTool(tool: ToolDefinition, force: boolean): Promis
     console.log(`  → installed to ${binaryPath}`);
     return true;
   } catch (error) {
-    console.error(`Tool ${tool.id}: download failed:`, error instanceof Error ? error.message : String(error));
+    console.error(
+      `Tool ${tool.id}: download failed:`,
+      error instanceof Error ? error.message : String(error),
+    );
+    return false;
+  }
+}
+
+async function installLinkTool(tool: ToolDefinition, force: boolean): Promise<boolean> {
+  const install = tool.install;
+  if (!install.source) {
+    console.error(`Tool ${tool.id}: link installer requires 'source'.`);
+    return false;
+  }
+
+  const sourcePath = resolve(install.source);
+  if (!existsSync(sourcePath)) {
+    console.error(`Tool ${tool.id}: link source not found at ${sourcePath}.`);
+    return false;
+  }
+
+  const destination = resolveDirectory(install.destination);
+  mkdirSync(destination, { recursive: true });
+
+  const ext = process.platform === "win32" ? ".exe" : "";
+  const binName = install.binName ?? tool.id;
+  const hasExt = ext ? binName.endsWith(ext) : true;
+  const targetName = hasExt ? binName : `${binName}${ext}`;
+  const targetPath = join(destination, targetName);
+
+  if (!force && existsSync(targetPath)) {
+    console.log(`• ${tool.id}: found existing binary at ${targetPath}, skipping.`);
+    return true;
+  }
+
+  try {
+    copyFileSync(sourcePath, targetPath);
+    if (process.platform !== "win32") {
+      await Bun.spawn({
+        cmd: ["chmod", "+x", targetPath],
+        stdio: ["inherit", "inherit", "inherit"],
+      }).exited;
+    }
+    console.log(`  → linked from ${sourcePath} to ${targetPath}`);
+    return true;
+  } catch (error) {
+    console.error(
+      `Tool ${tool.id}: failed to link binary:`,
+      error instanceof Error ? error.message : String(error),
+    );
     return false;
   }
 }
 
 function getPlatformOS(): string {
   switch (process.platform) {
-    case "darwin": return "darwin";
-    case "linux": return "linux";
-    case "win32": return "windows";
-    default: return process.platform;
+    case "darwin":
+      return "darwin";
+    case "linux":
+      return "linux";
+    case "win32":
+      return "windows";
+    default:
+      return process.platform;
   }
 }
 
 function getPlatformArch(): string {
   switch (process.arch) {
-    case "x64": return "amd64";
-    case "arm64": return "arm64";
-    default: return process.arch;
+    case "x64":
+      return "amd64";
+    case "arm64":
+      return "arm64";
+    default:
+      return process.arch;
   }
 }
 
@@ -339,15 +424,16 @@ function verifyCommand(command: string, required: boolean): boolean {
     console.error(message);
     return false;
   }
-  console.warn(message + " (optional)");
+  console.warn(`${message} (optional)`);
   return true;
 }
 
 function commandExists(command: string): string | null {
   const check = Bun.spawnSync({
-    cmd: process.platform === "win32"
-      ? ["where", command]
-      : ["bash", "-lc", `command -v "${command}"`],
+    cmd:
+      process.platform === "win32"
+        ? ["where", command]
+        : ["bash", "-lc", `command -v "${command}"`],
   });
   if (check.exitCode === 0) {
     return check.stdout.toString().trim();

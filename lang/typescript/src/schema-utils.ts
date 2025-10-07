@@ -1,14 +1,14 @@
-import { load as parseYaml } from 'js-yaml';
+import { load as parseYaml } from "js-yaml";
 
 /**
  * Canonically sort object keys to produce stable JSON output.
  */
 function canonicalize(value: unknown): unknown {
   if (Array.isArray(value)) {
-    return value.map(item => canonicalize(item));
+    return value.map((item) => canonicalize(item));
   }
 
-  if (value && typeof value === 'object') {
+  if (value && typeof value === "object") {
     if (value instanceof Map) {
       const sortedEntries = Array.from(value.entries())
         .map(([key, val]) => [key, canonicalize(val)] as [string, unknown])
@@ -28,13 +28,13 @@ function canonicalize(value: unknown): unknown {
 }
 
 function toStringInput(input: string | Buffer | Uint8Array): string {
-  if (typeof input === 'string') {
+  if (typeof input === "string") {
     return input;
   }
   if (Buffer.isBuffer(input)) {
-    return input.toString('utf-8');
+    return input.toString("utf-8");
   }
-  return Buffer.from(input).toString('utf-8');
+  return Buffer.from(input).toString("utf-8");
 }
 
 export interface SchemaNormalizationOptions {
@@ -53,11 +53,11 @@ export interface SchemaComparisonResult {
  */
 export function normalizeSchema(
   input: string | Buffer | Uint8Array,
-  options: SchemaNormalizationOptions = {}
+  options: SchemaNormalizationOptions = {},
 ): string {
   const raw = toStringInput(input).trim();
   if (!raw) {
-    throw new Error('Schema content is empty');
+    throw new Error("Schema content is empty");
   }
 
   const parsed = parseYaml(raw, { json: true });
@@ -72,7 +72,7 @@ export function normalizeSchema(
 export function compareSchemas(
   schemaA: string | Buffer | Uint8Array,
   schemaB: string | Buffer | Uint8Array,
-  options: SchemaNormalizationOptions = {}
+  options: SchemaNormalizationOptions = {},
 ): SchemaComparisonResult {
   const normalizedA = normalizeSchema(schemaA, options);
   const normalizedB = normalizeSchema(schemaB, options);
@@ -80,6 +80,6 @@ export function compareSchemas(
   return {
     equal: normalizedA === normalizedB,
     normalizedA,
-    normalizedB
+    normalizedB,
   };
 }

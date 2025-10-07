@@ -1,17 +1,17 @@
-import { readFileSync, readdirSync, statSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-import { load as parseYaml } from 'js-yaml';
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { load as parseYaml } from "js-yaml";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const SCHEMAS_ROOT = join(__dirname, '../schemas');
-const DOCS_ROOT = join(__dirname, '../docs');
+const SCHEMAS_ROOT = join(__dirname, "../schemas");
+const DOCS_ROOT = join(__dirname, "../docs");
 
-export const VERSION = '2025.10.0';
+export const VERSION = "2025.10.0";
 
-export interface TerminalConfig {
+export interface TerminalCatalogConfig {
   name: string;
   detection: {
     env?: Record<string, string>;
@@ -25,29 +25,29 @@ export interface TerminalConfig {
 
 class TerminalSchemas {
   v1_0_0(): object {
-    const path = join(SCHEMAS_ROOT, 'terminal/v1.0.0/schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "terminal/v1.0.0/schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 
-  catalog(): Map<string, TerminalConfig> {
-    const catalogPath = join(SCHEMAS_ROOT, 'terminal/v1.0.0/catalog');
-    const configs = new Map<string, TerminalConfig>();
-  
+  catalog(): Map<string, TerminalCatalogConfig> {
+    const catalogPath = join(SCHEMAS_ROOT, "terminal/v1.0.0/catalog");
+    const configs = new Map<string, TerminalCatalogConfig>();
+
     const files = readdirSync(catalogPath);
-  
+
     for (const file of files) {
       const filePath = join(catalogPath, file);
       if (statSync(filePath).isFile()) {
-        const content = readFileSync(filePath, 'utf-8');
-        const config = this.parseYAML(content) as TerminalConfig;
+        const content = readFileSync(filePath, "utf-8");
+        const config = this.parseYAML(content) as TerminalCatalogConfig;
         configs.set(config.name, config);
       }
     }
-  
+
     return configs;
   }
 
-  private parseYAML(content: string): any {
+  private parseYAML(content: string): unknown {
     try {
       return parseYaml(content, { json: true });
     } catch (e) {
@@ -58,33 +58,33 @@ class TerminalSchemas {
 
 class PathfinderSchemasV1 {
   findQuery(): object {
-    const path = join(SCHEMAS_ROOT, 'pathfinder/v1.0.0/find-query.schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "pathfinder/v1.0.0/find-query.schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 
   finderConfig(): object {
-    const path = join(SCHEMAS_ROOT, 'pathfinder/v1.0.0/finder-config.schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "pathfinder/v1.0.0/finder-config.schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 
   pathResult(): object {
-    const path = join(SCHEMAS_ROOT, 'pathfinder/v1.0.0/path-result.schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "pathfinder/v1.0.0/path-result.schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 
   errorResponse(): object {
-    const path = join(SCHEMAS_ROOT, 'pathfinder/v1.0.0/error-response.schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "pathfinder/v1.0.0/error-response.schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 
   metadata(): object {
-    const path = join(SCHEMAS_ROOT, 'pathfinder/v1.0.0/metadata.schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "pathfinder/v1.0.0/metadata.schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 
   pathConstraint(): object {
-    const path = join(SCHEMAS_ROOT, 'pathfinder/v1.0.0/path-constraint.schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "pathfinder/v1.0.0/path-constraint.schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 }
 
@@ -96,13 +96,13 @@ class PathfinderSchemas {
 
 class ASCIISchemasV1 {
   stringAnalysis(): object {
-    const path = join(SCHEMAS_ROOT, 'ascii/v1.0.0/string-analysis.schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "ascii/v1.0.0/string-analysis.schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 
   boxChars(): object {
-    const path = join(SCHEMAS_ROOT, 'ascii/v1.0.0/box-chars.schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "ascii/v1.0.0/box-chars.schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 }
 
@@ -114,13 +114,13 @@ class ASCIISchemas {
 
 class SchemaValidationSchemasV1 {
   validatorConfig(): object {
-    const path = join(SCHEMAS_ROOT, 'schema-validation/v1.0.0/validator-config.schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "schema-validation/v1.0.0/validator-config.schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 
   schemaRegistry(): object {
-    const path = join(SCHEMAS_ROOT, 'schema-validation/v1.0.0/schema-registry.schema.json');
-    return JSON.parse(readFileSync(path, 'utf-8'));
+    const path = join(SCHEMAS_ROOT, "schema-validation/v1.0.0/schema-registry.schema.json");
+    return JSON.parse(readFileSync(path, "utf-8"));
   }
 }
 
@@ -152,13 +152,13 @@ export const schemas = new SchemasRegistry();
 
 class CodingStandards {
   go(): string {
-    const path = join(DOCS_ROOT, 'standards/coding/go.md');
-    return readFileSync(path, 'utf-8');
+    const path = join(DOCS_ROOT, "standards/coding/go.md");
+    return readFileSync(path, "utf-8");
   }
 
   typescript(): string {
-    const path = join(DOCS_ROOT, 'standards/coding/typescript.md');
-    return readFileSync(path, 'utf-8');
+    const path = join(DOCS_ROOT, "standards/coding/typescript.md");
+    return readFileSync(path, "utf-8");
   }
 }
 
@@ -172,12 +172,12 @@ export const standards = new StandardsRegistry();
 
 export function getSchema(schemaPath: string): object {
   const fullPath = join(SCHEMAS_ROOT, schemaPath);
-  return JSON.parse(readFileSync(fullPath, 'utf-8'));
+  return JSON.parse(readFileSync(fullPath, "utf-8"));
 }
 
 export function getDoc(docPath: string): string {
   const fullPath = join(DOCS_ROOT, docPath);
-  return readFileSync(fullPath, 'utf-8');
+  return readFileSync(fullPath, "utf-8");
 }
 
 export function listSchemas(basePath: string): string[] {

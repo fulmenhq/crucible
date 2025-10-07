@@ -16,6 +16,7 @@ standards/
 ├── repository-versioning.md     # Version management strategies
 ├── schema-normalization.md      # Canonical schema comparison utilities
 ├── release-checklist-standard.md # Release checklist template + usage guidance
+├── repository-safety-framework.md # Universal repository safety requirements
 ├── makefile-standard.md         # Required make targets & automation contract
 └── coding/                      # Language-specific coding standards
     ├── go.md                   # Go coding standards

@@ -6,3 +6,4 @@ node_modules/
 
 # Planning files (agent session notes)
 .plans/
+.crucible/tools.local.yaml

@@ -14,6 +14,8 @@ This guide explains how to integrate Crucible into your project for production u
 
 ## Quick Start by Use Case
 
+Before diving into use cases, make sure you are familiar with the sync workflows documented in the [Sync Consumers Guide](sync-consumers-guide.md) (and, if you publish SSOT assets, the [Sync Producers Guide](sync-producers-guide.md)).
+
 ### I'm Building a Library/Tool (Go or TypeScript)
 
 **Use**: Published packages  
@@ -23,8 +25,8 @@ This guide explains how to integrate Crucible into your project for production u
 
 ### I'm Building a Fulmen Template
 
-**Use**: Pull scripts  
-**Why**: Need to vendor templates and docs
+**Use**: FulDX sync  
+**Why**: Need to vendor schemas/docs/config defaults
 
 → See [Template Integration](#template-integration)
 
@@ -150,52 +152,61 @@ console.log("Crucible version:", VERSION);
 
 ## Template Integration
 
-For Fulmen templates or projects that need to vendor schemas/docs:
+For Fulmen templates or projects that need to vendor schemas/docs/config defaults we recommend using **FulDX**.
 
-**1. Copy pull script:**
-
-```bash
-cp ../crucible/scripts/pull/crucible-pull.ts scripts/
-```
-
-**2. Create sync config:**
-
-```json
-{
-  "version": "2025.10.0",
-  "output": ".crucible",
-  "include": {
-    "schemas": ["pathfinder", "ascii"],
-    "docs": ["standards/coding"],
-    "templates": []
-  },
-  "gitignore": true
-}
-```
-
-Save as `.crucible-sync.json`
-
-**3. Pull assets:**
+1. **Install FulDX (tool bootstrap)**
 
 ```bash
-bun run scripts/crucible-pull.ts --config=.crucible-sync.json
+make bootstrap   # installs ./bin/fuldx via .crucible/tools.yaml
 ```
 
-**4. Use pulled assets:**
+2. **Create a sync manifest** (`.fuldx/sync-consumer.yaml` is a common location):
+
+```yaml
+version: "2025.10.0"
+sources:
+  - id: crucible.schemas.pathfinder
+    include:
+      - v1.0.0/*.schema.json
+    output: .crucible/schemas/pathfinder
+  - id: crucible.docs
+    include:
+      - guides/**/*.md
+    output: docs/crucible
+  - id: crucible.config.terminal
+    include:
+      - v1.0.0/terminal-overrides-defaults.yaml
+    output: config/crucible
+```
+
+Manifest schema: `schemas/config/sync-consumer-config.yaml`. Recommended keys are published in `config/sync/sync-keys.yaml`.
+
+3. **Pull assets**
+
+```bash
+./bin/fuldx sync pull --manifest .fuldx/sync-consumer.yaml
+```
+
+FulDX will validate and download assets into the specified output directories (future releases add automatic schema validation).
+
+4. **Use pulled assets**
 
 ```typescript
 import { readFileSync } from "fs";
 import { join } from "path";
 
-// Load schema from pulled assets
-const schemaPath = join(
-  __dirname,
-  "../.crucible/schemas/pathfinder/v1.0.0/find-query.schema.json",
+const schema = JSON.parse(
+  readFileSync(
+    join(
+      process.cwd(),
+      ".crucible/schemas/pathfinder/v1.0.0/find-query.schema.json",
+    ),
+    "utf-8",
+  ),
 );
-const schema = JSON.parse(readFileSync(schemaPath, "utf-8"));
 ```
 
-See [Sync Strategy Guide](sync-strategy.md) for more details.
+See the [Sync Consumers Guide](sync-consumers-guide.md) for additional patterns and the [Sync Producers Guide](sync-producers-guide.md) if you are publishing new SSOT assets.
 
 ## Development Workflow
 

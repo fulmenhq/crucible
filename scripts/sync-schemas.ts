@@ -9,8 +9,8 @@
  *   bun run scripts/sync-schemas.ts
  */
 
-import { mkdirSync, writeFileSync } from "fs";
-import { join } from "path";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 const ROOT = join(import.meta.dir, "..");
 const META_DIR = join(ROOT, "schemas/meta");
@@ -74,37 +74,37 @@ const VOCABULARIES: MetaSchema[] = [
 
 async function main() {
   console.log("📥 Fetching JSON Schema meta-schemas...");
-  
+
   // Create directories
   mkdirSync(join(META_DIR, "draft-07"), { recursive: true });
   mkdirSync(join(META_DIR, "draft-2020-12/meta"), { recursive: true });
-  
+
   // Fetch main schemas
   for (const schema of SCHEMAS) {
     await fetchSchema(schema);
   }
-  
+
   // Fetch vocabularies
   for (const vocab of VOCABULARIES) {
     await fetchVocabulary(vocab);
   }
-  
+
   console.log(`✅ Synced meta-schemas to ${META_DIR}`);
 }
 
 async function fetchSchema(schema: MetaSchema) {
   console.log(`📄 Fetching ${schema.name}...`);
-  
+
   try {
     const response = await fetch(schema.url);
-  
+
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-  
+
     const content = await response.text();
     const outputPath = join(META_DIR, schema.path);
-  
+
     writeFileSync(outputPath, content);
     console.log(`   ✓ Saved to ${schema.path}`);
   } catch (error) {
@@ -115,21 +115,21 @@ async function fetchSchema(schema: MetaSchema) {
 
 async function fetchVocabulary(vocab: MetaSchema) {
   console.log(`📄 Fetching ${vocab.name} vocabulary...`);
-  
+
   try {
     const response = await fetch(vocab.url);
-  
+
     if (!response.ok) {
       console.warn(`   ⚠️  Failed to fetch ${vocab.name}: HTTP ${response.status}`);
       return;
     }
-  
+
     const content = await response.text();
     const outputPath = join(META_DIR, vocab.path);
-  
+
     writeFileSync(outputPath, content);
     console.log(`   ✓ Saved ${vocab.name} vocabulary`);
-  } catch (error) {
+  } catch (_error) {
     console.warn(`   ⚠️  Warning: failed to download ${vocab.url}`);
   }
 }

@@ -11,10 +11,9 @@
  *   bun run scripts/sync-to-lang.ts --dry-run
  */
 
-import { parseArgs } from "util";
-import { existsSync, cpSync, rmSync } from "fs";
-import { join } from "path";
-import { execSync } from "child_process";
+import { cpSync, existsSync, readdirSync, rmSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { parseArgs } from "node:util";
 
 interface SyncOptions {
   dryRun: boolean;
@@ -40,12 +39,12 @@ async function main() {
   }
 
   const options: SyncOptions = {
-    dryRun: args.values["dry-run"] || false,
-    verbose: args.values.verbose || false,
+    dryRun: args.values["dry-run"],
+    verbose: args.values.verbose,
   };
 
   console.log("🔄 Syncing root assets to language wrappers...");
-  
+
   if (options.dryRun) {
     console.log("🔍 DRY RUN - no files will be modified");
   }
@@ -64,73 +63,48 @@ async function main() {
 
 async function syncToGo(options: SyncOptions) {
   console.log("📦 Go wrapper...");
-  
+
   const goRoot = join(ROOT, "lang/go");
-  
-  await syncDirectory(
-    join(ROOT, "schemas"),
-    join(goRoot, "schemas"),
-    "schemas/",
-    options
-  );
-  
-  await syncDirectory(
-    join(ROOT, "docs"),
-    join(goRoot, "docs"),
-    "docs/",
-    options
-  );
+
+  await syncDirectory(join(ROOT, "schemas"), join(goRoot, "schemas"), "schemas/", options);
+
+  await syncDirectory(join(ROOT, "docs"), join(goRoot, "docs"), "docs/", options);
 }
 
 async function syncToTypeScript(options: SyncOptions) {
   console.log("📦 TypeScript wrapper...");
-  
+
   const tsRoot = join(ROOT, "lang/typescript");
-  
-  await syncDirectory(
-    join(ROOT, "schemas"),
-    join(tsRoot, "schemas"),
-    "schemas/",
-    options
-  );
-  
-  await syncDirectory(
-    join(ROOT, "docs"),
-    join(tsRoot, "docs"),
-    "docs/",
-    options
-  );
+
+  await syncDirectory(join(ROOT, "schemas"), join(tsRoot, "schemas"), "schemas/", options);
+
+  await syncDirectory(join(ROOT, "docs"), join(tsRoot, "docs"), "docs/", options);
 }
 
-async function syncDirectory(
-  source: string,
-  dest: string,
-  label: string,
-  options: SyncOptions
-) {
+async function syncDirectory(source: string, dest: string, label: string, options: SyncOptions) {
   console.log(`   ${label} → ${dest}`);
-  
+
   if (options.dryRun) {
     console.log(`   [DRY RUN] Would sync ${source} to ${dest}`);
     return;
   }
-  
+
   if (!existsSync(source)) {
     console.error(`   ❌ Source not found: ${source}`);
     process.exit(1);
   }
-  
+
   // Remove destination to ensure clean sync
   if (existsSync(dest)) {
     rmSync(dest, { recursive: true, force: true });
   }
-  
+
   // Copy with recursive and force options
   cpSync(source, dest, {
     recursive: true,
     force: true,
   });
-  
+
   if (options.verbose) {
     const fileCount = countFiles(dest);
     console.log(`   ✓ Synced ${fileCount} files`);
@@ -139,24 +113,24 @@ async function syncDirectory(
 
 function countFiles(dir: string): number {
   let count = 0;
-  
+
   try {
-    const files = Bun.readdir(dir);
-  
+    const files = readdirSync(dir);
+
     for (const file of files) {
       const fullPath = join(dir, file);
-      const stat = Bun.file(fullPath).stat();
-  
+      const stat = statSync(fullPath);
+
       if (stat.isDirectory()) {
         count += countFiles(fullPath);
       } else {
         count++;
       }
     }
-  } catch (e) {
+  } catch (_e) {
     // Ignore errors
   }
-  
+
   return count;
 }
 
