@@ -1,14 +1,10 @@
 {
   "name": "@fulmenhq/crucible",
-  "version": "2025.10.0",
+  "version": "2025.10.1",
   "description": "Crucible - Where Scale is Forged. Standards and schemas for the FulmenHQ ecosystem.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "schemas",
-    "docs"
-  ],
+  "files": ["dist", "schemas", "docs"],
   "scripts": {
     "build": "tsc",
     "test": "vitest",
@@ -16,12 +12,7 @@
     "format": "biome format --write .",
     "prepublishOnly": "npm run build && npm test"
   },
-  "keywords": [
-    "fulmenhq",
-    "crucible",
-    "schemas",
-    "standards"
-  ],
+  "keywords": ["fulmenhq", "crucible", "schemas", "standards"],
   "author": "FulmenHQ",
   "license": "MIT",
   "repository": {

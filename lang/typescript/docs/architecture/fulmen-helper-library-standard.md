@@ -1,11 +1,11 @@
 ---
 title: "Fulmen Helper Library Standard"
-description: "Minimum capabilities required for gofulmen, tsfulmen, and future language foundations"
+description: "Standard structure and capabilities for gofulmen, tsfulmen, and future language helpers"
 author: "Schema Cartographer"
-date: "2025-10-03"
+date: "2025-10-02"
 last_updated: "2025-10-07"
 status: "draft"
-tags: ["architecture", "libraries", "standard"]
+tags: ["architecture", "helper-library", "multi-language", "local-development"]
 ---
 
 # Fulmen Helper Library Standard
@@ -34,9 +34,11 @@ Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulm
      ```yaml
      version: "2025.10.0"
      sources:
-       - id: crucible.lang.<lang>
+       - name: crucible
+         id: crucible.lang.<lang>
          sourceRepo: https://github.com/fulmenhq/crucible.git
          sourceRef: main
+         # No localPath here - keep main config clean for CI/CD
          include:
            - docs/**/*.md
            - schemas/**/*
@@ -46,6 +48,18 @@ Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulm
          output: .crucible
          notes: "Use language-specific keys (see config/sync/sync-keys.yaml) or add additional entries for fine-grained control."
      ```
+   - Create `.fuldx/sync-consumer.local.yaml` for local development (gitignored):
+     ```yaml
+     sources:
+       - name: crucible
+         localPath: ../crucible  # Local development override
+     ```
+   - Add to `.gitignore`:
+     ```
+     .fuldx/sync-consumer.local.yaml
+     .fuldx/*.local.yaml
+     ```
+   - **Local Development Priority**: FulDX uses layered config (local overrides > env vars > main config > conventions)
    - Commit synced assets to version control (docs/crucible-<lang>, schemas/crucible-<lang>, config/crucible-<lang>, metadata) for offline availability.
    - Provide `make sync` target that runs `fuldx ssot sync`.
    - Use glob patterns such as `schemas/**/*` to capture both `.json` and `.yaml` schemas.

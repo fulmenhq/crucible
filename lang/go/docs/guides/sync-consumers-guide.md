@@ -3,9 +3,9 @@ title: "Sync Consumers Guide"
 description: "How downstream repositories pull assets from SSOT sources"
 author: "Schema Cartographer"
 date: "2025-10-03"
-last_updated: "2025-10-03"
+last_updated: "2025-10-07"
 status: "draft"
-tags: ["sync", "consumer", "guide"]
+tags: ["sync", "consumer", "guide", "local-development"]
 ---
 
 # Sync Consumers Guide
@@ -67,6 +67,51 @@ Each key resolves to a base path within the SSOT (see `basePath` in `sync-keys.y
 
 See `config/sync/sync-keys.yaml` for the full list and metadata.
 
+## Local Development Support
+
+For local development with private SSOT repositories (like Crucible before public release), FulDX supports flexible local path configuration through a layered fallback system:
+
+### Configuration Priority
+
+1. **Main Configuration** (`.fuldx/sync-consumer.yaml`) - Clean, repository-safe config (committed)
+2. **Local Overrides** (`.fuldx/sync-consumer.local.yaml`) - Machine-specific overrides (gitignored)
+3. **Environment Variables** (`FULDX_{SOURCE}_LOCAL_PATH`) - Session-specific overrides
+4. **Convention-Based** (`../{source-name}`) - Zero-config for sibling directories
+
+### Local Override Examples
+
+**Main Config (Committed)**
+```yaml
+# .fuldx/sync-consumer.yaml
+version: "2025.10.0"
+sources:
+  - name: crucible
+    version: "2025.10.0"
+    # No localPath here - keeps config clean for CI/CD
+```
+
+**Local Override (Gitignored)**
+```yaml
+# .fuldx/sync-consumer.local.yaml
+sources:
+  - name: crucible
+    localPath: ../crucible  # Machine-specific local path
+```
+
+**Environment Variable Override**
+```bash
+# Set for custom development setups
+export FULDX_CRUCIBLE_LOCAL_PATH=/custom/path/to/crucible
+fuldx ssot sync
+```
+
+### Setup Checklist
+
+1. Add `.fuldx/sync-consumer.local.yaml` to your `.gitignore`
+2. Keep main config (`.fuldx/sync-consumer.yaml`) free of `localPath` entries
+3. Create local override file only on development machines
+4. CI/CD pipelines use main config without local paths
+
 ## Manifest Example
 
 ```yaml
@@ -94,8 +139,11 @@ sources:
 
 - Pin Crucible versions to avoid unexpected changes. Use `latest` only for exploratory work.
 - Store manifests alongside other FulDX tooling configs (`.fuldx/` is recommended; keep SSOT content under `.crucible/`).
+- **Never commit `localPath` in main config** - Use `.fuldx/sync-consumer.local.yaml` for local development paths.
+- Add `.fuldx/sync-consumer.local.yaml` and `.fuldx/*.local.yaml` to `.gitignore`.
 - Add `make sync` target that depends on `fuldx` and this manifest.
 - Validate manifests in CI using `fuldx schema validate` once available.
+- Use environment variables (`FULDX_{SOURCE}_LOCAL_PATH`) for containerized or custom development environments.
 
 ## Migration Notes
 

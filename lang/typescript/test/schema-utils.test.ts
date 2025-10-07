@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { compareSchemas, normalizeSchema } from "../src/schema-utils";
 
 const jsonSchema = '{"type":"object","properties":{"name":{"type":"string"}}}';
-const yamlSchema = `# sample schema\n---\ntype: object\nproperties:\n  name:\n    type: string\n`;
+const yamlSchema = "# sample schema\n---\ntype: object\nproperties:\n  name:\n    type: string\n";
 
 describe("schema utils", () => {
   test("normalizeSchema converts YAML with comments to canonical JSON", () => {

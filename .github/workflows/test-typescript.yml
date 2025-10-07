@@ -1,22 +1,25 @@
 name: Test TypeScript
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: '20'
+          bun-version: '1.2.1'
       - name: Install dependencies
         working-directory: ./lang/typescript
-        run: npm ci
+        run: bun install
       - name: Lint
         working-directory: ./lang/typescript
-        run: npm run lint
+        run: bun run lint
       - name: Build
         working-directory: ./lang/typescript
-        run: npm run build
+        run: bun run build
       - name: Test
         working-directory: ./lang/typescript
-        run: npm test
+        run: bun run test

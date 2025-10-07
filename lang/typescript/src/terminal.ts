@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as yaml from "js-yaml";
@@ -18,7 +18,7 @@ export interface TerminalConfig {
   };
 }
 
-export function loadTerminalCatalog(version: string = "v1.0.0"): Map<string, TerminalConfig> {
+export function loadTerminalCatalog(version = "v1.0.0"): Map<string, TerminalConfig> {
   const catalog = new Map<string, TerminalConfig>();
   const catalogPath = join(__dirname, "../schemas/terminal", version, "catalog");
 
@@ -33,15 +33,12 @@ export function loadTerminalCatalog(version: string = "v1.0.0"): Map<string, Ter
   return catalog;
 }
 
-export function getTerminalConfig(
-  name: string,
-  version: string = "v1.0.0",
-): TerminalConfig | undefined {
+export function getTerminalConfig(name: string, version = "v1.0.0"): TerminalConfig | undefined {
   const catalog = loadTerminalCatalog(version);
   return catalog.get(name);
 }
 
-export function getTerminalSchema(version: string = "v1.0.0"): object {
+export function getTerminalSchema(version = "v1.0.0"): object {
   const schemaPath = join(__dirname, "../schemas/terminal", version, "schema.json");
   return JSON.parse(readFileSync(schemaPath, "utf-8"));
 }

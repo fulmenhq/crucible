@@ -3,9 +3,9 @@ title: "Configuration Standardization"
 description: "Standard approaches for configuration management across Fulmen language implementations"
 author: "@gofulmen-team"
 date: "2025-10-02"
-last_updated: "2025-10-02"
+last_updated: "2025-10-07"
 status: "approved"
-tags: ["standards", "configuration", "cross-language"]
+tags: ["standards", "configuration", "cross-language", "local-overrides"]
 ---
 
 # Configuration Standardization
@@ -34,6 +34,12 @@ This document defines standard approaches for configuration management across Fu
 - `FULMEN_LOG_LEVEL`: Logging verbosity (DEBUG, INFO, WARN, ERROR)
 - `FULMEN_LOG_FORMAT`: Log output format (json, text)
 
+### FulDX SSOT Sync Variables
+
+- `FULDX_{SOURCE}_LOCAL_PATH`: Override local path for SSOT source (e.g., `FULDX_CRUCIBLE_LOCAL_PATH`)
+- `FULDX_SYNC_CONSUMER_CONFIG`: Path to sync consumer configuration file
+- `FULDX_OUTPUT_DIR`: Base directory for synced assets
+
 ### Pathfinder Variables
 
 - `FULMEN_PATHFINDER_MAX_WORKERS`: Maximum concurrent workers
@@ -49,6 +55,28 @@ This document defines standard approaches for configuration management across Fu
 - JSON (`.json`)
 - YAML (`.yaml`, `.yml`)
 - TOML (`.toml`)
+
+### Local Override Pattern
+
+For machine-specific configurations (like local development paths), use the `.local.*` pattern:
+
+- **Main Config** (committed): `.fuldx/sync-consumer.yaml`
+- **Local Override** (gitignored): `.fuldx/sync-consumer.local.yaml`
+
+**Loading Priority:**
+1. Load main configuration file
+2. Merge local override file (if exists)
+3. Apply environment variable overrides
+4. Apply convention-based defaults
+
+**Example `.gitignore` entry:**
+```
+# Local configuration overrides
+*.local.yaml
+*.local.json
+*.local.toml
+.fuldx/sync-consumer.local.yaml
+```
 
 ### Search Paths (in order)
 

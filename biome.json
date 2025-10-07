@@ -63,7 +63,7 @@
   },
   "overrides": [
     {
-      "includes": [
+      "include": [
         "scripts/**/*.ts",
         "scripts/**/*.js"
       ],
@@ -76,7 +76,7 @@
       }
     },
     {
-      "includes": [
+      "include": [
         "scripts/bootstrap-tools.ts"
       ],
       "linter": {
