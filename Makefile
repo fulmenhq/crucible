@@ -36,25 +36,28 @@ sync-to-lang: ## Sync schemas and docs to Go and TypeScript packages
 	@bun run scripts/sync-to-lang.ts
 
 # Test targets
-test: ## Run all language wrapper tests
+test: ## Run all language wrapper tests (matches GitHub Actions)
 	@echo "Running Go tests..."
-	@cd lang/go && go test -v
+	@cd lang/go && go test ./...
 	@echo ""
 	@echo "Running TypeScript tests..."
-	@cd lang/typescript && bun test
+	@cd lang/typescript && bun run test
 
-test-go: ## Run Go wrapper tests
-	@cd lang/go && go test -v
+test-go: ## Run Go wrapper tests (matches GitHub Actions)
+	@cd lang/go && go test ./...
 
-test-ts: ## Run TypeScript wrapper tests
-	@cd lang/typescript && bun test
+test-ts: ## Run TypeScript wrapper tests (matches GitHub Actions)
+	@cd lang/typescript && bun run test
 
 # Build targets
-build: sync-to-lang ## Build language wrappers (ensures sync first)
-	@echo "✅ Language wrappers built (Go embeds on import, TS has no build step)"
+build: sync-to-lang build-go build-ts ## Build language wrappers (matches GitHub Actions)
+	@echo "✅ Language wrappers built"
 
-build-all: build ## Build all language wrappers and packages (alias for build in library repos)
-	@echo "✅ All language wrappers and packages built"
+build-go: ## Build Go wrapper (matches GitHub Actions)
+	@cd lang/go && go build ./...
+
+build-ts: ## Build TypeScript wrapper (matches GitHub Actions)
+	@cd lang/typescript && bun run build
 
 # Format, Lint, Typecheck targets
 fmt: ## Format code files using goneat
@@ -63,9 +66,9 @@ fmt: ## Format code files using goneat
 fmt-check: ## Check if files are formatted without modifying
 	@$(BIN_DIR)/goneat format --check --verbose
 
-lint: ## Run comprehensive assessment (Go via goneat + TypeScript/JavaScript via biome)
+lint: ## Run linting (matches GitHub Actions)
 	@echo "Linting TypeScript/JavaScript files..."
-	@bunx biome check scripts/ lang/typescript/
+	@cd lang/typescript && bun run lint
 	@echo ""
 	@echo "Running goneat assessment (Go, YAML, schemas)..."
 	@cd lang/go && $(BIN_DIR)/goneat assess --categories format,security --check

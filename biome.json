@@ -60,7 +60,7 @@
   },
   "overrides": [
     {
-      "includes": ["scripts/**/*.ts", "scripts/**/*.js"],
+      "include": ["scripts/**/*.ts", "scripts/**/*.js"],
       "linter": {
         "rules": {
           "suspicious": {
@@ -70,7 +70,7 @@
       }
     },
     {
-      "includes": ["scripts/bootstrap-tools.ts"],
+      "include": ["scripts/bootstrap-tools.ts"],
       "linter": {
         "rules": {
           "complexity": {
