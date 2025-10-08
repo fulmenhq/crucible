@@ -3,9 +3,9 @@ title: "FulmenHQ Document Frontmatter Standard"
 description: "Required frontmatter format for documentation files across FulmenHQ repositories"
 author: "@3leapsdave"
 date: "2025-10-02"
-last_updated: "2025-10-02"
+last_updated: "2025-10-07"
 status: "approved"
-tags: ["standards", "documentation", "metadata"]
+tags: ["standards", "documentation", "metadata", "ai-attribution"]
 ---
 
 # Document Frontmatter Standard
@@ -36,11 +36,23 @@ tags: ["tag1", "tag2", "tag3"]
 
 - **title** (string): The document title, used for navigation and indexing
 - **description** (string): Brief description (1-2 sentences) explaining the document's purpose
-- **author** (string): Author name or handle (e.g., "Dave Thompson" or "@3leapsdave")
+- **author** (string): Primary author name or AI agent identity (e.g., "Schema Cartographer" or "@3leapsdave")
 - **date** (string): Creation date in ISO 8601 format (YYYY-MM-DD)
 - **last_updated** (string): Last modification date in ISO 8601 format (YYYY-MM-DD)
 - **status** (enum): Document status - one of: `draft`, `review`, `approved`, `deprecated`
 - **tags** (array): Array of relevant tags for categorization and search
+
+### Human Attribution Fields
+
+When AI agents author or significantly contribute to documentation, include human oversight attribution:
+
+- **author_of_record** (string): Human maintainer responsible for document accuracy and maintenance
+  - Format: `Name <email>` or `Name (https://github.com/username)`
+  - Examples:
+    - `Dave Thompson <dave.thompson@3leaps.net>`
+    - `Dave Thompson (https://github.com/3leapsdave)`
+  - Required when `author` is an AI agent identity
+  - Provides accountability and contact point for questions
 
 ### Optional Fields
 
@@ -49,6 +61,9 @@ tags: ["tag1", "tag2", "tag3"]
 - **version** (string): Document version for versioned content
 - **category** (string): Document category (e.g., "standards", "schemas", "architecture")
 - **revision** (integer): Revision number for tracking changes (useful for schemas)
+- **supervised_by** (string): Human supervisor for AI-generated content (when `author` is AI agent)
+  - Format: GitHub handle (e.g., "@3leapsdave")
+  - Complements `author_of_record` for accountability chain
 
 ## Examples
 
@@ -96,6 +111,24 @@ reviewers: ["@forge-warden", "@code-scout"]
 tags: ["standards", "api", "rest", "graphql"]
 ---
 ```
+
+### AI-Authored Document with Human Oversight
+
+```yaml
+---
+title: "Fulmen Library Bootstrap Guide"
+description: "Bootstrap a new Fulmen ecosystem library with minimal configuration"
+author: "Schema Cartographer"
+author_of_record: "Dave Thompson (https://github.com/3leapsdave)"
+supervised_by: "@3leapsdave"
+date: "2025-10-07"
+last_updated: "2025-10-07"
+status: "draft"
+tags: ["bootstrap", "fuldx", "setup", "new-repository"]
+---
+```
+
+This example shows proper attribution when an AI agent (Schema Cartographer) creates documentation under human supervision, with a clear accountability chain.
 
 ## Implementation Guidelines
 
@@ -162,8 +195,26 @@ Extended fields should be documented in the repository's `CONTRIBUTING.md`.
 - [Agentic Attribution Standard](agentic-attribution.md) - AI agent contribution standards
 - [Repository Version Adoption SOP](../sop/repository-version-adoption.md) - Mandatory version strategy
 
+## Relationship to Agentic Attribution Standard
+
+This frontmatter standard complements the [Agentic Attribution Standard](agentic-attribution.md):
+
+- **Frontmatter**: Document-level metadata for discovery, organization, and accountability
+- **Agentic Attribution**: Commit-level attribution for code changes and contributions
+
+**Key differences:**
+
+| Aspect       | Frontmatter                   | Agentic Attribution                     |
+| ------------ | ----------------------------- | --------------------------------------- |
+| **Scope**    | Document metadata             | Commit messages                         |
+| **Purpose**  | Organization & accountability | Version control attribution             |
+| **Location** | Top of document               | Git commit message                      |
+| **Fields**   | `author`, `author_of_record`  | `Co-Authored-By`, `Committer-of-Record` |
+
+**Best practice**: Use both standards together for complete attribution chain from document creation through version control.
+
 ---
 
 **Status**: Approved  
-**Last Updated**: 2025-10-02  
+**Last Updated**: 2025-10-07  
 **Author**: @3leapsdave
