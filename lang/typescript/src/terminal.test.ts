@@ -1,4 +1,3 @@
-// @ts-expect-error vitest types not available
 import { describe, expect, test } from "vitest";
 import { getTerminalConfig, loadTerminalCatalog, validateTerminalConfig } from "./terminal";
 

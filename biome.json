@@ -56,17 +56,11 @@
       "semicolons": "always",
       "trailingCommas": "all"
     },
-    "globals": [
-      "BufferEncoding",
-      "Bun"
-    ]
+    "globals": ["BufferEncoding", "Bun"]
   },
   "overrides": [
     {
-      "include": [
-        "scripts/**/*.ts",
-        "scripts/**/*.js"
-      ],
+      "includes": ["scripts/**/*.ts", "scripts/**/*.js"],
       "linter": {
         "rules": {
           "suspicious": {
@@ -76,9 +70,7 @@
       }
     },
     {
-      "include": [
-        "scripts/bootstrap-tools.ts"
-      ],
+      "includes": ["scripts/bootstrap-tools.ts"],
       "linter": {
         "rules": {
           "complexity": {
