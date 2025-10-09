@@ -1,0 +1,21 @@
+{
+  "service": "gofulmen-workhorse",
+  "status": "pass",
+  "timestamp": "2025-10-09T14:15:01.000Z",
+  "uptimeSeconds": 86400,
+  "checks": [
+    {
+      "name": "database",
+      "status": "pass",
+      "observedAt": "2025-10-09T14:15:01.000Z"
+    },
+    {
+      "name": "queue",
+      "status": "warn",
+      "observedAt": "2025-10-09T14:14:59.500Z",
+      "details": {
+        "lag": 125
+      }
+    }
+  ]
+}

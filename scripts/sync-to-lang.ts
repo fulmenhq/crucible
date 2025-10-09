@@ -51,6 +51,7 @@ async function main() {
 
   await syncToGo(options);
   await syncToTypeScript(options);
+  await syncToPython(options);
 
   console.log("✅ Sync complete - language wrappers updated");
   console.log("");
@@ -58,7 +59,8 @@ async function main() {
   console.log("  1. Review changes: git diff lang/");
   console.log("  2. Test Go build: cd lang/go && go test -v");
   console.log("  3. Test TS build: cd lang/typescript && bun test");
-  console.log("  4. Commit: git add lang/ && git commit -m 'chore: sync assets to lang wrappers'");
+  console.log("  4. Test Python build: cd lang/python && uv run pytest");
+  console.log("  5. Commit: git add lang/ && git commit -m 'chore: sync assets to lang wrappers'");
 }
 
 async function syncToGo(options: SyncOptions) {
@@ -68,7 +70,9 @@ async function syncToGo(options: SyncOptions) {
 
   await syncDirectory(join(ROOT, "schemas"), join(goRoot, "schemas"), "schemas/", options);
 
-  await syncDirectory(join(ROOT, "docs"), join(goRoot, "docs"), "docs/", options);
+  await syncDirectory(join(ROOT, "config"), join(goRoot, "config"), "config/", options);
+
+  await syncDirectory(join(ROOT, "docs"), join(goRoot, "docs"), "docs/", options, ["ops"]);
 }
 
 async function syncToTypeScript(options: SyncOptions) {
@@ -78,10 +82,28 @@ async function syncToTypeScript(options: SyncOptions) {
 
   await syncDirectory(join(ROOT, "schemas"), join(tsRoot, "schemas"), "schemas/", options);
 
-  await syncDirectory(join(ROOT, "docs"), join(tsRoot, "docs"), "docs/", options);
+  await syncDirectory(join(ROOT, "docs"), join(tsRoot, "docs"), "docs/", options, ["ops"]);
 }
 
-async function syncDirectory(source: string, dest: string, label: string, options: SyncOptions) {
+async function syncToPython(options: SyncOptions) {
+  console.log("📦 Python wrapper...");
+
+  const pythonRoot = join(ROOT, "lang/python");
+
+  await syncDirectory(join(ROOT, "schemas"), join(pythonRoot, "schemas"), "schemas/", options);
+
+  await syncDirectory(join(ROOT, "config"), join(pythonRoot, "config"), "config/", options);
+
+  await syncDirectory(join(ROOT, "docs"), join(pythonRoot, "docs"), "docs/", options, ["ops"]);
+}
+
+async function syncDirectory(
+  source: string,
+  dest: string,
+  label: string,
+  options: SyncOptions,
+  exclude: string[] = [],
+) {
   console.log(`   ${label} → ${dest}`);
 
   if (options.dryRun) {
@@ -104,6 +126,16 @@ async function syncDirectory(source: string, dest: string, label: string, option
     recursive: true,
     force: true,
   });
+
+  for (const entry of exclude) {
+    const target = join(dest, entry);
+    if (existsSync(target)) {
+      rmSync(target, { recursive: true, force: true });
+      if (options.verbose) {
+        console.log(`   ✂️  Excluded ${label}${entry}/`);
+      }
+    }
+  }
 
   if (options.verbose) {
     const fileCount = countFiles(dest);
@@ -154,6 +186,8 @@ DESCRIPTION:
     - lang/go/docs/
     - lang/typescript/schemas/
     - lang/typescript/docs/
+    - lang/python/schemas/
+    - lang/python/docs/
 
   This ensures language wrappers have up-to-date copies
   of assets before publishing packages.

@@ -8,12 +8,13 @@
  *   - lang/typescript/src/index.ts (VERSION, CRUCIBLE_VERSION)
  *   - lang/typescript/src/schemas.ts (VERSION)
  *   - lang/typescript/package.json (version field)
+ *   - lang/python/src/crucible/__init__.py (__version__)
  *
  * Usage:
  *   bun run scripts/update-version.ts
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 
@@ -110,6 +111,18 @@ function updateTypeScriptPackage(version: string): boolean {
   return true;
 }
 
+function updatePython(version: string): boolean {
+  const initPath = join(ROOT, "lang/python/src/crucible/__init__.py");
+
+  if (!existsSync(initPath)) {
+    return false;
+  }
+
+  return replaceInFile(initPath, (contents) =>
+    contents.replace(/__version__\s*=\s*"[^"]+"/, `__version__ = "${version}"`),
+  );
+}
+
 function main() {
   let version = readVersion();
 
@@ -126,6 +139,7 @@ function main() {
     updateGo(version) && "lang/go/schemas.go",
     updateTypeScriptSources(version) && "lang/typescript/src/*.ts",
     updateTypeScriptPackage(version) && "lang/typescript/package.json",
+    updatePython(version) && "lang/python/src/crucible/__init__.py",
   ].filter(Boolean) as string[];
 
   if (mutations.length === 0) {

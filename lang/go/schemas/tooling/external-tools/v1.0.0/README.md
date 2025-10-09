@@ -12,7 +12,7 @@ tags: ["tooling", "bootstrap", "schema"]
 
 **Schema**: `external-tools-manifest.schema.yaml`  
 **Purpose**: Define CLI tool prerequisites for repository bootstrap  
-**Location**: `.crucible/tools.yaml`  
+**Location**: `.goneat/tools.yaml`  
 **Script**: `scripts/bootstrap-tools.ts`
 
 ## Overview
@@ -151,7 +151,7 @@ tools:
 | -------------- | ------------------------------------- | ------------------------------------------- |
 | **Purpose**    | Repo-specific bootstrap               | Ecosystem-wide catalog                      |
 | **Schema**     | `external-tools-manifest.schema.yaml` | `goneat-tools-config.schema.yaml`           |
-| **Location**   | `.crucible/tools.yaml`                | Goneat internal/custom catalogs             |
+| **Location**   | `.goneat/tools.yaml`                  | Goneat internal/custom catalogs             |
 | **Complexity** | Minimal (3 install types)             | Full-featured (scopes, versions, platforms) |
 | **Command**    | `make bootstrap`                      | `goneat doctor`                             |
 

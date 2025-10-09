@@ -10,6 +10,12 @@ JSON Schemas for standardized logging across Fulmen libraries.
 - **middleware-config.schema.json** - Middleware configuration
 - **severity-filter.schema.json** - Severity filtering with comparison operators
 
+### v1.0.0 Update (2025-10-09)
+
+- Added correlation context fields (`contextId`, `requestId`, `correlationId`, `parentSpanId`, `operation`,
+  `durationMs`, `userId`) to `log-event.schema.json`.
+- Introduced reusable definitions for UUIDv7 and request/context identifiers.
+
 ## Severity Level Handling (Option 2: Hybrid Approach)
 
 ### Configuration (User-Facing)

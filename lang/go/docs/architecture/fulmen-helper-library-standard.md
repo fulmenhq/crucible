@@ -10,7 +10,10 @@ tags: ["architecture", "helper-library", "multi-language", "local-development"]
 
 # Fulmen Helper Library Standard
 
-This document formalizes the expectations outlined in the gofulmen proposal so that every `*fulmen` language foundation delivers the same core capabilities.
+This document formalizes the expectations outlined in the gofulmen proposal so that every `*fulmen`
+language foundation delivers the same core capabilities. The canonical list of languages and statuses
+is maintained in the [Library Ecosystem taxonomy](library-ecosystem.md#language-foundations-taxonomy);
+consult that table before proposing new foundations or changing lifecycle state.
 
 ## Scope
 
@@ -19,15 +22,16 @@ Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulm
 ## Mandatory Capabilities
 
 1. **FulDX Bootstrap Pattern**
-   - Include `.crucible/tools.yaml` with platform-specific FulDX installation (URLs, checksums).
-   - Include `.crucible/tools.local.yaml.example` template for local development overrides.
-   - Add `.crucible/tools.local.yaml` to `.gitignore` (never commit local paths).
+   - Include `.goneat/tools.yaml` with platform-specific FulDX installation (URLs, checksums).
+   - Include `.goneat/tools.local.yaml.example` template for local development overrides.
+   - Add `.goneat/tools.local.yaml` to `.gitignore` (never commit local paths).
    - Implement minimal language-specific bootstrap script that:
-     - Prefers `.crucible/tools.local.yaml` if present (local dev iteration).
-     - Falls back to `.crucible/tools.yaml` (CI/CD, production).
+     - Prefers `.goneat/tools.local.yaml` if present (local dev iteration).
+     - Falls back to `.goneat/tools.yaml` (CI/CD, production).
      - Installs FulDX to `./bin/fuldx`.
    - Let FulDX handle other tool installations (goneat, etc.) via `fuldx tools install`.
    - Provide `make bootstrap` target that runs bootstrap script.
+   - Refer to the [FulDX Bootstrap Standard](../standards/library/fuldx-bootstrap.md) for normative contract.
 
 2. **SSOT Synchronization**
    - Include `.fuldx/sync-consumer.yaml` configuration for Crucible asset sync. Example manifest:
@@ -52,7 +56,7 @@ Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulm
      ```yaml
      sources:
        - name: crucible
-         localPath: ../crucible  # Local development override
+         localPath: ../crucible # Local development override
      ```
    - Add to `.gitignore`:
      ```
@@ -63,35 +67,45 @@ Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulm
    - Commit synced assets to version control (docs/crucible-<lang>, schemas/crucible-<lang>, config/crucible-<lang>, metadata) for offline availability.
    - Provide `make sync` target that runs `fuldx ssot sync`.
    - Use glob patterns such as `schemas/**/*` to capture both `.json` and `.yaml` schemas.
+   - Refer to the [SSOT Sync Standard](../standards/library/ssot-sync.md) for command surface and testing guidance.
 
 3. **Crucible Shim**
    - Provide idiomatic access to Crucible assets (docs, schemas, config defaults).
    - Re-export version constants so consumers can log/report underlying Crucible snapshot.
    - Discover available categories (`ListAvailableDocs()`, `ListAvailableSchemas()`) via embedded metadata or generated index.
+   - Refer to the [Crucible Shim Standard](../standards/library/crucible-shim.md).
 
 4. **Config Path API**
    - Implement `GetAppConfigDir`, `GetAppDataDir`, `GetAppCacheDir`, `GetAppConfigPaths`, and `GetXDGBaseDirs` (naming per language).
    - Expose Fulmen-specific helpers (`GetFulmenConfigDir`, etc.) aligned with [Fulmen Config Path Standard](../standards/config/fulmen-config-paths.md).
    - Respect platform defaults (Linux/macOS/Windows) and environment overrides.
+   - Refer to the [Config Path API Standard](../standards/library/config-path-api.md).
 
 5. **Three-Layer Config Loading**
    - Layer 1: Embed Crucible defaults from `config/{category}/vX.Y.Z/*-defaults.yaml`.
    - Layer 2: Merge user overrides from `GetFulmenConfigDir()`.
    - Layer 3: Allow application-provided config (BYOC) with explicit API hooks.
+   - Refer to the [Three-Layer Configuration Standard](../standards/library/three-layer-config.md).
 
 6. **Schema Validation Utilities**
    - Provide helpers to load, parse, and validate schemas shipped in Crucible.
    - Optional but recommended: integrate with language-native validation libraries.
+   - Refer to the [Schema Validation Helper Standard](../standards/library/schema-validation.md).
 
 7. **Observability Integration**
    - Consume logging schemas/defaults from `config/observability/logging/`.
    - Map shared severity enum and throttling settings to language-specific logging implementation.
+   - Refer to the [Fulmen Logging Standard](../standards/observability/logging.md).
 
 ## Optional (Recommended) Capabilities
 
 - Pathfinder & ASCII helpers (for languages that can support them).
 - Cosmography shims once that SSOT expands.
 - Registry API clients if SSOT repos expose HTTP endpoints in the future.
+
+Module requirement levels, coverage targets, and language overrides are tracked in
+`config/library/v1.0.0/module-manifest.yaml` (validated by
+`schemas/library/module-manifest/v1.0.0/module-manifest.schema.json`).
 
 ## Directory Structure
 
@@ -136,8 +150,8 @@ Foundation libraries face a unique challenge:
 ### The Solution: Minimal FulDX Bootstrap + Synced Assets
 
 1. **Commit synced assets** - Docs, schemas, configs from Crucible are committed and regenerated via `make sync`
-2. **Single bootstrap entry** - `.crucible/tools.yaml` contains FulDX with platform-specific URLs/checksums
-3. **Local override pattern** - `.crucible/tools.local.yaml` (gitignored) for development iteration
+2. **Single bootstrap entry** - `.goneat/tools.yaml` contains FulDX with platform-specific URLs/checksums
+3. **Local override pattern** - `.goneat/tools.local.yaml` (gitignored) for development iteration
 4. **Let FulDX handle complexity** - Use `fuldx tools install` for goneat and other sophisticated tools
 
 ### Workflows
@@ -155,7 +169,7 @@ make test
 
 ```bash
 # Copy local override template
-cp .crucible/tools.local.yaml.example .crucible/tools.local.yaml
+cp .goneat/tools.local.yaml.example .goneat/tools.local.yaml
 
 # Edit to point to local fuldx build
 # source: /path/to/fuldx/dist/fuldx
@@ -166,7 +180,7 @@ make bootstrap
 
 ### Safety: Preventing Local Path Leaks
 
-- Add `.crucible/tools.local.yaml` to `.gitignore`
+- Add `.goneat/tools.local.yaml` to `.gitignore`
 - Implement precommit hook to validate no local paths in `tools.yaml`
 - Provide `tools.local.yaml.example` as template
 
@@ -225,8 +239,8 @@ lint:       # Lint/style checks
 
 ### Pitfall 3: Local Overrides Committed
 
-- **Issue**: `.crucible/tools.local.yaml` accidentally committed.
-- **Solution**: Provide `.crucible/tools.local.yaml.example`, add `.crucible/tools.local.yaml` to `.gitignore`, enforce pre-commit checks.
+- **Issue**: `.goneat/tools.local.yaml` accidentally committed.
+- **Solution**: Provide `.goneat/tools.local.yaml.example`, add `.goneat/tools.local.yaml` to `.gitignore`, enforce pre-commit checks.
 
 ### Pitfall 4: Circular Bootstrap Dependencies
 

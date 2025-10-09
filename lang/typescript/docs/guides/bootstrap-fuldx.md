@@ -1,6 +1,6 @@
 ---
 title: "FulDX Bootstrap Guide"
-description: "Installing FulDX via .crucible/tools.yaml with local override support"
+description: "Installing FulDX via .goneat/tools.yaml with local override support"
 author: "Schema Cartographer"
 date: "2025-10-07"
 last_updated: "2025-10-07"
@@ -10,11 +10,11 @@ tags: ["bootstrap", "fuldx", "tools"]
 
 # FulDX Bootstrap Guide
 
-Foundation repositories use FulDX for DX tooling (version bumping, asset sync, etc.). This guide explains how to install FulDX via `.crucible/tools.yaml` and how to override it locally during development.
+Foundation repositories use FulDX for DX tooling (version bumping, asset sync, etc.). This guide explains how to install FulDX via `.goneat/tools.yaml` and how to override it locally during development.
 
 ## Production / CI Workflow
 
-1. Commit `.crucible/tools.yaml` with the published FulDX binary URLs + checksums.
+1. Commit `.goneat/tools.yaml` with the published FulDX binary URLs + checksums.
 2. Run `make bootstrap` (or `bun run scripts/bootstrap-tools.ts --install`) – FulDX installs into `./bin/fuldx`.
 3. Run `fuldx tools install` or `make tools` to install other declared binaries.
 
@@ -23,7 +23,7 @@ Foundation repositories use FulDX for DX tooling (version bumping, asset sync, e
 When iterating on FulDX itself (or testing a local build):
 
 ```bash
-cp .crucible/tools.local.yaml.example .crucible/tools.local.yaml
+cp .goneat/tools.local.yaml.example .goneat/tools.local.yaml
 # edit source path to point to your local fuldx build
 make bootstrap
 ```

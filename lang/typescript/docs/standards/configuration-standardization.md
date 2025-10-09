@@ -64,12 +64,14 @@ For machine-specific configurations (like local development paths), use the `.lo
 - **Local Override** (gitignored): `.fuldx/sync-consumer.local.yaml`
 
 **Loading Priority:**
+
 1. Load main configuration file
 2. Merge local override file (if exists)
 3. Apply environment variable overrides
 4. Apply convention-based defaults
 
 **Example `.gitignore` entry:**
+
 ```
 # Local configuration overrides
 *.local.yaml

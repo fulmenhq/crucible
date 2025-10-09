@@ -1,6 +1,6 @@
 {
   "name": "@fulmenhq/crucible",
-  "version": "2025.10.1",
+  "version": "2025.10.2",
   "description": "Crucible - Where Scale is Forged. Standards and schemas for the FulmenHQ ecosystem.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -1,14 +1,15 @@
 BIN_DIR := $(CURDIR)/bin
-TOOLS_MANIFEST := .crucible/tools.yaml
+TOOLS_MANIFEST := .goneat/tools.yaml
 VERSION_FILE := VERSION
 
 # Crucible Makefile
 # Standards forge for the FulmenHQ ecosystem
 
 .PHONY: help bootstrap tools sync test build build-all clean version fmt fmt-check lint typecheck
-.PHONY: sync-schemas sync-to-lang test-go test-ts
+.PHONY: sync-schemas sync-to-lang test-go test-ts test-python build-python lint-python
 .PHONY: version-set version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare prepush precommit check-all
+.PHONY: validate-schemas
 
 # Default target
 all: sync-schemas
@@ -42,6 +43,9 @@ test: ## Run all language wrapper tests (matches GitHub Actions)
 	@echo ""
 	@echo "Running TypeScript tests..."
 	@cd lang/typescript && bun run test
+	@echo ""
+	@echo "Running Python tests..."
+	@cd lang/python && uv run pytest
 
 test-go: ## Run Go wrapper tests (matches GitHub Actions)
 	@cd lang/go && go test ./...
@@ -49,8 +53,11 @@ test-go: ## Run Go wrapper tests (matches GitHub Actions)
 test-ts: ## Run TypeScript wrapper tests (matches GitHub Actions)
 	@cd lang/typescript && bun run test
 
+test-python: ## Run Python wrapper tests (matches GitHub Actions)
+	@cd lang/python && uv run pytest
+
 # Build targets
-build: sync-to-lang build-go build-ts ## Build language wrappers (matches GitHub Actions)
+build: sync-to-lang fmt build-go build-ts build-python ## Build language wrappers (matches GitHub Actions)
 	@echo "✅ Language wrappers built"
 
 build-go: ## Build Go wrapper (matches GitHub Actions)
@@ -58,6 +65,9 @@ build-go: ## Build Go wrapper (matches GitHub Actions)
 
 build-ts: ## Build TypeScript wrapper (matches GitHub Actions)
 	@cd lang/typescript && bun run build
+
+build-python: ## Build Python wrapper (matches GitHub Actions)
+	@cd lang/python && uv sync
 
 # Format, Lint, Typecheck targets
 fmt: ## Format code files using goneat
@@ -70,9 +80,15 @@ lint: ## Run linting (matches GitHub Actions)
 	@echo "Linting TypeScript/JavaScript files..."
 	@cd lang/typescript && bun run lint
 	@echo ""
+	@echo "Linting Python files..."
+	@cd lang/python && uv run ruff check .
+	@echo ""
 	@echo "Running goneat assessment (Go, YAML, schemas)..."
 	@cd lang/go && $(BIN_DIR)/goneat assess --categories format,security --check
 	@$(BIN_DIR)/goneat assess --categories format --check --exclude "lang/**" --exclude "**/*.go"
+
+lint-python: ## Lint Python code (matches GitHub Actions)
+	@cd lang/python && uv run ruff check .
 
 typecheck: ## Type-check TypeScript files
 	@echo "Type-checking TypeScript files..."
@@ -86,7 +102,7 @@ prepush: check-all ## Run pre-push hooks (check-all + build)
 precommit: check-all ## Run pre-commit hooks (check-all + build)
 	@echo "✅ Pre-commit checks passed"
 
-check-all: build lint test typecheck ## Run all checks (lint, test, typecheck) after ensuring build/sync
+check-all: validate-schemas build lint test typecheck ## Run all checks (lint, test, typecheck) after ensuring build/sync
 	@echo "✅ All checks passed"
 
 # Clean build artifacts
@@ -94,6 +110,9 @@ clean: ## Clean any build artifacts
 	@echo "Cleaning artifacts..."
 	@rm -rf dist/ lang/*/dist/ .plans/
 	@echo "✅ Clean completed"
+
+validate-schemas: ## Validate taxonomy registries and logging schema changes
+	@bun run scripts/validate-schemas.ts
 
 # Version management
 version: ## Print current repository version

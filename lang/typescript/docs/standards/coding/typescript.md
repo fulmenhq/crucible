@@ -1,18 +1,32 @@
-# TypeScript Coding Standards for FulmenHQ
-
-**Version**: 1.0.0
-**Date**: October 1, 2025
-**Status**: Active
-**Author**: Code Scout (@code-scout)
-**Scope**: All FulmenHQ TypeScript projects
-
 ---
+title: "TypeScript Coding Standards for FulmenHQ"
+description: "TypeScript-specific coding standards including type safety, error handling, testing patterns, and logger initialization for enterprise-grade TypeScript development"
+author: "Code Scout"
+date: "2025-10-01"
+last_updated: "2025-10-08"
+status: "approved"
+tags: ["standards", "coding", "typescript", "type-safety", "testing"]
+related_docs: ["README.md"]
+---
+
+# TypeScript Coding Standards for FulmenHQ
 
 ## Overview
 
 This document establishes coding standards for FulmenHQ TypeScript projects, ensuring consistency, quality, and adherence to enterprise-grade practices. As tools designed for scale, FulmenHQ projects require rigorous standards to maintain reliability and structured output integrity.
 
 **Core Principle**: Write idiomatic TypeScript code that is simple, readable, and maintainable, with strict type safety and clean output.
+
+**Foundation**: This guide builds upon **[Cross-Language Coding Standards](README.md)** which establishes patterns for:
+
+- Output hygiene (STDERR for logs, STDOUT for data)
+- RFC3339 timestamps
+- Schema validation with goneat
+- CLI exit codes
+- Logging standards
+- Security practices
+
+Read the cross-language standards first, then apply the TypeScript-specific patterns below.
 
 ---
 

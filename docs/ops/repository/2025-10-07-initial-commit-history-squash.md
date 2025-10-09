@@ -7,6 +7,7 @@ During the initial setup and first push of the Crucible repository to GitHub, we
 ## Issue
 
 The README.md and LICENSE files contained:
+
 1. Detailed licensing descriptions in README that could conflict with LICENSE text
 2. Incorrect repository link in LICENSE (pointed to fulmen-cosmography instead of crucible)
 3. Missing OSS policies trailer section in README
@@ -25,6 +26,7 @@ Since the repository had not yet been made public and had zero external clones, 
 ## Original Commit History
 
 Before squash (never made public):
+
 1. `bb235df` - feat: add prepush, precommit, check-all targets to Makefile standard and implementation
 2. `0bc2cbb` - feat: bootstrap Crucible repository with schemas and standards
 3. `01b75a9` - fix: restore biome.json structure and repository code quality checks
@@ -40,16 +42,19 @@ Before squash (never made public):
 ## Changes Made
 
 **LICENSE updates:**
+
 - Fixed repository link from fulmen-cosmography to crucible
 - Removed "Crucible" from trademark claims (common English word)
 
 **README updates:**
+
 - Replaced detailed licensing description with simple link to LICENSE
 - Added OSS Policies section with links to organization-wide policies
 - Updated footer styling to match "Start Fast. Thrive on Scale" tagline
 - Removed "Crucible" from trademark notices
 
 **Provenance:**
+
 - Created this memo in docs/ops/repository/ for audit trail
 - Documented original commit SHAs for internal reference
 

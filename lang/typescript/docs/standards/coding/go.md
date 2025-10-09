@@ -1,18 +1,32 @@
-# Go Coding Standards for FulmenHQ
-
-**Version**: 1.0.0
-**Date**: October 1, 2025
-**Status**: Active
-**Author**: Code Scout (@code-scout)
-**Scope**: All FulmenHQ Go projects
-
 ---
+title: "Go Coding Standards for FulmenHQ"
+description: "Go-specific coding standards including output hygiene, error handling, concurrency patterns, and testing for enterprise-grade Go development"
+author: "Code Scout"
+date: "2025-10-01"
+last_updated: "2025-10-08"
+status: "approved"
+tags: ["standards", "coding", "go", "concurrency", "testing"]
+related_docs: ["README.md"]
+---
+
+# Go Coding Standards for FulmenHQ
 
 ## Overview
 
 This document establishes coding standards for FulmenHQ Go projects, ensuring consistency, quality, and adherence to enterprise-grade practices. As tools designed for scale, FulmenHQ projects require rigorous standards to maintain reliability and structured output integrity.
 
 **Core Principle**: Write idiomatic Go code that is simple, readable, and maintainable, with strict output hygiene for structured data integrity.
+
+**Foundation**: This guide builds upon **[Cross-Language Coding Standards](README.md)** which establishes patterns for:
+
+- Output hygiene (STDERR for logs, STDOUT for data)
+- RFC3339 timestamps
+- Schema validation with goneat
+- CLI exit codes
+- Logging standards
+- Security practices
+
+Read the cross-language standards first, then apply the Go-specific patterns below.
 
 ---
 

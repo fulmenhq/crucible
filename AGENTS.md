@@ -50,9 +50,11 @@ Agent identities, specializations, and supervision details are maintained in `MA
 - **Quality First**: Always run `make check-all` before commits. Analyze all outputs; resolve process failures (e.g., Makefile issues) before code fixes. Ensure code quality, compliance, and reliability for enterprise-scale systems.
 - **Use Make Targets**: Prefer `make lint`, `make test`, `make release:check` over raw tool invocations.
 - **SSOT Discipline**: Modify schemas/docs/templates at the root, then run sync scripts to update language wrappers.
+- **DO NOT Edit Synced Files**: Never manually edit files in `lang/*/docs/`, `lang/*/schemas/`, or `lang/*/config/` that are synced from root. Only edit SSOT sources at root, then run `make sync` or `bun run sync:to-lang`. Language-specific code files (`.go`, `.ts`, `.py`) in `lang/` are the exception and should be edited directly.
 - **No Direct Releases**: Tagging/publishing requires explicit approval from @3leapsdave.
 - **Planning Files**: Remain in `.plans/` (gitignored). Do not commit ad-hoc notes.
 - **Secrets**: Never store secrets in repo. See `REPOSITORY_SAFETY_PROTOCOLS.md` for guidance.
+- **Repository Operations**: Follow commit and push quality standards defined in `docs/standards/repository-safety-framework.md`. Always verify operation results with `git status` before declaring completion.
 
 ## Reference Documents
 
@@ -60,6 +62,7 @@ Agent identities, specializations, and supervision details are maintained in `MA
 - `REPOSITORY_SAFETY_PROTOCOLS.md`
 - `docs/standards/ai-agents.md`
 - `docs/standards/agentic-attribution.md`
+- `docs/standards/repository-safety-framework.md`
 - `docs/standards/makefile-standard.md`
 - `docs/sop/repository-structure.md`
 - `docs/sop/cicd-operations.md`

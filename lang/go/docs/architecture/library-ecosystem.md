@@ -34,6 +34,24 @@ cosmography ─┘
 
 ## Repository Roles
 
+### Language Foundations Taxonomy
+
+The Fulmen foundation libraries follow a shared roadmap and identity schema. This table captures the
+canonical language set so downstream standards stay aligned during the v2025.10.2 cycle.
+
+| Language   | Library Name | Status  | Minimum Runtime | Notes                                                         |
+| ---------- | ------------ | ------- | --------------- | ------------------------------------------------------------- |
+| Go         | gofulmen     | Active  | Go 1.23+        | Reference implementation for helper standards                 |
+| Python     | pyfulmen     | Active  | Python 3.12+    | Productionizing logging/context upgrades in 2025.10.2         |
+| TypeScript | tsfulmen     | Active  | TypeScript 5.0+ | Ships Bun/Node-compatible bundles with ESM as default         |
+| Rust       | rsfulmen     | Planned | Rust 1.70+      | Specification work begins once logging/core modules stabilize |
+| C#         | csfulmen     | Planned | .NET 8.0+       | Targets ASP.NET + worker scenarios after rust foundation      |
+
+The table replaces ad-hoc language lists in individual feature briefs. Any future additions (e.g., Java,
+Ruby) must update this canonical source before new standards reference them. The machine-readable registry
+for tooling lives at `config/taxonomy/languages.yaml`, and category-specific repository expectations are
+documented in `docs/standards/repository-structure/README.md`.
+
 ### Crucible
 
 - SSOT for standards, schemas, templates, documentation.
@@ -86,7 +104,7 @@ To keep imports clear:
 
 - Consumers depend on gofulmen/tsfulmen.
 - Foundations pin compatible Crucible versions internally.
-- Tools like goneat are adopted as external binaries via manifests (see `.crucible/tools.yaml`).
+- Tools like goneat are adopted as external binaries via manifests (see `.goneat/tools.yaml`).
 
 ## Related Docs
 

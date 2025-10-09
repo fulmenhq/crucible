@@ -33,7 +33,7 @@ All FulmenHQ repositories MUST include these files in the repository root:
 | `AGENTS.md`                      | ✅ Yes         | AI agent startup guide and interface registry           | [AI Agent Collaboration](../standards/ai-agents.md)                      |
 | `MAINTAINERS.md`                 | ✅ Yes         | Human + AI maintainer roster, handles, supervision      | [AI Agent Collaboration](../standards/ai-agents.md)                      |
 | `REPOSITORY_SAFETY_PROTOCOLS.md` | ⚠️ Recommended | Operational guardrails and escalation paths             | [AI Agent Collaboration](../standards/ai-agents.md)                      |
-| `.crucible/tools.yaml`           | ✅ Yes         | External tool manifest consumed by make bootstrap/tools | [Makefile Standard](../standards/makefile-standard.md)                   |
+| `.goneat/tools.yaml`             | ✅ Yes         | External tool manifest consumed by make bootstrap/tools | [Makefile Standard](../standards/makefile-standard.md)                   |
 | `SECURITY.md`                    | ⚠️ Recommended | Security policy and reporting                           | GitHub standard                                                          |
 | `.github/`                       | ⚠️ Recommended | GitHub Actions workflows, templates                     | [GitHub Integration](#github-integration)                                |
 
@@ -593,7 +593,7 @@ Use this checklist when creating or auditing a repository:
 - [ ] AGENTS.md outlining interfaces and startup protocol
 - [ ] MAINTAINERS.md listing human + AI maintainers with canonical handles
 - [ ] REPOSITORY_SAFETY_PROTOCOLS.md created or rationale documented elsewhere
-- [ ] .crucible/tools.yaml manifest present and validated against tooling schema
+- [ ] .goneat/tools.yaml manifest present and validated against tooling schema
 
 ### Documentation
 

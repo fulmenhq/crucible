@@ -37,26 +37,26 @@ A shared `Makefile` gives Fulmen automation a consistent entry point across lang
 
 Every repository **MUST** implement the following make targets:
 
-| Target                                  | Purpose                                                                                                            |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `make help`                             | List available targets with short descriptions.                                                                    |
-| `make bootstrap`                        | Install external prerequisites listed in `.crucible/tools.yaml` (installers must use the tooling manifest schema). |
-| `make tools`                            | Verify external tools are present; may be a no-op if none are required.                                            |
-| `make lint`                             | Run lint/format/style checks.                                                                                      |
-| `make test`                             | Execute the full test suite.                                                                                       |
-| `make build`                            | Produce distributable artifacts/binaries for current platform.                                                     |
-| `make build-all`                        | Build multi-platform binaries (Linux, macOS, Windows) and generate SHA256SUMS.txt checksums.                       |
-| `make clean`                            | Remove build artifacts, caches, temp files.                                                                        |
-| `make fmt`                              | Apply formatting (language-specific).                                                                              |
-| `make version`                          | Print current repository version from `VERSION`.                                                                   |
-| `make version:set VERSION=x`            | Update `VERSION` and any derived metadata. Must call repo-appropriate scripts (e.g., `bun run version:update`).    |
-| `make version:bump-{major,minor,patch}` | Bump version according to strategy (SemVer or CalVer) and regenerate derived files.                                |
-| `make release:check`                    | Run the release checklist validation (tests, lint, sync scripts).                                                  |
-| `make release:prepare`                  | Sequence of commands to ready a release (sync, tests, version bump).                                               |
-| `make release-build`                    | Build release artifacts (binaries + checksums) for distribution.                                                   |
-| `make prepush`                          | Run pre-push hooks (stub for now).                                                                                 |
-| `make precommit`                        | Run pre-commit hooks (stub for now).                                                                               |
-| `make check-all`                        | Run all checks (lint, test, typecheck).                                                                            |
+| Target                                  | Purpose                                                                                                          |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `make help`                             | List available targets with short descriptions.                                                                  |
+| `make bootstrap`                        | Install external prerequisites listed in `.goneat/tools.yaml` (installers must use the tooling manifest schema). |
+| `make tools`                            | Verify external tools are present; may be a no-op if none are required.                                          |
+| `make lint`                             | Run lint/format/style checks.                                                                                    |
+| `make test`                             | Execute the full test suite.                                                                                     |
+| `make build`                            | Produce distributable artifacts/binaries for current platform.                                                   |
+| `make build-all`                        | Build multi-platform binaries (Linux, macOS, Windows) and generate SHA256SUMS.txt checksums.                     |
+| `make clean`                            | Remove build artifacts, caches, temp files.                                                                      |
+| `make fmt`                              | Apply formatting (language-specific).                                                                            |
+| `make version`                          | Print current repository version from `VERSION`.                                                                 |
+| `make version:set VERSION=x`            | Update `VERSION` and any derived metadata. Must call repo-appropriate scripts (e.g., `bun run version:update`).  |
+| `make version:bump-{major,minor,patch}` | Bump version according to strategy (SemVer or CalVer) and regenerate derived files.                              |
+| `make release:check`                    | Run the release checklist validation (tests, lint, sync scripts).                                                |
+| `make release:prepare`                  | Sequence of commands to ready a release (sync, tests, version bump).                                             |
+| `make release-build`                    | Build release artifacts (binaries + checksums) for distribution.                                                 |
+| `make prepush`                          | Run pre-push hooks (stub for now).                                                                               |
+| `make precommit`                        | Run pre-commit hooks (stub for now).                                                                             |
+| `make check-all`                        | Run all checks (lint, test, typecheck).                                                                          |
 
 Repositories may add additional targets (e.g., `make docs`, `make package`). Required targets must NOT be renamed.
 
@@ -67,7 +67,7 @@ Repositories may add additional targets (e.g., `make docs`, `make package`). Req
 - Use phony targets (`.PHONY`) for commands that do not produce physical files.
 - Keep commands quiet when appropriate (prefix with `@`) but print meaningful status lines.
 - `make version:set` should delegate to the language-appropriate script (e.g., `bun run version:update` in Crucible) so wrappers stay synced.
-- `make bootstrap`/`make tools` should call a script that reads `.crucible/tools.yaml` (validated against `schemas/tooling/external-tools/v1.0.0/external-tools-manifest.schema.yaml`).
+- `make bootstrap`/`make tools` should call a script that reads `.goneat/tools.yaml` (validated against `schemas/tooling/external-tools/v1.0.0/external-tools-manifest.schema.yaml`).
 - For `make build-all`, implement cross-compilation for common platforms (Linux amd64/arm64, macOS amd64/arm64, Windows amd64). Output binaries to `dist/` directory and generate `SHA256SUMS.txt` with checksums for all artifacts.
 - `make release-build` should depend on `build-all` and may include additional packaging steps.
 - Include a `help` target that parses comments, for example:

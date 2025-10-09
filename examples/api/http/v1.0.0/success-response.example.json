@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "message": "Profile saved",
+  "data": {
+    "profileId": "usr_01HCP3AYGBW84X8S5T0",
+    "updatedAt": "2025-10-09T14:12:33.123Z"
+  },
+  "requestId": "req-01HCP3B4J3ZG9M0E3S6Z6K7P1F",
+  "correlationId": "018db59d-76f9-7ce0-8f1f-c73479e2ab40"
+}

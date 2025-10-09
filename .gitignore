@@ -4,7 +4,54 @@ dist/
 lang/*/dist/
 node_modules/
 
+# Go
+*.test
+*.out
+coverage.txt
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+
+# TypeScript
+*.tsbuildinfo
+*.js.map
+
 # Planning files (agent session notes)
 .plans/
-.crucible/tools.local.yaml
-*.tsbuildinfo
+.goneat/tools.local.yaml
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store

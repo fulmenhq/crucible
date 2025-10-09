@@ -1,0 +1,14 @@
+{
+  "success": false,
+  "error": {
+    "code": "invalid_payload",
+    "message": "The provided payload failed validation.",
+    "details": {
+      "pointer": "/data/email",
+      "message": "Value must be a valid email address"
+    }
+  },
+  "requestId": "req-01HCP3B8YV3T5RH066M4P4N4GP",
+  "correlationId": "018db59d-774a-7b53-b4a5-3f0d64a64512",
+  "timestamp": "2025-10-09T14:13:22.004Z"
+}

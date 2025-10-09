@@ -95,6 +95,35 @@ All repositories **must** maintain effective quality validation:
 
 Quality gates may only be bypassed with explicit maintainer approval and incident tracking.
 
+#### Commit Operation Standards
+
+**Pre-Commit Requirements:**
+
+- **Option A (Clean Commit):** Repository working tree is clean with no unstaged files. All changes staged and quality gates passed.
+- **Option B (Partial Commit):** Explicit approval obtained to commit with unstaged files present. Approval must document reason and scope of partial commit.
+- **Prohibited:** Committing without running quality gates (`make check-all` or equivalent) unless emergency bypass approval granted.
+
+**Post-Commit Verification:**
+
+- Always run `git status` after commit attempt to verify expected state.
+- Check commit operation return code; failure requires analysis and remediation before proceeding.
+- Verify commit message attribution and formatting meet standards.
+
+#### Push Operation Standards
+
+**Pre-Push Requirements:**
+
+- Repository working tree **must** be clean (no unstaged files) unless emergency bypass approval obtained.
+- Run `make prepush` or `make check-all` target to validate all quality gates pass.
+- Verify commit history includes proper attribution for all commits in push range.
+- **Prohibited:** Pushing with unstaged changes or failed quality gates without explicit emergency approval.
+
+**Post-Push Verification:**
+
+- Check push operation return code and output for errors or warnings.
+- Verify remote branch state matches expected commits with `git log origin/branch`.
+- Run `git status` to confirm clean state post-push.
+
 ### Requirement 4 – Attribution Standards
 
 Repositories must enforce the [Agentic Attribution Standard](agentic-attribution.md):

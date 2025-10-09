@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
 /**
- * Bootstrap and verify external tooling defined in .crucible/tools.yaml.
+ * Bootstrap and verify external tooling defined in .goneat/tools.yaml.
  *
  * Usage:
  *   bun run scripts/bootstrap-tools.ts --install [--manifest path]
@@ -41,7 +41,7 @@ interface InstallDefinition {
 const args = parseArgs({
   args: Bun.argv.slice(2),
   options: {
-    manifest: { type: "string", default: ".crucible/tools.yaml" },
+    manifest: { type: "string", default: ".goneat/tools.yaml" },
     install: { type: "boolean", default: false },
     verify: { type: "boolean", default: false },
     force: { type: "boolean", default: false },
@@ -55,7 +55,7 @@ if (args.values.help) {
   process.exit(0);
 }
 
-const manifestPath = resolveManifestPath(args.values.manifest ?? ".crucible/tools.yaml");
+const manifestPath = resolveManifestPath(args.values.manifest ?? ".goneat/tools.yaml");
 const mode = args.values.install ? "install" : args.values.verify ? "verify" : "verify";
 
 const manifest = loadManifest(manifestPath);
@@ -450,7 +450,7 @@ USAGE:
   bun run scripts/bootstrap-tools.ts --verify
 
 OPTIONS:
-  --manifest <path>   Path to manifest (default .crucible/tools.yaml)
+  --manifest <path>   Path to manifest (default .goneat/tools.yaml)
   --install           Install tools defined in the manifest
   --verify            Verify tools are available
   --force             Reinstall even if binaries exist

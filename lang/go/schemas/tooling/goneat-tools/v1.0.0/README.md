@@ -130,9 +130,9 @@ tools:
 | **Schema**     | `goneat-tools-config.schema.yaml`           | `external-tools-manifest.schema.yaml` |
 | **Scope**      | Cross-project doctor command                | Single repo bootstrap                 |
 | **Complexity** | Full-featured (scopes, versions, platforms) | Minimal (install/verify)              |
-| **Location**   | Goneat internal + optional project catalogs | `.crucible/tools.yaml`                |
+| **Location**   | Goneat internal + optional project catalogs | `.goneat/tools.yaml`                  |
 
-Goneat's `doctor --bootstrap` command can read `.crucible/tools.yaml` manifests to install repo-specific tools.
+Goneat's `doctor --bootstrap` command can read `.goneat/tools.yaml` manifests to install repo-specific tools.
 
 ## Library Usage
 

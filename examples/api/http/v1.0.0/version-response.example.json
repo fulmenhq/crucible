@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "data": {
+    "version": "2025.10.2",
+    "commit": "7f8c9e1",
+    "buildDate": "2025-10-09T13:57:42.000Z",
+    "buildHost": "ci-runner-42",
+    "language": "go",
+    "metadata": {
+      "goVersion": "go1.25.1",
+      "buildNumber": "2025.10.2-rc1"
+    }
+  },
+  "requestId": "req-01HCP3CBD6FWG4DW6VEB4676T7",
+  "correlationId": "018db59d-77ec-7f4a-98c0-74bebc4921e0"
+}

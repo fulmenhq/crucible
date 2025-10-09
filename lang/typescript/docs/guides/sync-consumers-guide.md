@@ -20,7 +20,7 @@ This guide explains how downstream repositories pull assets from SSOT sources su
 
 ## FulDX Workflow (Recommended)
 
-1. Ensure FulDX is listed in `.crucible/tools.yaml` (recommended) so `make bootstrap` installs `./bin/fuldx`.
+1. Ensure FulDX is listed in `.goneat/tools.yaml` (recommended) so `make bootstrap` installs `./bin/fuldx`.
 2. Run `make bootstrap` to install FulDX into `./bin/`.
 3. Create `.fuldx/sync-consumer.yaml` describing the assets you need (keep SSOT content under `.crucible/`).
 4. Validate & pull: `./bin/fuldx sync pull --manifest .fuldx/sync-consumer.yaml`.
@@ -81,6 +81,7 @@ For local development with private SSOT repositories (like Crucible before publi
 ### Local Override Examples
 
 **Main Config (Committed)**
+
 ```yaml
 # .fuldx/sync-consumer.yaml
 version: "2025.10.0"
@@ -91,14 +92,16 @@ sources:
 ```
 
 **Local Override (Gitignored)**
+
 ```yaml
 # .fuldx/sync-consumer.local.yaml
 sources:
   - name: crucible
-    localPath: ../crucible  # Machine-specific local path
+    localPath: ../crucible # Machine-specific local path
 ```
 
 **Environment Variable Override**
+
 ```bash
 # Set for custom development setups
 export FULDX_CRUCIBLE_LOCAL_PATH=/custom/path/to/crucible
@@ -148,7 +151,7 @@ sources:
 ## Migration Notes
 
 - Existing scripts (e.g., `scripts/pull/crucible-pull.ts`) should be replaced with FulDX commands once the CLI is available.
-- Ensure `.crucible/tools.yaml` includes the required external binaries (goneat, fuldx itself, etc.).
+- Ensure `.goneat/tools.yaml` includes the required external binaries (goneat, fuldx itself, etc.).
 
 ## See Also
 

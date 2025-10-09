@@ -32,6 +32,55 @@ This SOP defines the operational guidelines, safety protocols, and guardrails fo
 | Deleting schemas or standards          | Downstream breakage           | Requires issue + maintainer review. Provide migration plan and version bump.                                |
 | Modifying CI workflows                 | Broken automation             | Review with @3leapsdave. Test in branch before merging.                                                     |
 
+## Commit and Push Checklists
+
+### Pre-Commit Checklist
+
+**Before running `git commit`:**
+
+- [ ] Run `make check-all` and verify all quality gates pass
+- [ ] Check working tree state with `git status`
+  - **Clean commit (preferred)**: No unstaged files present
+  - **Partial commit**: Explicit approval obtained and documented for committing with unstaged files
+- [ ] Verify commit message follows attribution standards (see [Agentic Attribution Standard](../standards/agentic-attribution.md))
+- [ ] Review staged changes with `git diff --staged` to confirm intended scope
+
+**After `git commit` attempt:**
+
+- [ ] Check commit command return code (zero = success, non-zero = failure requiring investigation)
+- [ ] Run `git status` to verify expected repository state
+- [ ] Review commit with `git log -1 --stat` to confirm files and message
+- [ ] **DO NOT PROCEED** to additional commits or push if working tree state is unexpected
+
+### Pre-Push Checklist
+
+**Before running `git push`:**
+
+- [ ] Verify working tree is clean with `git status` (no unstaged or uncommitted files)
+  - **Exception**: Emergency bypass with explicit maintainer approval and incident tracking
+- [ ] Run `make prepush` or `make check-all` to validate quality gates
+- [ ] Review commit history to be pushed: `git log origin/main..HEAD`
+- [ ] Verify all commits have proper attribution (agent + supervisor)
+- [ ] Confirm push target is correct branch: `git branch --show-current`
+- [ ] Obtain explicit approval from @3leapsdave for pushes to `main`
+
+**After `git push` attempt:**
+
+- [ ] Check push command return code and output for errors or warnings
+- [ ] Verify remote state matches local: `git log origin/main -3`
+- [ ] Run `git status` to confirm clean working tree post-push
+- [ ] Monitor CI/CD pipeline for any failures triggered by push
+
+### Common Pre-Operation Mistakes to Avoid
+
+| Mistake                                      | Impact                                             | Prevention                                                                   |
+| -------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------- |
+| Committing with unstaged files (no approval) | Incomplete changes committed, confusion in history | Always check `git status` before commit; obtain approval for partial commits |
+| Pushing with dirty working tree              | Local changes not in remote, desync risk           | Run `git status` before push; ensure clean state                             |
+| Skipping quality gates                       | Broken code in main branch, failing CI             | Always run `make check-all` or `make prepush`                                |
+| Not verifying operation results              | Failed operations go unnoticed, compounding issues | Always check return codes and run `git status` after operations              |
+| Committing without format/sync               | Format churn in subsequent builds                  | Ensure `make build` includes sync + format steps                             |
+
 ## Required Commands & Tools
 
 - `make bootstrap`, `make lint`, `make test`, `make release:check`

@@ -1,0 +1,14 @@
+# Local tool overrides for development iteration
+# Copy this file to tools.local.yaml (gitignored) and customize paths.
+# Bootstrap prefers tools.local.yaml when present, allowing you to test local builds.
+version: v1.0.0
+binDir: ./bin
+tools:
+  - id: goneat
+    description: Goneat CLI (local build)
+    required: true
+    install:
+      type: link
+      source: /Users/yourname/dev/goneat/dist/goneat
+      binName: goneat
+      destination: ./bin

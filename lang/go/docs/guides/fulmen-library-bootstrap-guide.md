@@ -574,7 +574,7 @@ After initial bootstrap and some development, consider adding Goneat when:
 - Need cross-repo version coordination
 - Ready for production release automation
 
-See: [Goneat Integration Guide](goneat-integration-guide.md) (when available)
+Goneat-based release automation will be documented once the CLI owns SSOT sync and publishing tasks.
 
 ## Troubleshooting
 
@@ -712,6 +712,6 @@ chmod +x fuldx
 - [SSOT Sync Guide](sync-consumers-guide.md) - Advanced sync patterns
 - [Repository Versioning](../standards/repository-versioning.md) - CalVer vs SemVer
 - [Makefile Standard](../standards/makefile-standard.md) - Standard targets
-- [Goneat Integration](goneat-integration-guide.md) - Adding release automation
+- Goneat integration guide (TBD) - Release automation patterns
 
 ---

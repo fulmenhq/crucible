@@ -157,7 +157,7 @@ For Fulmen templates or projects that need to vendor schemas/docs/config default
 1. **Install FulDX (tool bootstrap)**
 
 ```bash
-make bootstrap   # installs ./bin/fuldx via .crucible/tools.yaml
+make bootstrap   # installs ./bin/fuldx via .goneat/tools.yaml
 ```
 
 2. **Create a sync manifest** (`.fuldx/sync-consumer.yaml` is a common location):
