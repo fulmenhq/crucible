@@ -18,6 +18,7 @@ const MODULE_IDS = new Set([
   'fuldx-bootstrap',
   'ssot-sync',
   'observability-logging',
+  'foundry-patterns',
   'cloud-storage',
   'pathfinder',
   'ascii-helpers',
@@ -30,6 +31,7 @@ const CORE_MODULES = new Set([
   'fuldx-bootstrap',
   'ssot-sync',
   'observability-logging',
+  'foundry-patterns',
 ]);
 
 type JSONObject = Record<string, unknown>;
@@ -179,6 +181,147 @@ function validateModuleManifest(manifest: any): void {
   }
 }
 
+function validateFoundryPatterns(catalog: any): void {
+  assert(catalog && typeof catalog === 'object', 'foundry patterns must be object');
+  const record = catalog as JSONObject;
+  const version = expectString(record['version'], 'foundry catalog missing version');
+  assert(/^[vV]?\d+\.\d+\.\d+$/.test(version), 'foundry catalog version must be SemVer/CalVer');
+
+  const patterns = record['patterns'];
+  assert(Array.isArray(patterns) && patterns.length > 0, 'foundry patterns array must be non-empty');
+  const ids = new Set<string>();
+  const allowedKinds = new Set(['regex', 'glob', 'literal']);
+
+  for (const entry of patterns as JSONObject[]) {
+    assert(entry && typeof entry === 'object', 'pattern entry must be object');
+    const entryRecord = entry as JSONObject;
+    const id = expectString(entryRecord['id'], 'pattern entry missing id');
+    assert(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(id), `invalid pattern id: ${id}`);
+    assert(!ids.has(id), `duplicate pattern id: ${id}`);
+    ids.add(id);
+
+    expectString(entryRecord['name'], `pattern ${id} missing name`);
+    const kind = expectString(entryRecord['kind'], `pattern ${id} missing kind`);
+    assert(allowedKinds.has(kind), `pattern ${id} invalid kind: ${kind}`);
+    expectString(entryRecord['pattern'], `pattern ${id} missing pattern string`);
+
+    const flags = entryRecord['flags'];
+    if (flags !== undefined) {
+      assert(typeof flags === 'object' && !Array.isArray(flags), `pattern ${id} flags must be object`);
+    }
+  }
+}
+
+function validateHttpStatusGroups(catalog: any): void {
+  assert(catalog && typeof catalog === 'object', 'http status catalog must be object');
+  const record = catalog as JSONObject;
+  const version = expectString(record['version'], 'http status catalog missing version');
+  assert(/^[vV]?\d+\.\d+\.\d+$/.test(version), 'http status catalog version must be SemVer/CalVer');
+
+  const groups = record['groups'];
+  assert(Array.isArray(groups) && groups.length > 0, 'http status groups must be non-empty array');
+  const ids = new Set<string>();
+
+  for (const entry of groups as JSONObject[]) {
+    assert(entry && typeof entry === 'object', 'http status group must be object');
+    const entryRecord = entry as JSONObject;
+    const id = expectString(entryRecord['id'], 'http status group missing id');
+    assert(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(id), `invalid http status group id: ${id}`);
+    assert(!ids.has(id), `duplicate http status group id: ${id}`);
+    ids.add(id);
+
+    expectString(entryRecord['name'], `http status group ${id} missing name`);
+    const codes = entryRecord['codes'];
+    assert(Array.isArray(codes) && codes.length > 0, `http status group ${id} missing codes array`);
+    const seenCodes = new Set<number>();
+    for (const codeEntry of codes as JSONObject[]) {
+      assert(codeEntry && typeof codeEntry === 'object', `http status group ${id} code entry must be object`);
+      const entryObj = codeEntry as JSONObject;
+      const valueRaw = entryObj['value'];
+      assert(
+        typeof valueRaw === 'number' && Number.isInteger(valueRaw),
+        `http status group ${id} code must be integer`,
+      );
+      const value = valueRaw as number;
+      const reason = expectString(entryObj['reason'], `http status group ${id} code ${value} missing reason`);
+      assert(value >= 100 && value <= 599, `http status group ${id} code ${value} out of range`);
+      assert(!seenCodes.has(value), `http status group ${id} duplicate code ${value}`);
+      seenCodes.add(value);
+      const extraDesc = entryObj['description'];
+      if (extraDesc !== undefined) {
+        expectString(extraDesc, `http status group ${id} code ${value} description must be string`);
+      }
+      assert(reason.length > 0, `http status group ${id} code ${value} reason must be non-empty`);
+    }
+  }
+}
+
+function validateCountryCodes(catalog: any): void {
+  assert(catalog && typeof catalog === 'object', 'country code catalog must be object');
+  const record = catalog as JSONObject;
+  const version = expectString(record['version'], 'country code catalog missing version');
+  assert(/^[vV]?\d+\.\d+\.\d+$/.test(version), 'country code catalog version must be SemVer/CalVer');
+
+  const countries = record['countries'];
+  assert(Array.isArray(countries) && countries.length > 0, 'country code list must be non-empty array');
+  const seenAlpha2 = new Set<string>();
+  const seenAlpha3 = new Set<string>();
+
+  for (const entry of countries as JSONObject[]) {
+    assert(entry && typeof entry === 'object', 'country entry must be object');
+    const entryRecord = entry as JSONObject;
+    const alpha2 = expectString(entryRecord['alpha2'], 'country entry missing alpha2');
+    const alpha3 = expectString(entryRecord['alpha3'], 'country entry missing alpha3');
+    const numeric = expectString(entryRecord['numeric'], 'country entry missing numeric code');
+    expectString(entryRecord['name'], 'country entry missing name');
+
+    assert(/^[A-Z]{2}$/.test(alpha2), `invalid alpha2 code: ${alpha2}`);
+    assert(/^[A-Z]{3}$/.test(alpha3), `invalid alpha3 code: ${alpha3}`);
+    assert(/^[0-9]{3}$/.test(numeric), `invalid numeric code: ${numeric}`);
+    assert(!seenAlpha2.has(alpha2), `duplicate alpha2 code: ${alpha2}`);
+    assert(!seenAlpha3.has(alpha3), `duplicate alpha3 code: ${alpha3}`);
+    seenAlpha2.add(alpha2);
+    seenAlpha3.add(alpha3);
+  }
+}
+
+function validateMimeTypes(catalog: any): void {
+  assert(catalog && typeof catalog === 'object', 'mime type catalog must be object');
+  const record = catalog as JSONObject;
+  const version = expectString(record['version'], 'mime type catalog missing version');
+  assert(/^[vV]?\d+\.\d+\.\d+$/.test(version), 'mime type catalog version must be SemVer/CalVer');
+
+  const types = record['types'];
+  assert(Array.isArray(types) && types.length > 0, 'mime type list must be non-empty array');
+  const seenIds = new Set<string>();
+  const seenMimes = new Set<string>();
+
+  for (const entry of types as JSONObject[]) {
+    assert(entry && typeof entry === 'object', 'mime type entry must be object');
+    const entryRecord = entry as JSONObject;
+    const id = expectString(entryRecord['id'], 'mime type entry missing id');
+    const mime = expectString(entryRecord['mime'], `mime type ${id} missing mime`);
+    assert(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(id), `invalid mime type id: ${id}`);
+    assert(/^[a-z0-9.+-]+\/[a-z0-9.+-]+$/.test(mime), `invalid mime value: ${mime}`);
+    assert(!seenIds.has(id), `duplicate mime type id: ${id}`);
+    assert(!seenMimes.has(mime), `duplicate mime value: ${mime}`);
+    seenIds.add(id);
+    seenMimes.add(mime);
+
+    const extensions = entryRecord['extensions'];
+    if (extensions !== undefined) {
+      assert(Array.isArray(extensions), `mime type ${id} extensions must be array`);
+      const seenExt = new Set<string>();
+      for (const ext of extensions as unknown[]) {
+        const extStr = expectString(ext, `mime type ${id} extension must be string`);
+        assert(/^[a-z0-9]+$/.test(extStr), `mime type ${id} invalid extension: ${extStr}`);
+        assert(!seenExt.has(extStr), `mime type ${id} duplicate extension: ${extStr}`);
+        seenExt.add(extStr);
+      }
+    }
+  }
+}
+
 function validateLogEventSchema(schema: unknown): void {
   assert(schema && typeof schema === 'object', 'log-event schema must be object');
   const schemaRecord = schema as JSONObject;
@@ -231,6 +374,22 @@ async function main(): Promise<void> {
   console.log('Validating library module manifest...');
   const manifest = await loadFile('config/library/v1.0.0/module-manifest.yaml');
   validateModuleManifest(manifest);
+
+  console.log('Validating foundry pattern catalog...');
+  const foundry = await loadFile('config/library/foundry/patterns.yaml');
+  validateFoundryPatterns(foundry);
+
+  console.log('Validating HTTP status catalog...');
+  const httpStatuses = await loadFile('config/library/foundry/http-statuses.yaml');
+  validateHttpStatusGroups(httpStatuses);
+
+  console.log('Validating country code catalog...');
+  const countryCodes = await loadFile('config/library/foundry/country-codes.yaml');
+  validateCountryCodes(countryCodes);
+
+  console.log('Validating MIME types catalog...');
+  const mimeTypes = await loadFile('config/library/foundry/mime-types.yaml');
+  validateMimeTypes(mimeTypes);
 
   console.log('Validating log-event schema structure...');
   const logEventSchema = await loadFile('schemas/observability/logging/v1.0.0/log-event.schema.json');

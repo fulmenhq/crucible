@@ -3,9 +3,15 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to CalVer (`YYYY.MM.REVISION`).
 
 ## [Unreleased]
+
+### Changed
+
+- Reorganized `docs/standards/library/` into module- and catalog-specific folders with synced language copies
+- Promoted the Foundry catalog to a core module in the manifest and broadened schema validation coverage
+- Added Biome formatting to the `make fmt` target to keep TypeScript schemas formatted after sync
 
 ### Added
 
@@ -15,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - MIT License
 - Basic README and contributing guidelines
 
-## [1.0.0] - 2025-10-01
+## [2025.10.1] - 2025-10-01
 
 ### Added
 

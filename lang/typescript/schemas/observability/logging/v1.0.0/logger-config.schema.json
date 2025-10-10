@@ -7,15 +7,7 @@
   "properties": {
     "defaultLevel": {
       "type": "string",
-      "enum": [
-        "TRACE",
-        "DEBUG",
-        "INFO",
-        "WARN",
-        "ERROR",
-        "FATAL",
-        "NONE"
-      ],
+      "enum": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "NONE"],
       "default": "INFO",
       "description": "Default minimum log level"
     },
@@ -51,41 +43,24 @@
       "description": "Include stack traces for ERROR and FATAL levels"
     }
   },
-  "required": [
-    "service"
-  ],
+  "required": ["service"],
   "$defs": {
     "sinkConfig": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": [
-            "console",
-            "file"
-          ],
+          "enum": ["console", "file"],
           "description": "Sink type"
         },
         "level": {
           "type": "string",
-          "enum": [
-            "TRACE",
-            "DEBUG",
-            "INFO",
-            "WARN",
-            "ERROR",
-            "FATAL",
-            "NONE"
-          ],
+          "enum": ["TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "NONE"],
           "description": "Minimum level for this sink (overrides defaultLevel)"
         },
         "format": {
           "type": "string",
-          "enum": [
-            "json",
-            "text",
-            "console"
-          ],
+          "enum": ["json", "text", "console"],
           "default": "json",
           "description": "Output format"
         },
@@ -96,18 +71,14 @@
           "$ref": "#/$defs/fileSinkConfig"
         }
       },
-      "required": [
-        "type"
-      ]
+      "required": ["type"]
     },
     "consoleSinkConfig": {
       "type": "object",
       "properties": {
         "stream": {
           "type": "string",
-          "enum": [
-            "stderr"
-          ],
+          "enum": ["stderr"],
           "default": "stderr",
           "description": "Output stream (stdout MUST NOT be used for logs)"
         },
@@ -146,9 +117,7 @@
           "description": "Compress rotated files with gzip"
         }
       },
-      "required": [
-        "path"
-      ]
+      "required": ["path"]
     }
   },
   "examples": [

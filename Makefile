@@ -70,8 +70,9 @@ build-python: ## Build Python wrapper (matches GitHub Actions)
 	@cd lang/python && uv sync
 
 # Format, Lint, Typecheck targets
-fmt: ## Format code files using goneat
+fmt: ## Format code files using goneat and Biome
 	@$(BIN_DIR)/goneat format --verbose
+	@cd lang/typescript && bun run format >/dev/null
 
 fmt-check: ## Check if files are formatted without modifying
 	@$(BIN_DIR)/goneat format --check --verbose

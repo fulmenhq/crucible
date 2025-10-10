@@ -34,6 +34,7 @@
 - [ ] Tag pushed to origin
 - [ ] Go module publishes (proxy fetch succeeds)
 - [ ] npm package published (or prepared for release)
+- [ ] Release notes file committed (`release-notes/<VERSION>.md`)
 - [ ] Release notes posted (GitHub release or docs update)
 
 ## Post-Release Validation

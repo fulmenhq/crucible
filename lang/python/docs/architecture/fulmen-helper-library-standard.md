@@ -31,7 +31,7 @@ Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulm
      - Installs FulDX to `./bin/fuldx`.
    - Let FulDX handle other tool installations (goneat, etc.) via `fuldx tools install`.
    - Provide `make bootstrap` target that runs bootstrap script.
-   - Refer to the [FulDX Bootstrap Standard](../standards/library/fuldx-bootstrap.md) for normative contract.
+   - Refer to the [FulDX Bootstrap Standard](../standards/library/modules/fuldx-bootstrap.md) for normative contract.
 
 2. **SSOT Synchronization**
    - Include `.fuldx/sync-consumer.yaml` configuration for Crucible asset sync. Example manifest:
@@ -67,30 +67,30 @@ Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulm
    - Commit synced assets to version control (docs/crucible-<lang>, schemas/crucible-<lang>, config/crucible-<lang>, metadata) for offline availability.
    - Provide `make sync` target that runs `fuldx ssot sync`.
    - Use glob patterns such as `schemas/**/*` to capture both `.json` and `.yaml` schemas.
-   - Refer to the [SSOT Sync Standard](../standards/library/ssot-sync.md) for command surface and testing guidance.
+   - Refer to the [SSOT Sync Standard](../standards/library/modules/ssot-sync.md) for command surface and testing guidance.
 
 3. **Crucible Shim**
    - Provide idiomatic access to Crucible assets (docs, schemas, config defaults).
    - Re-export version constants so consumers can log/report underlying Crucible snapshot.
    - Discover available categories (`ListAvailableDocs()`, `ListAvailableSchemas()`) via embedded metadata or generated index.
-   - Refer to the [Crucible Shim Standard](../standards/library/crucible-shim.md).
+   - Refer to the [Crucible Shim Standard](../standards/library/modules/crucible-shim.md).
 
 4. **Config Path API**
    - Implement `GetAppConfigDir`, `GetAppDataDir`, `GetAppCacheDir`, `GetAppConfigPaths`, and `GetXDGBaseDirs` (naming per language).
    - Expose Fulmen-specific helpers (`GetFulmenConfigDir`, etc.) aligned with [Fulmen Config Path Standard](../standards/config/fulmen-config-paths.md).
    - Respect platform defaults (Linux/macOS/Windows) and environment overrides.
-   - Refer to the [Config Path API Standard](../standards/library/config-path-api.md).
+   - Refer to the [Config Path API Standard](../standards/library/modules/config-path-api.md).
 
 5. **Three-Layer Config Loading**
    - Layer 1: Embed Crucible defaults from `config/{category}/vX.Y.Z/*-defaults.yaml`.
    - Layer 2: Merge user overrides from `GetFulmenConfigDir()`.
    - Layer 3: Allow application-provided config (BYOC) with explicit API hooks.
-   - Refer to the [Three-Layer Configuration Standard](../standards/library/three-layer-config.md).
+   - Refer to the [Three-Layer Configuration Standard](../standards/library/modules/three-layer-config.md).
 
 6. **Schema Validation Utilities**
    - Provide helpers to load, parse, and validate schemas shipped in Crucible.
    - Optional but recommended: integrate with language-native validation libraries.
-   - Refer to the [Schema Validation Helper Standard](../standards/library/schema-validation.md).
+   - Refer to the [Schema Validation Helper Standard](../standards/library/modules/schema-validation.md).
 
 7. **Observability Integration**
    - Consume logging schemas/defaults from `config/observability/logging/`.

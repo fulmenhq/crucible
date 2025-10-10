@@ -68,6 +68,6 @@ layer. Helper libraries provide parsing utilities to merge these values safely.
 
 ## Related Documents
 
-- `docs/standards/library/config-path-api.md`
+- `./config-path-api.md`
 - `docs/standards/config/fulmen-config-paths.md`
 - `schemas/taxonomy/repository-category/v1.0.0/category-key.schema.json`
