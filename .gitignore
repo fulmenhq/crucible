@@ -41,6 +41,8 @@ htmlcov/
 # TypeScript
 *.tsbuildinfo
 *.js.map
+coverage/
+lang/*/coverage/
 
 # Planning files (agent session notes)
 .plans/

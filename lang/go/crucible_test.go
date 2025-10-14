@@ -167,16 +167,31 @@ func TestSchemaValidationSchemas(t *testing.T) {
 }
 
 func TestCodingStandards(t *testing.T) {
-	goStd, err := StandardsRegistry.Coding().Go()
-	if err != nil {
-		t.Fatalf("Failed to load Go coding standards: %v", err)
-	}
+	t.Run("Go", func(t *testing.T) {
+		goStd, err := StandardsRegistry.Coding().Go()
+		if err != nil {
+			t.Fatalf("Failed to load Go coding standards: %v", err)
+		}
 
-	if len(goStd) == 0 {
-		t.Error("Go coding standards should not be empty")
-	}
+		if len(goStd) == 0 {
+			t.Error("Go coding standards should not be empty")
+		}
 
-	t.Logf("Go coding standards loaded: %d bytes", len(goStd))
+		t.Logf("Go coding standards loaded: %d bytes", len(goStd))
+	})
+
+	t.Run("TypeScript", func(t *testing.T) {
+		tsStd, err := StandardsRegistry.Coding().TypeScript()
+		if err != nil {
+			t.Fatalf("Failed to load TypeScript coding standards: %v", err)
+		}
+
+		if len(tsStd) == 0 {
+			t.Error("TypeScript coding standards should not be empty")
+		}
+
+		t.Logf("TypeScript coding standards loaded: %d bytes", len(tsStd))
+	})
 }
 
 func TestGetSchema(t *testing.T) {
@@ -231,6 +246,7 @@ func TestObservabilityLoggingSchemas(t *testing.T) {
 		{"LogEvent", logging.LogEvent},
 		{"LoggerConfig", logging.LoggerConfig},
 		{"MiddlewareConfig", logging.MiddlewareConfig},
+		{"SeverityFilter", logging.SeverityFilter},
 	}
 
 	for _, tt := range tests {
@@ -247,4 +263,42 @@ func TestObservabilityLoggingSchemas(t *testing.T) {
 			t.Logf("%s schema loaded: %d bytes", tt.name, len(schema))
 		})
 	}
+}
+
+func TestGetTerminalSchema(t *testing.T) {
+	schema, err := GetTerminalSchema()
+	if err != nil {
+		t.Fatalf("Failed to get terminal schema: %v", err)
+	}
+
+	if len(schema) == 0 {
+		t.Error("Terminal schema should not be empty")
+	}
+
+	t.Logf("Terminal schema loaded: %d bytes", len(schema))
+}
+
+func TestParseJSONSchema(t *testing.T) {
+	// Get a sample schema first
+	schemaBytes, err := SchemaRegistry.Terminal().V1_0_0()
+	if err != nil {
+		t.Fatalf("Failed to load terminal schema: %v", err)
+	}
+
+	// Parse it
+	parsed, err := ParseJSONSchema(schemaBytes)
+	if err != nil {
+		t.Fatalf("Failed to parse JSON schema: %v", err)
+	}
+
+	if len(parsed) == 0 {
+		t.Error("Parsed schema should not be empty")
+	}
+
+	// Check for common JSON schema fields
+	if _, ok := parsed["$schema"]; !ok {
+		t.Error("Parsed schema should have $schema field")
+	}
+
+	t.Logf("Parsed schema with %d top-level fields", len(parsed))
 }
