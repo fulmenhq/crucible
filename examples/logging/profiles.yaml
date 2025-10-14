@@ -1,0 +1,41 @@
+# Sample configurations for progressive logging profiles
+simple_config:
+  profile: SIMPLE
+  service: sample-cli
+  defaultLevel: INFO
+structured_config:
+  profile: STRUCTURED
+  service: sample-service
+  sinks:
+    - type: console
+      format: json
+    - type: file
+      path: logs/service.log
+enterprise_config:
+  profile: ENTERPRISE
+  service: sample-workhorse
+  policyFile: /org/logging-policy.yaml
+  sinks:
+    - type: console
+      level: INFO
+      format: json
+    - type: rolling-file
+      path: logs/workhorse.log
+      maxSize: 100
+      maxAge: 7
+      maxBackups: 5
+      compress: true
+  middleware:
+    - name: redact-secrets
+      order: 1
+    - name: correlation
+      order: 2
+      config:
+        generator: uuidv7
+        headerName: X-Correlation-ID
+  throttling:
+    enabled: true
+    maxRate: 1000
+    burstSize: 100
+    windowSize: 60
+    dropPolicy: drop-oldest

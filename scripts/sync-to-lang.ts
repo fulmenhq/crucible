@@ -3,8 +3,8 @@
 /**
  * Sync root assets to language wrappers
  *
- * Internal script for crucible maintainers to sync schemas/ and docs/
- * from repository root to lang/go/ and lang/typescript/ before publishing.
+ * Internal script for crucible maintainers to sync schemas/, config/, and docs/
+ * from repository root to lang/* before publishing.
  *
  * Usage:
  *   bun run scripts/sync-to-lang.ts
@@ -81,6 +81,8 @@ async function syncToTypeScript(options: SyncOptions) {
   const tsRoot = join(ROOT, "lang/typescript");
 
   await syncDirectory(join(ROOT, "schemas"), join(tsRoot, "schemas"), "schemas/", options);
+
+  await syncDirectory(join(ROOT, "config"), join(tsRoot, "config"), "config/", options);
 
   await syncDirectory(join(ROOT, "docs"), join(tsRoot, "docs"), "docs/", options, ["ops"]);
 }
@@ -181,12 +183,15 @@ OPTIONS:
   --help       Show this help
 
 DESCRIPTION:
-  Syncs schemas/ and docs/ from repository root to:
+  Syncs schemas/, config/, and docs/ from repository root to:
     - lang/go/schemas/
+    - lang/go/config/
     - lang/go/docs/
     - lang/typescript/schemas/
+    - lang/typescript/config/
     - lang/typescript/docs/
     - lang/python/schemas/
+    - lang/python/config/
     - lang/python/docs/
 
   This ensures language wrappers have up-to-date copies

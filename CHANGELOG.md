@@ -12,6 +12,14 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 - Reorganized `docs/standards/library/` into module- and catalog-specific folders with synced language copies
 - Promoted the Foundry catalog to a core module in the manifest and broadened schema validation coverage
 - Added Biome formatting to the `make fmt` target to keep TypeScript schemas formatted after sync
+- Introduced progressive logging profiles, policy enforcement, and updated schemas under `schemas/observability/logging/v1.0.0/`
+
+### Added
+
+- Ecosystem-level documentation (`docs/architecture/fulmen-ecosystem-guide.md`, `docs/architecture/fulmen-technical-manifesto.md`) summarizing history, architecture, and standards alignment
+- Repository lifecycle standard and schema (`docs/standards/repository-lifecycle.md`, `schemas/config/repository/v1.0.0/lifecycle-phase.json`) for consistent quality gating across Fulmen repos
+
+## [2025.10.1] - 2025-10-01
 
 ### Added
 
@@ -20,11 +28,6 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 - CI/CD workflows for validation, testing, and publishing
 - MIT License
 - Basic README and contributing guidelines
-
-## [2025.10.1] - 2025-10-01
-
-### Added
-
 - Terminal configuration schemas and catalog
 - Policy schemas for fulward
 - Go and TypeScript language wrappers
