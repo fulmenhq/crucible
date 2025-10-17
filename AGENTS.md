@@ -87,7 +87,7 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
 3. **Plan**
    - Outline steps in `.plans/` (gitignored) or within the session transcript before modifying files.
 4. **Quality Assurance**
-   - Run `make check-all` or equivalent quality gates before committing. Analyze outputs thoroughly; do not proceed if checks fail. Prioritize fixing process issues over code changes.
+   - **BEFORE staging/committing**: Run `make precommit` or `make check-all` to format, lint, and test. Stage ALL files after checks pass (including formatted files).
    - Ensure all tests pass: `make test`
    - Verify code formatting: `make fmt`
    - Run linting: `make lint`
@@ -103,7 +103,7 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
 
 ### DO
 
-- **Quality First**: Always run `make check-all` before commits. Analyze all outputs; resolve process failures before code fixes.
+- **Quality First**: Always run `make precommit` or `make check-all` BEFORE staging files. Stage all files (including formatted) after checks pass, then commit.
 - **Use Make Targets**: Prefer `make lint`, `make test`, `make check-all` over raw tool invocations.
 - **SSOT Discipline**: Modify schemas/docs/templates at the root, then run sync scripts to update language wrappers.
 - **Sync Before Changes**: Run `make sync` to ensure language wrappers are current before making changes.
@@ -119,9 +119,56 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
 - **Commit Planning Files**: Never attempt to commit files in `.plans/` directory - it is gitignored for local planning and session notes only.
 - **Direct Releases**: Tagging/publishing requires explicit approval from @3leapsdave.
 - **Store Secrets**: Never commit API keys, tokens, or credentials. See `REPOSITORY_SAFETY_PROTOCOLS.md`.
-- **Skip Quality Gates**: Never commit without passing `make check-all`.
+- **Skip Quality Gates**: Never stage/commit without first running `make precommit` or `make check-all`.
 - **Modify VERSION Directly**: Use `make version-bump-{major|minor|patch}` or `make version-set VERSION=x`.
 - **Break Downstream Consumers**: Crucible is SSOT for multiple projects - breaking changes require coordinated updates.
+
+## Crucible-Specific Operational Checklists
+
+**IMPORTANT**: Crucible has repository-specific operational procedures due to its role as SSOT for language wrappers.
+
+### Pre-Commit Workflow
+
+**Always follow**: [`docs/ops/repository/commit-checklist.md`](docs/ops/repository/commit-checklist.md)
+
+**Key Crucible-specific requirements**:
+
+1. Run `make precommit` (includes sync, format, lint, test)
+2. Verify `git status` shows synced files in `lang/*/`
+3. Stage ALL files including language wrappers
+4. Use concise commit message style (see [Commit Message Style](docs/sop/repository-operations-sop.md#commit-message-style))
+5. Verify clean working tree after commit
+
+### Pre-Release Workflow
+
+**Always follow**: [`docs/ops/repository/release-checklist.md`](docs/ops/repository/release-checklist.md)
+
+**Key Crucible-specific requirements**:
+
+1. Run `make prepush` (comprehensive quality gates)
+2. Verify all language wrappers synced
+3. Update VERSION file: `make version-set VERSION=<version>`
+4. Get explicit approval from @3leapsdave before pushing
+5. Tag release: `git tag -a v$(cat VERSION)`
+6. Push commits and tag separately
+7. Notify downstream consumers (gofulmen, tsfulmen, pyfulmen)
+
+### Quick Command Reference
+
+```bash
+# Pre-commit
+make precommit          # Quality gates + sync
+git status              # Verify sync completed
+git add .               # Stage all files
+git commit              # With proper attribution
+
+# Pre-release
+make prepush            # Comprehensive checks
+make version-set VERSION=2025.10.2
+git tag -a v$(cat VERSION)
+git push origin main    # After approval
+git push origin v$(cat VERSION)
+```
 
 ## Reference Documents
 
