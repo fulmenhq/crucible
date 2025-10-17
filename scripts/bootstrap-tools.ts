@@ -8,7 +8,7 @@
  *   bun run scripts/bootstrap-tools.ts --verify [--manifest path]
  */
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, symlinkSync, unlinkSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { load as parseYaml } from "js-yaml";
@@ -340,18 +340,18 @@ async function installLinkTool(tool: ToolDefinition, force: boolean): Promise<bo
   }
 
   try {
-    copyFileSync(sourcePath, targetPath);
-    if (process.platform !== "win32") {
-      await Bun.spawn({
-        cmd: ["chmod", "+x", targetPath],
-        stdio: ["inherit", "inherit", "inherit"],
-      }).exited;
+    // Remove existing file/symlink before creating new symlink
+    if (existsSync(targetPath)) {
+      unlinkSync(targetPath);
     }
-    console.log(`  → linked from ${sourcePath} to ${targetPath}`);
+
+    // Create symlink (MUST use symlink, not copy, per Fulmen Helper Library Standard)
+    symlinkSync(sourcePath, targetPath);
+    console.log(`  → 🔗 created symlink from ${sourcePath} to ${targetPath}`);
     return true;
   } catch (error) {
     console.error(
-      `Tool ${tool.id}: failed to link binary:`,
+      `Tool ${tool.id}: failed to create symlink:`,
       error instanceof Error ? error.message : String(error),
     );
     return false;
