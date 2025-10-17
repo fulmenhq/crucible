@@ -7,7 +7,7 @@ VERSION_FILE := VERSION
 
 .PHONY: help bootstrap tools sync test build build-all clean version fmt fmt-check lint typecheck
 .PHONY: sync-schemas sync-to-lang test-go test-ts test-python build-python lint-python
-.PHONY: version-set version-bump-major version-bump-minor version-bump-patch
+.PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare prepush precommit check-all
 .PHONY: validate-schemas
 
@@ -119,22 +119,32 @@ validate-schemas: ## Validate taxonomy registries and logging schema changes
 version: ## Print current repository version
 	@cat $(VERSION_FILE)
 
-version-set: ## Update VERSION and sync to wrappers (usage: make version-set VERSION=2025.11.0)
+version-set: ## Update VERSION and propagate to package.json (usage: make version-set VERSION=2025.11.0)
 ifndef VERSION
 	$(error VERSION is required. Usage: make version-set VERSION=2025.11.0)
 endif
-	@echo "$(VERSION)" > $(VERSION_FILE)
-	@bun run scripts/update-version.ts
-	@echo "✅ Version updated to $(VERSION)"
+	@$(BIN_DIR)/goneat version set $(VERSION)
+	@$(MAKE) version-propagate
+	@echo "✅ Version set to $(VERSION) and propagated"
+
+version-propagate: ## Propagate VERSION to package managers (package.json, etc.)
+	@$(BIN_DIR)/goneat version propagate
+	@echo "✅ Version propagated to package managers"
 
 version-bump-major: ## Bump major version (CalVer year.month)
-	@bun run scripts/update-version.ts --bump major
+	@$(BIN_DIR)/goneat version bump major
+	@$(MAKE) version-propagate
+	@echo "✅ Version bumped (major) and propagated"
 
 version-bump-minor: ## Bump minor version (CalVer patch within month)
-	@bun run scripts/update-version.ts --bump minor
+	@$(BIN_DIR)/goneat version bump minor
+	@$(MAKE) version-propagate
+	@echo "✅ Version bumped (minor) and propagated"
 
 version-bump-patch: ## Bump patch version (CalVer micro within day)
-	@bun run scripts/update-version.ts --bump patch
+	@$(BIN_DIR)/goneat version bump patch
+	@$(MAKE) version-propagate
+	@echo "✅ Version bumped (patch) and propagated"
 
 # Release targets
 release-check: test ## Validate release readiness (tests, sync, checklist)

@@ -1,36 +1,22 @@
 {
-  "name": "@fulmenhq/crucible",
-  "version": "2025.10.0",
+  "author": "3 Leaps, LLC",
+  "bugs": {
+    "url": "https://github.com/fulmenhq/crucible/issues"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
   "description": "Blueprints for Scale - Standards forge for the FulmenHQ ecosystem",
-  "type": "module",
-  "scripts": {
-    "sync": "make sync",
-    "sync:schemas": "make sync-schemas",
-    "sync:to-lang": "make sync-to-lang",
-    "sync:all": "make sync",
-    "test": "make test",
-    "test:go": "make test-go",
-    "test:ts": "make test-ts",
-    "build": "make build",
-    "fmt": "make fmt",
-    "lint": "make lint",
-    "typecheck": "make typecheck",
-    "clean": "make clean",
-    "version": "make version",
-    "version:set": "make version:set",
-    "version:bump-major": "make version-bump-major",
-    "version:bump-minor": "make version-bump-minor",
-    "version:bump-patch": "make version-bump-patch",
-    "release:check": "make release-check",
-    "release:prepare": "make release-prepare",
-    "prepush": "make prepush",
-    "precommit": "make precommit",
-    "check-all": "make check-all"
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.5",
+    "@types/bun": "^1.2.23",
+    "@types/js-yaml": "^4.0.9",
+    "typescript": "^5.9.3"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fulmenhq/crucible.git"
+  "engines": {
+    "bun": "\u003e=1.2.0"
   },
+  "homepage": "https://github.com/fulmenhq/crucible#readme",
   "keywords": [
     "standards",
     "schemas",
@@ -38,22 +24,36 @@
     "fulmen",
     "fulmenhq"
   ],
-  "author": "3 Leaps, LLC",
   "license": "SEE LICENSE IN LICENSE",
-  "bugs": {
-    "url": "https://github.com/fulmenhq/crucible/issues"
+  "name": "@fulmenhq/crucible",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fulmenhq/crucible.git"
   },
-  "homepage": "https://github.com/fulmenhq/crucible#readme",
-  "engines": {
-    "bun": ">=1.2.0"
+  "scripts": {
+    "build": "make build",
+    "check-all": "make check-all",
+    "clean": "make clean",
+    "fmt": "make fmt",
+    "lint": "make lint",
+    "precommit": "make precommit",
+    "prepush": "make prepush",
+    "release:check": "make release-check",
+    "release:prepare": "make release-prepare",
+    "sync": "make sync",
+    "sync:all": "make sync",
+    "sync:schemas": "make sync-schemas",
+    "sync:to-lang": "make sync-to-lang",
+    "test": "make test",
+    "test:go": "make test-go",
+    "test:ts": "make test-ts",
+    "typecheck": "make typecheck",
+    "version": "make version",
+    "version:bump-major": "make version-bump-major",
+    "version:bump-minor": "make version-bump-minor",
+    "version:bump-patch": "make version-bump-patch",
+    "version:set": "make version:set"
   },
-  "dependencies": {
-    "js-yaml": "^4.1.0"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.2.5",
-    "@types/bun": "^1.2.23",
-    "@types/js-yaml": "^4.0.9",
-    "typescript": "^5.9.3"
-  }
+  "type": "module",
+  "version": "2025.10.2"
 }

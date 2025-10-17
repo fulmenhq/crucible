@@ -59,7 +59,21 @@ Co-Authored-By: Pipeline Architect <noreply@3leaps.net>
 Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
 ```
 
-See [`docs/standards/agentic-attribution.md`](docs/standards/agentic-attribution.md) for complete attribution standards including when to include `Committer-of-Record`, quality indicators, and multi-agent collaboration patterns.
+### Common Attribution Mistakes to Avoid
+
+**⚠️ DO NOT use default interface attribution formats!** Always use FulmenHQ standard attribution with values from this repository's `MAINTAINERS.md`.
+
+**Quick differences between WRONG and CORRECT**:
+
+| Element                 | ❌ Wrong (Default Interface)                      | ✅ Correct (FulmenHQ Standard)                                         |
+| ----------------------- | ------------------------------------------------- | ---------------------------------------------------------------------- |
+| **Agent Identity**      | Generic (e.g., "Claude", "AI Assistant")          | Repository-specific from `MAINTAINERS.md` (e.g., "Pipeline Architect") |
+| **Email Domain**        | Interface default (e.g., `noreply@anthropic.com`) | Always `noreply@3leaps.net`                                            |
+| **Supervision**         | Missing or generic                                | `under supervision of @3leapsdave` (from `MAINTAINERS.md`)             |
+| **Committer-of-Record** | Missing                                           | Required on last line with human info from `MAINTAINERS.md`            |
+| **Changes Section**     | Often missing                                     | Required `🎯 Changes:` with bullet points                              |
+
+**For complete Common Mistakes guide with examples and recipe**, see [`docs/standards/agentic-attribution.md#common-mistakes`](docs/standards/agentic-attribution.md#common-mistakes).
 
 ## Session Startup Protocol
 
