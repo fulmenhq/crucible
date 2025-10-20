@@ -1,6 +1,8 @@
 # Release Checklist Template
 
 > Copy this template into a release PR or issue and fill in the details for the specific version. Do **not** edit this file with release-specific information—keep it as the canonical playbook.
+>
+> **For operational workflow**: See [`docs/ops/repository/release-checklist.md`](docs/ops/repository/release-checklist.md) for the detailed Crucible-specific release process including SSOT sync requirements.
 
 ## Metadata
 

@@ -26,12 +26,12 @@ Layers compose into a virtuous cycle: Refine standards in Crucible → Sync to l
 
 ## Evolution: From Templates to Ecosystem Flywheel
 
-| Phase | Timeline | Key Evolution | Outcomes |
-|-------|----------|---------------|----------|
-| **Inception** | Feb–Apr 2025 | Frustration with boilerplate → Build functional forges (cockpit, runner, portal) via CRDL (Clone → Degit → Refit → Launch). | Proven "complete systems" accelerate teams to production-scale without basics drudgery. |
-| **Standards Forge** | May–Jul 2025 | Realized repeated pains (logging, schemas, enums) → Crucible as SSOT for contracts/docs/processes; prototype goneat/Fulward. | Centralized standards prevent reinvention; early libs (gofulmen) emerge for idiomatic access. |
-| **Consolidation** | Aug–Sep 2025 | Ecosystem sprawl → Align libs (pyfulmen, tsfulmen), tools (brooklyn-mcp), AI co-maintainers; draft Substaile coding norms. | Module parity across langs; MCP integrates workflows; human-AI roles defined in MAINTAINERS.md. |
-| **Scale Wave** | Oct 2025+ | Full flywheel → Foundry catalogs, CalVer releases, Cosmography (data SSOT); AI stewardship for maintenance. | Multi-lang readiness; forges like forge-cli-pecan leverage ecosystem; "Thrive on Scale" realized via composed layers.
+| Phase               | Timeline     | Key Evolution                                                                                                                | Outcomes                                                                                                              |
+| ------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **Inception**       | Feb–Apr 2025 | Frustration with boilerplate → Build functional forges (cockpit, runner, portal) via CRDL (Clone → Degit → Refit → Launch).  | Proven "complete systems" accelerate teams to production-scale without basics drudgery.                               |
+| **Standards Forge** | May–Jul 2025 | Realized repeated pains (logging, schemas, enums) → Crucible as SSOT for contracts/docs/processes; prototype goneat/Fulward. | Centralized standards prevent reinvention; early libs (gofulmen) emerge for idiomatic access.                         |
+| **Consolidation**   | Aug–Sep 2025 | Ecosystem sprawl → Align libs (pyfulmen, tsfulmen), tools (brooklyn-mcp), AI co-maintainers; draft Substaile coding norms.   | Module parity across langs; MCP integrates workflows; human-AI roles defined in MAINTAINERS.md.                       |
+| **Scale Wave**      | Oct 2025+    | Full flywheel → Foundry catalogs, CalVer releases, Cosmography (data SSOT); AI stewardship for maintenance.                  | Multi-lang readiness; forges like forge-cli-pecan leverage ecosystem; "Thrive on Scale" realized via composed layers. |
 
 ## Ecosystem Map
 
