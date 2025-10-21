@@ -20,6 +20,7 @@ const MODULE_IDS = new Set([
   'observability-logging',
   'foundry-patterns',
   'error-handling-propagation',
+  'docscribe',
   'cloud-storage',
   'pathfinder',
   'ascii-helpers',
@@ -35,6 +36,7 @@ const CORE_MODULES = new Set([
   'observability-logging',
   'foundry-patterns',
   'error-handling-propagation',
+  'docscribe',
 ]);
 
 type JSONObject = Record<string, unknown>;
