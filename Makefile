@@ -57,7 +57,7 @@ test-python: ## Run Python wrapper tests (matches GitHub Actions)
 	@cd lang/python && uv run pytest
 
 # Build targets
-build: sync-to-lang fmt build-go build-ts build-python ## Build language wrappers (matches GitHub Actions)
+build: fmt sync-to-lang build-go build-ts build-python ## Build language wrappers (matches GitHub Actions)
 	@echo "✅ Language wrappers built"
 
 build-go: ## Build Go wrapper (matches GitHub Actions)
