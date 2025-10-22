@@ -139,26 +139,51 @@ Crucible provides JSON schemas for cross-language consistency:
 - **Terminal** (`schemas/terminal/v1.0.0/`)
   - Terminal configuration catalog (iTerm2, Ghostty, Apple Terminal)
 
+- **Foundry Catalog** (`schemas/library/foundry/v1.0.0/`)
+  - `country-codes.schema.json` - ISO 3166 country codes with alpha-2/alpha-3/numeric normalization
+  - `http-status-groups.schema.json` - HTTP status code groupings and semantic meanings
+  - `mime-types.schema.json` - Common MIME type classifications
+  - `patterns.schema.json` - Text similarity and normalization patterns
+  - `similarity.schema.json` - String similarity algorithm configurations
+
+- **Observability** (`schemas/observability/`)
+  - Logging schemas (`v1.0.0/`) - Logger configuration, log events, severity filters, middleware
+  - Metrics schemas (`v1.0.0/`) - Metrics event structure
+
 ### Standards & Documentation
 
 - **Coding Standards** (`docs/standards/coding/`)
-  - Go coding practices
+  - Go coding practices (with schema-driven config hydration)
   - TypeScript coding practices
+  - Python coding practices
+
+- **Library Standards** (`docs/standards/library/`)
+  - **Modules**: Crucible Shim, Docscribe, Config Path API, Three-Layer Config, Schema Validation
+  - **Catalogs**: Foundry (country codes, HTTP status, MIME types, text similarity)
+  - Helper library standard with Crucible Overview and version documentation requirements
 
 - **Repository Standards** (`docs/standards/`)
   - Frontmatter standard for documentation
   - Repository versioning (SemVer and CalVer)
+  - Repository lifecycle (experimental → LTS)
   - Error handling patterns
   - Configuration standardization
   - Agentic attribution
 
+- **Architecture** (`docs/architecture/`)
+  - Fulmen ecosystem guide and technical manifesto
+  - Pseudo-monorepo strategy and sync model
+  - Helper library standard
+
 - **SOPs** (`docs/sop/`)
-  - Repository structure requirements
+  - Repository structure requirements and operations
   - Version adoption process
+  - CI/CD operations
 
 - **Guides** (`docs/guides/`)
   - Integration guide (production + development)
   - Sync strategy (pull scripts vs packages)
+  - Bootstrap guides (goneat, helper libraries)
 
 ## What's Inside
 
@@ -365,7 +390,9 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-Bootstrap phase. Schemas and standards under active development for FulmenHQ ecosystem integration.
+**Version**: 2025.10.2 (CalVer: YYYY.MM.REVISION)
+
+Active development. Core schemas, standards, and helper library contracts stabilized. Progressive logging, Foundry catalog patterns, and docscribe module ready for ecosystem integration.
 
 ---
 

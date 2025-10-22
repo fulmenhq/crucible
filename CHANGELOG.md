@@ -7,7 +7,7 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 
 ## [Unreleased]
 
-## [2025.10.2] - 2025-10-17
+## [2025.10.2] - 2025-10-22
 
 ### Added
 
@@ -21,6 +21,10 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 - Schema contract fixtures and golden events testing sections in all language coding standards (Go §5.4, Python §5.4, TypeScript §5.5)
 - Progressive logging playbook table in observability logging standard with profile-specific defaults and middleware requirements
 - Schema field naming and policy integration guidance in observability logging standard
+- Foundry text similarity and normalization standard (docs/standards/library/catalogs/foundry/text-similarity-normalization.md) with case-insensitive lookups, alpha-2/alpha-3/numeric country code normalization, and precomputed secondary indexes
+- Docscribe module standard (docs/standards/library/modules/docscribe.md) for accessing and processing Crucible documentation assets with frontmatter extraction
+- Crucible Overview requirement in helper library standard requiring all libraries to explain Crucible's role, shim/docscribe value, and learning resources
+- Helper library README requirement for Crucible version section documenting metadata access via CrucibleVersion() API
 
 ### Changed
 
@@ -33,10 +37,14 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 - Reorganized docs/ops/repository/ structure with memos/ subfolder for historical documentation
 - Updated AGENTS.md with clarified quality gate workflow (precommit and prepush)
 - Updated RELEASE_CHECKLIST.md to reference operational release-checklist.md
+- Stabilized crucible-shim standard with enhanced API specifications for CrucibleVersion() metadata access
+- Refined ecosystem guide and technical manifesto with broader architectural vision and helper library integration patterns
+- Updated crucible-shim to defer metadata schema ownership to goneat while specifying consumption API contract
 
 ### Fixed
 
 - Bootstrap symlink creation for type:link tools (was copying instead of symlinking)
+- Format-before-sync order in scripts/sync-to-lang.ts to eliminate double-formatting and reduce sync noise
 
 ## [2025.10.1] - 2025-10-01
 
