@@ -5,7 +5,16 @@ author: "Schema Cartographer"
 date: "2025-10-23"
 last_updated: "2025-10-23"
 status: "draft"
-tags: ["standards", "library", "fulhash", "checksums", "xxh3-128", "sha256", "2025.10.3"]
+tags:
+  [
+    "standards",
+    "library",
+    "fulhash",
+    "checksums",
+    "xxh3-128",
+    "sha256",
+    "2025.10.3",
+  ]
 ---
 
 # FulHash Module Standard
@@ -28,6 +37,7 @@ By standardizing on two algorithms (`xxh3-128` for speed, `sha256` for security)
 One-shot hashing for in-memory data (strings, byte arrays, buffers).
 
 **Go**:
+
 ```go
 import "github.com/fulmenhq/gofulmen/fulhash"
 
@@ -37,6 +47,7 @@ formatted := digest.String()  // "xxh3-128:abc123..."
 ```
 
 **Python**:
+
 ```python
 from pyfulmen.fulhash import hash, Algorithm
 
@@ -46,11 +57,12 @@ print(digest.formatted) # "xxh3-128:abc123..."
 ```
 
 **TypeScript**:
+
 ```typescript
-import { hash, Algorithm } from '@fulmenhq/tsfulmen/fulhash';
+import { hash, Algorithm } from "@fulmenhq/tsfulmen/fulhash";
 
 const digest = await hash(data, { algorithm: Algorithm.XXH3_128 });
-console.log(digest.hex);       // "abc123..."
+console.log(digest.hex); // "abc123..."
 console.log(digest.formatted); // "xxh3-128:abc123..."
 ```
 
@@ -59,6 +71,7 @@ console.log(digest.formatted); // "xxh3-128:abc123..."
 Incremental hashing for large files or streams without loading entire content into memory.
 
 **Go**:
+
 ```go
 hasher := fulhash.NewStreamHasher(fulhash.XXH3_128)
 io.Copy(hasher, file)
@@ -66,6 +79,7 @@ digest := hasher.Sum()
 ```
 
 **Python**:
+
 ```python
 hasher = fulhash.stream(algorithm=Algorithm.XXH3_128)
 for chunk in file:
@@ -74,37 +88,41 @@ digest = hasher.digest()
 ```
 
 **TypeScript**:
+
 ```typescript
 const hasher = fulhash.createStream({ algorithm: Algorithm.XXH3_128 });
 for await (const chunk of stream) {
-    hasher.update(chunk);
+  hasher.update(chunk);
 }
 const digest = hasher.digest();
 ```
 
 ### 3. Metadata Formatting
 
-Standardized checksum representation: `<algorithm>:<lowercase-hex>`
+Standardized checksum representation: `<algorithm>:<lowercase-hex>` (see [`checksum-string.schema.json`](../../../schemas/library/fulhash/v1.0.0/checksum-string.schema.json))
 
 **Format Helper**:
+
 ```python
 checksum = "xxh3-128:a1b2c3d4e5f6"
 algo, hex_value = fulhash.parse_checksum(checksum)
 ```
 
 **Validation**:
+
 - Algorithm prefix MUST be from supported set (`xxh3-128`, `sha256`)
 - Hex MUST be lowercase
 - Separator MUST be single colon (`:`)
 
 ## Algorithms
 
-| Algorithm  | Bit Width | Purpose                  | Default | Performance      |
-|------------|-----------|--------------------------|---------|------------------|
-| `xxh3-128` | 128-bit   | Fast change detection    | ✅ Yes  | ~50-100 GB/s     |
-| `sha256`   | 256-bit   | Cryptographic integrity  | No      | ~500 MB/s - 2GB/s |
+| Algorithm  | Bit Width | Purpose                 | Default | Performance       |
+| ---------- | --------- | ----------------------- | ------- | ----------------- |
+| `xxh3-128` | 128-bit   | Fast change detection   | ✅ Yes  | ~50-100 GB/s      |
+| `sha256`   | 256-bit   | Cryptographic integrity | No      | ~500 MB/s - 2GB/s |
 
 **Selection Criteria**:
+
 - **xxh3-128**: Default for Pathfinder, Docscribe, cache keys. Non-cryptographic but excellent collision resistance for integrity checks.
 - **sha256**: Opt-in for tamper detection, release artifact verification, security-sensitive workflows.
 
@@ -116,32 +134,36 @@ algo, hex_value = fulhash.parse_checksum(checksum)
 
 Represents a computed hash with metadata.
 
-| Field       | Type   | Description                                    |
-|-------------|--------|------------------------------------------------|
+| Field       | Type   | Description                                     |
+| ----------- | ------ | ----------------------------------------------- |
 | `algorithm` | string | Algorithm identifier (`"xxh3-128"`, `"sha256"`) |
-| `hex`       | string | Lowercase hexadecimal representation           |
-| `bytes`     | bytes  | Raw hash bytes (language-specific type)        |
-| `formatted` | string | Prefixed format: `"<algorithm>:<hex>"`         |
+| `hex`       | string | Lowercase hexadecimal representation            |
+| `bytes`     | bytes  | Raw hash bytes (language-specific type)         |
+| `formatted` | string | Prefixed format: `"<algorithm>:<hex>"`          |
+
+Canonical schema: [`digest.schema.json`](../../../schemas/library/fulhash/v1.0.0/digest.schema.json)
 
 ### StreamHasher
 
 Incremental hasher supporting `update()`, `digest()`, and optional `reset()`.
 
 **Required Methods**:
+
 - `update(data)`: Add chunk to running hash
 - `digest()`: Finalize and return Digest
 - `reset()`: Clear state for reuse (optional, recommended)
 
 ## Error Handling
 
-| Error Condition           | Behavior                                                    |
-|---------------------------|-------------------------------------------------------------|
-| Unsupported algorithm     | Raise error with list of supported algorithms               |
-| Invalid checksum format   | Raise error indicating expected format                      |
-| I/O error during stream   | Propagate I/O error with context (file path if available)   |
-| Empty input               | Return valid digest for zero-length input (per algorithm)   |
+| Error Condition         | Behavior                                                  |
+| ----------------------- | --------------------------------------------------------- |
+| Unsupported algorithm   | Raise error with list of supported algorithms             |
+| Invalid checksum format | Raise error indicating expected format                    |
+| I/O error during stream | Propagate I/O error with context (file path if available) |
+| Empty input             | Return valid digest for zero-length input (per algorithm) |
 
 **Error Messages MUST**:
+
 - Include algorithm/checksum string in context
 - Suggest valid alternatives for unsupported algorithm
 - Reference FulHash documentation for format specification
@@ -153,6 +175,7 @@ Helper libraries MUST validate against shared test fixtures ensuring cross-langu
 **Fixture Location**: `config/library/fulhash/fixtures.yaml` (synced to lang wrappers)
 
 **Fixture Structure**:
+
 ```yaml
 version: "1.0.0"
 fixtures:
@@ -161,13 +184,13 @@ fixtures:
     encoding: "utf-8"
     xxh3_128: "xxh3-128:99aa06d3014798d86001c324468d497f"
     sha256: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  
+
   - name: "hello-world"
     input: "Hello, World!"
     encoding: "utf-8"
     xxh3_128: "xxh3-128:..."
     sha256: "sha256:..."
-  
+
   - name: "streaming-test"
     description: "Multi-chunk streaming validation"
     chunks: ["Hello, ", "World!"]
@@ -178,14 +201,15 @@ fixtures:
 
 ## Performance Requirements
 
-| Workload        | Target                                      |
-|-----------------|---------------------------------------------|
-| Small files     | <1ms overhead for files <10KB               |
-| Large files     | <10% overhead vs raw I/O for streaming      |
-| Memory          | O(1) memory usage for streaming (constant buffer size) |
-| Concurrency     | Thread-safe Digest type, StreamHasher stateful per instance |
+| Workload    | Target                                                      |
+| ----------- | ----------------------------------------------------------- |
+| Small files | <1ms overhead for files <10KB                               |
+| Large files | <10% overhead vs raw I/O for streaming                      |
+| Memory      | O(1) memory usage for streaming (constant buffer size)      |
+| Concurrency | Thread-safe Digest type, StreamHasher stateful per instance |
 
 **Benchmarking**: Each implementation MUST include benchmarks comparing:
+
 - Block hashing (small/medium/large inputs)
 - Streaming hashing (chunked vs single read)
 - Memory allocation profiles
@@ -241,10 +265,12 @@ cache.Get(key)
 ### Go (gofulmen)
 
 **Dependencies**:
+
 - `github.com/zeebo/xxh3` (pure Go, MIT license)
 - `crypto/sha256` (stdlib)
 
 **Streaming**:
+
 ```go
 type StreamHasher interface {
     io.Writer
@@ -258,10 +284,12 @@ type StreamHasher interface {
 ### Python (pyfulmen)
 
 **Dependencies**:
+
 - `xxhash` package (PyPI, BSD-2-Clause)
 - `hashlib` (stdlib)
 
 **Async Support**: Provide async variants for streaming:
+
 ```python
 async def hash_file(path: Path, algorithm: Algorithm) -> Digest:
     hasher = fulhash.stream(algorithm)
@@ -274,18 +302,20 @@ async def hash_file(path: Path, algorithm: Algorithm) -> Digest:
 ### TypeScript (tsfulmen)
 
 **Dependencies**:
+
 - `xxhash-wasm` (NPM, MIT license) for Node.js/browser
 - `crypto` (Node.js stdlib) or `crypto.subtle` (browser) for SHA-256
 
 **Promise-based**:
+
 ```typescript
 async function hashFile(path: string, algorithm: Algorithm): Promise<Digest> {
-    const hasher = fulhash.createStream({ algorithm });
-    const stream = fs.createReadStream(path);
-    for await (const chunk of stream) {
-        hasher.update(chunk);
-    }
-    return hasher.digest();
+  const hasher = fulhash.createStream({ algorithm });
+  const stream = fs.createReadStream(path);
+  for await (const chunk of stream) {
+    hasher.update(chunk);
+  }
+  return hasher.digest();
 }
 ```
 
@@ -318,6 +348,7 @@ async function hashFile(path: string, algorithm: Algorithm): Promise<Digest> {
 **API Stability**: Core functions (`hash`, `stream`, `Digest` type) are stable. New algorithms may be added without breaking changes.
 
 **Deprecation Policy**: Algorithm removal requires:
+
 1. Deprecation notice in release notes (minimum 2 releases)
 2. Migration guide for affected consumers
 3. Fixture retention for legacy validation

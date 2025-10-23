@@ -11,7 +11,8 @@
       "**/coverage/**",
       "**/.cache/**",
       "**/dist/**",
-      "**/node_modules/**"
+      "**/node_modules/**",
+      "**/*.json"
     ]
   },
   "formatter": {

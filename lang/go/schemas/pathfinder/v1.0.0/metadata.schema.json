@@ -35,7 +35,10 @@
     "checksumAlgorithm": {
       "type": "string",
       "description": "Algorithm used for checksum calculation",
-      "enum": ["xxh3-128", "sha256"]
+      "enum": [
+        "xxh3-128",
+        "sha256"
+      ]
     },
     "checksumError": {
       "type": "string",

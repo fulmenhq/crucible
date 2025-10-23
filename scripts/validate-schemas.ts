@@ -19,12 +19,14 @@ const MODULE_IDS = new Set([
   'ssot-sync',
   'observability-logging',
   'foundry-patterns',
+  'foundry',
   'error-handling-propagation',
   'docscribe',
   'cloud-storage',
   'pathfinder',
   'ascii-helpers',
   'telemetry-metrics',
+  'fulhash',
 ]);
 const CORE_MODULES = new Set([
   'config-path-api',
@@ -35,8 +37,10 @@ const CORE_MODULES = new Set([
   'ssot-sync',
   'observability-logging',
   'foundry-patterns',
+  'foundry',
   'error-handling-propagation',
   'docscribe',
+  'fulhash',
 ]);
 
 type JSONObject = Record<string, unknown>;

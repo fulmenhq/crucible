@@ -5,7 +5,16 @@ author: "Schema Cartographer"
 date: "2025-10-09"
 last_updated: "2025-10-23"
 status: "draft"
-tags: ["standards", "library", "extensions", "pathfinder", "fulhash", "checksums", "2025.10.3"]
+tags:
+  [
+    "standards",
+    "library",
+    "extensions",
+    "pathfinder",
+    "fulhash",
+    "checksums",
+    "2025.10.3",
+  ]
 ---
 
 # Pathfinder Extension
@@ -54,13 +63,14 @@ Extend Pathfinder configuration with checksum options:
 {
   "includePatterns": ["**/*.go", "**/*.ts"],
   "excludePatterns": ["**/node_modules/**"],
-  "calculateChecksums": false,          // Enable checksum calculation
-  "checksumAlgorithm": "xxh3-128",      // Default: xxh3-128, also supports: sha256
-  "checksumEncoding": "hex"             // Default: hex (lowercase)
+  "calculateChecksums": false, // Enable checksum calculation
+  "checksumAlgorithm": "xxh3-128", // Default: xxh3-128, also supports: sha256
+  "checksumEncoding": "hex", // Default: hex (lowercase)
 }
 ```
 
 **Fields**:
+
 - `calculateChecksums` (boolean): Enable/disable checksum calculation. Default: `false`
 - `checksumAlgorithm` (string): Hash algorithm. Options: `"xxh3-128"` (default), `"sha256"`
 - `checksumEncoding` (string): Output encoding. Currently only `"hex"` supported (lowercase)
@@ -82,6 +92,7 @@ When checksums enabled, `PathResult` metadata includes:
 ```
 
 **New Fields**:
+
 - `checksum` (string, optional): Formatted checksum with algorithm prefix (`<algorithm>:<hex>`)
 - `checksumAlgorithm` (string, optional): Algorithm identifier for quick filtering
 
@@ -99,6 +110,7 @@ When checksums enabled, `PathResult` metadata includes:
 **Checksum Calculation Failures**:
 
 When checksum calculation fails (permissions, I/O error):
+
 1. Log warning with file path and error reason
 2. Continue traversal (do not fail entire operation)
 3. Omit checksum fields from metadata for affected files
@@ -118,6 +130,7 @@ When checksum calculation fails (permissions, I/O error):
 ### Implementation Requirements
 
 **FulHash Integration**:
+
 ```python
 # Python example
 from pyfulmen.fulhash import hash_file, Algorithm
@@ -125,7 +138,7 @@ from pyfulmen.fulhash import hash_file, Algorithm
 if config.calculate_checksums:
     try:
         digest = await hash_file(
-            path, 
+            path,
             algorithm=Algorithm[config.checksum_algorithm.upper().replace('-', '_')]
         )
         metadata.checksum = digest.formatted
@@ -136,6 +149,7 @@ if config.calculate_checksums:
 ```
 
 **Cross-Language Validation**:
+
 - All implementations MUST produce identical checksums for same file
 - Use FulHash shared fixtures for testing
 - Include integration tests with known files
@@ -143,12 +157,14 @@ if config.calculate_checksums:
 ### Testing Requirements
 
 **Unit Tests**:
+
 - Checksum calculation enabled/disabled
 - Both algorithms (`xxh3-128`, `sha256`)
 - Error handling (permission denied, missing file)
 - Streaming correctness (large files)
 
 **Integration Tests**:
+
 - Cross-language checksum parity
 - Performance benchmarks within target overhead
 - Concurrent traversal with checksums
