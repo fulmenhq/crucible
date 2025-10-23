@@ -1,26 +1,9 @@
 {
-  "name": "@fulmenhq/crucible",
-  "version": "2025.10.2",
-  "description": "Crucible - Where Scale is Forged. Standards and schemas for the FulmenHQ ecosystem.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": ["dist", "schemas", "docs"],
-  "scripts": {
-    "build": "tsc",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "lint": "biome check .",
-    "format": "biome format --write .",
-    "prepublishOnly": "npm run build && npm test"
-  },
-  "keywords": ["fulmenhq", "crucible", "schemas", "standards"],
   "author": "FulmenHQ",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/fulmenhq/crucible.git"
+  "dependencies": {
+    "js-yaml": "^4.1.0"
   },
+  "description": "Crucible - Where Scale is Forged. Standards and schemas for the FulmenHQ ecosystem.",
   "devDependencies": {
     "@biomejs/biome": "^1.5.0",
     "@types/js-yaml": "^4.0.9",
@@ -29,7 +12,33 @@
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
   },
-  "dependencies": {
-    "js-yaml": "^4.1.0"
-  }
+  "files": [
+    "dist",
+    "schemas",
+    "docs"
+  ],
+  "keywords": [
+    "fulmenhq",
+    "crucible",
+    "schemas",
+    "standards"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "name": "@fulmenhq/crucible",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fulmenhq/crucible.git"
+  },
+  "scripts": {
+    "build": "tsc",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "prepublishOnly": "npm run build \u0026\u0026 npm test",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest"
+  },
+  "types": "dist/index.d.ts",
+  "version": "2025.10.3"
 }

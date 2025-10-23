@@ -55,5 +55,5 @@
     "version:set": "make version:set"
   },
   "type": "module",
-  "version": "2025.10.2"
+  "version": "2025.10.3"
 }
