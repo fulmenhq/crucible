@@ -7,7 +7,17 @@ last_updated: "2025-10-23"
 status: "stable"
 version: "2.0.0"
 tags:
-  ["foundry", "similarity", "normalization", "text", "levenshtein", "damerau", "jaro-winkler", "substring", "2025.10.3"]
+  [
+    "foundry",
+    "similarity",
+    "normalization",
+    "text",
+    "levenshtein",
+    "damerau",
+    "jaro-winkler",
+    "substring",
+    "2025.10.3",
+  ]
 ---
 
 # Foundry Text Similarity & Normalization Standard
@@ -46,21 +56,21 @@ All distance/similarity functions accept an optional `metric` parameter to selec
 
 **Metric Types**:
 
-| Metric String    | Algorithm                    | Use Case                                      |
-|------------------|------------------------------|-----------------------------------------------|
-| `"levenshtein"`  | Standard edit distance       | General-purpose, default for backward compatibility |
-| `"damerau"`      | Damerau-Levenshtein          | When transpositions are common typos          |
-| `"jaro_winkler"` | Jaro-Winkler similarity      | Short strings, prefix-sensitive matching      |
-| `"substring"`    | Longest common substring     | Partial matches, path/command suggestions     |
+| Metric String    | Algorithm                | Use Case                                            |
+| ---------------- | ------------------------ | --------------------------------------------------- |
+| `"levenshtein"`  | Standard edit distance   | General-purpose, default for backward compatibility |
+| `"damerau"`      | Damerau-Levenshtein      | When transpositions are common typos                |
+| `"jaro_winkler"` | Jaro-Winkler similarity  | Short strings, prefix-sensitive matching            |
+| `"substring"`    | Longest common substring | Partial matches, path/command suggestions           |
 
 **Default**: When `metric` is not specified or `null/None/undefined`, defaults to `"levenshtein"` for backward compatibility.
 
 ### Distance & Similarity Functions
 
-| Operation  | Go                                                    | Python                                                      | TypeScript                                                       |
-| ---------- | ----------------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------- |
-| Distance   | `similarity.Distance(a, b string, metric ...string) int` | `similarity.distance(a: str, b: str, metric: str = "levenshtein") -> int` | `similarity.distance(a: string, b: string, metric?: string): number` |
-| Similarity | `similarity.Score(a, b string, metric ...string) float64` | `similarity.score(a: str, b: str, metric: str = "levenshtein") -> float` | `similarity.score(a: string, b: string, metric?: string): number` |
+| Operation  | Go                                                        | Python                                                                    | TypeScript                                                           |
+| ---------- | --------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Distance   | `similarity.Distance(a, b string, metric ...string) int`  | `similarity.distance(a: str, b: str, metric: str = "levenshtein") -> int` | `similarity.distance(a: string, b: string, metric?: string): number` |
+| Similarity | `similarity.Score(a, b string, metric ...string) float64` | `similarity.score(a: str, b: str, metric: str = "levenshtein") -> float`  | `similarity.score(a: string, b: string, metric?: string): number`    |
 
 **Levenshtein Distance**:
 
@@ -104,12 +114,12 @@ Normalization presets provide pre-configured pipelines for common text processin
 
 **Preset Definitions**:
 
-| Preset       | Operations (in order)                                                                       | Use Case                                         |
-|--------------|---------------------------------------------------------------------------------------------|--------------------------------------------------|
-| `"none"`     | No normalization                                                                            | Raw string comparison, preserves all characters  |
-| `"minimal"`  | NFC → trim whitespace                                                                       | Canonical Unicode form, minimal processing       |
-| `"default"`  | NFC → Unicode casefold → trim whitespace                                                    | Case-insensitive matching, preserves accents     |
-| `"aggressive"` | NFKD → Unicode casefold → strip combining marks → remove punctuation → trim whitespace   | Fuzzy matching, typo tolerance, accent-insensitive |
+| Preset         | Operations (in order)                                                                  | Use Case                                           |
+| -------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| `"none"`       | No normalization                                                                       | Raw string comparison, preserves all characters    |
+| `"minimal"`    | NFC → trim whitespace                                                                  | Canonical Unicode form, minimal processing         |
+| `"default"`    | NFC → Unicode casefold → trim whitespace                                               | Case-insensitive matching, preserves accents       |
+| `"aggressive"` | NFKD → Unicode casefold → strip combining marks → remove punctuation → trim whitespace | Fuzzy matching, typo tolerance, accent-insensitive |
 
 **Operation Details**:
 
@@ -256,15 +266,16 @@ When using the `substring` metric or when `matchedRange` is populated in suggest
 
 **Cross-Language Implementation Guidance**:
 
-| Language   | String Model     | Implementation Notes                                           |
-|------------|------------------|----------------------------------------------------------------|
-| Go         | UTF-8 bytes      | Convert byte offsets to rune indices using `utf8.RuneCountInString()` or rune slicing |
-| Python     | Unicode codepoints | Direct indexing works (already codepoint-based)             |
-| TypeScript | UTF-16 code units | Use spread operator `[...str]` for proper surrogate pair handling |
+| Language   | String Model       | Implementation Notes                                                                  |
+| ---------- | ------------------ | ------------------------------------------------------------------------------------- |
+| Go         | UTF-8 bytes        | Convert byte offsets to rune indices using `utf8.RuneCountInString()` or rune slicing |
+| Python     | Unicode codepoints | Direct indexing works (already codepoint-based)                                       |
+| TypeScript | UTF-16 code units  | Use spread operator `[...str]` for proper surrogate pair handling                     |
 
 **Conformance Test Cases**:
 
 Implementations MUST correctly handle:
+
 - ASCII strings: `"hello"[1:4] == "ell"`
 - Astral plane emoji: `"Hi🔥World"`[2:3] == `"🔥"` (single character despite multi-byte encoding)
 - Emoji with ZWJ sequences: `"A👩‍🚀B"`[1:2] == `"👩‍🚀"` (single grapheme cluster)
@@ -272,11 +283,11 @@ Implementations MUST correctly handle:
 
 **No Match Representation**:
 
-| Language   | No Match Value   |
-|------------|------------------|
-| Go         | `nil` (*Range)   |
-| Python     | `None`           |
-| TypeScript | `undefined`      |
+| Language   | No Match Value  |
+| ---------- | --------------- |
+| Go         | `nil` (\*Range) |
+| Python     | `None`          |
+| TypeScript | `undefined`     |
 
 ### Normalization Helpers
 
@@ -284,12 +295,12 @@ Implementations MUST correctly handle:
 
 For advanced use cases, the following low-level helpers remain available:
 
-| Helper                          | Purpose                                                             |
-| ------------------------------- | ------------------------------------------------------------------- |
-| `Normalize(value, preset)`      | Apply a normalization preset ("none", "minimal", "default", "aggressive") |
-| `Casefold(value)`               | Unicode-aware case folding per Unicode standard                     |
-| `EqualsIgnoreCase(a, b, preset?)` | Compare strings using normalization preset                        |
-| `StripAccents(value)`           | Remove diacritics (NFKD decomposition + filter combining marks)     |
+| Helper                            | Purpose                                                                   |
+| --------------------------------- | ------------------------------------------------------------------------- |
+| `Normalize(value, preset)`        | Apply a normalization preset ("none", "minimal", "default", "aggressive") |
+| `Casefold(value)`                 | Unicode-aware case folding per Unicode standard                           |
+| `EqualsIgnoreCase(a, b, preset?)` | Compare strings using normalization preset                                |
+| `StripAccents(value)`             | Remove diacritics (NFKD decomposition + filter combining marks)           |
 
 **Normalization Preset Application**:
 
@@ -324,30 +335,31 @@ All option parameters MUST be validated with fail-fast behavior (no silent clamp
 
 **Validation Rules**:
 
-| Option              | Valid Values / Range | Default        | Invalid Behavior              |
-|---------------------|----------------------|----------------|-------------------------------|
-| `metric`            | `"levenshtein"`, `"damerau"`, `"jaro_winkler"`, `"substring"` | `"levenshtein"` | Error |
-| `normalizePreset`   | `"none"`, `"minimal"`, `"default"`, `"aggressive"` | `"default"` | Error |
-| `jaroPrefixScale`   | `[0.0, 0.25]` (float) | `0.1`          | Error if outside range       |
-| `jaroMaxPrefix`     | `[1, 8]` (integer)    | `4`            | Error if outside range       |
-| `minScore`          | `[0.0, 1.0]` (float)  | `0.6`          | Error if outside range       |
-| `maxSuggestions`    | `≥ 0` (integer)       | `3`            | Error if negative            |
-| `preferPrefix`      | boolean               | `false`        | Type error if not boolean    |
+| Option            | Valid Values / Range                                          | Default         | Invalid Behavior          |
+| ----------------- | ------------------------------------------------------------- | --------------- | ------------------------- |
+| `metric`          | `"levenshtein"`, `"damerau"`, `"jaro_winkler"`, `"substring"` | `"levenshtein"` | Error                     |
+| `normalizePreset` | `"none"`, `"minimal"`, `"default"`, `"aggressive"`            | `"default"`     | Error                     |
+| `jaroPrefixScale` | `[0.0, 0.25]` (float)                                         | `0.1`           | Error if outside range    |
+| `jaroMaxPrefix`   | `[1, 8]` (integer)                                            | `4`             | Error if outside range    |
+| `minScore`        | `[0.0, 1.0]` (float)                                          | `0.6`           | Error if outside range    |
+| `maxSuggestions`  | `≥ 0` (integer)                                               | `3`             | Error if negative         |
+| `preferPrefix`    | boolean                                                       | `false`         | Type error if not boolean |
 
 **Error Messages**:
 
 Implementations SHOULD provide clear error messages:
+
 - `"Invalid metric 'xyz': must be one of: levenshtein, damerau, jaro_winkler, substring"`
 - `"jaroPrefixScale must be in range [0.0, 0.25], got: 0.5"`
 - `"Unknown normalization preset 'custom': must be one of: none, minimal, default, aggressive"`
 
 **Language-Specific Error Types**:
 
-| Language   | Error Type          | Example                                      |
-|------------|---------------------|----------------------------------------------|
-| Go         | `error`             | `return nil, fmt.Errorf("invalid metric: %s", metric)` |
-| Python     | `ValueError`        | `raise ValueError(f"Invalid metric: {metric}")` |
-| TypeScript | `Error`             | `throw new Error(`Invalid metric: ${metric}`)` |
+| Language   | Error Type   | Example                                                |
+| ---------- | ------------ | ------------------------------------------------------ |
+| Go         | `error`      | `return nil, fmt.Errorf("invalid metric: %s", metric)` |
+| Python     | `ValueError` | `raise ValueError(f"Invalid metric: {metric}")`        |
+| TypeScript | `Error`      | `throw new Error(`Invalid metric: ${metric}`)`         |
 
 ### Error Handling
 
@@ -462,12 +474,12 @@ This section provides implementation guidance for each metric. Implementations M
 function substringScore(needle, haystack):
   if len(needle) == 0 or len(haystack) == 0:
     return {score: 0.0, range: nil}
-  
+
   # DP matrix: lcs[i][j] = length of LCS ending at needle[i-1], haystack[j-1]
   lcs = matrix[len(needle)+1][len(haystack)+1] initialized to 0
   max_length = 0
   end_positions = []
-  
+
   for i in 1..len(needle):
     for j in 1..len(haystack):
       if needle[i-1] == haystack[j-1]:
@@ -477,15 +489,15 @@ function substringScore(needle, haystack):
           end_positions = [j]
         elif lcs[i][j] == max_length:
           end_positions.append(j)
-  
+
   if max_length == 0:
     return {score: 0.0, range: nil}
-  
+
   # Find earliest start position
   earliest_end = min(end_positions)
   start = earliest_end - max_length
   end = earliest_end
-  
+
   score = max_length / max(len(needle), len(haystack))
   return {score: score, range: [start, end)}
 ```
@@ -516,28 +528,28 @@ Extend standard Levenshtein with transposition support. An adjacent transpositio
 function damerauDistance(a, b):
   if len(a) == 0: return len(b)
   if len(b) == 0: return len(a)
-  
+
   d = matrix[len(a)+1][len(b)+1]
-  
+
   for i in 0..len(a):
     d[i][0] = i
   for j in 0..len(b):
     d[0][j] = j
-  
+
   for i in 1..len(a):
     for j in 1..len(b):
       cost = 0 if a[i-1] == b[j-1] else 1
-      
+
       d[i][j] = min(
         d[i-1][j] + 1,        // deletion
         d[i][j-1] + 1,        // insertion
         d[i-1][j-1] + cost    // substitution
       )
-      
+
       # Transposition check
       if i > 1 and j > 1 and a[i-1] == b[j-2] and a[i-2] == b[j-1]:
         d[i][j] = min(d[i][j], d[i-2][j-2] + 1)  // transposition
-  
+
   return d[len(a)][len(b)]
 ```
 
@@ -546,6 +558,7 @@ function damerauDistance(a, b):
 Jaro-Winkler is a variant of Jaro distance with prefix bonus.
 
 **Parameters**:
+
 - `prefix_scale`: Scaling factor for common prefix bonus (default: 0.1, max: 0.25)
 - `max_prefix`: Maximum prefix length to consider (default: 4, range: [1, 8])
 
@@ -567,12 +580,12 @@ where:
 
 Measured on reference hardware (Apple M1, 8-core, Go 1.21, Python 3.12, Node 20):
 
-| Metric        | String Length | Go (p95)    | Python (p95) | TypeScript (p95) | Notes |
-|---------------|---------------|-------------|--------------|------------------|-------|
-| Levenshtein   | ≤128 chars    | ≤0.5ms      | ≤1.0ms       | ≤1.0ms           | Baseline |
-| Damerau       | ≤128 chars    | ≤0.55ms     | ≤1.1ms       | ≤1.1ms           | ≤10% regression vs Levenshtein |
-| Jaro-Winkler  | ≤50 chars     | ≤0.3ms      | ≤0.6ms       | ≤0.6ms           | Faster than Levenshtein for short strings |
-| Substring     | ≤256/10k chars| ≤1.0ms      | ≤2.0ms       | ≤2.0ms           | Needle ≤256, haystack ≤10k |
+| Metric       | String Length  | Go (p95) | Python (p95) | TypeScript (p95) | Notes                                     |
+| ------------ | -------------- | -------- | ------------ | ---------------- | ----------------------------------------- |
+| Levenshtein  | ≤128 chars     | ≤0.5ms   | ≤1.0ms       | ≤1.0ms           | Baseline                                  |
+| Damerau      | ≤128 chars     | ≤0.55ms  | ≤1.1ms       | ≤1.1ms           | ≤10% regression vs Levenshtein            |
+| Jaro-Winkler | ≤50 chars      | ≤0.3ms   | ≤0.6ms       | ≤0.6ms           | Faster than Levenshtein for short strings |
+| Substring    | ≤256/10k chars | ≤1.0ms   | ≤2.0ms       | ≤2.0ms           | Needle ≤256, haystack ≤10k                |
 
 **Performance Variance**:
 
@@ -851,7 +864,7 @@ v2.0 Suggestion struct has optional new fields:
 ```go
 for _, s := range suggestions {
     fmt.Printf("Suggestion: %s (score: %.2f)\n", s.Value, s.Score)
-    
+
     // v2.0 additions (check for nil/None/undefined):
     if s.MatchedRange != nil {
         fmt.Printf("  Matched at: [%d:%d)\n", s.MatchedRange.Start, s.MatchedRange.End)
