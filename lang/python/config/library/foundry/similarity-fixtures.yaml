@@ -1,4 +1,4 @@
-$schema: https://schemas.fulmenhq.dev/library/foundry/v1.0.0/similarity-fixtures.schema.json
+$schema: https://schemas.fulmenhq.dev/library/foundry/v1.0.0/similarity.schema.json
 version: 2025.10.3
 notes: |
   Fixture values to be computed by pyfulmen using Rust strsim 0.11.x (canonical)
