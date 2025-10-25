@@ -19,7 +19,7 @@
     },
     "test_cases": {
       "type": "array",
-      "description": "Organized test cases by category",
+      "description": "Organized test cases by metric category",
       "items": {
         "$ref": "#/definitions/TestCaseGroup"
       },
@@ -27,7 +27,7 @@
     },
     "notes": {
       "type": "string",
-      "description": "Optional notes about fixture generation methodology"
+      "description": "Notes about fixture generation methodology and reference implementations"
     }
   },
   "definitions": {
@@ -42,24 +42,28 @@
           "type": "string",
           "enum": [
             "levenshtein",
-            "damerau",
+            "damerau_osa",
+            "damerau_unrestricted",
             "jaro_winkler",
             "substring",
-            "normalization",
+            "normalization_presets",
             "suggestions"
           ],
-          "description": "Test case category (v2.0: split distance into specific metrics)"
+          "description": "Test case category by metric type"
         },
         "cases": {
           "type": "array",
           "description": "Test cases in this category",
           "items": {
-            "oneOf": [
+            "anyOf": [
               {
                 "$ref": "#/definitions/LevenshteinTestCase"
               },
               {
-                "$ref": "#/definitions/DamerauTestCase"
+                "$ref": "#/definitions/DamerauOSATestCase"
+              },
+              {
+                "$ref": "#/definitions/DamerauUnrestrictedTestCase"
               },
               {
                 "$ref": "#/definitions/JaroWinklerTestCase"
@@ -79,7 +83,7 @@
         }
       }
     },
-    "DistanceTestCase": {
+    "LevenshteinTestCase": {
       "type": "object",
       "required": [
         "input_a",
@@ -116,14 +120,201 @@
           "items": {
             "type": "string"
           },
-          "description": "Optional tags for categorization"
+          "description": "Optional tags (e.g., 'unicode', 'emoji', 'edge_case')"
         }
-      }
+      },
+      "additionalProperties": false
+    },
+    "DamerauOSATestCase": {
+      "type": "object",
+      "required": [
+        "input_a",
+        "input_b",
+        "expected_distance",
+        "expected_score"
+      ],
+      "properties": {
+        "input_a": {
+          "type": "string"
+        },
+        "input_b": {
+          "type": "string"
+        },
+        "expected_distance": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Expected Damerau-Levenshtein distance (Optimal String Alignment variant)"
+        },
+        "expected_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DamerauUnrestrictedTestCase": {
+      "type": "object",
+      "required": [
+        "input_a",
+        "input_b",
+        "expected_distance",
+        "expected_score"
+      ],
+      "properties": {
+        "input_a": {
+          "type": "string"
+        },
+        "input_b": {
+          "type": "string"
+        },
+        "expected_distance": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Expected Damerau-Levenshtein distance (unrestricted variant)"
+        },
+        "expected_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "JaroWinklerTestCase": {
+      "type": "object",
+      "required": [
+        "input_a",
+        "input_b",
+        "expected_score"
+      ],
+      "properties": {
+        "input_a": {
+          "type": "string"
+        },
+        "input_b": {
+          "type": "string"
+        },
+        "expected_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Expected Jaro-Winkler similarity score"
+        },
+        "prefix_scale": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.25,
+          "default": 0.1,
+          "description": "Prefix scaling factor (if non-default)"
+        },
+        "max_prefix": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8,
+          "default": 4,
+          "description": "Maximum prefix length (if non-default)"
+        },
+        "description": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "SubstringTestCase": {
+      "type": "object",
+      "required": [
+        "needle",
+        "haystack",
+        "expected_score"
+      ],
+      "properties": {
+        "needle": {
+          "type": "string",
+          "description": "Substring to search for"
+        },
+        "haystack": {
+          "type": "string",
+          "description": "String to search in"
+        },
+        "expected_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Expected substring similarity score"
+        },
+        "expected_range": {
+          "type": "object",
+          "required": [
+            "start",
+            "end"
+          ],
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Start index (inclusive, 0-based character position)"
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "End index (exclusive, one past last character)"
+            }
+          },
+          "description": "Expected matched range [start, end) in normalized haystack"
+        },
+        "normalize_preset": {
+          "type": "string",
+          "enum": [
+            "none",
+            "minimal",
+            "default",
+            "aggressive"
+          ],
+          "default": "none",
+          "description": "Normalization preset to apply before matching"
+        },
+        "description": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
     },
     "NormalizationTestCase": {
       "type": "object",
       "required": [
         "input",
+        "preset",
         "expected"
       ],
       "properties": {
@@ -131,26 +322,31 @@
           "type": "string",
           "description": "Input string to normalize"
         },
-        "options": {
-          "$ref": "#/definitions/NormalizeOptions",
-          "description": "Normalization options"
+        "preset": {
+          "type": "string",
+          "enum": [
+            "none",
+            "minimal",
+            "default",
+            "aggressive"
+          ],
+          "description": "Normalization preset to apply"
         },
         "expected": {
           "type": "string",
           "description": "Expected normalized output"
         },
         "description": {
-          "type": "string",
-          "description": "Human-readable test case description"
+          "type": "string"
         },
         "tags": {
           "type": "array",
           "items": {
             "type": "string"
-          },
-          "description": "Optional tags for categorization"
+          }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "SuggestionTestCase": {
       "type": "object",
@@ -184,30 +380,13 @@
           "description": "Expected suggestions in order"
         },
         "description": {
-          "type": "string",
-          "description": "Human-readable test case description"
+          "type": "string"
         },
         "tags": {
           "type": "array",
           "items": {
             "type": "string"
-          },
-          "description": "Optional tags for categorization"
-        }
-      }
-    },
-    "NormalizeOptions": {
-      "type": "object",
-      "properties": {
-        "strip_accents": {
-          "type": "boolean",
-          "default": false,
-          "description": "Whether to strip diacritics"
-        },
-        "locale": {
-          "type": "string",
-          "default": "",
-          "description": "Locale for case folding (empty = simple casefold)"
+          }
         }
       },
       "additionalProperties": false
@@ -219,19 +398,54 @@
           "type": "number",
           "minimum": 0,
           "maximum": 1,
-          "default": 0.6,
-          "description": "Minimum similarity score threshold"
+          "default": 0.6
         },
         "max_suggestions": {
           "type": "integer",
-          "minimum": 1,
-          "default": 3,
-          "description": "Maximum number of suggestions to return"
+          "minimum": 0,
+          "default": 3
         },
-        "normalize": {
+        "metric": {
+          "type": "string",
+          "enum": [
+            "levenshtein",
+            "damerau_osa",
+            "damerau_unrestricted",
+            "jaro_winkler",
+            "substring"
+          ],
+          "default": "levenshtein",
+          "description": "Distance metric to use"
+        },
+        "normalize_preset": {
+          "type": "string",
+          "enum": [
+            "none",
+            "minimal",
+            "default",
+            "aggressive"
+          ],
+          "default": "default",
+          "description": "Normalization preset"
+        },
+        "prefer_prefix": {
           "type": "boolean",
-          "default": true,
-          "description": "Whether to normalize input and candidates"
+          "default": false,
+          "description": "Apply bonus for prefix matches"
+        },
+        "jaro_prefix_scale": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.25,
+          "default": 0.1,
+          "description": "Jaro-Winkler prefix scale (only for jaro_winkler metric)"
+        },
+        "jaro_max_prefix": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 8,
+          "default": 4,
+          "description": "Jaro-Winkler max prefix length (only for jaro_winkler metric)"
         }
       },
       "additionalProperties": false
@@ -252,6 +466,28 @@
           "minimum": 0,
           "maximum": 1,
           "description": "Similarity score (0.0-1.0)"
+        },
+        "matched_range": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "description": "Matched range for substring metric (optional)"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Optional reason code (e.g., 'prefix_match', 'typo_correction')"
+        },
+        "normalized_value": {
+          "type": "string",
+          "description": "Result of applying normalization preset (optional)"
         }
       },
       "additionalProperties": false

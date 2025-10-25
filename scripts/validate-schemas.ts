@@ -372,6 +372,23 @@ async function validateHttpExamples(): Promise<void> {
   assert((versionExample as JSONObject)['success'] === true, 'version example must set success=true');
 }
 
+async function validateSimilarityFixtures(): Promise<void> {
+  const { execSync } = await import('node:child_process');
+  const goneatPath = path.resolve(repoRoot, 'bin/goneat');
+  const schemaPath = 'schemas/library/foundry/v2.0.0/similarity.schema.json';
+  const dataPath = 'config/library/foundry/similarity-fixtures.yaml';
+  
+  try {
+    execSync(`${goneatPath} validate data --schema-file ${schemaPath} --data ${dataPath}`, {
+      cwd: repoRoot,
+      stdio: 'pipe',
+      encoding: 'utf8',
+    });
+  } catch (error: any) {
+    throw new Error(`Similarity fixtures validation failed: ${error.message}`);
+  }
+}
+
 async function main(): Promise<void> {
   console.log('Validating taxonomy registries...');
   const languages = await loadFile('config/taxonomy/languages.yaml');
@@ -406,6 +423,9 @@ async function main(): Promise<void> {
 
   console.log('Validating HTTP API examples...');
   await validateHttpExamples();
+
+  console.log('Validating similarity fixtures...');
+  await validateSimilarityFixtures();
 
   console.log('✅ Schema validation complete');
 }

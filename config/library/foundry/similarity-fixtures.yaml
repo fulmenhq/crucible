@@ -1,15 +1,30 @@
 $schema: https://schemas.fulmenhq.dev/library/foundry/v2.0.0/similarity.schema.json
 version: 2025.10.3
-notes: 'Fixture values to be computed by pyfulmen using Rust strsim 0.11.x (canonical)
-
+notes: |
+  Fixture values computed by pyfulmen using Rust strsim 0.11.x (canonical)
   with cross-validation against Python rapidfuzz 3.x.
 
+  All values are authoritative and ready for use in language implementations.
+  Reference implementations: strsim 0.11.x (Rust), rapidfuzz 3.x (Python)
 
-  PLACEHOLDER values below are marked with "# PYFULMEN_COMPUTE" comments.
+  IMPORTANT - Damerau-Levenshtein Variants:
+  This schema provides BOTH variants of Damerau-Levenshtein:
 
-  These must be replaced with actual computed values before language implementations begin.
+  1. damerau_osa (Optimal String Alignment):
+     - Cannot edit the same substring more than once
+     - Python: rapidfuzz.distance.OSA
+     - Rust: strsim::osa_distance
+     - Best for: typo correction, spell checking, CLI fuzzy matching
 
-'
+  2. damerau_unrestricted (True Damerau-Levenshtein):
+     - Allows unrestricted edits with transpositions
+     - Python: rapidfuzz.distance.DamerauLevenshtein
+     - Rust: strsim::damerau_levenshtein
+     - Best for: general similarity, DNA sequencing, complex transformations
+
+  Test cases tagged 'osa_distinction' and 'unrestricted_distinction' show where
+  the two variants produce different results. Implementations MUST test against
+  the correct variant to ensure cross-language compatibility.
 test_cases:
   - category: levenshtein
     cases:
@@ -65,7 +80,29 @@ test_cases:
         tags:
           - cjk
           - unicode
-  - category: damerau
+      - input_a: "Line1\nLine2"
+        input_b: "Line1 Line2"
+        expected_distance: 1
+        expected_score: 0.9090909090909091
+        description: Newline substitution
+        tags:
+          - multiline
+      - input_a: "text\r\n"
+        input_b: "text\n"
+        expected_distance: 1
+        expected_score: 0.8333333333333334
+        description: CRLF vs LF difference
+        tags:
+          - multiline
+          - line_endings
+      - input_a: "line1\nline2"
+        input_b: "line1\nline2"
+        expected_distance: 0
+        expected_score: 1.0
+        description: Identical multi-line strings
+        tags:
+          - multiline
+  - category: damerau_osa
     cases:
       - input_a: abcd
         input_b: abdc
@@ -97,6 +134,64 @@ test_cases:
         tags:
           - transposition
           - non_adjacent
+      - input_a: CA
+        input_b: ABC
+        expected_distance: 3
+        expected_score: 0.0
+        description: "OSA distinction: requires delete C + insert A + insert B (dist=3), unrestricted=2"
+        tags:
+          - osa_distinction
+          - critical
+  - category: damerau_unrestricted
+    cases:
+      - input_a: abcd
+        input_b: abdc
+        expected_distance: 1
+        expected_score: 0.75
+        description: Basic transposition (both variants agree)
+        tags:
+          - transposition
+          - baseline
+      - input_a: hello
+        input_b: ehllo
+        expected_distance: 1
+        expected_score: 0.8
+        description: Transposition at start (both variants agree)
+        tags:
+          - transposition
+          - baseline
+      - input_a: kitten
+        input_b: sitting
+        expected_distance: 3
+        expected_score: 0.5714285714285714
+        description: No transpositions, standard edits (both variants agree)
+        tags:
+          - standard
+          - baseline
+      - input_a: CA
+        input_b: ABC
+        expected_distance: 2
+        expected_score: 0.33333333333333337
+        description: "Unrestricted distinction: allows transpose+insert (dist=2), OSA requires 3 ops"
+        tags:
+          - unrestricted_distinction
+          - critical
+      - input_a: algorithm
+        input_b: lagorithm
+        expected_distance: 1
+        expected_score: 0.8888888888888888
+        description: Transposition + other edits (both variants agree)
+        tags:
+          - transposition
+          - combined
+      - input_a: ''
+        input_b: ''
+        expected_distance: 0
+        expected_score: 1.0
+        description: Empty strings (identity, both variants agree)
+        tags:
+          - edge_case
+          - baseline
   - category: jaro_winkler
     cases:
       - input_a: martha
@@ -238,6 +333,25 @@ test_cases:
         tags:
           - punctuation
           - aggressive
+      - input: "Line 1\r\n\nLine 2"
+        preset: default
+        expected: "line 1\r\n\nline 2"
+        description: Preserve CRLF while casefolding
+        tags:
+          - multiline
+          - line_endings
+      - input: "Line 1\n\nLine 2"
+        preset: none
+        expected: "Line 1\n\nLine 2"
+        description: Preserve multi-line with no normalization
+        tags:
+          - multiline
+      - input: "Line 1\n\nLine 2"
+        preset: aggressive
+        expected: "line 1\n\nline 2"
+        description: Multi-line aggressive normalization preserves newlines
+        tags:
+          - multiline
   - category: suggestions
     cases:
       - input: docscrib

@@ -84,7 +84,7 @@ See [similarity.md](./similarity.md) for comprehensive v2.0 standard covering:
 - **Enhanced results**: Optional matched ranges, reason codes, normalized values
 - **Shared fixtures**: Cross-language validation with v2.0.0 schema
 
-**Breaking Changes**: v2.0 introduces versioned schema directory (`schemas/library/foundry/v2.0.0/`) and new fixture format. See [library update memo](.plans/memos/fulmen-helper-libraries/2025-10-24-foundry-similarity-v2-library-update.md) for migration guide.
+**Breaking Changes**: v2.0 introduces versioned schema directory (`schemas/library/foundry/v2.0.0/`) and new fixture format. Libraries must explicitly opt into v2.0.0 by updating schema paths in test code.
 
 ## Related Documents
 
@@ -97,5 +97,3 @@ See [similarity.md](./similarity.md) for comprehensive v2.0 standard covering:
 - `config/library/foundry/country-codes.yaml`
 - `config/library/foundry/similarity-fixtures.yaml` (v2.0 schema)
 - `schemas/library/foundry/v2.0.0/similarity.schema.json` (v2.0 schema - first versioned schema)
-- `.plans/active/2025.10.3/foundry-similarity-v2-brief.md`
-- `.plans/memos/fulmen-helper-libraries/2025-10-24-foundry-similarity-v2-library-update.md`
