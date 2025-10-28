@@ -6,14 +6,14 @@ tools:
     required: true
     install:
       type: download
-      url: https://github.com/fulmenhq/goneat/releases/download/v0.2.11/goneat_v0.2.11_{{os}}_{{arch}}.tar.gz
+      url: https://github.com/fulmenhq/goneat/releases/download/v0.3.2/goneat_v0.3.2_{{os}}_{{arch}}.tar.gz
       binName: goneat
       destination: ./bin
       checksum:
-        darwin-amd64: f8bba61d9b729e156ea02d429a53798ef33ee9a57cf38c1a08d3d0428fc57033
-        darwin-arm64: c01581b7835362a2f12b41225cada8ca3af1dc65fc454a0c8e68374831869283
-        linux-amd64: 35066fb7b6ba615e780aa29bb52ae88771340cccfb54b4e984d79f0e80474ad2
-        linux-arm64: e9fbe921a869625a7aef99b111cfbcfc0ce1da527f5ad1664307021472692e00
+        darwin-amd64: b126d242ce4ad935a67f9d557407b88b12f59d6e272bd97e2db5d6b3fe7d0c7a
+        darwin-arm64: c8e7851e656fc3ac42acfb9721fab4d0a007186be6d82ddf4a6dafbe9b51e9e7
+        linux-amd64: 1ae047a64be3097a48eced22cf9ae4d14f8fd489250c9546ed8ad42f52aa6721
+        linux-arm64: 33d0cd6479f3f65d00b387d17133706a312c69dbce2eb714b7b549dbcc24135a
   - id: curl
     description: HTTP client used for fetching remote assets
     required: true
