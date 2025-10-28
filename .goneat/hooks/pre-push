@@ -22,6 +22,12 @@ echo "🚀 Running goneat pre-push validation..."
 
 # Robust binary discovery (prefer repo build first, then PATH/common locations)
 find_goneat_bin() {
+  # Check repo-local bin/ first (for tools.local.yaml symlinks)
+  if [ -x "$REPO_ROOT/bin/goneat" ]; then
+    echo "$REPO_ROOT/bin/goneat"
+    return 0
+  fi
+  # Check dist/ for goneat repo itself
   if [ -x "$REPO_ROOT/dist/goneat" ]; then
     echo "$REPO_ROOT/dist/goneat"
     return 0
@@ -59,7 +65,7 @@ if [ -z "$GONEAT_BIN" ]; then
     echo "   - Go:   go install github.com/fulmenhq/goneat@latest   (ensure \$GOPATH/bin in \$PATH)"
     echo "   - Brew: brew install 3leaps/tap/goneat                (macOS, if tap available)"
     echo "   - Releases: https://github.com/fulmenhq/goneat/releases"
-    echo "🔎 Searched: $REPO_ROOT/dist, $HOME/go/bin, /opt/homebrew/bin, /usr/local/bin, $HOME/.local/bin, $HOME/.goneat/bin"
+    echo "🔎 Searched: $REPO_ROOT/bin, $REPO_ROOT/dist, $HOME/go/bin, /opt/homebrew/bin, /usr/local/bin, $HOME/.local/bin, $HOME/.goneat/bin"
     echo "💡 Tip: export PATH=\"$HOME/go/bin:$HOME/.local/bin:$PATH\""
     exit 1
   fi

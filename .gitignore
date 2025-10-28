@@ -48,6 +48,9 @@ lang/*/coverage/
 .plans/
 .goneat/tools.local.yaml
 
+# AI files that should not be committed
+**/.claude/settings.local.json
+
 # IDE
 .vscode/
 .idea/
