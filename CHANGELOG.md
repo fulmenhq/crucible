@@ -7,6 +7,32 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 
 ## [Unreleased]
 
+## [2025.10.3] - 2025-10-28
+
+### Added
+
+- **SSOT Sync Provenance Schema v1.0.0**: Canonical schema for tracking SSOT sync operations with audit trail metadata (`schemas/content/ssot-provenance/v1.0.0/`), enabling reproducibility, dependency tracking, and dirty state detection across all SSOT consumers
+- **Binary Naming Convention**: Comprehensive standard for workhorse forge binary naming (breed-name-only pattern, e.g., `groningen` not `workhorse-groningen`) ensuring clean CDRL refit workflows
+- **Foundry Similarity v2.0.0**: Major expansion with Damerau-Levenshtein (OSA and unrestricted variants), Jaro-Winkler similarity, substring scoring, normalization presets, and 43 validated test fixtures
+- **FulHash Module Standard**: Core module for consistent cross-language hashing with xxh3-128 and sha256 support, including block/streaming APIs and Pathfinder checksum integration
+- **Module Telemetry Coordination SOP**: Formal process for coordinating metrics taxonomy updates across helper libraries before module implementation
+- **ADR-0008**: Helper library instrumentation patterns documenting telemetry taxonomy coordination requirements
+- **Metrics Taxonomy Additions**: config_load_errors, pathfinder_find_ms, pathfinder_validation_errors, pathfinder_security_warnings for Phase 3 gofulmen integration
+- **Git Hook Bin Directory Check**: Pre-commit/pre-push hooks now check `$REPO_ROOT/bin/goneat` first for tools.yaml compatibility
+
+### Changed
+
+- **Goneat Upgrade**: tools.yaml updated from v0.2.11 to v0.3.2 with GitHub release checksums, enabling standard `make bootstrap` workflow
+- **Makefile Clean Target**: Now removes `bin/` directory ensuring fresh bootstrap downloads
+- **Foundry Similarity Schema**: Split into v1.0.0 (historical) and v2.0.0 (active) directories establishing versioned schema pattern for ecosystem
+- **Git Hooks**: Enhanced goneat discovery to check repo-local bin/ before system paths for more stable developer experience
+- **Gitignore**: Added `**/.claude/settings.local.json` to prevent AI assistant settings from being committed
+
+### Fixed
+
+- **FulHash Fixtures YAML**: Corrected block scalar syntax and added build validation for foundry/fulhash modules
+- **Similarity Schema URL**: Consolidated duplicate similarity-fixtures.schema.json to canonical similarity.schema.json preserving stable URL
+
 ## [2025.10.2] - 2025-10-22
 
 ### Added

@@ -1,12 +1,12 @@
 # Crucible
 
-**Blueprints for Scale**
+**Blueprints for Enterprise Scale: SSOT Enabling High-Performance, Reliable Applications Across Fulmen Layers**
 
 <div align="center">
 
 🔥 **The standards forge for the FulmenHQ ecosystem** 🔥
 
-_Single source of truth for schemas, standards, templates, and quality enforcement_
+_Single source of truth for schemas, standards, templates, and quality enforcement—foundational infoarch (level 0) in Fulmen's layer cake, powering libraries (level 1), templates (level 2), and apps/analytics (level 3+)._
 
 [![Go Tests](https://github.com/fulmenhq/crucible/workflows/Test%20Go/badge.svg)](https://github.com/fulmenhq/crucible/actions)
 [![TypeScript Tests](https://github.com/fulmenhq/crucible/workflows/Test%20TypeScript/badge.svg)](https://github.com/fulmenhq/crucible/actions)
@@ -41,6 +41,8 @@ Fulmen Ecosystem
     ├── fulmen-cockpit - Control plane template
     └── fulmen-runner-forge - Execution template
 ```
+
+See [Fulmen Ecosystem Guide](docs/architecture/fulmen-ecosystem-guide.md) for layer details and [Technical Manifesto](docs/architecture/fulmen-technical-manifesto.md) for core tenets.
 
 **Crucible ensures**:
 
@@ -236,9 +238,10 @@ Proven templates for bootstrapping new projects:
 
 ### 🌍 Language Support
 
-Native libraries for Go and TypeScript:
+Native libraries for Go and TypeScript, with future expansions including Rust (`rsfulmen`) and C# (`csfulmen`) as ecosystem needs evolve:
 
 - **Go**: `import "github.com/fulmenhq/crucible"`
+
 - **TypeScript**: `import { ... } from '@fulmenhq/crucible'`
 
 **Features**:
@@ -344,8 +347,14 @@ When in doubt, treat the root directories as authoritative and regenerate the la
 ## Projects Using Crucible
 
 - **[goneat](https://github.com/fulmenhq/goneat)** - Format/lint tool
+
 - **[fulward](https://github.com/fulmenhq/fulward)** - Infrastructure protection
+
 - **[gofulmen](https://github.com/fulmenhq/gofulmen)** - Shared Go libraries
+
+- **[tsfulmen](https://github.com/fulmenhq/tsfulmen)** - Shared TypeScript libraries
+
+- **[pyfulmen](https://github.com/fulmenhq/pyfulmen)** - Shared Python libraries
 
 ## Contributing
 
@@ -390,7 +399,7 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-**Version**: 2025.10.2 (CalVer: YYYY.MM.REVISION)
+**Version**: 2025.10.3 (CalVer: YYYY.MM.REVISION)
 
 Active development. Core schemas, standards, and helper library contracts stabilized. Progressive logging, Foundry catalog patterns, and docscribe module ready for ecosystem integration.
 

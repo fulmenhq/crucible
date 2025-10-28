@@ -109,7 +109,7 @@ check-all: validate-schemas build lint test typecheck ## Run all checks (lint, t
 # Clean build artifacts
 clean: ## Clean any build artifacts
 	@echo "Cleaning artifacts..."
-	@rm -rf dist/ lang/*/dist/ .plans/
+	@rm -rf dist/ lang/*/dist/ .plans/ bin/
 	@echo "✅ Clean completed"
 
 validate-schemas: ## Validate taxonomy registries and logging schema changes
