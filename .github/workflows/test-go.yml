@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
 jobs:
-  test:
+  test-go:
     runs-on: ubuntu-latest
     strategy:
       matrix:

@@ -1,0 +1,25 @@
+name: Test Python
+on:
+  push:
+  pull_request:
+jobs:
+  test-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "lang/python/uv.lock"
+      - name: Set up Python
+        run: uv python install 3.13
+      - name: Install dependencies
+        working-directory: ./lang/python
+        run: uv sync
+      - name: Run tests
+        working-directory: ./lang/python
+        run: uv run pytest
+      - name: Run linter
+        working-directory: ./lang/python
+        run: uv run ruff check
