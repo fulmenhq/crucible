@@ -20,7 +20,7 @@ Fulmen empowers teams to build enterprise systems that start fast and scale effo
 
 1. **Helper Libraries (\*fulmen)**: Idiomatic implementations of core data and utilities wrapping Crucible assets. Solves cross-project pains like config paths, schema validation, observability, and Foundry catalogs (countries, HTTP statuses, patterns). Current: `gofulmen`, `pyfulmen`, `tsfulmen`; planned: `rsfulmen` (Rust), `csfulmen` (C#) as ecosystem needs evolve.
 
-2. **Templates (Fulmens)**: Proven, production-ready starters embodying CRDL (Clone → Degit → Refit → Launch). Bootstraps projects with embedded Layer 1 libs, AAA (auth/audit/access), observability, testing, and deployment pipelines. Examples: `fulmen-cockpit` (control plane), `fulmen-runner-forge` (execution), `forge-cli-pecan` (CLI scaffolding). Gymnasiums (e.g., TUI experiments) modularize for future integration.
+2. **Templates (Fulmens)**: Proven, production-ready starters embodying CRDL (Clone → Degit → Refit → Launch). Bootstraps projects with embedded Layer 1 libs, AAA (auth/audit/access), observability, testing, and deployment pipelines. Examples: `forge-workhorse-groningen` (Go backend), `forge-workhorse-percheron` (Python backend). Gymnasiums (e.g., TUI experiments) modularize for future integration.
 
 3. **DX/Dev Tools**: Automation layer for governance and productivity. CLI-driven validation, formatting, sync, approvals, and orchestration. Key tools:
    - `goneat`: Quality enforcement (linting, schema validation, hooks; v0.3+ stricter assessments).
@@ -39,12 +39,12 @@ Layers compose into a virtuous cycle: Refine standards in Crucible → Sync to l
 
 ## Evolution: From Templates to Ecosystem Flywheel
 
-| Phase               | Timeline     | Key Evolution                                                                                                                | Outcomes                                                                                                              |
-| ------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| **Inception**       | Feb–Apr 2025 | Frustration with boilerplate → Build functional forges (cockpit, runner, portal) via CRDL (Clone → Degit → Refit → Launch).  | Proven "complete systems" accelerate teams to production-scale without basics drudgery.                               |
-| **Standards Forge** | May–Jul 2025 | Realized repeated pains (logging, schemas, enums) → Crucible as SSOT for contracts/docs/processes; prototype goneat/Fulward. | Centralized standards prevent reinvention; early libs (gofulmen) emerge for idiomatic access.                         |
-| **Consolidation**   | Aug–Sep 2025 | Ecosystem sprawl → Align libs (pyfulmen, tsfulmen), tools (brooklyn-mcp), AI co-maintainers; draft Substaile coding norms.   | Module parity across langs; MCP integrates workflows; human-AI roles defined in MAINTAINERS.md.                       |
-| **Scale Wave**      | Oct 2025+    | Full flywheel → Foundry catalogs, CalVer releases, Cosmography (data SSOT); AI stewardship for maintenance.                  | Multi-lang readiness; forges like forge-cli-pecan leverage ecosystem; "Thrive on Scale" realized via composed layers. |
+| Phase               | Timeline     | Key Evolution                                                                                                                | Outcomes                                                                                                   |
+| ------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Inception**       | Feb–Apr 2025 | Frustration with boilerplate → Build functional forges via CRDL (Clone → Degit → Refit → Launch).                            | Proven "complete systems" accelerate teams to production-scale without basics drudgery.                    |
+| **Standards Forge** | May–Jul 2025 | Realized repeated pains (logging, schemas, enums) → Crucible as SSOT for contracts/docs/processes; prototype goneat/Fulward. | Centralized standards prevent reinvention; early libs (gofulmen) emerge for idiomatic access.              |
+| **Consolidation**   | Aug–Sep 2025 | Ecosystem sprawl → Align libs (pyfulmen, tsfulmen), tools (brooklyn-mcp), AI co-maintainers; draft Substaile coding norms.   | Module parity across langs; MCP integrates workflows; human-AI roles defined in MAINTAINERS.md.            |
+| **Scale Wave**      | Oct 2025+    | Full flywheel → Foundry catalogs, CalVer releases, Cosmography (data SSOT); AI stewardship for maintenance.                  | Multi-lang readiness; workhorse forges leverage ecosystem; "Thrive on Scale" realized via composed layers. |
 
 ## Ecosystem Map
 
@@ -68,9 +68,9 @@ graph TD
   D --> D2[pyfulmen]
   D --> D3[tsfulmen]
 
-  E --> E1[Fulmen Portal Forge]
-  E --> E2[Fulmen Runner Forge]
-  E --> E3[Forge CLI (Pecan)]
+  E --> E1[Forge Workhorse Groningen]
+  E --> E2[Forge Workhorse Percheron]
+  E --> E3[Future Forge Templates]
 
   F --> F1[brooklyn-mcp]
   F --> F2[Data wrangling utilities]
@@ -115,7 +115,7 @@ graph TD
 
 ### 2. Templates (Fulmens)
 
-- **Current**: `fulmen-cockpit` (control plane), `fulmen-runner-forge` (execution), `fulmen-portal-forge` (UI/multi-tenant), `forge-cli-pecan` (CLI; tree-themed taxonomy aligned to repo categories).
+- **Current**: `forge-workhorse-groningen` (Go backend template), `forge-workhorse-percheron` (Python backend template). Future forges will expand patterns for CLI tools, frontends, and specialized services.
 
 - **Philosophy**: CRDL (Clone → Degit → Refit → Launch). Ship complete systems with Layer 1 libs, AAA (auth/audit/access), observability (Layer 0 schemas), testing, CI/CD, and docs—production-ready from commit zero.
 
@@ -141,19 +141,13 @@ graph TD
 
 The flywheel: Layer 0 refines → Layer 1 embeds → Layer 2 scaffolds → Layer 3 automates → Layer 4 deploys/iterates.
 
-| Source (Layer) | Target Layers | Mechanism | Notes |
-
-| ---------------- | ---------------------------- | ------------------------------------- | ------------------------------------------------------------ |
-
-| Crucible (0) | 1 (Libraries), 2 (Templates) | `bun run sync:to-lang`; pull scripts | Assets (schemas/docs/config) propagate via CalVer tags. |
-
-| Libraries (1) | 2 (Templates), 4 (Apps) | Package deps (go get, bun add) | Idiomatic APIs; embed for zero-runtime deps. |
-
-| Tools (3) | All upper layers | CLI integration (goneat hooks, fulward policies) | Automate governance; e.g., precommit syncs Layer 0. |
-
-| Templates (2) | 4 (Apps) | CRDL (degit/clone) + refit | Bootstraps with Layers 0-3; gyms for experiments. |
-
-| Future: Cosmography | Layer 0 extensions | Sync pipelines (planned) | Data modeling/topology SSOT. |
+| Source (Layer)      | Target Layers                | Mechanism                                        | Notes                                                   |
+| ------------------- | ---------------------------- | ------------------------------------------------ | ------------------------------------------------------- |
+| Crucible (0)        | 1 (Libraries), 2 (Templates) | `bun run sync:to-lang`; pull scripts             | Assets (schemas/docs/config) propagate via CalVer tags. |
+| Libraries (1)       | 2 (Templates), 4 (Apps)      | Package deps (go get, bun add)                   | Idiomatic APIs; embed for zero-runtime deps.            |
+| Tools (3)           | All upper layers             | CLI integration (goneat hooks, fulward policies) | Automate governance; e.g., precommit syncs Layer 0.     |
+| Templates (2)       | 4 (Apps)                     | CRDL (degit/clone) + refit                       | Bootstraps with Layers 0-3; gyms for experiments.       |
+| Future: Cosmography | Layer 0 extensions           | Sync pipelines (planned)                         | Data modeling/topology SSOT.                            |
 
 ## Working Across the Ecosystem
 
@@ -183,7 +177,7 @@ extending the SSOT strategy into spatial and mapping domains.
 
 ## Next Steps
 
-- Complete forge refreshes (including `forge-cli-pecan`) using the updated library
+- Complete workhorse forge refreshes (Groningen, Percheron) using the updated library
   modules and guardian policies.
 - Expand Substaile into a formal Crucible module or dedicated repository for coding
   standards.

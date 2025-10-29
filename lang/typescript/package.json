@@ -12,8 +12,17 @@
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
   },
-  "files": ["dist", "schemas", "docs"],
-  "keywords": ["fulmenhq", "crucible", "schemas", "standards"],
+  "files": [
+    "dist",
+    "schemas",
+    "docs"
+  ],
+  "keywords": [
+    "fulmenhq",
+    "crucible",
+    "schemas",
+    "standards"
+  ],
   "license": "MIT",
   "main": "dist/index.js",
   "name": "@fulmenhq/crucible",
@@ -31,5 +40,5 @@
     "test:watch": "vitest"
   },
   "types": "dist/index.d.ts",
-  "version": "2025.10.3"
+  "version": "2025.10.4"
 }

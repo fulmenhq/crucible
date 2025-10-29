@@ -12,7 +12,7 @@ tags: ["architecture", "forge", "workhorse", "template", "2025.10.2"]
 
 This document defines the standardized structure and pre-integrated capabilities for Fulmen Workhorse forges. Workhorse forges provide production-ready templates for robust, general-purpose applications (e.g., servers, workers, long-running processes) that require reliable tooling out-of-the-box. They embody the CRDL philosophy (Clone → Degit → Refit → Launch) and align with the repository category taxonomy (`workhorse` key from [category-key.schema.json](schemas/taxonomy/repository-category/v1.0.0/category-key.schema.json)).
 
-Workhorse forges are distinguished from other categories (e.g., `cli` for command-line tools, `service` for microservices) by their focus on durable, scalable backends with emphasis on observability, config management, and error resilience. The prototype `forge-cli-pecan` evolves into `forge-workhorse-pecan` as the first canonical implementation, using tree-themed naming (`pecan` for workhorse) to delineate types without implying hierarchy.
+Workhorse forges are distinguished from other categories (e.g., `cli` for command-line tools, `service` for microservices) by their focus on durable, scalable backends with emphasis on observability, config management, and error resilience. Canonical implementations use horse breed names (`groningen` for Go, `percheron` for Python) to identify language-specific variants while maintaining consistent standards across the ecosystem.
 
 The canonical list of forge categories and statuses is maintained in the [Repository Category Taxonomy](schemas/taxonomy/repository-category/v1.0.0/README.md); consult that before proposing new forges or changing lifecycle states.
 

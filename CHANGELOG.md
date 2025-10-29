@@ -7,6 +7,25 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 
 ## [Unreleased]
 
+## [2025.10.4] - 2025-10-28
+
+### Changed
+
+- **Bootstrap Guide Rewrite**: Complete rewrite of `docs/guides/fulmen-library-bootstrap-guide.md` migrating from deprecated fuldx to goneat, with language-specific sections for Python, Go, and TypeScript, provenance tracking documentation, and Makefile Standard compliance
+- **Sync Model Documentation**: Updated `docs/architecture/sync-model.md` to reflect actual implementation using crucible-pull.ts scripts instead of deprecated FulDX, added Python language wrapper support, and modernized to TypeScript-based tooling
+- **Documentation Perspective Alignment**: Fixed `docs/README.md` from consumer perspective to SSOT source perspective, removing "DO NOT EDIT" warnings and correcting internal path references
+- **README Enhancements**: Added Python test badge for complete CI coverage visibility, updated Layer 2 forge references to horse breed naming (groningen/percheron), and added LICENSE cross-reference in Trademarks section
+- **Architecture Documentation**: Fixed Mermaid diagram syntax in `docs/architecture/fulmen-ecosystem-guide.md`, corrected broken Markdown tables, and updated all forge references to current naming conventions
+
+### Removed
+
+- **Deprecated FulDX Documentation**: Removed obsolete bootstrap-fuldx.md, sync-consumers-guide.md, sync-producers-guide.md, and fuldx-bootstrap.md module standard, cleaning up 16 files (4 root + 12 synced wrappers) from deprecated tooling
+
+### Fixed
+
+- **Table Formatting**: Fixed Architecture Tenets table in `docs/architecture/fulmen-technical-manifesto.md` by removing blank lines between rows
+- **Ecosystem Guide Tables**: Fixed multiple table formatting issues and removed blank lines that broke Markdown rendering
+
 ## [2025.10.3] - 2025-10-28
 
 ### Added

@@ -1,125 +1,165 @@
-# Crucible SSOT Documentation
+# Crucible Documentation
 
-> **⚠️ DO NOT EDIT FILES IN THIS DIRECTORY MANUALLY**
+This directory contains **authoritative documentation** for the FulmenHQ ecosystem. Crucible is the **Single Source of Truth (SSOT)** - documentation here is the canonical source that syncs to all language-specific helper libraries.
 
-This directory contains **Single Source of Truth (SSOT)** documentation synced from the [Crucible](https://github.com/fulmenhq/crucible) repository. Files here are **read-only** in language-specific repositories and are automatically synchronized during releases.
+## ✅ Editing Documentation in Crucible
 
-## 🚫 What NOT to Do
+**You are in the SSOT repository** - editing is encouraged and required here:
 
-- ❌ **Do not edit** any files in this directory
-- ❌ **Do not format** files in this directory with local tools
-- ❌ **Do not create** new files in this directory
-- ❌ **Do not delete** files from this directory
-- ❌ **Do not commit** changes to synced files
+- ✅ **Edit** files in this directory to update ecosystem documentation
+- ✅ **Create** new standards, guides, and ADRs as needed
+- ✅ **Format** files using `make fmt` before committing
+- ✅ **Commit** changes following proper attribution standards
+- ✅ **Run** `make sync` to propagate changes to `lang/*/` wrappers
 
-**Any manual changes will be overwritten** the next time `make sync` runs.
+**Changes here automatically sync** to language wrappers in `lang/go/`, `lang/python/`, `lang/typescript/`.
 
-## ✅ What to Do Instead
+## 📝 Documentation Categories
 
-### If you need to update documentation in this directory:
+### Ecosystem Documentation (Edit Here)
 
-1. **Propose changes to the Crucible team** via approved messaging channels (Slack, GitHub Discussions, or issues)
-2. **Submit a pull request to Crucible** at https://github.com/fulmenhq/crucible
-3. **Wait for the next sync** - changes will automatically propagate to all language repositories
+Documentation that applies across **all** Fulmen projects:
 
-### If you need library-specific documentation:
+- **Architecture** (`architecture/`) - Ecosystem design, technical manifesto, sync model
+- **Standards** (`standards/`) - Cross-language coding standards, API patterns, security
+- **Guides** (`guides/`) - Integration guides, sync workflows, bootstrap procedures
+- **SOPs** (`sop/`) - Operational procedures for repository management, CI/CD
+- **Operations** (`ops/`) - Repository checklists, memos, release procedures
 
-Create files in the **appropriate local directories**:
+### Language Wrapper Sync Destinations
 
-- **Go**: Use `docs/development/` for gofulmen-specific docs
-- **Python**: Use `docs/development/` for pyfulmen-specific docs
-- **TypeScript**: Use `docs/development/` for tsfulmen-specific docs
+Documentation from `docs/` is synced to language wrappers within Crucible:
 
-See the [Fulmen Helper Library Standard](architecture/fulmen-helper-library-standard.md) for guidance on local vs. ecosystem documentation.
+- `lang/go/docs/` (read-only copy for Go wrapper)
+- `lang/python/docs/` (read-only copy for Python wrapper)
+- `lang/typescript/docs/` (read-only copy for TypeScript wrapper)
+
+When these wrappers are packaged and published to separate repositories (gofulmen, pyfulmen, tsfulmen), the synced docs travel with them.
 
 ## 📁 Directory Structure
 
 ```
 docs/
-├── README.md                    ⚠️ This file (synced from Crucible)
-├── architecture/                ⚠️ Ecosystem architecture (synced)
-│   ├── decisions/              ⚠️ Ecosystem ADRs (synced)
+├── README.md                    # This file (SSOT source)
+├── architecture/                # Ecosystem architecture (edit here)
+│   ├── decisions/              # Ecosystem ADRs (edit here)
+│   ├── modules/                # Module documentation
 │   └── ...
-├── standards/                   ⚠️ Cross-language standards (synced)
-│   ├── coding/                 ⚠️ Language-specific coding standards (synced)
-│   ├── library/                ⚠️ Library module standards (synced)
+├── standards/                   # Cross-language standards (edit here)
+│   ├── coding/                 # Language-specific coding standards
+│   ├── library/                # Library module standards
+│   ├── api/                    # API design standards
 │   └── ...
-└── guides/                      ⚠️ Integration guides (synced)
+├── guides/                      # Integration guides (edit here)
+├── sop/                         # Standard operating procedures
+└── ops/                         # Operational checklists and memos
 ```
 
 ## 🔄 How Syncing Works
 
-The Crucible repository maintains authoritative versions of:
+Crucible maintains authoritative versions of:
 
 - **Documentation** (`docs/`) - Architecture, standards, guides
 - **Schemas** (`schemas/`) - JSON Schema definitions
 - **Configuration** (`config/`) - Default configs, catalogs, taxonomy
 
-During releases or when maintainers run `make sync`, these assets are copied to language-specific repositories:
+When `make sync` runs in Crucible, these assets are copied to language wrappers:
 
 ```bash
-# In language repos (gofulmen, pyfulmen, tsfulmen):
-crucible/docs/       → lang/<language>/docs/
-crucible/schemas/    → lang/<language>/schemas/
-crucible/config/     → lang/<language>/config/
+# Within Crucible repository:
+docs/       → lang/go/docs/
+docs/       → lang/python/docs/
+docs/       → lang/typescript/docs/
+
+schemas/    → lang/go/schemas/
+schemas/    → lang/python/schemas/
+schemas/    → lang/typescript/schemas/
+
+config/     → lang/go/config/
+config/     → lang/python/config/
+config/     → lang/typescript/config/
 ```
 
-This ensures **consistency across all Fulmen helper libraries**.
+This ensures **consistency across all language wrappers** before they're published.
 
 ## 📋 ADR System (Two-Tier)
 
-This directory contains **Tier 1: Ecosystem ADRs** that apply across all languages:
+### Tier 1: Ecosystem ADRs (Edit Here)
 
-- **Location**: `docs/architecture/decisions/ADR-XXXX-*.md`
-- **Scope**: Cross-language architectural decisions
-- **Sync**: Automatically synced to all language repositories
-- **Changes**: Must be proposed in Crucible repository
+**Location**: `docs/architecture/decisions/ADR-XXXX-*.md`
 
-For **Tier 2: Local ADRs** specific to a single library:
+- **Scope**: Cross-language architectural decisions affecting all Fulmen projects
+- **Sync**: Automatically synced to `lang/*/docs/architecture/decisions/`
+- **Changes**: Edit directly in this directory, then `make sync`
 
-- **Location**: `docs/development/adr/ADR-XXXX-*.md` (not in this directory!)
-- **Scope**: Library-specific decisions
-- **Sync**: Not synced; maintained independently
-- **Changes**: Can be made directly in the language repository
+### Tier 2: Local ADRs (Not Here)
+
+**Location**: `docs/development/adr/ADR-XXXX-*.md` (in published language repositories)
+
+- **Scope**: Library-specific decisions for gofulmen/pyfulmen/tsfulmen
+- **Sync**: NOT synced from Crucible; maintained independently in each library
+- **Changes**: Created directly in published language repositories
 
 See [ADR-0001: Two-Tier ADR System](architecture/decisions/ADR-0001-two-tier-adr-system.md) for details.
 
-## 🛠️ Developer Workflow
+## 🛠️ Crucible Maintainer Workflow
 
-### Viewing Documentation
+### Editing Documentation
 
 ```bash
-# Browse synced documentation (read-only)
+# Edit ecosystem documentation (you are in the SSOT)
 cd docs/
-ls architecture/decisions/    # View ecosystem ADRs
-cat standards/coding/go.md     # Read Go coding standards
+vim standards/coding/python.md    # Update Python coding standard
+vim architecture/decisions/ADR-XXXX.md  # Create ecosystem ADR
 ```
 
-### Proposing Changes
+### Syncing Changes
 
-1. **Identify the change**: What needs to be updated?
-2. **Contact Crucible maintainers**: Slack, GitHub Discussions, or open an issue
-3. **Submit PR to Crucible**: https://github.com/fulmenhq/crucible/pulls
-4. **Wait for review and merge**: Crucible team reviews and approves
-5. **Sync propagates**: Next release or sync will update all language repos
+```bash
+# Propagate changes to language wrappers
+make sync
 
-### Common Mistakes to Avoid
+# Or run the sync script directly
+bun run scripts/sync-to-lang.ts
+```
 
-❌ **Mistake**: "I fixed a typo in `docs/standards/coding/python.md` in pyfulmen"
-✅ **Solution**: Revert local change, submit PR to Crucible instead
+### Before Committing
 
-❌ **Mistake**: "I ran Prettier on `docs/` and it reformatted everything"
-✅ **Solution**: Revert changes, configure your formatter to exclude synced directories
+```bash
+# Format and validate
+make fmt
+make precommit
 
-❌ **Mistake**: "I added a new ADR in `docs/architecture/decisions/`"
-✅ **Solution**: Move to `docs/development/adr/` for local ADRs, or propose ecosystem ADR to Crucible
+# Stage and commit (including synced wrappers)
+git add docs/ lang/*/docs/
+git commit -m "docs: update Python coding standard"
+```
+
+### Common Workflow Patterns
+
+✅ **Pattern**: Update standard → `make sync` → commit all changes (root + `lang/*/`)
+
+✅ **Pattern**: Create ecosystem ADR → sync to wrappers → verify in all three languages
+
+✅ **Pattern**: Update guide → test clarity → sync to all wrappers → commit
+
+## ⚠️ For Downstream Library Maintainers
+
+If you're working in **published** `gofulmen`, `pyfulmen`, or `tsfulmen` repositories and see this README:
+
+**DO NOT edit files in the synced `docs/` directory**. Those files are read-only copies from Crucible. Instead:
+
+1. **Submit changes upstream**: https://github.com/fulmenhq/crucible
+2. **Create library-specific docs**: Use `docs/development/` in your library repo (not synced from Crucible)
+3. **Configure formatters**: Exclude synced directories to avoid conflicts
 
 ## 📚 Related Documentation
 
-- [Fulmen Ecosystem Guide](architecture/fulmen-ecosystem-guide.md) - Overview of the ecosystem
-- [Sync Model](architecture/sync-model.md) - How SSOT syncing works
-- [Sync Consumers Guide](guides/sync-consumers-guide.md) - Consuming synced assets in language repos
-- [ADR-0001: Two-Tier ADR System](architecture/decisions/ADR-0001-two-tier-adr-system.md) - ADR structure
+- [Fulmen Ecosystem Guide](architecture/fulmen-ecosystem-guide.md) - Overview of the ecosystem and layer cake
+- [Sync Model](architecture/sync-model.md) - How SSOT syncing works in detail
+- [Sync Consumers Guide](guides/sync-consumers-guide.md) - Consuming synced assets in downstream libraries
+- [Sync Producers Guide](guides/sync-producers-guide.md) - Maintaining SSOT and syncing to wrappers
+- [ADR-0001: Two-Tier ADR System](architecture/decisions/ADR-0001-two-tier-adr-system.md) - ADR structure and governance
 
 ## 🔗 Quick Links
 
@@ -127,14 +167,16 @@ cat standards/coding/go.md     # Read Go coding standards
 - **Report Issues**: https://github.com/fulmenhq/crucible/issues
 - **Standards**: [docs/standards/](standards/)
 - **Architecture**: [docs/architecture/](architecture/)
+- **Guides**: [docs/guides/](guides/)
 
 ## ℹ️ Questions?
 
-Contact the Fulmen maintainers via approved channels:
+Contact Crucible maintainers:
 
-- **Crucible Issues**: https://github.com/fulmenhq/crucible/issues
-- **Team Communication**: Check with your library maintainer for Slack/Discord details
+- **GitHub Issues**: https://github.com/fulmenhq/crucible/issues
+- **GitHub Discussions**: https://github.com/fulmenhq/crucible/discussions
+- **Maintainers**: See `MAINTAINERS.md` in repository root
 
 ---
 
-**Remember**: This documentation is **synced from Crucible**. Propose changes upstream, not here.
+**Remember**: This is the **SSOT source documentation**. Edit freely, sync to wrappers, commit all changes together.

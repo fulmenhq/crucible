@@ -10,6 +10,7 @@ _Single source of truth for schemas, standards, templates, and quality enforceme
 
 [![Go Tests](https://github.com/fulmenhq/crucible/workflows/Test%20Go/badge.svg)](https://github.com/fulmenhq/crucible/actions)
 [![TypeScript Tests](https://github.com/fulmenhq/crucible/workflows/Test%20TypeScript/badge.svg)](https://github.com/fulmenhq/crucible/actions)
+[![Python Tests](https://github.com/fulmenhq/crucible/workflows/Test%20Python/badge.svg)](https://github.com/fulmenhq/crucible/actions)
 [![Schema Validation](https://github.com/fulmenhq/crucible/workflows/Validate%20Schemas/badge.svg)](https://github.com/fulmenhq/crucible/actions)
 
 </div>
@@ -48,11 +49,11 @@ Layer 1: Helper Libraries (*fulmen)
 
 Layer 2: Templates (Fulmens)
 
-├── fulmen-cockpit - Control plane
+├── forge-workhorse-groningen - Go backend
 
-├── fulmen-runner-forge - Execution engine
+├── forge-workhorse-percheron - Python backend
 
-└── forge-cli-pecan - CLI scaffolding
+└── {Future forges} - CLI, frontend, services
 
 Layer 3: DX/Dev Tools
 
@@ -420,7 +421,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for deta
 
 Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete details.
 
-**Trademarks**: "Fulmen" and "3 Leaps" are trademarks of 3 Leaps, LLC. While code is open source, please use distinct names for derivative works to prevent confusion.
+**Trademarks**: "Fulmen" and "3 Leaps" are trademarks of 3 Leaps, LLC. While code is open source, please use distinct names for derivative works to prevent confusion. See LICENSE for full guidelines.
 
 ### OSS Policies (Organization-wide)
 
