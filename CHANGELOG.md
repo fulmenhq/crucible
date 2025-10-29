@@ -3,11 +3,25 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to CalVer (`YYYY.MM.REVISION`).
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+**Note**: Versions 0.1.0 through 0.1.4 were originally released with CalVer tags (v2025.10.1 through v2025.10.5). Retroactive SemVer tags have been added for migration continuity. See [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md) for details.
 
 ## [Unreleased]
 
-## [2025.10.5] - 2025-10-29
+## [0.2.0] - 2025-10-29
+
+### Changed
+
+- **Versioning Scheme**: Adopted Semantic Versioning (SemVer) for Go module compatibility and ecosystem alignment, replacing CalVer. See [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md) for decision rationale and alternatives considered.
+- **Retroactive Tagging**: Added SemVer tags (v0.1.0 through v0.1.4) to existing CalVer releases (v2025.10.1 through v2025.10.5) for migration continuity. CalVer tags preserved for historical record.
+- **Documentation**: Updated CHANGELOG.md to use SemVer version headers and adherence statement.
+
+### Added
+
+- **ADR-0010**: Documented Semantic Versioning adoption decision, Go module versioning requirements, alternatives considered (v0 CalVer, annual module paths, +incompatible), and version mapping strategy.
+
+## [0.1.4] - 2025-10-29
 
 ### Changed
 
@@ -15,7 +29,7 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 - **Sync Script Optimization**: `scripts/sync-to-lang.ts` no longer syncs to `lang/go/` as Go module embeds directly from root SSOT (schemas/, docs/, config/). Python and TypeScript sync unchanged.
 - **Makefile Simplification**: Go targets (`test-go`, `build-go`, `lint`) now run from repository root without `cd lang/go`, aligning with standard Go module workflow.
 
-## [2025.10.4] - 2025-10-28
+## [0.1.3] - 2025-10-28
 
 ### Changed
 
@@ -34,7 +48,7 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 - **Table Formatting**: Fixed Architecture Tenets table in `docs/architecture/fulmen-technical-manifesto.md` by removing blank lines between rows
 - **Ecosystem Guide Tables**: Fixed multiple table formatting issues and removed blank lines that broke Markdown rendering
 
-## [2025.10.3] - 2025-10-28
+## [0.1.2] - 2025-10-28
 
 ### Added
 
@@ -60,7 +74,7 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 - **FulHash Fixtures YAML**: Corrected block scalar syntax and added build validation for foundry/fulhash modules
 - **Similarity Schema URL**: Consolidated duplicate similarity-fixtures.schema.json to canonical similarity.schema.json preserving stable URL
 
-## [2025.10.2] - 2025-10-22
+## [0.1.1] - 2025-10-22
 
 ### Added
 
@@ -99,7 +113,7 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 - Bootstrap symlink creation for type:link tools (was copying instead of symlinking)
 - Format-before-sync order in scripts/sync-to-lang.ts to eliminate double-formatting and reduce sync noise
 
-## [2025.10.1] - 2025-10-01
+## [0.1.0] - 2025-10-01
 
 ### Added
 
