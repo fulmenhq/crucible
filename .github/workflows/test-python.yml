@@ -13,10 +13,10 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "lang/python/uv.lock"
       - name: Set up Python
-        run: uv python install 3.13
+        run: uv python install 3.12
       - name: Install dependencies
         working-directory: ./lang/python
-        run: uv sync
+        run: uv sync --all-groups
       - name: Run tests
         working-directory: ./lang/python
         run: uv run pytest

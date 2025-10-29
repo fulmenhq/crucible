@@ -23,26 +23,58 @@ _Single source of truth for schemas, standards, templates, and quality enforceme
 ### The Forge in the Fulmen Ecosystem
 
 ```
-Fulmen Ecosystem
-├── Crucible - Where quality blueprints are forged ⚡
-│   ├── Schemas - Data contracts
-│   ├── Standards - Coding practices
-│   ├── Templates - Project patterns
-│   └── Documentation - Living specifications
-├── Libraries - Shared implementations
-│   ├── gofulmen - Go foundation libraries
-│   ├── tsfulmen - TypeScript foundation libraries
-│   └── {lang}fulmen - Additional language support
-├── Tools - Developer utilities
-│   ├── goneat - Code quality and formatting
-│   ├── fulward - Infrastructure protection
-│   └── pathfinder - Safe file discovery
-└── Fulmens - Project templates
-    ├── fulmen-cockpit - Control plane template
-    └── fulmen-runner-forge - Execution template
+
+Fulmen Layer Cake
+
+Layer 0: Crucible (Infoarch SSOT) ⚡
+
+├── Schemas - Data contracts
+
+├── Standards - Coding practices
+
+├── Processes/SOPs - Governance
+
+└── Documentation - Living specifications
+
+Layer 1: Helper Libraries (*fulmen)
+
+├── gofulmen - Go foundations
+
+├── tsfulmen - TypeScript foundations
+
+├── pyfulmen - Python foundations
+
+└── {rsfulmen, csfulmen} - Future languages
+
+Layer 2: Templates (Fulmens)
+
+├── fulmen-cockpit - Control plane
+
+├── fulmen-runner-forge - Execution engine
+
+└── forge-cli-pecan - CLI scaffolding
+
+Layer 3: DX/Dev Tools
+
+├── goneat - Quality & formatting
+
+├── fulward - Protection & approvals
+
+└── pathfinder - Safe discovery
+
+Layer 4: Apps/Services
+
+├── brooklyn-mcp - Workflow orchestration
+
+├── sumpter - Advanced data extraction/ELT
+
+├── Analytics platforms
+
+└── Production forges
+
 ```
 
-See [Fulmen Ecosystem Guide](docs/architecture/fulmen-ecosystem-guide.md) for layer details and [Technical Manifesto](docs/architecture/fulmen-technical-manifesto.md) for core tenets.
+See [Fulmen Ecosystem Guide](docs/architecture/fulmen-ecosystem-guide.md) for detailed layer interactions—including the virtuous flywheel where Layer 0 refines → Layer 1 embeds → Layer 2 scaffolds → Layer 3 automates → Layer 4 deploys—and [Technical Manifesto](docs/architecture/fulmen-technical-manifesto.md) for core tenets.
 
 **Crucible ensures**:
 
