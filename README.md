@@ -101,6 +101,8 @@ make tools # optional verification
 go get github.com/fulmenhq/crucible@latest
 ```
 
+> **Note**: As of v2025.10.5, the Go module lives at repository root (not `lang/go/`) for standard external installation and `go:embed` support. See [ADR-0009](docs/architecture/decisions/ADR-0009-go-module-root-relocation.md) for details.
+
 ```go
 import "github.com/fulmenhq/crucible"
 
@@ -271,18 +273,29 @@ Proven templates for bootstrapping new projects:
 
 ### 🌍 Language Support
 
-Native libraries for Go and TypeScript, with future expansions including Rust (`rsfulmen`) and C# (`csfulmen`) as ecosystem needs evolve:
+Crucible provides native libraries for multiple languages with an **asymmetric repository structure** optimized for each ecosystem:
 
-- **Go**: `import "github.com/fulmenhq/crucible"`
+- **Go** (at repository root): `import "github.com/fulmenhq/crucible"`
+  - Standard Go module structure for external `go get` installation
+  - Embeds schemas/docs directly from root SSOT via `//go:embed`
+  - See [ADR-0009](docs/architecture/decisions/ADR-0009-go-module-root-relocation.md) for rationale
 
-- **TypeScript**: `import { ... } from '@fulmenhq/crucible'`
+- **TypeScript** (`lang/typescript/`): `import { ... } from '@fulmenhq/crucible'`
+  - Standard npm package structure with synced assets
+
+- **Python** (`lang/python/`): `from crucible import ...`
+  - Standard Python package structure with synced assets
+
+- **Future**: Rust (`rsfulmen`) and C# (`csfulmen`) as ecosystem needs evolve
 
 **Features**:
 
-- Embedded schemas (no runtime dependencies)
+- Embedded/vendored schemas (no runtime dependencies)
 - Type-safe APIs
 - Comprehensive tests
 - Zero-config usage
+
+**Architecture**: See [Library Ecosystem Guide](docs/architecture/library-ecosystem.md) for detailed information on how Crucible supports multiple languages while maintaining SSOT discipline.
 
 ## Usage
 
@@ -347,35 +360,54 @@ const terminalSchema = getTerminalSchema();
 
 ```
 crucible/
-├── schemas/          # Version-controlled schemas
+├── go.mod                # Go module at root (v2025.10.5+)
+├── *.go                  # Go sources at root
+├── schemas/              # Version-controlled schemas (SSOT)
 │   ├── terminal/
 │   ├── policy/
 │   └── config/
-├── docs/            # Shared documentation
+├── docs/                 # Shared documentation (SSOT)
 │   ├── standards/
 │   ├── architecture/
 │   └── guides/
-├── templates/       # Project templates
+├── config/               # Configuration catalogs (SSOT)
+├── templates/            # Project templates
 │   ├── go-cli-tool/
 │   ├── go-library/
 │   └── typescript-library/
-├── lang/           # Language wrappers
-│   ├── go/
-│   └── typescript/
-└── scripts/        # Utilities
+├── lang/                 # Non-Go language wrappers
+│   ├── go/               # Breadcrumb README (see ADR-0009)
+│   ├── typescript/       # TypeScript package (synced)
+│   └── python/           # Python package (synced)
+└── scripts/              # Utilities and sync tooling
 ```
+
+**Note**: Go lives at repository root for standard `go get` installation and direct SSOT embedding. Python and TypeScript remain in `lang/` subdirectories with synced assets. See [ADR-0009](docs/architecture/decisions/ADR-0009-go-module-root-relocation.md) for the rationale behind this asymmetric structure.
 
 ### Pseudo-Monorepo Strategy
 
-Crucible intentionally sits between a classic mono-repo and a pure package registry:
+Crucible intentionally sits between a classic mono-repo and a pure package registry with an **asymmetric language structure** (v2025.10.5+):
 
-- **Single Source, Many Consumers** – `schemas/`, `docs/`, and `templates/` live once at the root so every language wrapper and downstream repo syncs from the same truth.
-- **Language Facades in `lang/`** – `lang/go` and `lang/typescript` mirror the root assets so we can publish idiomatic packages without duplicating maintenance logic elsewhere.
-- **Automation Keeps Them in Sync** – `bun run scripts/sync-to-lang.ts` and `bun run scripts/update-version.ts` guarantee the facades stay current before every release.
-- **Dual Distribution Options** – Consumers pick the published packages (`github.com/fulmenhq/crucible`, `@fulmenhq/crucible`) for runtime use or the pull script (`scripts/pull/crucible-pull.ts`) when they need vendored files.
-- **Versioned Like a Mono-Repo** – The root `VERSION` file (CalVer) drives every artifact, so release coordination stays simple even though the repo fans out into multiple packages.
+- **Single Source, Many Consumers** – `schemas/`, `docs/`, and `config/` live once at the root as the authoritative SSOT for all language implementations and downstream repos.
 
-When in doubt, treat the root directories as authoritative and regenerate the language wrappers with the provided scripts instead of editing under `lang/` directly.
+- **Asymmetric Language Structure**:
+  - **Go at root**: Go module (`go.mod`, `*.go`) lives at repository root, embedding SSOT directly via `//go:embed` directives
+  - **Python/TypeScript in `lang/`**: Standard package structures with synced copies of SSOT assets
+  - **Rationale**: Enables standard Go `go get` installation, Go embed support, while maintaining conventional package structures for other languages
+
+- **Sync Automation** – `bun run scripts/sync-to-lang.ts` syncs SSOT to Python/TypeScript before releases (Go embeds directly from root, no sync needed)
+
+- **Unified Versioning** – Root `VERSION` file (CalVer) drives all language packages, ensuring coordinated releases
+
+- **Dual Distribution**:
+  - **Go**: Published module at `github.com/fulmenhq/crucible`
+  - **TypeScript**: Published package at `@fulmenhq/crucible`
+  - **Python**: Published package at `fulmenhq-crucible`
+  - **Pull Scripts**: `scripts/pull/crucible-pull.ts` for vendoring into templates/workhorses
+
+**Golden Rule**: Root directories (`schemas/`, `docs/`, `config/`) are authoritative. Never edit synced copies in `lang/python/` or `lang/typescript/` directly—edit root SSOT and regenerate via sync scripts.
+
+See [ADR-0009](docs/architecture/decisions/ADR-0009-go-module-root-relocation.md) for the asymmetric structure decision and [Library Ecosystem Guide](docs/architecture/library-ecosystem.md) for detailed architecture.
 
 ## Projects Using Crucible
 
@@ -432,9 +464,9 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-**Version**: 2025.10.3 (CalVer: YYYY.MM.REVISION)
+**Version**: 2025.10.5 (CalVer: YYYY.MM.REVISION)
 
-Active development. Core schemas, standards, and helper library contracts stabilized. Progressive logging, Foundry catalog patterns, and docscribe module ready for ecosystem integration.
+Active development. Core schemas, standards, and helper library contracts stabilized. Go module relocated to repository root for standard external installation (v2025.10.5). Progressive logging, Foundry catalog patterns, and docscribe module ready for ecosystem integration.
 
 ---
 

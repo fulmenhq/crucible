@@ -7,6 +7,14 @@ and this project adheres to CalVer (`YYYY.MM.REVISION`).
 
 ## [Unreleased]
 
+## [2025.10.5] - 2025-10-29
+
+### Changed
+
+- **BREAKING: Go Module Relocated to Repository Root**: Moved Go module from `lang/go/` to repository root enabling standard external installation (`go get github.com/fulmenhq/crucible` now works without replace directives), direct SSOT embedding via `//go:embed`, and eliminating Go-specific sync overhead. See [ADR-0009](docs/architecture/decisions/ADR-0009-go-module-root-relocation.md) for rationale and [lang/go/README.md](lang/go/README.md) for migration guide. **Action Required**: Update to v2025.10.5 and remove any `replace` directives from `go.mod`.
+- **Sync Script Optimization**: `scripts/sync-to-lang.ts` no longer syncs to `lang/go/` as Go module embeds directly from root SSOT (schemas/, docs/, config/). Python and TypeScript sync unchanged.
+- **Makefile Simplification**: Go targets (`test-go`, `build-go`, `lint`) now run from repository root without `cd lang/go`, aligning with standard Go module workflow.
+
 ## [2025.10.4] - 2025-10-28
 
 ### Changed

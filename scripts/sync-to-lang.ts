@@ -44,12 +44,12 @@ async function main() {
   };
 
   console.log("🔄 Syncing root assets to language wrappers...");
+  console.log("ℹ️  Note: Go module at root embeds directly - no sync needed");
 
   if (options.dryRun) {
     console.log("🔍 DRY RUN - no files will be modified");
   }
 
-  await syncToGo(options);
   await syncToTypeScript(options);
   await syncToPython(options);
 
@@ -57,22 +57,10 @@ async function main() {
   console.log("");
   console.log("Next steps:");
   console.log("  1. Review changes: git diff lang/");
-  console.log("  2. Test Go build: cd lang/go && go test -v");
-  console.log("  3. Test TS build: cd lang/typescript && bun test");
-  console.log("  4. Test Python build: cd lang/python && uv run pytest");
+  console.log("  2. Test TS build: cd lang/typescript && bun test");
+  console.log("  3. Test Python build: cd lang/python && uv run pytest");
+  console.log("  4. Test Go build: go test ./...");
   console.log("  5. Commit: git add lang/ && git commit -m 'chore: sync assets to lang wrappers'");
-}
-
-async function syncToGo(options: SyncOptions) {
-  console.log("📦 Go wrapper...");
-
-  const goRoot = join(ROOT, "lang/go");
-
-  await syncDirectory(join(ROOT, "schemas"), join(goRoot, "schemas"), "schemas/", options);
-
-  await syncDirectory(join(ROOT, "config"), join(goRoot, "config"), "config/", options);
-
-  await syncDirectory(join(ROOT, "docs"), join(goRoot, "docs"), "docs/", options, ["ops"]);
 }
 
 async function syncToTypeScript(options: SyncOptions) {
@@ -184,15 +172,15 @@ OPTIONS:
 
 DESCRIPTION:
   Syncs schemas/, config/, and docs/ from repository root to:
-    - lang/go/schemas/
-    - lang/go/config/
-    - lang/go/docs/
     - lang/typescript/schemas/
     - lang/typescript/config/
     - lang/typescript/docs/
     - lang/python/schemas/
     - lang/python/config/
     - lang/python/docs/
+
+  Note: Go module at root embeds directly from root SSOT directories
+  via go:embed directives, so no sync is required.
 
   This ensures language wrappers have up-to-date copies
   of assets before publishing packages.

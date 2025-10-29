@@ -40,5 +40,5 @@
     "test:watch": "vitest"
   },
   "types": "dist/index.d.ts",
-  "version": "2025.10.4"
+  "version": "2025.10.5"
 }

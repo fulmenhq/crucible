@@ -15,8 +15,6 @@ jobs:
           go-version: ${{ matrix.go-version }}
           check-latest: true
       - name: Run tests
-        working-directory: ./lang/go
         run: go test ./...
       - name: Build
-        working-directory: ./lang/go
         run: go build ./...

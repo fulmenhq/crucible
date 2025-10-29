@@ -39,7 +39,7 @@ sync-to-lang: ## Sync schemas and docs to Go and TypeScript packages
 # Test targets
 test: ## Run all language wrapper tests (matches GitHub Actions)
 	@echo "Running Go tests..."
-	@cd lang/go && go test ./...
+	@go test ./...
 	@echo ""
 	@echo "Running TypeScript tests..."
 	@cd lang/typescript && bun run test
@@ -48,7 +48,7 @@ test: ## Run all language wrapper tests (matches GitHub Actions)
 	@cd lang/python && uv run pytest
 
 test-go: ## Run Go wrapper tests (matches GitHub Actions)
-	@cd lang/go && go test ./...
+	@go test ./...
 
 test-ts: ## Run TypeScript wrapper tests (matches GitHub Actions)
 	@cd lang/typescript && bun run test
@@ -61,7 +61,7 @@ build: fmt sync-to-lang build-go build-ts build-python ## Build language wrapper
 	@echo "✅ Language wrappers built"
 
 build-go: ## Build Go wrapper (matches GitHub Actions)
-	@cd lang/go && go build ./...
+	@go build ./...
 
 build-ts: ## Build TypeScript wrapper (matches GitHub Actions)
 	@cd lang/typescript && bun run build
@@ -85,7 +85,7 @@ lint: ## Run linting (matches GitHub Actions)
 	@cd lang/python && uv run ruff check .
 	@echo ""
 	@echo "Running goneat assessment (Go, YAML, schemas)..."
-	@cd lang/go && $(BIN_DIR)/goneat assess --categories format,security --check
+	@$(BIN_DIR)/goneat assess --categories format,security --check --include "**/*.go"
 	@$(BIN_DIR)/goneat assess --categories format --check --exclude "lang/**" --exclude "**/*.go"
 
 lint-python: ## Lint Python code (matches GitHub Actions)
