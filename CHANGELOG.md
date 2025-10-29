@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-10-29
+
+### Added
+
+- **Config Embedding**: Added `//go:embed config` to complete Go module embedding. Crucible now embeds `config/` directory alongside `schemas/` and `docs/`, enabling downstream libraries (like gofulmen) to access configuration files directly from the Crucible module without requiring sync operations.
+- **Config Registry API**: New `config.go` with type-safe accessors for embedded configuration files:
+  - `ConfigRegistry.Library().Foundry()` - Foundry catalog configs (patterns, country codes, HTTP statuses, MIME types, similarity fixtures)
+  - `ConfigRegistry.Library().FulHash()` - FulHash module fixtures
+  - `ConfigRegistry.Library().Manifest()` - Library module manifest
+  - `ConfigRegistry.Taxonomy()` - Taxonomy configs (metrics, languages, repository categories)
+  - `ConfigRegistry.Terminal()` - Terminal configuration defaults
+  - `ConfigRegistry.Sync()` - SSOT sync keys
+  - `GetConfig(path)` - Generic config file accessor
+  - `ListConfigs(basePath)` - List config files in directory
+- **Comprehensive Tests**: Added `config_test.go` with full test coverage for all config accessors and embedding verification
+
+### Fixed
+
+- **Missing Config Embedding**: Completed ADR-0009 implementation by adding the missing `//go:embed config` directive. Previously only `schemas/` and `docs/` were embedded when Go module moved to repository root (v0.2.0).
+- **SSOT Compliance**: Downstream consumers can now access config as single source of truth from Crucible module instead of duplicating via sync scripts
+
 ## [0.2.0] - 2025-10-29
 
 ### Changed
