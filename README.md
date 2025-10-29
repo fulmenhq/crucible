@@ -101,7 +101,7 @@ make tools # optional verification
 go get github.com/fulmenhq/crucible@latest
 ```
 
-> **Note**: As of v2025.10.5, the Go module lives at repository root (not `lang/go/`) for standard external installation and `go:embed` support. See [ADR-0009](docs/architecture/decisions/ADR-0009-go-module-root-relocation.md) for details.
+> **Note**: As of v0.1.4 (formerly v2025.10.5), the Go module lives at repository root (not `lang/go/`) for standard external installation and `go:embed` support. See [ADR-0009](docs/architecture/decisions/ADR-0009-go-module-root-relocation.md) for details. Crucible adopted Semantic Versioning as of v0.2.0 per [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md).
 
 ```go
 import "github.com/fulmenhq/crucible"
@@ -278,7 +278,8 @@ Crucible provides native libraries for multiple languages with an **asymmetric r
 - **Go** (at repository root): `import "github.com/fulmenhq/crucible"`
   - Standard Go module structure for external `go get` installation
   - Embeds schemas/docs directly from root SSOT via `//go:embed`
-  - See [ADR-0009](docs/architecture/decisions/ADR-0009-go-module-root-relocation.md) for rationale
+  - Adopted SemVer (v0.2.0+) for Go module compatibility per [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md)
+  - Previous CalVer tags (v2025.10.1-v2025.10.5) mapped to SemVer (v0.1.0-v0.1.4)
 
 - **TypeScript** (`lang/typescript/`): `import { ... } from '@fulmenhq/crucible'`
   - Standard npm package structure with synced assets
@@ -360,7 +361,7 @@ const terminalSchema = getTerminalSchema();
 
 ```
 crucible/
-├── go.mod                # Go module at root (v2025.10.5+)
+├── go.mod                # Go module at root (v0.1.4+)
 ├── *.go                  # Go sources at root
 ├── schemas/              # Version-controlled schemas (SSOT)
 │   ├── terminal/
@@ -386,7 +387,7 @@ crucible/
 
 ### Pseudo-Monorepo Strategy
 
-Crucible intentionally sits between a classic mono-repo and a pure package registry with an **asymmetric language structure** (v2025.10.5+):
+Crucible intentionally sits between a classic mono-repo and a pure package registry with an **asymmetric language structure** (v0.1.4+):
 
 - **Single Source, Many Consumers** – `schemas/`, `docs/`, and `config/` live once at the root as the authoritative SSOT for all language implementations and downstream repos.
 
@@ -397,7 +398,7 @@ Crucible intentionally sits between a classic mono-repo and a pure package regis
 
 - **Sync Automation** – `bun run scripts/sync-to-lang.ts` syncs SSOT to Python/TypeScript before releases (Go embeds directly from root, no sync needed)
 
-- **Unified Versioning** – Root `VERSION` file (CalVer) drives all language packages, ensuring coordinated releases
+- **Unified Versioning** – Root `VERSION` file (SemVer) drives all language packages, ensuring coordinated releases
 
 - **Dual Distribution**:
   - **Go**: Published module at `github.com/fulmenhq/crucible`
@@ -464,9 +465,9 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-**Version**: 2025.10.5 (CalVer: YYYY.MM.REVISION)
+**Version**: 0.2.1 (SemVer: MAJOR.MINOR.PATCH)
 
-Active development. Core schemas, standards, and helper library contracts stabilized. Go module relocated to repository root for standard external installation (v2025.10.5). Progressive logging, Foundry catalog patterns, and docscribe module ready for ecosystem integration.
+Active development. Core schemas, standards, and helper library contracts stabilized. Go module relocated to repository root for standard external installation (v0.1.4). Adopted Semantic Versioning for Go module compatibility (v0.2.0). Progressive logging, Foundry catalog patterns, and docscribe module ready for ecosystem integration.
 
 ---
 

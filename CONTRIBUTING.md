@@ -43,9 +43,9 @@ Welcome! We're glad you're interested in contributing to Crucible, the standards
 
 ## Versioning
 
-This repository uses **Calendar Versioning (CalVer)** with format `YYYY.0M.MICRO`.
+This repository uses **Semantic Versioning (SemVer)** with format `MAJOR.MINOR.PATCH`.
 
-See [Repository Versioning Standard](docs/standards/repository-versioning.md) for details.
+As of v0.2.0, Crucible adopted SemVer for Go module compatibility. See [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md) for the decision rationale and [Repository Versioning Standard](docs/standards/repository-versioning.md) for general FulmenHQ versioning guidance.
 
 **Single source of truth**: `VERSION` file in repository root.
 
@@ -104,7 +104,7 @@ When preparing a PR that changes shared assets or publishing a release, run thro
 
 1. **Author in the root** – edit `schemas/`, `docs/`, `templates/` directly (never modify `lang/` copies by hand).
 2. **Sync wrappers** – `bun run sync:to-lang` to mirror root assets into `lang/go` and `lang/typescript`.
-3. **Align versions** – `bun run version:update` so `lang/*` exports match the CalVer in the root `VERSION` file.
+3. **Align versions** – `bun run version:update` so `lang/*` exports match the SemVer in the root `VERSION` file.
 4. **Run tests** – `bun run test:go` and `bun run test:ts` to ensure both language packages still pass.
 5. **Document changes** – update relevant docs (schema READMEs, standards) and note updates in changelog/release notes.
 
