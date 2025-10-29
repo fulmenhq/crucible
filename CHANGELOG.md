@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2025-10-29
+
+### Changed
+
+- **Documentation**: Updated all CalVer references to SemVer throughout documentation following v0.2.0 transition per ADR-0010. Updated README, CONTRIBUTING, repository versioning standard, and version adoption SOP to reflect current SemVer usage.
+
 ## [0.2.1] - 2025-10-29
 
 ### Added
