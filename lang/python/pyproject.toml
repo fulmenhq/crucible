@@ -1,6 +1,6 @@
 [project]
 name = "fulmenhq-crucible"
-version = "0.2.2"
+version = "0.2.3"
 description = "Crucible - Where Scale is Forged. Standards and schemas for the FulmenHQ ecosystem."
 authors = [
     {name = "FulmenHQ", email = "dev@3leaps.net"}

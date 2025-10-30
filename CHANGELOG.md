@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2025-10-30
+
+### Added
+
+- **Documentation Navigation**: Added comprehensive README files to key documentation directories:
+  - `docs/guides/README.md` - Index of integration and library development guides
+  - `docs/architecture/README.md` - Overview of architecture documentation with quick reference by topic and role
+  - `docs/architecture/decisions/README.md` - Complete ADR index with summaries, status, dates, and impact descriptions
+  - `docs/ops/README.md` - Operations checklists and local ADR guidance
+- **Improved Discoverability**: Each README provides clear navigation, "when to use" guidance, and cross-references to related documentation
+
 ## [0.2.2] - 2025-10-29
 
 ### Changed
