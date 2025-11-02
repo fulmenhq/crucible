@@ -14,6 +14,7 @@
 import { cpSync, existsSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
+import { spawnSync } from "node:child_process";
 
 interface SyncOptions {
   dryRun: boolean;
@@ -50,6 +51,9 @@ async function main() {
     console.log("🔍 DRY RUN - no files will be modified");
   }
 
+  // Generate exit codes before syncing (generates artifacts in lang/* directories)
+  await generateExitCodes(options);
+
   await syncToTypeScript(options);
   await syncToPython(options);
 
@@ -61,6 +65,38 @@ async function main() {
   console.log("  3. Test Python build: cd lang/python && uv run pytest");
   console.log("  4. Test Go build: go test ./...");
   console.log("  5. Commit: git add lang/ && git commit -m 'chore: sync assets to lang wrappers'");
+}
+
+async function generateExitCodes(options: SyncOptions) {
+  console.log("🔧 Generating exit codes for all languages...");
+
+  if (options.dryRun) {
+    console.log("   [DRY RUN] Would generate exit codes");
+    return;
+  }
+
+  const generatorPath = join(ROOT, "scripts/codegen/generate-exit-codes.ts");
+
+  if (!existsSync(generatorPath)) {
+    console.log("   ⚠️  Generator not found, skipping code generation");
+    return;
+  }
+
+  const result = spawnSync("bun", ["run", generatorPath, "--all", "--format"], {
+    cwd: ROOT,
+    stdio: options.verbose ? "inherit" : "pipe",
+    encoding: "utf8",
+  });
+
+  if (result.status !== 0) {
+    console.error("   ❌ Code generation failed");
+    if (!options.verbose && result.stderr) {
+      console.error(result.stderr);
+    }
+    process.exit(1);
+  }
+
+  console.log("   ✓ Exit codes generated");
 }
 
 async function syncToTypeScript(options: SyncOptions) {
@@ -171,7 +207,8 @@ OPTIONS:
   --help       Show this help
 
 DESCRIPTION:
-  Syncs schemas/, config/, and docs/ from repository root to:
+  Generates code from Crucible catalogs and syncs schemas/, config/,
+  and docs/ from repository root to:
     - lang/typescript/schemas/
     - lang/typescript/config/
     - lang/typescript/docs/
@@ -179,8 +216,13 @@ DESCRIPTION:
     - lang/python/config/
     - lang/python/docs/
 
+  Code generation step produces language-native bindings:
+    - foundry/exit_codes.go
+    - lang/python/src/pyfulmen/foundry/exit_codes.py
+    - lang/typescript/src/foundry/exitCodes.ts
+
   Note: Go module at root embeds directly from root SSOT directories
-  via go:embed directives, so no sync is required.
+  via go:embed directives, so no sync is required for YAML/JSON assets.
 
   This ensures language wrappers have up-to-date copies
   of assets before publishing packages.

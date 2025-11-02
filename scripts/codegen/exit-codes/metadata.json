@@ -1,0 +1,24 @@
+{
+  "catalog": "exit-codes",
+  "catalog_path": "config/library/foundry/exit-codes.yaml",
+  "snapshot_path": "config/library/foundry/exit-codes.snapshot.json",
+  "owner": "@schema-cartographer",
+  "last_reviewed": "2025-10-31",
+  "languages": {
+    "go": {
+      "template": "template.ejs",
+      "output_path": "foundry/exit_codes.go",
+      "postprocess": "postprocess.sh"
+    },
+    "python": {
+      "template": "template.jinja",
+      "output_path": "lang/python/src/pyfulmen/foundry/exit_codes.py",
+      "postprocess": "postprocess.sh"
+    },
+    "typescript": {
+      "template": "template.ejs",
+      "output_path": "lang/typescript/src/foundry/exitCodes.ts",
+      "postprocess": "postprocess.sh"
+    }
+  }
+}

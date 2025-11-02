@@ -1,0 +1,92 @@
+/**
+ * Exit Codes - Generated from Crucible catalog
+ *
+ * This file is AUTO-GENERATED from the Foundry exit codes catalog.
+ * DO NOT EDIT MANUALLY - changes will be overwritten.
+ *
+ * Catalog Version: <%= version %>
+ * Last Reviewed: <%= lastReviewed %>
+ * Source: config/library/foundry/exit-codes.yaml
+ */
+
+/**
+ * Standardized process exit codes for Fulmen ecosystem
+ *
+ * @see https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/foundry/README.md#exit-codes
+ */
+export const exitCodes = {
+<% categories.forEach((category, catIndex) => { -%>
+  // <%- category.name %> (<%- category.range.min %>-<%- category.range.max %>)
+  // <%- category.description %>
+<% category.codes.forEach((code, codeIndex) => { -%>
+  <%- code.name %>: <%- code.code %>,
+<% }); -%>
+<% if (catIndex < categories.length - 1) { %>
+<% } -%>
+<% }); -%>
+} as const;
+
+/**
+ * Exit code value type - union of all valid exit code numbers
+ */
+export type ExitCode = (typeof exitCodes)[keyof typeof exitCodes];
+
+/**
+ * Exit code name type - union of all valid exit code constant names
+ */
+export type ExitCodeName = keyof typeof exitCodes;
+
+/**
+ * Exit code metadata information
+ */
+export interface ExitCodeInfo {
+  code: number;
+  name: string;
+  description: string;
+  context: string;
+  category: string;
+  retryHint?: "retry" | "no_retry" | "investigate";
+  bsdEquivalent?: string;
+  pythonNote?: string;
+}
+
+/**
+ * Metadata for all exit codes
+ */
+export const exitCodeMetadata: Record<number, ExitCodeInfo> = {
+<% categories.forEach((category) => { -%>
+<% category.codes.forEach((code, index) => { -%>
+  <%- code.code %>: {
+    code: <%- code.code %>,
+    name: "<%- code.name %>",
+    description: "<%- code.description.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n') %>",
+    context: "<%- code.context.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n') %>",
+    category: "<%- category.id %>",
+<% if (code.retry_hint) { -%>
+    retryHint: "<%- code.retry_hint %>",
+<% } -%>
+<% if (code.bsd_equivalent) { -%>
+    bsdEquivalent: "<%- code.bsd_equivalent %>",
+<% } -%>
+<% if (code.python_note) { -%>
+    pythonNote: "<%- code.python_note.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n') %>",
+<% } -%>
+  },
+<% }); -%>
+<% }); -%>
+};
+
+/**
+ * Get metadata for a specific exit code
+ *
+ * @param code - Exit code number
+ * @returns Exit code metadata or undefined if not found
+ */
+export function getExitCodeInfo(code: number): ExitCodeInfo | undefined {
+  return exitCodeMetadata[code];
+}
+
+/**
+ * Catalog version for telemetry and compatibility checks
+ */
+export const EXIT_CODES_VERSION = "<%- version %>";

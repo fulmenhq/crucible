@@ -5,7 +5,7 @@
   },
   "description": "Crucible - Where Scale is Forged. Standards and schemas for the FulmenHQ ecosystem.",
   "devDependencies": {
-    "@biomejs/biome": "^1.5.0",
+    "@biomejs/biome": "^2.2.5",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.0.0",
     "@vitest/coverage-v8": "^1.6.0",
@@ -32,9 +32,9 @@
   },
   "scripts": {
     "build": "tsc",
-    "format": "biome format --write .",
-    "lint": "biome check .",
-    "prepublishOnly": "npm run build \u0026\u0026 npm test",
+    "format": "bunx biome format --write .",
+    "lint": "bunx biome check .",
+    "prepublishOnly": "bun run build && bun run test",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"

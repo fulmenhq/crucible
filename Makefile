@@ -9,7 +9,7 @@ VERSION_FILE := VERSION
 .PHONY: sync-schemas sync-to-lang test-go test-ts test-python build-python lint-python
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare prepush precommit check-all
-.PHONY: validate-schemas
+.PHONY: validate-schemas verify-codegen
 
 # Default target
 all: sync-schemas
@@ -103,7 +103,7 @@ prepush: check-all ## Run pre-push hooks (check-all + build)
 precommit: check-all ## Run pre-commit hooks (check-all + build)
 	@echo "✅ Pre-commit checks passed"
 
-check-all: validate-schemas build lint test typecheck ## Run all checks (lint, test, typecheck) after ensuring build/sync
+check-all: validate-schemas verify-codegen build lint test typecheck ## Run all checks (lint, test, typecheck) after ensuring build/sync
 	@echo "✅ All checks passed"
 
 # Clean build artifacts
@@ -114,6 +114,9 @@ clean: ## Clean any build artifacts
 
 validate-schemas: ## Validate taxonomy registries and logging schema changes
 	@bun run scripts/validate-schemas.ts
+
+verify-codegen: ## Verify generated code is up-to-date with catalog
+	@bun run scripts/codegen/verify-exit-codes.ts
 
 # Version management
 version: ## Print current repository version

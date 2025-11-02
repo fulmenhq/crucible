@@ -377,7 +377,7 @@ async function validateSimilarityFixtures(): Promise<void> {
   const goneatPath = path.resolve(repoRoot, 'bin/goneat');
   const schemaPath = 'schemas/library/foundry/v2.0.0/similarity.schema.json';
   const dataPath = 'config/library/foundry/similarity-fixtures.yaml';
-  
+
   try {
     execSync(`${goneatPath} validate data --schema-file ${schemaPath} --data ${dataPath}`, {
       cwd: repoRoot,
@@ -386,6 +386,189 @@ async function validateSimilarityFixtures(): Promise<void> {
     });
   } catch (error: any) {
     throw new Error(`Similarity fixtures validation failed: ${error.message}`);
+  }
+}
+
+function validateExitCodes(catalog: any): void {
+  assert(catalog && typeof catalog === 'object', 'exit codes catalog must be object');
+  const record = catalog as JSONObject;
+  const version = expectString(record['version'], 'exit codes catalog missing version');
+  assert(/^[vV]?\d+\.\d+\.\d+$/.test(version), 'exit codes catalog version must be SemVer/CalVer');
+
+  const categories = record['categories'];
+  assert(Array.isArray(categories) && categories.length > 0, 'exit codes categories must be non-empty array');
+
+  const seenCategoryIds = new Set<string>();
+  const allCodes = new Set<number>();
+  const codeToCategory = new Map<number, string>();
+
+  // Validate each category
+  for (const entry of categories as JSONObject[]) {
+    assert(entry && typeof entry === 'object', 'exit code category must be object');
+    const entryRecord = entry as JSONObject;
+
+    const id = expectString(entryRecord['id'], 'exit code category missing id');
+    assert(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(id), `invalid exit code category id: ${id}`);
+    assert(!seenCategoryIds.has(id), `duplicate exit code category id: ${id}`);
+    seenCategoryIds.add(id);
+
+    expectString(entryRecord['name'], `exit code category ${id} missing name`);
+    expectString(entryRecord['description'], `exit code category ${id} missing description`);
+
+    // Validate range
+    const range = entryRecord['range'];
+    assert(range && typeof range === 'object', `exit code category ${id} missing range`);
+    const rangeRecord = range as JSONObject;
+    const minValRaw = rangeRecord['min'];
+    const maxValRaw = rangeRecord['max'];
+    assert(typeof minValRaw === 'number' && Number.isInteger(minValRaw), `exit code category ${id} range.min must be integer`);
+    assert(typeof maxValRaw === 'number' && Number.isInteger(maxValRaw), `exit code category ${id} range.max must be integer`);
+    const minVal = minValRaw as number;
+    const maxVal = maxValRaw as number;
+    assert(minVal >= 0 && minVal <= 255, `exit code category ${id} range.min out of bounds: ${minVal}`);
+    assert(maxVal >= 0 && maxVal <= 255, `exit code category ${id} range.max out of bounds: ${maxVal}`);
+    assert(minVal <= maxVal, `exit code category ${id} range.min > range.max`);
+
+    // Validate codes in category
+    const codes = entryRecord['codes'];
+    assert(Array.isArray(codes) && codes.length > 0, `exit code category ${id} missing codes array`);
+
+    for (const codeEntry of codes as JSONObject[]) {
+      assert(codeEntry && typeof codeEntry === 'object', `exit code category ${id} code entry must be object`);
+      const codeRecord = codeEntry as JSONObject;
+
+      const codeVal = codeRecord['code'];
+      assert(typeof codeVal === 'number' && Number.isInteger(codeVal), `exit code category ${id} code must be integer`);
+      const code = codeVal as number;
+      assert(code >= 0 && code <= 255, `exit code category ${id} code ${code} out of range`);
+
+      const name = expectString(codeRecord['name'], `exit code category ${id} code ${code} missing name`);
+      assert(/^EXIT_[A-Z0-9_]+$/.test(name), `exit code category ${id} code ${code} invalid name format: ${name}`);
+
+      expectString(codeRecord['description'], `exit code category ${id} code ${code} missing description`);
+
+      // Check for duplicate codes across all categories
+      if (allCodes.has(code)) {
+        const prevCategory = codeToCategory.get(code);
+        throw new Error(`duplicate exit code ${code} in category ${id} (previously defined in ${prevCategory})`);
+      }
+      allCodes.add(code);
+      codeToCategory.set(code, id);
+
+      // Validate optional fields
+      const retryHint = codeRecord['retry_hint'];
+      if (retryHint !== undefined) {
+        assert(typeof retryHint === 'string', `exit code ${code} retry_hint must be string`);
+        assert(['retry', 'no_retry', 'investigate'].includes(retryHint as string),
+          `exit code ${code} invalid retry_hint: ${retryHint}`);
+      }
+
+      // Validate range compliance (code within category range) with special case for EX_USAGE
+      if (code !== 64 || id !== 'usage') { // Code 64 is allowed to break range for BSD compatibility
+        if (code < minVal || code > maxVal) {
+          throw new Error(
+            `exit code ${code} (${name}) in category ${id} outside declared range [${minVal}-${maxVal}]`
+          );
+        }
+      }
+    }
+  }
+
+  // Validate signal codes follow 128+N pattern
+  const signalCategory = (categories as JSONObject[]).find((c: any) => c.id === 'signals');
+  if (signalCategory) {
+    const signalCodes = (signalCategory as any).codes as JSONObject[];
+    for (const codeEntry of signalCodes) {
+      const code = (codeEntry as any).code as number;
+      assert(code >= 128 && code <= 165, `signal exit code ${code} must be in range 128-165`);
+    }
+  }
+
+  // Validate simplified modes
+  const simplifiedModes = record['simplified_modes'];
+  if (simplifiedModes !== undefined) {
+    assert(Array.isArray(simplifiedModes), 'simplified_modes must be array');
+    const seenModeIds = new Set<string>();
+
+    for (const mode of simplifiedModes as JSONObject[]) {
+      assert(mode && typeof mode === 'object', 'simplified mode must be object');
+      const modeRecord = mode as JSONObject;
+
+      const modeId = expectString(modeRecord['id'], 'simplified mode missing id');
+      assert(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/.test(modeId), `invalid simplified mode id: ${modeId}`);
+      assert(!seenModeIds.has(modeId), `duplicate simplified mode id: ${modeId}`);
+      seenModeIds.add(modeId);
+
+      expectString(modeRecord['name'], `simplified mode ${modeId} missing name`);
+
+      const mappings = modeRecord['mappings'];
+      assert(Array.isArray(mappings) && mappings.length > 0,
+        `simplified mode ${modeId} missing mappings array`);
+
+      const seenSimplifiedCodes = new Set<number>();
+      for (const mapping of mappings as JSONObject[]) {
+        assert(mapping && typeof mapping === 'object',
+          `simplified mode ${modeId} mapping must be object`);
+        const mappingRecord = mapping as JSONObject;
+
+        const simplifiedCode = mappingRecord['simplified_code'];
+        assert(typeof simplifiedCode === 'number' && Number.isInteger(simplifiedCode),
+          `simplified mode ${modeId} simplified_code must be integer`);
+        assert(!seenSimplifiedCodes.has(simplifiedCode as number),
+          `simplified mode ${modeId} duplicate simplified_code: ${simplifiedCode}`);
+        seenSimplifiedCodes.add(simplifiedCode as number);
+
+        expectString(mappingRecord['simplified_name'],
+          `simplified mode ${modeId} code ${simplifiedCode} missing simplified_name`);
+
+        const mapsFrom = mappingRecord['maps_from'];
+        assert(Array.isArray(mapsFrom) && mapsFrom.length > 0,
+          `simplified mode ${modeId} code ${simplifiedCode} missing maps_from array`);
+
+        // Verify all mapped codes exist in catalog
+        for (const sourceCode of mapsFrom as unknown[]) {
+          assert(typeof sourceCode === 'number' && Number.isInteger(sourceCode),
+            `simplified mode ${modeId} maps_from must contain integers`);
+          if (!allCodes.has(sourceCode as number)) {
+            throw new Error(
+              `simplified mode ${modeId} maps code ${sourceCode} which is not defined in catalog`
+            );
+          }
+        }
+      }
+    }
+  }
+
+  // Validate BSD compatibility mappings (if present)
+  const bsdCompat = record['bsd_compatibility'];
+  if (bsdCompat !== undefined) {
+    assert(bsdCompat && typeof bsdCompat === 'object', 'bsd_compatibility must be object');
+    const bsdRecord = bsdCompat as JSONObject;
+
+    const mappings = bsdRecord['mappings'];
+    if (mappings !== undefined) {
+      assert(Array.isArray(mappings), 'bsd_compatibility.mappings must be array');
+      for (const mapping of mappings as JSONObject[]) {
+        assert(mapping && typeof mapping === 'object', 'bsd mapping must be object');
+        const mappingRecord = mapping as JSONObject;
+
+        const bsdCode = mappingRecord['bsd_code'];
+        const fulmenCode = mappingRecord['fulmen_code'];
+        assert(typeof bsdCode === 'number' && Number.isInteger(bsdCode),
+          'bsd_code must be integer');
+        assert(typeof fulmenCode === 'number' && Number.isInteger(fulmenCode),
+          'fulmen_code must be integer');
+
+        // Verify fulmen_code exists in catalog
+        if (!allCodes.has(fulmenCode as number)) {
+          throw new Error(`BSD mapping references undefined fulmen_code: ${fulmenCode}`);
+        }
+
+        expectString(mappingRecord['bsd_name'], `BSD code ${bsdCode} missing bsd_name`);
+        expectString(mappingRecord['fulmen_name'], `BSD code ${bsdCode} missing fulmen_name`);
+        expectString(mappingRecord['category'], `BSD code ${bsdCode} missing category`);
+      }
+    }
   }
 }
 
@@ -416,6 +599,10 @@ async function main(): Promise<void> {
   console.log('Validating MIME types catalog...');
   const mimeTypes = await loadFile('config/library/foundry/mime-types.yaml');
   validateMimeTypes(mimeTypes);
+
+  console.log('Validating exit codes catalog...');
+  const exitCodes = await loadFile('config/library/foundry/exit-codes.yaml');
+  validateExitCodes(exitCodes);
 
   console.log('Validating log-event schema structure...');
   const logEventSchema = await loadFile('schemas/observability/logging/v1.0.0/log-event.schema.json');

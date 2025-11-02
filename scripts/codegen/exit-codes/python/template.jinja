@@ -1,0 +1,85 @@
+"""Exit Codes - Generated from Crucible catalog.
+
+This file is AUTO-GENERATED from the Foundry exit codes catalog.
+DO NOT EDIT MANUALLY - changes will be overwritten.
+
+Catalog Version: {{ version }}
+Last Reviewed: {{ last_reviewed }}
+Source: config/library/foundry/exit-codes.yaml
+
+Standardized process exit codes for Fulmen ecosystem.
+
+See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/foundry/README.md#exit-codes
+"""
+
+from enum import IntEnum
+from typing import Literal, Optional, TypedDict
+
+
+class ExitCode(IntEnum):
+    """Standardized exit codes for Fulmen ecosystem tools and libraries."""
+
+{% for category in categories %}
+    # {{ category.name }} ({{ category.range.min }}-{{ category.range.max }})
+    # {{ category.description }}
+{% for code in category.codes %}
+    {{ code.name }} = {{ code.code }}
+{% endfor %}
+{% if not loop.last %}
+
+{% endif %}
+{% endfor %}
+
+
+class ExitCodeInfo(TypedDict, total=False):
+    """Exit code metadata information."""
+
+    code: int
+    name: str
+    description: str
+    context: str
+    category: str
+    retry_hint: Optional[Literal["retry", "no_retry", "investigate"]]
+    bsd_equivalent: Optional[str]
+    python_note: Optional[str]
+
+
+# Metadata for all exit codes
+EXIT_CODE_METADATA: dict[int, ExitCodeInfo] = {
+{% for category in categories %}
+{% for code in category.codes %}
+    {{ code.code }}: {
+        "code": {{ code.code }},
+        "name": "{{ code.name }}",
+        "description": "{{ code.description | replace('"', '\\"') | replace('\n', '\\n') }}",
+        "context": "{{ code.context | replace('"', '\\"') | replace('\n', '\\n') }}",
+        "category": "{{ category.id }}",
+{% if code.retry_hint %}
+        "retry_hint": "{{ code.retry_hint }}",
+{% endif %}
+{% if code.bsd_equivalent %}
+        "bsd_equivalent": "{{ code.bsd_equivalent }}",
+{% endif %}
+{% if code.python_note %}
+        "python_note": "{{ code.python_note | replace('"', '\\"') | replace('\n', '\\n') }}",
+{% endif %}
+    },
+{% endfor %}
+{% endfor %}
+}
+
+
+def get_exit_code_info(code: int) -> Optional[ExitCodeInfo]:
+    """Get metadata for a specific exit code.
+
+    Args:
+        code: Exit code number
+
+    Returns:
+        Exit code metadata or None if not found
+    """
+    return EXIT_CODE_METADATA.get(code)
+
+
+# Catalog version for telemetry and compatibility checks
+EXIT_CODES_VERSION = "{{ version }}"

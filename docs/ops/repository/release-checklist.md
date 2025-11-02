@@ -97,6 +97,7 @@ make prepush
 **This runs**:
 
 - Schema validation
+- Code generation verification (verify-codegen)
 - SSOT sync to language wrappers
 - Linting (TypeScript, Python, Go, YAML)
 - Formatting (all file types)

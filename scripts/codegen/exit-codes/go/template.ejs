@@ -1,0 +1,71 @@
+// Package foundry provides standardized exit codes for Fulmen ecosystem tools and libraries.
+//
+// This file is AUTO-GENERATED from the Foundry exit codes catalog.
+// DO NOT EDIT MANUALLY - changes will be overwritten.
+//
+// Catalog Version: <%- Version %>
+// Last Reviewed: <%- LastReviewed %>
+// Source: config/library/foundry/exit-codes.yaml
+//
+// See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/foundry/README.md#exit-codes
+package foundry
+
+// Exit code constants
+const (
+<% for (const category of Categories) { -%>
+	// <%- category.Name %> (<%- category.Range.Min %>-<%- category.Range.Max %>)
+	// <%- category.Description %>
+<%   for (const code of category.Codes) { -%>
+	Exit<%- code.NamePascal %> = <%- code.Code %>
+<%   } -%>
+
+<% } -%>
+)
+
+// ExitCodeInfo contains metadata about an exit code
+type ExitCodeInfo struct {
+	Code          int
+	Name          string
+	Description   string
+	Context       string
+	Category      string
+	RetryHint     string // "retry", "no_retry", "investigate", or empty
+	BSDEquivalent string // BSD sysexits.h equivalent, or empty
+	PythonNote    string // Python-specific compatibility guidance, or empty
+}
+
+// exitCodeMetadata maps exit codes to their metadata
+var exitCodeMetadata = map[int]ExitCodeInfo{
+<% for (const category of Categories) { -%>
+<%   for (const code of category.Codes) { -%>
+	<%- code.Code %>: {
+		Code:        <%- code.Code %>,
+		Name:        <%- JSON.stringify(code.Name) %>,
+		Description: <%- JSON.stringify(code.Description) %>,
+		Context:     <%- JSON.stringify(code.Context) %>,
+		Category:    <%- JSON.stringify(code.CategoryID) %>,
+<%     if (code.RetryHint) { -%>
+		RetryHint:   <%- JSON.stringify(code.RetryHint) %>,
+<%     } -%>
+<%     if (code.BSDEquivalent) { -%>
+		BSDEquivalent: <%- JSON.stringify(code.BSDEquivalent) %>,
+<%     } -%>
+<%     if (code.PythonNote) { -%>
+		PythonNote: <%- JSON.stringify(code.PythonNote) %>,
+<%     } -%>
+	},
+<%   } -%>
+<% } -%>
+}
+
+// GetExitCodeInfo returns metadata for a specific exit code.
+// Returns nil if the exit code is not found.
+func GetExitCodeInfo(code int) *ExitCodeInfo {
+	if info, ok := exitCodeMetadata[code]; ok {
+		return &info
+	}
+	return nil
+}
+
+// ExitCodesVersion is the catalog version for telemetry and compatibility checks
+const ExitCodesVersion = <%- JSON.stringify(Version) %>
