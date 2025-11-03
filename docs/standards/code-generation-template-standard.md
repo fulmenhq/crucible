@@ -40,6 +40,7 @@ This standard defines how Crucible publishes language-specific code generation t
 ```
 
 **Why**: Go's module system requires all Go code at repository root for:
+
 - External `go get` installation to work
 - Direct SSOT embedding via `//go:embed schemas`
 - Standard Go toolchain compatibility
@@ -53,17 +54,17 @@ This standard defines how Crucible publishes language-specific code generation t
   "languages": {
     "go": {
       "template": "template.tmpl",
-      "output_path": "foundry/exit_codes.go",  // ← Root-relative, creates foundry/ subpackage
+      "output_path": "foundry/exit_codes.go", // ← Root-relative, creates foundry/ subpackage
       "postprocess": "postprocess.sh"
     },
     "python": {
       "template": "template.jinja",
-      "output_path": "lang/python/src/pyfulmen/foundry/exit_codes.py",  // ← lang/ subdirectory
+      "output_path": "lang/python/src/pyfulmen/foundry/exit_codes.py", // ← lang/ subdirectory
       "postprocess": "postprocess.sh"
     },
     "typescript": {
       "template": "template.ejs",
-      "output_path": "lang/typescript/src/foundry/exitCodes.ts",  // ← lang/ subdirectory
+      "output_path": "lang/typescript/src/foundry/exitCodes.ts", // ← lang/ subdirectory
       "postprocess": "postprocess.sh"
     }
   }
@@ -75,11 +76,13 @@ This standard defines how Crucible publishes language-specific code generation t
 ### Common Mistakes to Avoid
 
 ❌ **DON'T**:
+
 - Generate Go code in `lang/go/` (violates ADR-0009)
 - Use `pkg/` prefix for Go paths (Go code lives at root, not in pkg/)
 - Reference `../` paths for Go outputs
 
 ✅ **DO**:
+
 - Generate Go code at root: `foundry/exit_codes.go`
 - Use subpackages for organization: `foundry/`, `signals/`, `identity/`
 - Keep Python/TypeScript in `lang/` subdirectories

@@ -26,6 +26,71 @@ This standard defines how Crucible publishes language-specific code generation t
   - Python: Jinja2 rendered via Bun (e.g., Nunjucks) or delegated to Python if necessary
   - TypeScript/JavaScript: EJS/Handlebars (or similar) executed from Bun
 
+## ⚠️ CRITICAL: Go Module Architecture (ADR-0009 Compliance)
+
+**All Go code generation MUST comply with [ADR-0009: Go Module Root Relocation](../architecture/decisions/ADR-0009-go-module-root-relocation.md).**
+
+### Go-Specific Requirements
+
+**Go files MUST be generated at repository root**, not in subdirectories:
+
+```
+✅ CORRECT: foundry/exit_codes.go           (at root, package foundry)
+❌ WRONG:   lang/go/pkg/foundry/exit_codes.go  (subdirectory - violates ADR-0009)
+```
+
+**Why**: Go's module system requires all Go code at repository root for:
+
+- External `go get` installation to work
+- Direct SSOT embedding via `//go:embed schemas`
+- Standard Go toolchain compatibility
+
+**Python and TypeScript**: Remain in `lang/` subdirectories (unchanged).
+
+### Output Path Examples (metadata.json)
+
+```json
+{
+  "languages": {
+    "go": {
+      "template": "template.tmpl",
+      "output_path": "foundry/exit_codes.go", // ← Root-relative, creates foundry/ subpackage
+      "postprocess": "postprocess.sh"
+    },
+    "python": {
+      "template": "template.jinja",
+      "output_path": "lang/python/src/pyfulmen/foundry/exit_codes.py", // ← lang/ subdirectory
+      "postprocess": "postprocess.sh"
+    },
+    "typescript": {
+      "template": "template.ejs",
+      "output_path": "lang/typescript/src/foundry/exitCodes.ts", // ← lang/ subdirectory
+      "postprocess": "postprocess.sh"
+    }
+  }
+}
+```
+
+**Key Principle**: Go output paths are **root-relative** and create subpackages under the main `crucible` module. Python and TypeScript output paths include `lang/<language>/` prefix.
+
+### Common Mistakes to Avoid
+
+❌ **DON'T**:
+
+- Generate Go code in `lang/go/` (violates ADR-0009)
+- Use `pkg/` prefix for Go paths (Go code lives at root, not in pkg/)
+- Reference `../` paths for Go outputs
+
+✅ **DO**:
+
+- Generate Go code at root: `foundry/exit_codes.go`
+- Use subpackages for organization: `foundry/`, `signals/`, `identity/`
+- Keep Python/TypeScript in `lang/` subdirectories
+
+**Reference**: See [ADR-0009](../architecture/decisions/ADR-0009-go-module-root-relocation.md) for complete rationale and architectural decisions.
+
+---
+
 ## Directory Structure
 
 ```
@@ -62,22 +127,24 @@ Every catalog directory MUST include `metadata.json` with at least:
   "languages": {
     "go": {
       "template": "template.tmpl",
-      "output_path": "../gofulmen/pkg/foundry/exit_codes.go",
+      "output_path": "foundry/exit_codes.go",
       "postprocess": "postprocess.sh"
     },
     "python": {
       "template": "template.jinja",
-      "output_path": "../pyfulmen/src/pyfulmen/foundry/exit_codes.py",
+      "output_path": "lang/python/src/pyfulmen/foundry/exit_codes.py",
       "postprocess": "postprocess.sh"
     },
     "typescript": {
       "template": "template.ejs",
-      "output_path": "../tsfulmen/src/foundry/exitCodes.ts",
+      "output_path": "lang/typescript/src/foundry/exitCodes.ts",
       "postprocess": "postprocess.sh"
     }
   }
 }
 ```
+
+**Note**: Go output path is root-relative (`foundry/exit_codes.go`) per [ADR-0009](../architecture/decisions/ADR-0009-go-module-root-relocation.md). Python and TypeScript paths include `lang/<language>/` prefix.
 
 Automation reads ownership/version data from this file—do not rename or omit it.
 

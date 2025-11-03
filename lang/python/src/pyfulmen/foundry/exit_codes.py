@@ -12,12 +12,23 @@ Standardized process exit codes for Fulmen ecosystem.
 See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/foundry/README.md#exit-codes
 """
 
-from enum import IntEnum
-from typing import Literal, Optional, TypedDict
+from enum import Enum, IntEnum
+from typing import Literal, TypedDict
+
+# NotRequired is available in Python 3.11+ or via typing_extensions
+try:
+    from typing import NotRequired
+except ImportError:
+    from typing_extensions import NotRequired  # type: ignore
 
 
 class ExitCode(IntEnum):
-    """Standardized exit codes for Fulmen ecosystem tools and libraries."""
+    """Standardized exit codes for Fulmen ecosystem tools and libraries.
+
+    Note: All exit code names include the EXIT_ prefix for clarity and to avoid
+    naming collisions with Python builtins. Use as: ExitCode.EXIT_SUCCESS,
+    ExitCode.EXIT_PORT_IN_USE, etc.
+    """
 
 
     # Standard Exit Codes (0-1)
@@ -205,17 +216,22 @@ class ExitCode(IntEnum):
 
 
 
-class ExitCodeInfo(TypedDict, total=False):
-    """Exit code metadata information."""
+class ExitCodeInfo(TypedDict):
+    """Exit code metadata information.
+
+    Note: code, name, description, context, and category are always present.
+    Optional fields (retry_hint, bsd_equivalent, python_note) are only included
+    when specified in the catalog.
+    """
 
     code: int
     name: str
     description: str
     context: str
     category: str
-    retry_hint: Optional[Literal["retry", "no_retry", "investigate"]]
-    bsd_equivalent: Optional[str]
-    python_note: Optional[str]
+    retry_hint: NotRequired[Literal["retry", "no_retry", "investigate"]]
+    bsd_equivalent: NotRequired[str]
+    python_note: NotRequired[str]
 
 
 # Metadata for all exit codes
@@ -785,7 +801,7 @@ EXIT_CODE_METADATA: dict[int, ExitCodeInfo] = {
         "code": 131,
         "name": "EXIT_SIGNAL_QUIT",
         "description": "Quit signal (SIGQUIT)",
-        "context": "Ctrl+\ pressed, core dump requested",
+        "context": "Ctrl+\\\\ pressed, core dump requested",
         "category": "signals",
 
 
@@ -884,7 +900,7 @@ EXIT_CODE_METADATA: dict[int, ExitCodeInfo] = {
 }
 
 
-def get_exit_code_info(code: int) -> Optional[ExitCodeInfo]:
+def get_exit_code_info(code: int) -> ExitCodeInfo | None:
     """Get metadata for a specific exit code.
 
     Args:
@@ -896,5 +912,335 @@ def get_exit_code_info(code: int) -> Optional[ExitCodeInfo]:
     return EXIT_CODE_METADATA.get(code)
 
 
+def get_exit_codes_version() -> str:
+    """Get the exit codes catalog version.
+
+    Returns:
+        Catalog version string (e.g., "v1.0.0")
+    """
+    return "v1.0.0"
+
+
 # Catalog version for telemetry and compatibility checks
 EXIT_CODES_VERSION = "v1.0.0"
+
+
+class SimplifiedMode(Enum):
+    """Simplified exit code modes for novice-friendly tools.
+
+    - BASIC: Minimal 3-code set (0=success, 1=error, 2=usage)
+    - SEVERITY: Severity-based 8-code set (0=success, 1-7=error types)
+    """
+
+    BASIC = "basic"
+    SEVERITY = "severity"
+
+
+# Simplified mode mappings (detailed code -> simplified code)
+_SIMPLIFIED_MAPPINGS: dict[SimplifiedMode, dict[int, int]] = {
+
+
+    SimplifiedMode.BASIC: {
+
+
+        0: 0,  # SUCCESS
+
+
+
+        1: 1,  # ERROR
+
+        10: 1,  # ERROR
+
+        11: 1,  # ERROR
+
+        12: 1,  # ERROR
+
+        13: 1,  # ERROR
+
+        14: 1,  # ERROR
+
+        15: 1,  # ERROR
+
+        20: 1,  # ERROR
+
+        21: 1,  # ERROR
+
+        22: 1,  # ERROR
+
+        23: 1,  # ERROR
+
+        24: 1,  # ERROR
+
+        30: 1,  # ERROR
+
+        31: 1,  # ERROR
+
+        32: 1,  # ERROR
+
+        33: 1,  # ERROR
+
+        34: 1,  # ERROR
+
+        40: 1,  # ERROR
+
+        41: 1,  # ERROR
+
+        50: 1,  # ERROR
+
+        51: 1,  # ERROR
+
+        52: 1,  # ERROR
+
+        53: 1,  # ERROR
+
+        54: 1,  # ERROR
+
+        60: 1,  # ERROR
+
+        61: 1,  # ERROR
+
+        62: 1,  # ERROR
+
+        63: 1,  # ERROR
+
+        70: 1,  # ERROR
+
+        71: 1,  # ERROR
+
+        72: 1,  # ERROR
+
+        73: 1,  # ERROR
+
+        80: 1,  # ERROR
+
+        81: 1,  # ERROR
+
+        82: 1,  # ERROR
+
+        83: 1,  # ERROR
+
+        84: 1,  # ERROR
+
+        91: 1,  # ERROR
+
+        92: 1,  # ERROR
+
+        93: 1,  # ERROR
+
+        94: 1,  # ERROR
+
+        95: 1,  # ERROR
+
+        96: 1,  # ERROR
+
+        129: 1,  # ERROR
+
+        130: 1,  # ERROR
+
+        131: 1,  # ERROR
+
+        137: 1,  # ERROR
+
+        141: 1,  # ERROR
+
+        142: 1,  # ERROR
+
+        143: 1,  # ERROR
+
+        159: 1,  # ERROR
+
+        160: 1,  # ERROR
+
+
+
+        64: 2,  # USAGE_ERROR
+
+
+    },
+
+    SimplifiedMode.SEVERITY: {
+
+
+        0: 0,  # SUCCESS
+
+
+
+        40: 1,  # USER_ERROR
+
+        41: 1,  # USER_ERROR
+
+        64: 1,  # USER_ERROR
+
+
+
+        20: 2,  # CONFIG_ERROR
+
+        21: 2,  # CONFIG_ERROR
+
+        22: 2,  # CONFIG_ERROR
+
+        23: 2,  # CONFIG_ERROR
+
+        24: 2,  # CONFIG_ERROR
+
+
+
+        30: 3,  # RUNTIME_ERROR
+
+        31: 3,  # RUNTIME_ERROR
+
+        32: 3,  # RUNTIME_ERROR
+
+        33: 3,  # RUNTIME_ERROR
+
+        34: 3,  # RUNTIME_ERROR
+
+        60: 3,  # RUNTIME_ERROR
+
+        61: 3,  # RUNTIME_ERROR
+
+        62: 3,  # RUNTIME_ERROR
+
+        63: 3,  # RUNTIME_ERROR
+
+
+
+        10: 4,  # SYSTEM_ERROR
+
+        11: 4,  # SYSTEM_ERROR
+
+        12: 4,  # SYSTEM_ERROR
+
+        13: 4,  # SYSTEM_ERROR
+
+        14: 4,  # SYSTEM_ERROR
+
+        15: 4,  # SYSTEM_ERROR
+
+        50: 4,  # SYSTEM_ERROR
+
+        51: 4,  # SYSTEM_ERROR
+
+        52: 4,  # SYSTEM_ERROR
+
+        53: 4,  # SYSTEM_ERROR
+
+        54: 4,  # SYSTEM_ERROR
+
+        129: 4,  # SYSTEM_ERROR
+
+        130: 4,  # SYSTEM_ERROR
+
+        131: 4,  # SYSTEM_ERROR
+
+        137: 4,  # SYSTEM_ERROR
+
+        141: 4,  # SYSTEM_ERROR
+
+        142: 4,  # SYSTEM_ERROR
+
+        143: 4,  # SYSTEM_ERROR
+
+        159: 4,  # SYSTEM_ERROR
+
+        160: 4,  # SYSTEM_ERROR
+
+
+
+        70: 5,  # SECURITY_ERROR
+
+        71: 5,  # SECURITY_ERROR
+
+        72: 5,  # SECURITY_ERROR
+
+        73: 5,  # SECURITY_ERROR
+
+
+
+        91: 6,  # TEST_FAILURE
+
+        92: 6,  # TEST_FAILURE
+
+        93: 6,  # TEST_FAILURE
+
+        94: 6,  # TEST_FAILURE
+
+        95: 6,  # TEST_FAILURE
+
+        96: 6,  # TEST_FAILURE
+
+
+
+        80: 7,  # OBSERVABILITY_ERROR
+
+        81: 7,  # OBSERVABILITY_ERROR
+
+        82: 7,  # OBSERVABILITY_ERROR
+
+        83: 7,  # OBSERVABILITY_ERROR
+
+        84: 7,  # OBSERVABILITY_ERROR
+
+
+    },
+
+
+}
+
+
+def map_to_simplified(code: int, mode: SimplifiedMode) -> int:
+    """Map detailed exit code to simplified code.
+
+    Args:
+        code: Detailed exit code (0-255)
+        mode: Simplified mode (BASIC or SEVERITY)
+
+    Returns:
+        Simplified exit code
+
+    Raises:
+        ValueError: If code not found in mappings or mode is unknown
+
+    Example:
+        >>> map_to_simplified(ExitCode.EXIT_PORT_IN_USE, SimplifiedMode.BASIC)
+        1
+        >>> map_to_simplified(ExitCode.EXIT_CONFIG_INVALID, SimplifiedMode.SEVERITY)
+        2
+    """
+    mappings = _SIMPLIFIED_MAPPINGS.get(mode)
+    if mappings is None:
+        raise ValueError(f"Unknown simplified mode: {mode}")
+
+    simplified = mappings.get(code)
+    if simplified is None:
+        raise ValueError(
+            f"Code {code} not found in {mode.value} mappings. "
+            f"Use get_exit_code_info({code}) to verify the code exists."
+        )
+
+    return simplified
+
+
+def get_detailed_codes(simplified_code: int, mode: SimplifiedMode) -> list[int]:
+    """Get all detailed codes that map to a simplified code.
+
+    Args:
+        simplified_code: Simplified exit code
+        mode: Simplified mode
+
+    Returns:
+        List of detailed exit codes (sorted)
+
+    Raises:
+        ValueError: If mode is unknown
+
+    Example:
+        >>> codes = get_detailed_codes(1, SimplifiedMode.BASIC)
+        >>> ExitCode.EXIT_PORT_IN_USE in codes
+        True
+    """
+    mappings = _SIMPLIFIED_MAPPINGS.get(mode)
+    if mappings is None:
+        raise ValueError(f"Unknown simplified mode: {mode}")
+
+    return sorted([code for code, simple in mappings.items() if simple == simplified_code])

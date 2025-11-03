@@ -12,12 +12,23 @@ Standardized process exit codes for Fulmen ecosystem.
 See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/foundry/README.md#exit-codes
 """
 
-from enum import IntEnum
-from typing import Literal, Optional, TypedDict
+from enum import Enum, IntEnum
+from typing import Literal, TypedDict
+
+# NotRequired is available in Python 3.11+ or via typing_extensions
+try:
+    from typing import NotRequired
+except ImportError:
+    from typing_extensions import NotRequired  # type: ignore
 
 
 class ExitCode(IntEnum):
-    """Standardized exit codes for Fulmen ecosystem tools and libraries."""
+    """Standardized exit codes for Fulmen ecosystem tools and libraries.
+
+    Note: All exit code names include the EXIT_ prefix for clarity and to avoid
+    naming collisions with Python builtins. Use as: ExitCode.EXIT_SUCCESS,
+    ExitCode.EXIT_PORT_IN_USE, etc.
+    """
 
 {% for category in categories %}
     # {{ category.name }} ({{ category.range.min }}-{{ category.range.max }})
@@ -31,17 +42,22 @@ class ExitCode(IntEnum):
 {% endfor %}
 
 
-class ExitCodeInfo(TypedDict, total=False):
-    """Exit code metadata information."""
+class ExitCodeInfo(TypedDict):
+    """Exit code metadata information.
+
+    Note: code, name, description, context, and category are always present.
+    Optional fields (retry_hint, bsd_equivalent, python_note) are only included
+    when specified in the catalog.
+    """
 
     code: int
     name: str
     description: str
     context: str
     category: str
-    retry_hint: Optional[Literal["retry", "no_retry", "investigate"]]
-    bsd_equivalent: Optional[str]
-    python_note: Optional[str]
+    retry_hint: NotRequired[Literal["retry", "no_retry", "investigate"]]
+    bsd_equivalent: NotRequired[str]
+    python_note: NotRequired[str]
 
 
 # Metadata for all exit codes
@@ -51,8 +67,8 @@ EXIT_CODE_METADATA: dict[int, ExitCodeInfo] = {
     {{ code.code }}: {
         "code": {{ code.code }},
         "name": "{{ code.name }}",
-        "description": "{{ code.description | replace('"', '\\"') | replace('\n', '\\n') }}",
-        "context": "{{ code.context | replace('"', '\\"') | replace('\n', '\\n') }}",
+        "description": "{{ code.description | replace('\\', '\\\\') | replace('"', '\\"') | replace('\n', '\\n') }}",
+        "context": "{{ code.context | replace('\\', '\\\\') | replace('"', '\\"') | replace('\n', '\\n') }}",
         "category": "{{ category.id }}",
 {% if code.retry_hint %}
         "retry_hint": "{{ code.retry_hint }}",
@@ -69,7 +85,7 @@ EXIT_CODE_METADATA: dict[int, ExitCodeInfo] = {
 }
 
 
-def get_exit_code_info(code: int) -> Optional[ExitCodeInfo]:
+def get_exit_code_info(code: int) -> ExitCodeInfo | None:
     """Get metadata for a specific exit code.
 
     Args:
@@ -81,5 +97,99 @@ def get_exit_code_info(code: int) -> Optional[ExitCodeInfo]:
     return EXIT_CODE_METADATA.get(code)
 
 
+def get_exit_codes_version() -> str:
+    """Get the exit codes catalog version.
+
+    Returns:
+        Catalog version string (e.g., "v1.0.0")
+    """
+    return "{{ version }}"
+
+
 # Catalog version for telemetry and compatibility checks
 EXIT_CODES_VERSION = "{{ version }}"
+
+
+class SimplifiedMode(Enum):
+    """Simplified exit code modes for novice-friendly tools.
+
+    - BASIC: Minimal 3-code set (0=success, 1=error, 2=usage)
+    - SEVERITY: Severity-based 8-code set (0=success, 1-7=error types)
+    """
+
+    BASIC = "basic"
+    SEVERITY = "severity"
+
+
+# Simplified mode mappings (detailed code -> simplified code)
+_SIMPLIFIED_MAPPINGS: dict[SimplifiedMode, dict[int, int]] = {
+{% if simplified_modes %}
+{% for mode in simplified_modes %}
+    SimplifiedMode.{{ mode.id | upper }}: {
+{% for mapping in mode.mappings %}
+{% for code in mapping.maps_from %}
+        {{ code }}: {{ mapping.simplified_code }},  # {{ mapping.simplified_name }}
+{% endfor %}
+{% endfor %}
+    },
+{% endfor %}
+{% endif %}
+}
+
+
+def map_to_simplified(code: int, mode: SimplifiedMode) -> int:
+    """Map detailed exit code to simplified code.
+
+    Args:
+        code: Detailed exit code (0-255)
+        mode: Simplified mode (BASIC or SEVERITY)
+
+    Returns:
+        Simplified exit code
+
+    Raises:
+        ValueError: If code not found in mappings or mode is unknown
+
+    Example:
+        >>> map_to_simplified(ExitCode.EXIT_PORT_IN_USE, SimplifiedMode.BASIC)
+        1
+        >>> map_to_simplified(ExitCode.EXIT_CONFIG_INVALID, SimplifiedMode.SEVERITY)
+        2
+    """
+    mappings = _SIMPLIFIED_MAPPINGS.get(mode)
+    if mappings is None:
+        raise ValueError(f"Unknown simplified mode: {mode}")
+
+    simplified = mappings.get(code)
+    if simplified is None:
+        raise ValueError(
+            f"Code {code} not found in {mode.value} mappings. "
+            f"Use get_exit_code_info({code}) to verify the code exists."
+        )
+
+    return simplified
+
+
+def get_detailed_codes(simplified_code: int, mode: SimplifiedMode) -> list[int]:
+    """Get all detailed codes that map to a simplified code.
+
+    Args:
+        simplified_code: Simplified exit code
+        mode: Simplified mode
+
+    Returns:
+        List of detailed exit codes (sorted)
+
+    Raises:
+        ValueError: If mode is unknown
+
+    Example:
+        >>> codes = get_detailed_codes(1, SimplifiedMode.BASIC)
+        >>> ExitCode.EXIT_PORT_IN_USE in codes
+        True
+    """
+    mappings = _SIMPLIFIED_MAPPINGS.get(mode)
+    if mappings is None:
+        raise ValueError(f"Unknown simplified mode: {mode}")
+
+    return sorted([code for code, simple in mappings.items() if simple == simplified_code])

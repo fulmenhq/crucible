@@ -54,10 +54,24 @@ interface Category {
   codes: ExitCode[];
 }
 
+interface SimplifiedMapping {
+  simplified_code: number;
+  simplified_name: string;
+  maps_from: number[];
+}
+
+interface SimplifiedMode {
+  id: string;
+  name: string;
+  description: string;
+  mappings: SimplifiedMapping[];
+}
+
 interface Catalog {
   version: string;
   description: string;
   categories: Category[];
+  simplified_modes?: SimplifiedMode[];
 }
 
 // CLI argument parsing
@@ -111,6 +125,7 @@ function prepareTemplateData(lang: string) {
     lastReviewed: metadata.last_reviewed,
     last_reviewed: metadata.last_reviewed, // Python snake_case variant
     categories: categoriesWithSingleLineDescriptions,
+    simplified_modes: catalog.simplified_modes || [],
   };
 
   if (lang === "go") {
@@ -119,6 +134,16 @@ function prepareTemplateData(lang: string) {
       ...baseData,
       LastReviewed: metadata.last_reviewed,
       Version: catalog.version,
+      SimplifiedModes: (catalog.simplified_modes || []).map((mode: SimplifiedMode) => ({
+        ID: mode.id,
+        Name: mode.name,
+        Description: mode.description,
+        Mappings: mode.mappings.map((mapping: SimplifiedMapping) => ({
+          SimplifiedCode: mapping.simplified_code,
+          SimplifiedName: mapping.simplified_name,
+          MapsFrom: mapping.maps_from,
+        })),
+      })),
       Categories: categoriesWithSingleLineDescriptions.map((cat) => ({
         ...cat,
         Name: cat.name,

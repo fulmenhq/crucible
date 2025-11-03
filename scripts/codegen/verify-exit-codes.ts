@@ -16,7 +16,7 @@
  */
 
 import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
-import { dirname, extname, join, resolve } from "node:path";
+import { dirname, extname, join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { execSync } from "node:child_process";
 import { load as loadYaml } from "js-yaml";
@@ -99,9 +99,9 @@ async function main(): Promise<number> {
   const expectedEntries = buildExpectedEntryMap(catalog);
   const languageEntries = Object.entries(metadata.languages);
 
-  goOutputPath = resolve(ROOT, metadata.languages.go.output_path);
-  pythonOutputPath = resolve(ROOT, metadata.languages.python.output_path);
-  typescriptOutputPath = resolve(ROOT, metadata.languages.typescript.output_path);
+  goOutputPath = resolve(ROOT, metadata.languages["go"]!.output_path);
+  pythonOutputPath = resolve(ROOT, metadata.languages["python"]!.output_path);
+  typescriptOutputPath = resolve(ROOT, metadata.languages["typescript"]!.output_path);
 
   try {
     regenerateBindings(languageEntries);
@@ -301,7 +301,8 @@ function runCompilationChecks(): boolean {
 
   try {
     mkdirSync(PYTHON_BYTECODE_CACHE, { recursive: true });
-    execSync(`python3 -m py_compile "${pythonOutputPath}"`, {
+    const pythonRelPath = relative(join(ROOT, 'lang/python'), pythonOutputPath);
+    execSync(`cd lang/python && uv run python -m py_compile "${pythonRelPath}"`, {
       cwd: ROOT,
       stdio: "pipe",
       env: {
@@ -454,7 +455,7 @@ function parseGoConstants(content: string): Map<number, string> {
 
   let match: RegExpExecArray | null;
   while ((match = regex.exec(content)) !== null) {
-    const pascalName = match[1];
+    const pascalName = match[1]!;
     const code = Number(match[2]);
     const constName = pascalToConstName(pascalName);
     if (!map.has(code)) {
@@ -489,18 +490,19 @@ function parseGoMetadata(
       category: string;
       retry_hint?: string;
       bsd_equivalent?: string;
+      python_note?: string;
     }
   >();
 
   let match: RegExpExecArray | null;
   while ((match = regex.exec(content)) !== null) {
     const code = Number(match[1]);
-    const body = match[2];
+    const body = match[2]!;
 
-    const name = extractGoField(body, "Name");
-    const description = extractGoField(body, "Description");
-    const context = extractGoField(body, "Context");
-    const category = extractGoField(body, "Category");
+    const name = extractGoField(body, "Name")!;
+    const description = extractGoField(body, "Description")!;
+    const context = extractGoField(body, "Context")!;
+    const category = extractGoField(body, "Category")!;
     const retryHint = normalizeOptional(extractGoField(body, "RetryHint", true));
     const bsdEquivalent = normalizeOptional(extractGoField(body, "BSDEquivalent", true));
     const pythonNote = normalizeOptional(extractGoField(body, "PythonNote", true));
@@ -529,7 +531,7 @@ function extractGoField(body: string, field: string, optional = false): string |
     throw new Error(`Go metadata missing field ${field}`);
   }
 
-  return decodeGoStringLiteral(match[1]);
+  return decodeGoStringLiteral(match[1]!);
 }
 
 function decodeGoStringLiteral(value: string): string {
@@ -584,7 +586,7 @@ print(json.dumps({"codes": codes, "metadata": metadata}))
 `;
 
   mkdirSync(PYTHON_BYTECODE_CACHE, { recursive: true });
-  const result = execSync(`python3 - <<'PY'\n${pythonScript}\nPY`, {
+  const result = execSync(`cd lang/python && uv run python - <<'PY'\n${pythonScript}\nPY`, {
     cwd: ROOT,
     encoding: "utf8",
     env: {
@@ -620,22 +622,22 @@ print(json.dumps({"codes": codes, "metadata": metadata}))
       continue;
     }
 
-    if (metadataEntry.name !== entry.name) {
+    if (metadataEntry["name"] !== entry.name) {
       errors.push(`Python metadata name mismatch for code ${code} (${entry.name})`);
     }
-    if (metadataEntry.description !== entry.description) {
+    if (metadataEntry["description"] !== entry.description) {
       errors.push(`Python metadata description mismatch for code ${code} (${entry.name})`);
     }
-    if (metadataEntry.context !== entry.context) {
+    if (metadataEntry["context"] !== entry.context) {
       errors.push(`Python metadata context mismatch for code ${code} (${entry.name})`);
     }
-    if (metadataEntry.category !== entry.category) {
+    if (metadataEntry["category"] !== entry.category) {
       errors.push(`Python metadata category mismatch for code ${code} (${entry.name})`);
     }
 
     if (
       !optionalEquals(
-        normalizeOptional(metadataEntry.retry_hint),
+        normalizeOptional(metadataEntry["retry_hint"]),
         normalizeOptional(entry.retry_hint)
       )
     ) {
@@ -644,7 +646,7 @@ print(json.dumps({"codes": codes, "metadata": metadata}))
 
     if (
       !optionalEquals(
-        normalizeOptional(metadataEntry.bsd_equivalent),
+        normalizeOptional(metadataEntry["bsd_equivalent"]),
         normalizeOptional(entry.bsd_equivalent)
       )
     ) {
@@ -655,7 +657,7 @@ print(json.dumps({"codes": codes, "metadata": metadata}))
 
     if (
       !optionalEquals(
-        normalizeOptional(metadataEntry.python_note),
+        normalizeOptional(metadataEntry["python_note"]),
         normalizeOptional(entry.python_note)
       )
     ) {

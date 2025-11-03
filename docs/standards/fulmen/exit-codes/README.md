@@ -16,6 +16,146 @@ tags: ["fulmen", "exit-codes", "application-standards", "signals"]
 
 ---
 
+## Platform-Specific Behavior
+
+### Windows Signal Exit Codes
+
+> ⚠️ **Important**: POSIX signal exits (128+N) are NOT available on native Windows.
+
+Windows does not surface Unix signal exit codes (SIGTERM=143, SIGINT=130, etc.) because it uses a different process termination model. This affects applications targeting cross-platform deployment:
+
+**Platform Behavior**:
+
+- **Native Windows**: Signal exit codes (128-165) will never occur
+- **WSL/Cygwin**: MAY support signal exits but emit telemetry warnings
+- **Linux/macOS**: Full signal exit code support
+
+**Recommendations for Cross-Platform Applications**:
+
+#### 1. Use Simplified Mode on Windows
+
+```python
+# Python example
+import platform
+from pyfulmen.foundry import ExitCode, map_to_simplified, SimplifiedMode
+
+exit_code = ExitCode.EXIT_PORT_IN_USE  # 10
+
+if platform.system() == "Windows":
+    exit_code = map_to_simplified(exit_code, SimplifiedMode.BASIC)
+    # Returns 1 (ERROR) instead of 10
+
+sys.exit(exit_code)
+```
+
+```go
+// Go example
+import (
+    "runtime"
+    "github.com/fulmenhq/gofulmen/foundry"
+)
+
+exitCode := foundry.ExitPortInUse  // 10
+
+if runtime.GOOS == "windows" {
+    exitCode = foundry.MapToSimplified(exitCode, foundry.SimplifiedModeBasic)
+    // Returns 1 (ERROR) instead of 10
+}
+os.Exit(exitCode)
+```
+
+```typescript
+// TypeScript example
+import {
+  exitCodes,
+  mapToSimplified,
+  SimplifiedMode,
+} from "@fulmenhq/tsfulmen/foundry";
+
+let exitCode = exitCodes.EXIT_PORT_IN_USE; // 10
+
+if (process.platform === "win32") {
+  exitCode = mapToSimplified(exitCode, SimplifiedMode.BASIC);
+  // Returns 1 (ERROR) instead of 10
+}
+
+process.exit(exitCode);
+```
+
+#### 2. Check Platform Capabilities
+
+> **Note**: Platform capability probes (`supportsSignalExitCodes()`, `getPlatformInfo()`) will be available in helper library v0.2.0 (post-Crucible v0.2.3). Until then, use runtime platform detection from standard libraries.
+
+**Current approach** (using standard library platform detection):
+
+```go
+// Go - Check platform manually
+import "runtime"
+
+if runtime.GOOS == "windows" {
+    // Use simplified mode or standard codes only on Windows
+    logger.Warn("Signal exit codes unavailable on Windows")
+    exitCode = foundry.MapToSimplified(exitCode, foundry.SimplifiedModeBasic)
+}
+```
+
+```python
+# Python - Check platform manually
+import platform
+
+if platform.system() == "Windows":
+    logger.warning("Signal exit codes unavailable on Windows")
+    exit_code = map_to_simplified(exit_code, SimplifiedMode.BASIC)
+```
+
+```typescript
+// TypeScript - Check platform manually
+if (process.platform === "win32") {
+  logger.warn("Signal exit codes unavailable on Windows");
+  exitCode = mapToSimplified(exitCode, SimplifiedMode.BASIC);
+}
+```
+
+**Future (helper library v0.2.0)**:
+
+```python
+# Will be available in pyfulmen v0.2.0
+from pyfulmen.foundry import supports_signal_exit_codes, get_platform_info
+
+if not supports_signal_exit_codes():
+    logger.warning("Signal exit codes unavailable on this platform")
+```
+
+#### 3. Structured Logging for Platform Differences
+
+When your application detects platform limitations, emit structured telemetry:
+
+```python
+import platform
+
+if platform.system() == "Windows":
+    logger.warning(
+        "Platform does not support signal exit codes",
+        extra={
+            'platform_os': platform.system(),
+            'platform_arch': platform.machine(),
+            'exit_code_strategy': 'simplified',
+            'signal_support': False
+        }
+    )
+```
+
+**Key Takeaways**:
+
+- ✅ Use standard codes (0-99) for cross-platform compatibility
+- ✅ Use simplified modes on Windows for cleaner exit semantics
+- ✅ Check platform (runtime.GOOS, platform.system(), process.platform) before relying on signal exits
+- ✅ Log platform capabilities for observability
+- ⚠️ Never assume signal exit codes work on all platforms
+- 📅 Platform capability probes coming in helper library v0.2.0
+
+---
+
 ## Quick Start
 
 ### Go (gofulmen)
@@ -47,13 +187,13 @@ import sys
 def main():
     if not validate_config():
         print("Configuration validation failed", file=sys.stderr)
-        sys.exit(ExitCode.CONFIG_INVALID)
+        sys.exit(ExitCode.EXIT_CONFIG_INVALID)
 
     if not start_server():
         print("Server startup failed", file=sys.stderr)
-        sys.exit(ExitCode.PORT_IN_USE)
+        sys.exit(ExitCode.EXIT_PORT_IN_USE)
 
-    sys.exit(ExitCode.SUCCESS)
+    sys.exit(ExitCode.EXIT_SUCCESS)
 ```
 
 ### TypeScript (tsfulmen)
@@ -305,9 +445,9 @@ def signal_handler(signum, frame):
     shutdown()
 
     if signum == signal.SIGTERM:
-        sys.exit(ExitCode.SIGTERM)
+        sys.exit(ExitCode.EXIT_SIGTERM)
     elif signum == signal.SIGINT:
-        sys.exit(ExitCode.SIGINT)
+        sys.exit(ExitCode.EXIT_SIGINT)
 
 signal.signal(signal.SIGTERM, signal_handler)
 signal.signal(signal.SIGINT, signal_handler)
@@ -435,12 +575,13 @@ fmt.Printf("Retry Hint: %s\n", info.RetryHint)
 ```python
 from pyfulmen.foundry import get_exit_code_info, ExitCode
 
-info = get_exit_code_info(ExitCode.PORT_IN_USE)
-print(f"Code: {info.code}")
-print(f"Name: {info.name}")
-print(f"Category: {info.category}")
-print(f"Description: {info.description}")
-print(f"Retry Hint: {info.retry_hint}")
+info = get_exit_code_info(ExitCode.EXIT_PORT_IN_USE)
+print(f"Code: {info['code']}")
+print(f"Name: {info['name']}")
+print(f"Category: {info['category']}")
+print(f"Description: {info['description']}")
+if 'retry_hint' in info:
+    print(f"Retry Hint: {info['retry_hint']}")
 ```
 
 ### TypeScript
@@ -579,12 +720,15 @@ func TestCommandFailsWithConfigError(t *testing.T) {
 ### Python Testing
 
 ```python
+from pyfulmen.foundry import ExitCode
+import subprocess
+
 def test_command_fails_with_config_error():
     result = subprocess.run(
         ["./myapp", "--config", "invalid.yaml"],
         capture_output=True
     )
-    assert result.returncode == ExitCode.CONFIG_INVALID
+    assert result.returncode == ExitCode.EXIT_CONFIG_INVALID
 ```
 
 ### TypeScript Testing (Jest)

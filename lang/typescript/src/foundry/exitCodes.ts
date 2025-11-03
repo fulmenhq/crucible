@@ -479,7 +479,7 @@ export const exitCodeMetadata: Record<number, ExitCodeInfo> = {
     code: 131,
     name: "EXIT_SIGNAL_QUIT",
     description: "Quit signal (SIGQUIT)",
-    context: "Ctrl+\\ pressed, core dump requested",
+    context: "Ctrl+\\\\ pressed, core dump requested",
     category: "signals",
     bsdEquivalent: "128 + 3",
   },
