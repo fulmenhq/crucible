@@ -382,8 +382,7 @@ export const exitCodeMetadata: Record<number, ExitCodeInfo> = {
     code: 80,
     name: "EXIT_METRICS_UNAVAILABLE",
     description: "Metrics endpoint or collection system unavailable",
-    context:
-      "Use for observability-focused tools (Prometheus exporters, StatsD agents).\nWorkhorses SHOULD log warning and continue unless configured to fail-fast.\n",
+    context: "Use for observability-focused tools (Prometheus exporters, StatsD agents).\nWorkhorses SHOULD log warning and continue unless configured to fail-fast.\n",
     category: "observability",
   },
   81: {
@@ -418,24 +417,21 @@ export const exitCodeMetadata: Record<number, ExitCodeInfo> = {
     code: 91,
     name: "EXIT_TEST_FAILURE",
     description: "One or more tests failed",
-    context:
-      "Test assertions failed, expected behavior not met.\nMaps to pytest exit code 1, Go test failure, Jest failure.\n",
+    context: "Test assertions failed, expected behavior not met.\nMaps to pytest exit code 1, Go test failure, Jest failure.\n",
     category: "testing",
   },
   92: {
     code: 92,
     name: "EXIT_TEST_ERROR",
     description: "Test execution error (not test failure)",
-    context:
-      "Test setup failed, fixture unavailable, test harness error.\nMaps to pytest exit code 3 (internal error).\n",
+    context: "Test setup failed, fixture unavailable, test harness error.\nMaps to pytest exit code 3 (internal error).\n",
     category: "testing",
   },
   93: {
     code: 93,
     name: "EXIT_TEST_INTERRUPTED",
     description: "Test run interrupted by user or system",
-    context:
-      "Ctrl+C during tests, system signal, user cancellation.\nMaps to pytest exit code 2.\n",
+    context: "Ctrl+C during tests, system signal, user cancellation.\nMaps to pytest exit code 2.\n",
     category: "testing",
   },
   94: {
@@ -479,7 +475,7 @@ export const exitCodeMetadata: Record<number, ExitCodeInfo> = {
     code: 131,
     name: "EXIT_SIGNAL_QUIT",
     description: "Quit signal (SIGQUIT)",
-    context: "Ctrl+\\\\ pressed, core dump requested",
+    context: "Ctrl+\\ pressed, core dump requested",
     category: "signals",
     bsdEquivalent: "128 + 3",
   },

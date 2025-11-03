@@ -59,8 +59,8 @@ export const exitCodeMetadata: Record<number, ExitCodeInfo> = {
   <%- code.code %>: {
     code: <%- code.code %>,
     name: "<%- code.name %>",
-    description: "<%- code.description.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n') %>",
-    context: "<%- code.context.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n') %>",
+    description: <%- JSON.stringify(code.description) %>,
+    context: <%- JSON.stringify(code.context) %>,
     category: "<%- category.id %>",
 <% if (code.retry_hint) { -%>
     retryHint: "<%- code.retry_hint %>",
@@ -69,7 +69,7 @@ export const exitCodeMetadata: Record<number, ExitCodeInfo> = {
     bsdEquivalent: "<%- code.bsd_equivalent %>",
 <% } -%>
 <% if (code.python_note) { -%>
-    pythonNote: "<%- code.python_note.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n') %>",
+    pythonNote: <%- JSON.stringify(code.python_note) %>,
 <% } -%>
   },
 <% }); -%>
