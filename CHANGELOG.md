@@ -31,6 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Protocol schemas define message contracts used by both clients and servers
   - Documentation: `docs/standards/protocol/` (http-rest-standards.md, grpc-standards.md)
   - Change memo: `docs/ops/repository/memos/2025-11-03-api-to-protocol-schema-refactor.md`
+- **Codex Configuration**: Standardized configuration for codex templates
+  - Schema: `schemas/config/repository-category/codex/v1.0.0/codex-config.schema.json`
+  - Example: `examples/config/repository-category/codex/v1.0.0/codex-config.example.json`
+  - Documentation: `docs/standards/repository-category/codex/config-standard.md`
+  - Extension system with controlled enum and governance process
+  - Parallel structure for repository-category standards (schemas + docs)
 
 ### Changed
 
