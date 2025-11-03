@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schemas.fulmenhq.dev/config/repository-category/codex/v1.0.0/codex-config.schema.json",
+  "$comment": "Example configuration for Fulmen codex templates. Copy to codex.config.json and customize.",
+  "project": {
+    "name": "Forge Codex Pulsar",
+    "description": "Production-grade documentation and knowledge hub",
+    "type": "codex",
+    "baseUrl": "https://docs.example.dev"
+  },
+  "extensions": [],
+  "features": {
+    "search": {
+      "provider": "starlight-default"
+    },
+    "i18n": {
+      "enabled": false,
+      "defaultLocale": "en"
+    },
+    "analytics": {
+      "enabled": false
+    }
+  }
+}
