@@ -24,6 +24,104 @@ Provide consistent server orchestration utilities across Fulmen helper libraries
 
 **Status**: Schema and configuration SSOT established in v0.2.3. Helper library implementations planned for v0.2.4+.
 
+## Implementation Strategy
+
+**Reference Harness Pattern**: Helper libraries ship **configurable orchestration harnesses** that handle cross-cutting infrastructure (port discovery, health checks, PID files, exit codes) while accepting application-specific server commands as configuration.
+
+### Division of Responsibility
+
+**Crucible (SSOT)**:
+
+- Defines configuration schema (`schemas/server/management/v1.0.0/`)
+- Provides default configuration (`config/server/management/server-management.yaml`)
+- Specifies exit codes, health check formats, requirements
+
+**Helper Libraries**:
+
+- Implement orchestration harness (CLI tool or importable package)
+- Read Crucible config from embedded SSOT
+- Handle port management, health checks, PID files
+- Exit with standardized codes
+
+**Applications**:
+
+- Specify their server command (e.g., `bun run dev`, `uvicorn app:app`)
+- Wire command into library harness via Makefile or config
+- Inherit consistent orchestration behavior
+
+### Harness Implementation Requirements
+
+Each helper library MUST provide:
+
+1. **CLI Tool or Package**: Ecosystem-appropriate interface
+   - TypeScript: `tsfulmen server` CLI (Bun-native)
+   - Python: `pyfulmen server` CLI or `pyfulmen.server` module
+   - Go: `gofulmen/server` importable package
+2. **Configuration Resolution**: Read and merge Crucible config with environment overrides
+3. **Port Discovery**: Check preferred port, scan range if unavailable
+4. **Process Management**: Start command, write PID, handle signals
+5. **Health Checks**: Poll endpoint with retry logic from config
+6. **Exit Code Compliance**: Use Foundry exit codes (EXIT_PORT_IN_USE=11, EXIT_HEALTH_CHECK_FAILED=50, etc.)
+
+### Example: TypeScript Harness
+
+**Library provides** (`@fulmenhq/tsfulmen`):
+
+```typescript
+// bin/tsfulmen-server.ts
+import {
+  resolveServerConfig,
+  findAvailablePort,
+  waitForHealth,
+} from "./server";
+import { spawnServer } from "./process";
+
+async function start(configClass: string, command: string) {
+  const config = await resolveServerConfig(configClass);
+  const port = await findAvailablePort(config.range, config.preferredPort);
+
+  if (!port) {
+    process.exit(11); // EXIT_PORT_IN_USE
+  }
+
+  const envVars = {
+    [`${config.envPrefix}_${configClass.toUpperCase()}_PORT`]: port,
+  };
+  const pid = await spawnServer(command, envVars, config.pidFile);
+
+  const healthy = await waitForHealth(config.healthCheck, port);
+  if (!healthy) {
+    process.exit(50); // EXIT_HEALTH_CHECK_FAILED
+  }
+
+  console.log(`Server started (PID ${pid}) on port ${port}`);
+}
+```
+
+**Application uses** (Forge Codex Pulsar):
+
+```makefile
+.PHONY: server-start-%
+server-start-%:
+	@tsfulmen server start --config $* --command "bun run dev"
+```
+
+**What happens**:
+
+- `tsfulmen` handles: config resolution, port discovery, health checks, PID files
+- Application specifies: the actual command (`bun run dev`)
+- Result: Consistent orchestration, no copy/paste logic
+
+### Benefits
+
+**DRY Principle**: Port discovery logic written once per ecosystem, not per application
+
+**Centralized Fixes**: Bug in health check retry? Fix library, all apps benefit
+
+**Consistent Behavior**: All Fulmen servers use same exit codes, PID conventions, health patterns
+
+See [Server Management Architecture](../../../architecture/fulmen-server-management.md#reference-implementation-pattern) for high-level overview and application examples.
+
 ## Core Capabilities (Planned v0.2.4)
 
 ### 1. Configuration Resolution

@@ -274,6 +274,139 @@ make server-status-test
 
 # Restart preview server
 make server-restart-preview
+```
+
+---
+
+## Reference Implementation Pattern
+
+**Division of Responsibility**: Server orchestration logic is **cross-cutting infrastructure**, not application-specific code. Helper libraries provide reference implementations to avoid copy/paste drift across templates.
+
+### Three-Layer Model
+
+**1. Crucible (SSOT) - Defines "What"**:
+
+- Schema: `schemas/server/management/v1.0.0/server-management.schema.json`
+- Config: `config/server/management/server-management.yaml`
+- Standards: Exit codes, health check formats, configuration classes
+- Requirements: Port ranges, retry logic, PID file conventions
+
+**2. Helper Libraries - Implement "How"**:
+
+- **TypeScript**: `@fulmenhq/tsfulmen` ships CLI harness (`tsfulmen server start --config dev`)
+- **Python**: `pyfulmen` provides subprocess-based orchestration (`pyfulmen server start --config dev`)
+- **Go**: `gofulmen/server` package exports orchestration functions
+
+**Harness Responsibilities**:
+
+- Read `server-management.yaml` from Crucible SSOT
+- Resolve configuration for specified class (dev, test, a11y, preview, prod_like)
+- Discover available port (check preferred, fallback to range scan)
+- Start server process with environment variable overrides
+- Poll health endpoint using retry logic from config
+- Write PID file for process management
+- Exit with standardized exit codes on failure (EXIT_PORT_IN_USE, EXIT_HEALTH_CHECK_FAILED, etc.)
+
+**What Libraries Don't Know**: The actual server command to run (that's application-specific).
+
+**3. Applications - Configure "What Command"**:
+
+Applications specify their server command in configuration, which the library harness executes.
+
+**Example (TypeScript/Bun application)**:
+
+```yaml
+# app-specific-config.yaml (or passed via CLI args)
+serverCommand: "bun run dev"
+envPrefix: "MY_APP"
+```
+
+**Makefile delegates to library harness**:
+
+```makefile
+.PHONY: server-start-%
+server-start-%:
+	@tsfulmen server start --config $* --command "bun run dev"
+```
+
+**What Happens**:
+
+1. `tsfulmen` reads `server-management.yaml` from Crucible (synced to `node_modules/@fulmenhq/tsfulmen/config/`)
+2. Resolves dev configuration (preferred port 3000, range 3000-3099, health check settings)
+3. Checks if port 3000 available; if not, scans range
+4. Runs `bun run dev` with `DEV_PORT=3000` environment variable
+5. Polls `http://localhost:3000/health/live` until server responds with `{"status": "pass"}`
+6. Writes PID to `var/run/dev.pid`
+7. Exits with code 0 on success, or appropriate error code (11 for port conflict, 50 for health check failure)
+
+### Benefits of Reference Implementations
+
+**Centralized Maintenance**:
+
+- Bug in port discovery logic? Fix once in library, all applications benefit
+- Need to improve health check retry backoff? Update library, applications inherit improvement
+
+**Consistent Behavior**:
+
+- All Fulmen servers use same exit codes, same health check patterns, same PID file conventions
+- DevOps teams learn orchestration once, applies across all services
+
+**DRY Principle**:
+
+- No copy/paste of port management logic across 50+ templates
+- Reduces drift: applications can't accidentally implement incompatible variations
+
+**Ecosystem-Idiomatic Tooling**:
+
+- TypeScript apps get Bun-native CLI (`tsfulmen server`)
+- Python apps get subprocess wrapper (`pyfulmen.server.start()`)
+- Go apps get importable package (`gofulmen/server.Start()`)
+
+### Implementation Details
+
+See [Server Management Module Spec](../standards/library/modules/server-management.md) for:
+
+- Required helper library interfaces
+- Configuration resolution algorithm
+- Port discovery implementation
+- Health check retry logic
+- Exit code mapping
+- Language-specific examples (TypeScript, Python, Go)
+
+---
+
+## Makefile Targets
+
+Templates implementing server functionality **MUST** expose standardized server orchestration targets. These targets enable consistent local development, testing, and preview workflows across all Fulmen server implementations.
+
+**See**: [Makefile Standard - Annex A: Server Orchestration Targets](../standards/makefile-standard.md#annex-a-server-orchestration-targets) for:
+
+- Required target specifications (`server-start-%`, `server-stop-%`, `server-status-%`, `server-restart-%`, `server-logs-%`)
+- Implementation requirements (port management, health checks, PID file handling, exit codes)
+- Example Makefile implementations for TypeScript/Python/Go
+- Integration points with Crucible schemas and helper libraries
+
+**Quick Reference** - Required targets:
+
+| Target                  | Purpose                                                                             |
+| ----------------------- | ----------------------------------------------------------------------------------- |
+| `make server-start-%`   | Start server in specified configuration class (dev, test, a11y, preview, prod_like) |
+| `make server-stop-%`    | Stop server using graceful shutdown (SIGTERM)                                       |
+| `make server-status-%`  | Check if server is running and healthy                                              |
+| `make server-restart-%` | Restart server (stop + start)                                                       |
+| `make server-logs-%`    | Display or tail logs                                                                |
+
+**Example Usage**:
+
+```bash
+# Start dev server (uses dev.preferredPort from server-management.yaml)
+make server-start-dev
+
+# Check test server health
+make server-status-test
+
+# Restart preview server
+make server-restart-preview
 
 # Clean all server artifacts (PIDs, logs)
 .PHONY: server-clean

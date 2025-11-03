@@ -9,16 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.3] - 2025-10-30
+## [0.2.3] - 2025-11-03
 
 ### Added
 
-- **Documentation Navigation**: Added comprehensive README files to key documentation directories:
-  - `docs/guides/README.md` - Index of integration and library development guides
-  - `docs/architecture/README.md` - Overview of architecture documentation with quick reference by topic and role
-  - `docs/architecture/decisions/README.md` - Complete ADR index with summaries, status, dates, and impact descriptions
-  - `docs/ops/README.md` - Operations checklists and local ADR guidance
-- **Improved Discoverability**: Each README provides clear navigation, "when to use" guidance, and cross-references to related documentation
+- **Web Styling Module**: Schema-driven branding and styling for web templates
+  - Schemas: `schemas/web/branding/v1.0.0/`, `schemas/web/styling/v1.0.0/`
+  - Configs: `config/web/branding/`, `config/web/styling/`
+  - Architecture guide: `docs/architecture/fulmen-web-styling.md`
+  - Support for themes (light/dark), typography systems, icon sets, and accessibility constraints
+- **Server Management Module**: Server orchestration for local development, testing, and preview environments
+  - Schema: `schemas/server/management/v1.0.0/server-management.schema.json`
+  - Config: `config/server/management/server-management.yaml`
+  - Architecture guide: `docs/architecture/fulmen-server-management.md`
+  - Module spec: `docs/standards/library/modules/server-management.md`
+  - Configuration classes: dev, test, a11y, preview, prod_like
+  - Reference implementation pattern: Helper libraries ship orchestration harnesses, applications configure server commands
+  - Makefile targets annex: `docs/standards/makefile-standard.md#annex-a-server-orchestration-targets`
+- **Protocol Namespace**: Established protocol-centric schema taxonomy
+  - Moved `schemas/api/http/` → `schemas/protocol/http/` for clarity
+  - Protocol schemas define message contracts used by both clients and servers
+  - Documentation: `docs/standards/protocol/` (http-rest-standards.md, grpc-standards.md)
+  - Change memo: `docs/ops/repository/memos/2025-11-03-api-to-protocol-schema-refactor.md`
+
+### Changed
+
+- **Schema Taxonomy**: Refactored HTTP schemas to protocol-centric namespace
+  - Updated all schema $id URLs from `api/http` to `protocol/http`
+  - Examples moved: `examples/api/http/` → `examples/protocol/http/`
+  - No schema version bump (pre-launch timing, zero external consumers)
+- **Makefile Standard**: Added Annex A for server orchestration targets
+  - Required targets for repositories implementing server functionality
+  - Implementation requirements (port management, health checks, PID files, exit codes)
+  - Example implementations for TypeScript/Python/Go
 
 ## [0.2.2] - 2025-10-29
 
