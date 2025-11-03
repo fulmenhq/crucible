@@ -352,22 +352,22 @@ function validateLogEventSchema(schema: unknown): void {
 }
 
 async function validateHttpExamples(): Promise<void> {
-  const successExample = await loadFile('examples/api/http/v1.0.0/success-response.example.json');
+  const successExample = await loadFile('examples/protocol/http/v1.0.0/success-response.example.json');
   assert(successExample && typeof successExample === 'object', 'success example missing');
   assert((successExample as JSONObject)['success'] === true, 'success example must set success=true');
 
-  const errorExample = await loadFile('examples/api/http/v1.0.0/error-response.example.json');
+  const errorExample = await loadFile('examples/protocol/http/v1.0.0/error-response.example.json');
   assert(errorExample && typeof errorExample === 'object', 'error example missing');
   assert((errorExample as JSONObject)['success'] === false, 'error example must set success=false');
 
-  const healthExample = await loadFile('examples/api/http/v1.0.0/health-response.example.json');
+  const healthExample = await loadFile('examples/protocol/http/v1.0.0/health-response.example.json');
   assert(healthExample && typeof healthExample === 'object', 'health example missing');
   assert(
     typeof (healthExample as JSONObject)['status'] === 'string',
     'health example must include status field',
   );
 
-  const versionExample = await loadFile('examples/api/http/v1.0.0/version-response.example.json');
+  const versionExample = await loadFile('examples/protocol/http/v1.0.0/version-response.example.json');
   assert(versionExample && typeof versionExample === 'object', 'version example missing');
   assert((versionExample as JSONObject)['success'] === true, 'version example must set success=true');
 }
@@ -572,6 +572,329 @@ function validateExitCodes(catalog: any): void {
   }
 }
 
+function validateWebBranding(config: any): void {
+  assert(config && typeof config === 'object', 'web branding config must be object');
+  const record = config as JSONObject;
+
+  const name = expectString(record['name'], 'branding config missing name');
+  assert(name.length >= 1 && name.length <= 50, 'branding name must be 1-50 characters');
+
+  const tagline = record['tagline'];
+  if (tagline !== undefined) {
+    const taglineStr = expectString(tagline, 'branding tagline must be string');
+    assert(taglineStr.length <= 120, 'branding tagline must be ≤120 characters');
+  }
+
+  const logo = record['logo'];
+  if (logo !== undefined) {
+    assert(logo && typeof logo === 'object', 'branding logo must be object');
+    const logoRecord = logo as JSONObject;
+    expectString(logoRecord['src'], 'logo missing src');
+    expectString(logoRecord['alt'], 'logo missing alt');
+
+    if (logoRecord['width'] !== undefined) {
+      const width = logoRecord['width'];
+      assert(typeof width === 'number' && width >= 32 && width <= 256,
+        'logo width must be 32-256px');
+    }
+    if (logoRecord['height'] !== undefined) {
+      const height = logoRecord['height'];
+      assert(typeof height === 'number' && height >= 32 && height <= 256,
+        'logo height must be 32-256px');
+    }
+  }
+
+  const logoPresentation = expectString(record['logoPresentation'],
+    'branding config missing logoPresentation');
+  const validPresentations = new Set([
+    'logo_only', 'logo_left_text_right', 'logo_top_text_bottom', 'text_only', 'gridbox_logo_text'
+  ]);
+  assert(validPresentations.has(logoPresentation),
+    `invalid logoPresentation: ${logoPresentation}`);
+}
+
+function validateServerManagement(config: any): void {
+  assert(config && typeof config === 'object', 'server management config must be object');
+  const record = config as JSONObject;
+
+  // Validate envPrefix
+  const envPrefix = record['envPrefix'];
+  if (envPrefix !== undefined) {
+    const envPrefixStr = expectString(envPrefix, 'envPrefix must be string');
+    assert(/^[A-Z][A-Z0-9_]*$/.test(envPrefixStr),
+      `invalid envPrefix format: ${envPrefixStr}`);
+  }
+
+  // Validate configurations
+  const configurations = record['configurations'];
+  assert(configurations && typeof configurations === 'object',
+    'server management config missing configurations');
+  const configurationsRecord = configurations as JSONObject;
+
+  const requiredClasses = ['dev', 'test', 'a11y', 'preview', 'prod_like'];
+  for (const configClass of requiredClasses) {
+    const serverConfig = configurationsRecord[configClass];
+    if (serverConfig !== undefined) {
+      validateServerConfig(serverConfig, configClass);
+    }
+  }
+
+  // Validate additionalConfigurations
+  const additionalConfigurations = record['additionalConfigurations'];
+  if (additionalConfigurations !== undefined) {
+    assert(typeof additionalConfigurations === 'object',
+      'additionalConfigurations must be object');
+    const additionalRecord = additionalConfigurations as JSONObject;
+    for (const key of Object.keys(additionalRecord)) {
+      assert(/^x-[a-z0-9][a-z0-9_-]*$/.test(key),
+        `invalid additional configuration key: ${key} (must match ^x-[a-z0-9][a-z0-9_-]*$)`);
+      validateServerConfig(additionalRecord[key], key);
+    }
+  }
+}
+
+function validateServerConfig(config: any, configClass: string): void {
+  assert(config && typeof config === 'object',
+    `server config ${configClass} must be object`);
+  const record = config as JSONObject;
+
+  // Validate preferredPort
+  const preferredPort = record['preferredPort'];
+  assert(typeof preferredPort === 'number' && Number.isInteger(preferredPort),
+    `${configClass} preferredPort must be integer`);
+  const preferredPortNum = preferredPort as number;
+  assert(preferredPortNum >= 1024 && preferredPortNum <= 65535,
+    `${configClass} preferredPort must be 1024-65535`);
+
+  // Validate range
+  const range = record['range'];
+  assert(range && typeof range === 'object', `${configClass} missing range`);
+  const rangeRecord = range as JSONObject;
+  const min = rangeRecord['min'];
+  const max = rangeRecord['max'];
+  assert(typeof min === 'number' && Number.isInteger(min),
+    `${configClass} range.min must be integer`);
+  assert(typeof max === 'number' && Number.isInteger(max),
+    `${configClass} range.max must be integer`);
+  const minNum = min as number;
+  const maxNum = max as number;
+  assert(minNum >= 1024 && minNum <= 65535,
+    `${configClass} range.min must be 1024-65535`);
+  assert(maxNum >= 1024 && maxNum <= 65535,
+    `${configClass} range.max must be 1024-65535`);
+  assert(minNum <= maxNum, `${configClass} range.min must be <= range.max`);
+  assert(preferredPortNum >= minNum && preferredPortNum <= maxNum,
+    `${configClass} preferredPort must be within range [${minNum}-${maxNum}]`);
+
+  // Validate healthCheck
+  const healthCheck = record['healthCheck'];
+  assert(healthCheck && typeof healthCheck === 'object',
+    `${configClass} missing healthCheck`);
+  const healthCheckRecord = healthCheck as JSONObject;
+
+  const method = healthCheckRecord['method'];
+  if (method !== undefined) {
+    const methodStr = expectString(method, `${configClass} healthCheck.method must be string`);
+    assert(['GET', 'HEAD', 'POST'].includes(methodStr),
+      `${configClass} healthCheck.method must be GET, HEAD, or POST`);
+  }
+
+  const path = expectString(healthCheckRecord['path'],
+    `${configClass} healthCheck missing path`);
+  assert(path.startsWith('/'),
+    `${configClass} healthCheck.path must start with /`);
+
+  if (healthCheckRecord['timeout'] !== undefined) {
+    const timeout = healthCheckRecord['timeout'];
+    assert(typeof timeout === 'number' && timeout >= 100 && timeout <= 30000,
+      `${configClass} healthCheck.timeout must be 100-30000ms`);
+  }
+
+  if (healthCheckRecord['retries'] !== undefined) {
+    const retries = healthCheckRecord['retries'];
+    assert(typeof retries === 'number' && retries >= 0 && retries <= 10,
+      `${configClass} healthCheck.retries must be 0-10`);
+  }
+
+  if (healthCheckRecord['interval'] !== undefined) {
+    const interval = healthCheckRecord['interval'];
+    assert(typeof interval === 'number' && interval >= 100 && interval <= 10000,
+      `${configClass} healthCheck.interval must be 100-10000ms`);
+  }
+
+  // Validate exitBehavior
+  const exitBehavior = record['exitBehavior'];
+  if (exitBehavior !== undefined) {
+    assert(typeof exitBehavior === 'object', `${configClass} exitBehavior must be object`);
+    const exitBehaviorRecord = exitBehavior as JSONObject;
+    for (const key of ['portInUse', 'healthCheckFailed', 'startupTimeout']) {
+      if (exitBehaviorRecord[key] !== undefined) {
+        const code = exitBehaviorRecord[key];
+        assert(typeof code === 'number' && code >= 0 && code <= 255,
+          `${configClass} exitBehavior.${key} must be 0-255`);
+      }
+    }
+  }
+
+  // Validate envOverrides
+  const envOverrides = record['envOverrides'];
+  if (envOverrides !== undefined) {
+    assert(Array.isArray(envOverrides), `${configClass} envOverrides must be array`);
+    const seen = new Set<string>();
+    for (const envVar of envOverrides as unknown[]) {
+      const envVarStr = expectString(envVar, `${configClass} envOverride must be string`);
+      assert(/^[A-Z][A-Z0-9_]*$/.test(envVarStr),
+        `${configClass} invalid envOverride format: ${envVarStr}`);
+      assert(!seen.has(envVarStr),
+        `${configClass} duplicate envOverride: ${envVarStr}`);
+      seen.add(envVarStr);
+    }
+  }
+
+  // Validate pidFile
+  const pidFile = record['pidFile'];
+  if (pidFile !== undefined) {
+    const pidFileStr = expectString(pidFile, `${configClass} pidFile must be string`);
+    assert(/^[^/].*\.pid$/.test(pidFileStr),
+      `${configClass} pidFile must be relative path ending in .pid`);
+  }
+
+  // Validate logFile
+  const logFile = record['logFile'];
+  if (logFile !== undefined) {
+    expectString(logFile, `${configClass} logFile must be string`);
+  }
+}
+
+function validateWebStyling(config: any): void {
+  assert(config && typeof config === 'object', 'web styling config must be object');
+  const record = config as JSONObject;
+
+  // Validate themes
+  const themes = record['themes'];
+  assert(themes && typeof themes === 'object', 'styling config missing themes');
+  const themesRecord = themes as JSONObject;
+
+  const hexPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+  const requiredColors = ['background', 'foreground', 'accent', 'success', 'failure', 'warning', 'critical'];
+
+  for (const mode of ['light', 'dark']) {
+    const theme = themesRecord[mode];
+    assert(theme && typeof theme === 'object', `styling themes missing ${mode} mode`);
+    const themeRecord = theme as JSONObject;
+
+    // Check required colors
+    for (const colorKey of requiredColors) {
+      const color = themeRecord[colorKey];
+      const colorStr = expectString(color, `theme ${mode} missing ${colorKey}`);
+      assert(hexPattern.test(colorStr),
+        `theme ${mode} ${colorKey} invalid hex format: ${colorStr}`);
+    }
+
+    // Validate optional categorical palette
+    const categorical = themeRecord['categorical'];
+    if (categorical !== undefined) {
+      assert(Array.isArray(categorical), `theme ${mode} categorical must be array`);
+      const categoricalArray = categorical as unknown[];
+      assert(categoricalArray.length >= 5 && categoricalArray.length <= 12,
+        `theme ${mode} categorical must have 5-12 colors`);
+      const seenColors = new Set<string>();
+      for (const color of categoricalArray) {
+        const colorStr = expectString(color, `theme ${mode} categorical color must be string`);
+        assert(hexPattern.test(colorStr),
+          `theme ${mode} categorical invalid hex: ${colorStr}`);
+        assert(!seenColors.has(colorStr),
+          `theme ${mode} categorical duplicate color: ${colorStr}`);
+        seenColors.add(colorStr);
+      }
+    }
+  }
+
+  // Validate typography
+  const typography = record['typography'];
+  assert(typography && typeof typography === 'object', 'styling config missing typography');
+  const typographyRecord = typography as JSONObject;
+
+  const fonts = typographyRecord['fonts'];
+  assert(fonts && typeof fonts === 'object', 'typography missing fonts');
+  const fontsRecord = fonts as JSONObject;
+
+  // Validate required fonts (body and code)
+  for (const fontType of ['body', 'code']) {
+    const font = fontsRecord[fontType];
+    assert(font && typeof font === 'object', `typography fonts missing ${fontType}`);
+    const fontRecord = font as JSONObject;
+
+    expectString(fontRecord['family'], `typography ${fontType} missing family`);
+    expectString(fontRecord['src'], `typography ${fontType} missing src`);
+
+    if (fontRecord['weights'] !== undefined) {
+      const weights = fontRecord['weights'];
+      assert(Array.isArray(weights), `typography ${fontType} weights must be array`);
+      for (const weight of weights as unknown[]) {
+        assert(typeof weight === 'number' && weight >= 100 && weight <= 900,
+          `typography ${fontType} invalid weight: ${weight}`);
+      }
+    }
+
+    if (fontRecord['size'] !== undefined) {
+      const size = fontRecord['size'];
+      assert(size && typeof size === 'object', `typography ${fontType} size must be object`);
+      const sizeRecord = size as JSONObject;
+      const base = sizeRecord['base'];
+      const baseStr = expectString(base, `typography ${fontType} size missing base`);
+      assert(/^[0-9]+(\.[0-9]+)?(px|rem|em)$/.test(baseStr),
+        `typography ${fontType} size.base invalid format: ${baseStr}`);
+    }
+  }
+
+  // Validate icons
+  const icons = record['icons'];
+  assert(icons && typeof icons === 'object', 'styling config missing icons');
+  const iconsRecord = icons as JSONObject;
+
+  const registry = expectString(iconsRecord['registry'], 'icons missing registry');
+  const validRegistries = new Set(['mdi', 'heroicons', 'lucide', 'tabler']);
+  assert(validRegistries.has(registry), `invalid icon registry: ${registry}`);
+
+  if (iconsRecord['size'] !== undefined) {
+    const size = iconsRecord['size'];
+    assert(typeof size === 'number' && size >= 16 && size <= 48,
+      'icons size must be 16-48px');
+  }
+
+  // Validate a11y constraints
+  const a11y = record['a11y'];
+  if (a11y !== undefined) {
+    assert(a11y && typeof a11y === 'object', 'a11y must be object');
+    const a11yRecord = a11y as JSONObject;
+
+    const minContrast = a11yRecord['minContrast'];
+    if (minContrast !== undefined) {
+      assert(minContrast && typeof minContrast === 'object', 'a11y minContrast must be object');
+      const contrastRecord = minContrast as JSONObject;
+
+      for (const [key, min, max] of [
+        ['normal', 3.0, 21.0],
+        ['large', 2.0, 21.0],
+        ['graphics', 3.0, 21.0]
+      ] as Array<[string, number, number]>) {
+        if (contrastRecord[key] !== undefined) {
+          const value = contrastRecord[key];
+          assert(typeof value === 'number' && value >= min && value <= max,
+            `a11y minContrast.${key} must be ${min}-${max}`);
+        }
+      }
+    }
+
+    const level = a11yRecord['level'];
+    if (level !== undefined) {
+      const levelStr = expectString(level, 'a11y level must be string');
+      assert(['AA', 'AAA'].includes(levelStr), `a11y level must be AA or AAA: ${levelStr}`);
+    }
+  }
+}
+
 async function main(): Promise<void> {
   console.log('Validating taxonomy registries...');
   const languages = await loadFile('config/taxonomy/languages.yaml');
@@ -603,6 +926,18 @@ async function main(): Promise<void> {
   console.log('Validating exit codes catalog...');
   const exitCodes = await loadFile('config/library/foundry/exit-codes.yaml');
   validateExitCodes(exitCodes);
+
+  console.log('Validating web branding config...');
+  const webBranding = await loadFile('config/web/branding/site-branding.yaml');
+  validateWebBranding(webBranding);
+
+  console.log('Validating web styling config...');
+  const webStyling = await loadFile('config/web/styling/site-styling.yaml');
+  validateWebStyling(webStyling);
+
+  console.log('Validating server management config...');
+  const serverManagement = await loadFile('config/server/management/server-management.yaml');
+  validateServerManagement(serverManagement);
 
   console.log('Validating log-event schema structure...');
   const logEventSchema = await loadFile('schemas/observability/logging/v1.0.0/log-event.schema.json');

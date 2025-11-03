@@ -179,7 +179,7 @@ Standards for specific library modules (Config Path API, Crucible Shim, Docscrib
 
 - [Coding Standards](../standards/coding/README.md) - Language-specific best practices
 - [Library Standards](../standards/library/README.md) - Module-specific standards
-- [API Standards](../standards/api/README.md) - REST/gRPC patterns
+- [API Standards](../standar../protocol/README.md) - REST/gRPC patterns
 
 ### Guides
 
