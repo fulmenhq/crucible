@@ -389,6 +389,93 @@ async function validateSimilarityFixtures(): Promise<void> {
   }
 }
 
+function validateAppIdentityExample(example: any): void {
+  assert(example && typeof example === 'object', 'app-identity example must be object');
+  const record = example as JSONObject;
+
+  // Validate app section (required)
+  const app = record['app'];
+  assert(app && typeof app === 'object', 'app-identity example missing app section');
+  const appRecord = app as JSONObject;
+
+  const binaryName = expectString(appRecord['binary_name'], 'app-identity example missing app.binary_name');
+  assert(/^[a-z][a-z0-9-]{0,62}[a-z0-9]$/.test(binaryName), `invalid binary_name format: ${binaryName}`);
+
+  const vendor = expectString(appRecord['vendor'], 'app-identity example missing app.vendor');
+  assert(/^[a-z][a-z0-9]{0,62}[a-z0-9]$/.test(vendor), `invalid vendor format: ${vendor}`);
+
+  const envPrefix = expectString(appRecord['env_prefix'], 'app-identity example missing app.env_prefix');
+  assert(/^[A-Z][A-Z0-9_]*_$/.test(envPrefix), `invalid env_prefix format (must end with underscore): ${envPrefix}`);
+
+  const configName = expectString(appRecord['config_name'], 'app-identity example missing app.config_name');
+  assert(/^[a-z][a-z0-9-]{0,62}[a-z0-9]$/.test(configName), `invalid config_name format: ${configName}`);
+
+  const description = expectString(appRecord['description'], 'app-identity example missing app.description');
+  assert(description.length >= 10 && description.length <= 200,
+    'app.description must be 10-200 characters');
+
+  // Validate metadata section (optional)
+  const metadata = record['metadata'];
+  if (metadata !== undefined) {
+    assert(metadata && typeof metadata === 'object', 'app-identity metadata must be object');
+    const metadataRecord = metadata as JSONObject;
+
+    // Validate optional fields if present
+    if (metadataRecord['project_url'] !== undefined) {
+      const url = expectString(metadataRecord['project_url'], 'metadata.project_url must be string');
+      assert(url.startsWith('http://') || url.startsWith('https://'),
+        'metadata.project_url must be valid URI');
+    }
+
+    if (metadataRecord['support_email'] !== undefined) {
+      const email = expectString(metadataRecord['support_email'], 'metadata.support_email must be string');
+      assert(/@/.test(email), 'metadata.support_email must be valid email format');
+    }
+
+    if (metadataRecord['repository_category'] !== undefined) {
+      const category = expectString(metadataRecord['repository_category'], 'metadata.repository_category must be string');
+      assert(CATEGORY_KEYS.has(category),
+        `invalid repository_category: ${category}`);
+    }
+
+    if (metadataRecord['telemetry_namespace'] !== undefined) {
+      const telemetryNs = expectString(metadataRecord['telemetry_namespace'], 'metadata.telemetry_namespace must be string');
+      assert(/^[a-z][a-z0-9_]{0,62}[a-z0-9]$/.test(telemetryNs),
+        `invalid telemetry_namespace format: ${telemetryNs}`);
+    }
+
+    // Validate Python metadata if present
+    const python = metadataRecord['python'];
+    if (python !== undefined) {
+      assert(python && typeof python === 'object', 'metadata.python must be object');
+      const pythonRecord = python as JSONObject;
+
+      if (pythonRecord['distribution_name'] !== undefined) {
+        const distName = expectString(pythonRecord['distribution_name'], 'python.distribution_name must be string');
+        assert(/^[a-z][a-z0-9-]{0,62}[a-z0-9]$/.test(distName),
+          `invalid python.distribution_name format: ${distName}`);
+      }
+
+      if (pythonRecord['package_name'] !== undefined) {
+        const pkgName = expectString(pythonRecord['package_name'], 'python.package_name must be string');
+        assert(/^[a-z][a-z0-9_]{0,62}[a-z0-9]$/.test(pkgName),
+          `invalid python.package_name format: ${pkgName}`);
+      }
+
+      if (pythonRecord['console_scripts'] !== undefined) {
+        const scripts = pythonRecord['console_scripts'];
+        assert(Array.isArray(scripts), 'python.console_scripts must be array');
+        for (const script of scripts as JSONObject[]) {
+          assert(script && typeof script === 'object', 'console_script entry must be object');
+          const scriptRecord = script as JSONObject;
+          expectString(scriptRecord['name'], 'console_script missing name');
+          expectString(scriptRecord['entry_point'], 'console_script missing entry_point');
+        }
+      }
+    }
+  }
+}
+
 function validateExitCodes(catalog: any): void {
   assert(catalog && typeof catalog === 'object', 'exit codes catalog must be object');
   const record = catalog as JSONObject;
@@ -948,6 +1035,10 @@ async function main(): Promise<void> {
 
   console.log('Validating similarity fixtures...');
   await validateSimilarityFixtures();
+
+  console.log('Validating app-identity example...');
+  const appIdentityExample = await loadFile('config/repository/app-identity/app-identity.example.yaml');
+  validateAppIdentityExample(appIdentityExample);
 
   console.log('✅ Schema validation complete');
 }

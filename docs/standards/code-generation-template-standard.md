@@ -194,7 +194,7 @@ Downstream repositories must:
   description: "Python generated code (exit codes, etc.)"
   basePath: lang/python/src/
   recommendedOutput: src/
-  tags: [language, 'lang:python', generated]
+  tags: [language, "lang:python", generated]
   metadata:
     sourceRepo: https://github.com/fulmenhq/crucible.git
     sourcePathBase: lang/python/src
@@ -207,7 +207,7 @@ Downstream repositories must:
   description: "TypeScript generated code (exit codes, etc.)"
   basePath: lang/typescript/src/
   recommendedOutput: src/
-  tags: [language, 'lang:ts', generated]
+  tags: [language, "lang:ts", generated]
   metadata:
     sourceRepo: https://github.com/fulmenhq/crucible.git
     sourcePathBase: lang/typescript/src

@@ -458,7 +458,7 @@ var exitCodeMetadata = map[int]ExitCodeInfo{
 		Code:          131,
 		Name:          "EXIT_SIGNAL_QUIT",
 		Description:   "Quit signal (SIGQUIT)",
-		Context:       "Ctrl+\\\\ pressed, core dump requested",
+		Context:       "Ctrl+\\ pressed, core dump requested",
 		Category:      "signals",
 		BSDEquivalent: "128 + 3",
 	},
