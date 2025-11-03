@@ -193,6 +193,12 @@ async function renderTemplate(lang: string): Promise<string> {
     // Use Nunjucks for Python (Jinja2-compatible)
     const nunjucks = await import("nunjucks");
     const env = new nunjucks.Environment(null, { autoescape: false });
+
+    // Add custom filter for JSON serialization (properly escapes strings for Python)
+    env.addFilter("pyjson", function(str: string) {
+      return JSON.stringify(str);
+    });
+
     return env.renderString(templateContent, data);
   }
 

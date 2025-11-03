@@ -66,9 +66,9 @@ EXIT_CODE_METADATA: dict[int, ExitCodeInfo] = {
 {% for code in category.codes %}
     {{ code.code }}: {
         "code": {{ code.code }},
-        "name": "{{ code.name }}",
-        "description": "{{ code.description | replace('\\', '\\\\') | replace('"', '\\"') | replace('\n', '\\n') }}",
-        "context": "{{ code.context | replace('\\', '\\\\') | replace('"', '\\"') | replace('\n', '\\n') }}",
+        "name": {{ code.name | pyjson }},
+        "description": {{ code.description | pyjson }},
+        "context": {{ code.context | pyjson }},
         "category": "{{ category.id }}",
 {% if code.retry_hint %}
         "retry_hint": "{{ code.retry_hint }}",
@@ -77,7 +77,7 @@ EXIT_CODE_METADATA: dict[int, ExitCodeInfo] = {
         "bsd_equivalent": "{{ code.bsd_equivalent }}",
 {% endif %}
 {% if code.python_note %}
-        "python_note": "{{ code.python_note | replace('"', '\\"') | replace('\n', '\\n') }}",
+        "python_note": {{ code.python_note | pyjson }},
 {% endif %}
     },
 {% endfor %}

@@ -34,11 +34,11 @@
     "build": "tsc",
     "format": "bunx biome format --write .",
     "lint": "bunx biome check .",
-    "prepublishOnly": "bun run build && bun run test",
+    "prepublishOnly": "bun run build \u0026\u0026 bun run test",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
   },
   "types": "dist/index.d.ts",
-  "version": "0.2.3"
+  "version": "0.2.4"
 }
