@@ -9,6 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2025-11-04
+
+### Added
+
+- **App Identity Module**: Schema-driven application identity metadata for Fulmen ecosystem
+  - Schema: `schemas/config/repository/app-identity/v1.0.0/app-identity.schema.json`
+  - Documentation: `docs/standards/library/modules/app-identity.md`
+  - Example config: `config/repository/app-identity/app-identity.example.yaml`
+  - Valid fixtures: minimal, complete, monorepo (api/worker)
+  - Invalid fixtures: missing required, invalid patterns, malformed YAML
+  - Canonical parity snapshot for cross-language test validation
+  - Discovery precedence: explicit → env → ancestor → test injection
+  - Dependency layering: Layer 0 (zero Fulmen dependencies)
+  - Runtime caching guarantees (read-once per process)
+  - Library implementation patterns for Go, Python, TypeScript
+  - CDRL workflow integration
+- **Schema Export Enhancement**: Specification for helper libraries to export Crucible assets
+  - Three provenance modes: $comment, compatible (sibling), sidecar
+  - Cross-language asset source abstraction (Go embed vs TS/Python sync)
+  - CLI entry points documented for each language
+  - App Identity auto-integration when `.fulmen/app.yaml` present
+  - Safety guards against Crucible directory pollution
+  - Feature brief: `.plans/active/v0.2.4/schema-export-enhancement-feature-brief.md`
+- **Sync Configuration**: App Identity module sync keys for schema and fixture distribution across language wrappers
+
+### Changed
+
+- **Schema Upgrades**: Upgraded to JSON Schema 2020-12
+  - App Identity schema (new v1.0.0)
+  - Similarity schemas (v1.0.0, v2.0.0)
+  - All schemas validated with goneat
+- **Code Generation Standard**: Added SSOT sync configuration requirement for generated code distribution to helper libraries
+- **Schema Validation**: Added `validateAppIdentityExample()` to `scripts/validate-schemas.ts` for CI pipeline validation
+
+### Fixed
+
+- **Exit Code Escaping (Python)**: Fixed double-escaping bug in Python codegen template where exit code 131 context displayed `Ctrl+\\` instead of `Ctrl+\`. Changed template to use `pyjson` filter for proper escaping.
+- **Exit Code Escaping (TypeScript)**: Fixed same double-escaping bug in TypeScript codegen template. Replaced manual `.replace(/\\/g, '\\\\')` with `JSON.stringify()` for correct escaping. Discovered by tsfulmen snapshot validation.
+
 ## [0.2.3] - 2025-11-03
 
 ### Added
