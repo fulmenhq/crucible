@@ -182,6 +182,7 @@ Crucible provides JSON schemas for cross-language consistency:
   - `mime-types.schema.json` - Common MIME type classifications
   - `patterns.schema.json` - Text similarity and normalization patterns
   - `similarity.schema.json` - String similarity algorithm configurations
+  - `signals.schema.json` - Signal handling semantics with OS mappings and behavior definitions
 
 - **Observability** (`schemas/observability/`)
   - Logging schemas (`v1.0.0/`) - Logger configuration, log events, severity filters, middleware
@@ -195,8 +196,8 @@ Crucible provides JSON schemas for cross-language consistency:
   - Python coding practices
 
 - **Library Standards** (`docs/standards/library/`)
-  - **Modules**: Crucible Shim, Docscribe, Config Path API, Three-Layer Config, Schema Validation
-  - **Catalogs**: Foundry (country codes, HTTP status, MIME types, text similarity)
+  - **Modules**: Crucible Shim, Docscribe, Config Path API, Three-Layer Config, Schema Validation, Signal Handling
+  - **Catalogs**: Foundry (country codes, HTTP status, MIME types, text similarity, signal handling)
   - Helper library standard with Crucible Overview and version documentation requirements
 
 - **Repository Standards** (`docs/standards/`)
@@ -465,9 +466,9 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-**Version**: 0.2.1 (SemVer: MAJOR.MINOR.PATCH)
+**Version**: 0.2.5 (SemVer: MAJOR.MINOR.PATCH)
 
-Active development. Core schemas, standards, and helper library contracts stabilized. Go module relocated to repository root for standard external installation (v0.1.4). Adopted Semantic Versioning for Go module compatibility (v0.2.0). Progressive logging, Foundry catalog patterns, and docscribe module ready for ecosystem integration.
+Active development. Core schemas, standards, and helper library contracts stabilized. Go module relocated to repository root for standard external installation (v0.1.4). Adopted Semantic Versioning for Go module compatibility (v0.2.0). Signal handling module (v0.2.5) establishes SSOT for graceful shutdown, Ctrl+C handling, and cross-platform signal semantics. Progressive logging, Foundry catalog patterns, and docscribe module ready for ecosystem integration.
 
 ---
 

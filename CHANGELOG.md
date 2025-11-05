@@ -9,6 +9,64 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.5] - 2025-11-05
+
+### Added
+
+- **Signal Handling Module**: Standardized cross-language signal handling for Fulmen ecosystem
+  - Signal catalog: `config/library/foundry/signals.yaml` (8 standard signals: TERM, INT, HUP, QUIT, PIPE, ALRM, USR1, USR2)
+  - Schema: `schemas/library/foundry/v1.0.0/signals.schema.json`
+  - Module standard: `docs/standards/library/modules/signal-handling.md`
+  - OS mappings: Unix signals → Windows console events with fallback strategy
+  - Ctrl+C double-tap pattern (2s debounce window, graceful first / force second)
+  - Restart-based config reload with mandatory schema validation
+  - HTTP signal endpoint specification (`POST /admin/signal`)
+  - Exit code integration (128+N POSIX pattern)
+  - Platform support matrix (Linux, macOS, FreeBSD, Windows)
+  - 6 behavior definitions: graceful_shutdown, graceful_shutdown_with_double_tap, reload_via_restart, immediate_exit, custom, observe_only
+- **Signal Fixtures**: Test fixtures for validation and parity testing
+  - Valid fixtures: minimal, complete, custom-behavior
+  - Invalid fixtures: missing-required, invalid-behavior, invalid-exit-code, malformed
+  - Parity snapshot: `config/library/foundry/fixtures/signals/parity-snapshot.json`
+- **Windows Fallback Strategy**: Comprehensive Windows support documentation
+  - Standardized logging contract (INFO level, structured template)
+  - Standardized telemetry contract (`fulmen.signal.unsupported` with required tags)
+  - Fallback behavior types: http_admin_endpoint, exception_handling, timer_api
+  - Operation hints for Windows users (Unix vs Windows command examples)
+  - HTTP `/admin/signal` minimum spec (auth, rate limiting, request/response contracts)
+- **Windows Testing Strategy**: Testing requirements without mandatory CI runners
+  - Required test coverage: unsupported signal registration, HTTP endpoint functional test, platform detection
+  - Windows simulation tests sufficient for v0.2.5
+  - Manual verification required per release
+- **Signal Support Introspection**: API requirement for platform detection
+  - Helper libraries must expose `supports_signal(signal_name) -> bool`
+  - Enables apps to gate optional features, show platform-specific guidance
+- **Required Hook Methods**: Table of helper library API requirements
+  - Hook methods for each behavior identifier (on_shutdown, force_exit, etc.)
+  - Language-specific naming conventions (Go, Python, TypeScript)
+  - Testing utilities (inject_signal_for_test)
+- **FulmenHQ Memo**: Windows limitations documentation
+  - Memo: `.plans/memos/fulmenhq/20251104-signal-handling-introduction.md`
+  - Requesting stakeholder feedback on Windows fallback approach
+  - Open questions for enterprise Windows deployments
+
+### Changed
+
+- **Exit Codes Catalog**: Added signal-induced exit codes with cross-references
+  - SIGUSR1: 138 (128 + 10, corrected from 148)
+  - SIGUSR2: 140 (128 + 12, corrected from 144)
+  - Cross-references to signals.yaml for behavioral context
+  - Platform note: macOS/FreeBSD use signal numbers 30/31 for USR1/USR2
+- **Schema Validation**: Added signal catalog validation to `scripts/validate-schemas.ts`
+  - Validates signal catalog structure, OS mappings, behavior definitions
+  - Cross-validates exit codes (128+N pattern consistency)
+  - Validates platform-specific signal number overrides
+- **.goneatignore**: Added `config/library/foundry/fixtures/signals/invalid/` to exclude intentionally malformed fixtures from formatting
+
+### Fixed
+
+- **Exit Code Corrections**: Fixed SIGUSR1/SIGUSR2 exit codes to match POSIX 128+N pattern with correct base signal numbers
+
 ## [0.2.4] - 2025-11-04
 
 ### Added
