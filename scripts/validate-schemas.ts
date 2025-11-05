@@ -659,6 +659,145 @@ function validateExitCodes(catalog: any): void {
   }
 }
 
+function validateSignalCatalog(catalog: any, exitCodes: any): void {
+  assert(catalog && typeof catalog === 'object', 'signal catalog must be object');
+  const record = catalog as JSONObject;
+
+  const version = expectString(record['version'], 'signal catalog missing version');
+  assert(/^[vV]?\d+\.\d+\.\d+$/.test(version), 'signal catalog version must be SemVer');
+
+  expectString(record['description'], 'signal catalog missing description');
+
+  // Validate signals array
+  const signals = record['signals'];
+  assert(Array.isArray(signals) && signals.length > 0, 'signals must be non-empty array');
+
+  const requiredSignals = ['term', 'int', 'hup', 'quit', 'pipe', 'alrm', 'usr1', 'usr2'];
+  const seenSignalIds = new Set<string>();
+  const signalExitCodes = new Map<string, number>();
+
+  for (const entry of signals as JSONObject[]) {
+    assert(entry && typeof entry === 'object', 'signal entry must be object');
+    const entryRecord = entry as JSONObject;
+
+    const id = expectString(entryRecord['id'], 'signal missing id');
+    assert(/^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z]$/.test(id), `invalid signal id: ${id}`);
+    assert(!seenSignalIds.has(id), `duplicate signal id: ${id}`);
+    seenSignalIds.add(id);
+
+    const name = expectString(entryRecord['name'], `signal ${id} missing name`);
+    assert(/^SIG[A-Z0-9]+$/.test(name), `signal ${id} invalid name format: ${name}`);
+
+    const unixNumber = entryRecord['unix_number'];
+    assert(typeof unixNumber === 'number' && Number.isInteger(unixNumber),
+      `signal ${id} unix_number must be integer`);
+    const unixNumberVal = unixNumber as number;
+    assert(unixNumberVal >= 1 && unixNumberVal <= 64,
+      `signal ${id} unix_number out of range: ${unixNumberVal}`);
+
+    expectString(entryRecord['description'], `signal ${id} missing description`);
+
+    const defaultBehavior = expectString(entryRecord['default_behavior'],
+      `signal ${id} missing default_behavior`);
+    const validBehaviors = ['graceful_shutdown', 'graceful_shutdown_with_double_tap',
+      'reload_via_restart', 'immediate_exit', 'custom', 'observe_only'];
+    assert(validBehaviors.includes(defaultBehavior),
+      `signal ${id} invalid default_behavior: ${defaultBehavior}`);
+
+    const exitCode = entryRecord['exit_code'];
+    assert(typeof exitCode === 'number' && Number.isInteger(exitCode),
+      `signal ${id} exit_code must be integer`);
+    const exitCodeVal = exitCode as number;
+    assert(exitCodeVal >= 0 && exitCodeVal <= 255,
+      `signal ${id} exit_code out of range: ${exitCodeVal}`);
+
+    signalExitCodes.set(name, exitCodeVal);
+
+    // Validate optional windows_event (can be null)
+    const windowsEvent = entryRecord['windows_event'];
+    if (windowsEvent !== undefined && windowsEvent !== null) {
+      assert(typeof windowsEvent === 'string',
+        `signal ${id} windows_event must be string or null`);
+    }
+  }
+
+  // Verify all required signals are present
+  for (const requiredId of requiredSignals) {
+    assert(seenSignalIds.has(requiredId),
+      `missing required signal: ${requiredId}`);
+  }
+
+  // Validate behaviors array
+  const behaviors = record['behaviors'];
+  assert(Array.isArray(behaviors) && behaviors.length > 0, 'behaviors must be non-empty array');
+
+  const seenBehaviorIds = new Set<string>();
+  for (const entry of behaviors as JSONObject[]) {
+    assert(entry && typeof entry === 'object', 'behavior entry must be object');
+    const entryRecord = entry as JSONObject;
+
+    const id = expectString(entryRecord['id'], 'behavior missing id');
+    assert(/^[a-z0-9][a-z0-9_]*[a-z0-9]$|^[a-z]$/.test(id), `invalid behavior id: ${id}`);
+    assert(!seenBehaviorIds.has(id), `duplicate behavior id: ${id}`);
+    seenBehaviorIds.add(id);
+
+    expectString(entryRecord['name'], `behavior ${id} missing name`);
+    expectString(entryRecord['description'], `behavior ${id} missing description`);
+
+    const phases = entryRecord['phases'];
+    assert(Array.isArray(phases) && phases.length > 0,
+      `behavior ${id} must have non-empty phases array`);
+
+    for (const phase of phases as JSONObject[]) {
+      assert(phase && typeof phase === 'object', `behavior ${id} phase must be object`);
+      const phaseRecord = phase as JSONObject;
+      expectString(phaseRecord['name'], `behavior ${id} phase missing name`);
+      expectString(phaseRecord['description'], `behavior ${id} phase missing description`);
+    }
+  }
+
+  // Validate os_mappings
+  const osMappings = record['os_mappings'];
+  assert(osMappings && typeof osMappings === 'object', 'os_mappings must be object');
+  const osMappingsRecord = osMappings as JSONObject;
+
+  assert(osMappingsRecord['unix'] && typeof osMappingsRecord['unix'] === 'object',
+    'os_mappings missing unix section');
+  assert(osMappingsRecord['windows'] && typeof osMappingsRecord['windows'] === 'object',
+    'os_mappings missing windows section');
+  assert(osMappingsRecord['signal_to_event'] && typeof osMappingsRecord['signal_to_event'] === 'object',
+    'os_mappings missing signal_to_event section');
+
+  // Validate exit_codes section
+  const exitCodesSection = record['exit_codes'];
+  assert(exitCodesSection && typeof exitCodesSection === 'object',
+    'signal catalog missing exit_codes section');
+  const exitCodesRecord = exitCodesSection as JSONObject;
+
+  // Cross-reference with exit-codes.yaml
+  const exitCodesCatalog = exitCodes as JSONObject;
+  const exitCodesCategories = exitCodesCatalog['categories'];
+  assert(Array.isArray(exitCodesCategories), 'exit-codes.yaml missing categories array');
+
+  const signalsCategory = (exitCodesCategories as JSONObject[]).find(
+    (c: any) => c.id === 'signals'
+  );
+
+  if (signalsCategory) {
+    const signalsCodes = (signalsCategory as any).codes as JSONObject[];
+
+    // Verify signal exit codes match between catalogs
+    for (const [signalName, expectedExitCode] of signalExitCodes.entries()) {
+      const exitCodeEntry = exitCodesRecord[signalName];
+      if (exitCodeEntry !== undefined) {
+        assert(exitCodeEntry === expectedExitCode,
+          `exit code mismatch for ${signalName}: signals.yaml has ${expectedExitCode}, ` +
+          `exit-codes section has ${exitCodeEntry}`);
+      }
+    }
+  }
+}
+
 function validateWebBranding(config: any): void {
   assert(config && typeof config === 'object', 'web branding config must be object');
   const record = config as JSONObject;
@@ -1013,6 +1152,10 @@ async function main(): Promise<void> {
   console.log('Validating exit codes catalog...');
   const exitCodes = await loadFile('config/library/foundry/exit-codes.yaml');
   validateExitCodes(exitCodes);
+
+  console.log('Validating signal catalog...');
+  const signals = await loadFile('config/library/foundry/signals.yaml');
+  validateSignalCatalog(signals, exitCodes);
 
   console.log('Validating web branding config...');
   const webBranding = await loadFile('config/web/branding/site-branding.yaml');

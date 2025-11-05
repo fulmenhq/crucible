@@ -1,2 +1,3 @@
 lang/
 config/repository/app-identity/fixtures/invalid/
+config/library/foundry/fixtures/signals/invalid/

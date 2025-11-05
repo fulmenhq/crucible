@@ -88,7 +88,7 @@ const (
 	ExitCoverageThresholdNotMet = 96
 
 	// Signal-Induced Exits (128-165)
-	// Process terminated by Unix signals (128+N pattern)
+	// Process terminated by Unix signals (128+N pattern per POSIX). Signal codes follow Linux numbering; macOS/FreeBSD differ for SIGUSR1/SIGUSR2. For full signal semantics, see config/library/foundry/signals.yaml. For signal handling patterns, see docs/standards/library/modules/signal-handling.md.
 	ExitSignalHup  = 129
 	ExitSignalInt  = 130
 	ExitSignalQuit = 131
@@ -96,8 +96,8 @@ const (
 	ExitSignalPipe = 141
 	ExitSignalAlrm = 142
 	ExitSignalTerm = 143
-	ExitSignalUsr1 = 159
-	ExitSignalUsr2 = 160
+	ExitSignalUsr1 = 138
+	ExitSignalUsr2 = 140
 )
 
 // ExitCodeInfo contains metadata about an exit code
@@ -441,24 +441,24 @@ var exitCodeMetadata = map[int]ExitCodeInfo{
 	129: {
 		Code:          129,
 		Name:          "EXIT_SIGNAL_HUP",
-		Description:   "Hangup signal (SIGHUP)",
-		Context:       "Terminal disconnected, config reload requested",
+		Description:   "Hangup signal (SIGHUP) - config reload via restart",
+		Context:       "Config reload via restart-based pattern (mandatory schema validation).\nProcess exits with 129, supervisor restarts with new config.\nSee signals.yaml for reload behavior definition.",
 		Category:      "signals",
 		BSDEquivalent: "128 + 1",
 	},
 	130: {
 		Code:          130,
 		Name:          "EXIT_SIGNAL_INT",
-		Description:   "Interrupt signal (SIGINT)",
-		Context:       "Ctrl+C pressed, user interrupt",
+		Description:   "Interrupt signal (SIGINT) - user interrupt with Ctrl+C double-tap",
+		Context:       "Ctrl+C pressed. First tap initiates graceful shutdown, second within 2s forces immediate exit.\nSame exit code (130) for both graceful and force modes.\nSee signals.yaml for double-tap behavior definition.",
 		Category:      "signals",
 		BSDEquivalent: "128 + 2",
 	},
 	131: {
 		Code:          131,
 		Name:          "EXIT_SIGNAL_QUIT",
-		Description:   "Quit signal (SIGQUIT)",
-		Context:       "Ctrl+\\ pressed, core dump requested",
+		Description:   "Quit signal (SIGQUIT) - immediate exit",
+		Context:       "Ctrl+\\ on Unix, Ctrl+Break on Windows. Immediate termination without cleanup.\nUse for emergency shutdown or debugging (core dumps).",
 		Category:      "signals",
 		BSDEquivalent: "128 + 3",
 	},
@@ -474,8 +474,8 @@ var exitCodeMetadata = map[int]ExitCodeInfo{
 	141: {
 		Code:          141,
 		Name:          "EXIT_SIGNAL_PIPE",
-		Description:   "Broken pipe (SIGPIPE)",
-		Context:       "Writing to closed pipe/socket, reader terminated",
+		Description:   "Broken pipe (SIGPIPE) - observe only",
+		Context:       "Writing to closed pipe/socket. Fulmen default is observe_only (log + graceful exit).\nApplications may override to ignore for network services.\nSee signals.yaml for SIGPIPE handling guidance.",
 		Category:      "signals",
 		BSDEquivalent: "128 + 13",
 		PythonNote:    "Raised as BrokenPipeError exception",
@@ -483,8 +483,8 @@ var exitCodeMetadata = map[int]ExitCodeInfo{
 	142: {
 		Code:          142,
 		Name:          "EXIT_SIGNAL_ALRM",
-		Description:   "Alarm signal (SIGALRM)",
-		Context:       "Timer expiration, alarm clock",
+		Description:   "Alarm signal (SIGALRM) - watchdog timeout",
+		Context:       "Watchdog timer expired. Treat as timeout-induced exit.\nWatchdog pattern out of scope for v1.0.0 module implementations.",
 		Category:      "signals",
 		BSDEquivalent: "128 + 14",
 		PythonNote:    "Supported by signal module, rarely used in practice",
@@ -492,27 +492,25 @@ var exitCodeMetadata = map[int]ExitCodeInfo{
 	143: {
 		Code:          143,
 		Name:          "EXIT_SIGNAL_TERM",
-		Description:   "Termination signal (SIGTERM)",
-		Context:       "Graceful shutdown requested, normal termination",
+		Description:   "Termination signal (SIGTERM) - graceful shutdown",
+		Context:       "Graceful shutdown requested by container orchestrator or process supervisor.\nStandard 30-second timeout for cleanup. Applications run cleanup handlers before exit.\nSee signals.yaml for graceful shutdown behavior definition.",
 		Category:      "signals",
 		BSDEquivalent: "128 + 15",
 		PythonNote:    "Default signal for graceful shutdown",
 	},
-	159: {
-		Code:          159,
-		Name:          "EXIT_SIGNAL_USR1",
-		Description:   "User-defined signal 1 (SIGUSR1)",
-		Context:       "Application-specific signal handling (e.g., reopen logs, dump stats)",
-		Category:      "signals",
-		BSDEquivalent: "128 + 31",
+	138: {
+		Code:        138,
+		Name:        "EXIT_SIGNAL_USR1",
+		Description: "User-defined signal 1 (SIGUSR1) - custom handler",
+		Context:     "Application-specific signal (e.g., reopen logs, dump stats, trigger profiling).\nApplications register custom handlers. Exit code 138 on Linux (128+10).\nPlatform differences: macOS/FreeBSD use signal 30 (exit 158), not 10.",
+		Category:    "signals",
 	},
-	160: {
-		Code:          160,
-		Name:          "EXIT_SIGNAL_USR2",
-		Description:   "User-defined signal 2 (SIGUSR2)",
-		Context:       "Application-specific signal handling (e.g., toggle debug mode)",
-		Category:      "signals",
-		BSDEquivalent: "128 + 32",
+	140: {
+		Code:        140,
+		Name:        "EXIT_SIGNAL_USR2",
+		Description: "User-defined signal 2 (SIGUSR2) - custom handler",
+		Context:     "Application-specific signal (e.g., toggle debug mode, rotate credentials).\nApplications register custom handlers. Exit code 140 on Linux (128+12).\nPlatform differences: macOS/FreeBSD use signal 31 (exit 159), not 12.",
+		Category:    "signals",
 	},
 }
 

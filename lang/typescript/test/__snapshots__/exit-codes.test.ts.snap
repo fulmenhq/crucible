@@ -43,8 +43,8 @@ exports[`exit codes bindings > constants stay aligned with catalog snapshot 1`] 
   "EXIT_SIGNAL_PIPE": 141,
   "EXIT_SIGNAL_QUIT": 131,
   "EXIT_SIGNAL_TERM": 143,
-  "EXIT_SIGNAL_USR1": 159,
-  "EXIT_SIGNAL_USR2": 160,
+  "EXIT_SIGNAL_USR1": 138,
+  "EXIT_SIGNAL_USR2": 140,
   "EXIT_SSOT_VERSION_MISMATCH": 22,
   "EXIT_STRUCTURED_LOGGING_FAILED": 84,
   "EXIT_SUCCESS": 0,
@@ -100,8 +100,10 @@ exports[`exit codes bindings > metadata stays aligned with catalog snapshot 1`] 
     "bsdEquivalent": "128 + 1",
     "category": "signals",
     "code": 129,
-    "context": "Terminal disconnected, config reload requested",
-    "description": "Hangup signal (SIGHUP)",
+    "context": "Config reload via restart-based pattern (mandatory schema validation).
+Process exits with 129, supervisor restarts with new config.
+See signals.yaml for reload behavior definition.",
+    "description": "Hangup signal (SIGHUP) - config reload via restart",
     "name": "EXIT_SIGNAL_HUP",
   },
   "13": {
@@ -115,16 +117,19 @@ exports[`exit codes bindings > metadata stays aligned with catalog snapshot 1`] 
     "bsdEquivalent": "128 + 2",
     "category": "signals",
     "code": 130,
-    "context": "Ctrl+C pressed, user interrupt",
-    "description": "Interrupt signal (SIGINT)",
+    "context": "Ctrl+C pressed. First tap initiates graceful shutdown, second within 2s forces immediate exit.
+Same exit code (130) for both graceful and force modes.
+See signals.yaml for double-tap behavior definition.",
+    "description": "Interrupt signal (SIGINT) - user interrupt with Ctrl+C double-tap",
     "name": "EXIT_SIGNAL_INT",
   },
   "131": {
     "bsdEquivalent": "128 + 3",
     "category": "signals",
     "code": 131,
-    "context": "Ctrl+\\ pressed, core dump requested",
-    "description": "Quit signal (SIGQUIT)",
+    "context": "Ctrl+\\ on Unix, Ctrl+Break on Windows. Immediate termination without cleanup.
+Use for emergency shutdown or debugging (core dumps).",
+    "description": "Quit signal (SIGQUIT) - immediate exit",
     "name": "EXIT_SIGNAL_QUIT",
   },
   "137": {
@@ -136,6 +141,15 @@ exports[`exit codes bindings > metadata stays aligned with catalog snapshot 1`] 
     "name": "EXIT_SIGNAL_KILL",
     "pythonNote": "Cannot be caught in Python (OS-level)",
   },
+  "138": {
+    "category": "signals",
+    "code": 138,
+    "context": "Application-specific signal (e.g., reopen logs, dump stats, trigger profiling).
+Applications register custom handlers. Exit code 138 on Linux (128+10).
+Platform differences: macOS/FreeBSD use signal 30 (exit 158), not 10.",
+    "description": "User-defined signal 1 (SIGUSR1) - custom handler",
+    "name": "EXIT_SIGNAL_USR1",
+  },
   "14": {
     "category": "networking",
     "code": 14,
@@ -143,12 +157,23 @@ exports[`exit codes bindings > metadata stays aligned with catalog snapshot 1`] 
     "description": "Connection refused by remote host",
     "name": "EXIT_CONNECTION_REFUSED",
   },
+  "140": {
+    "category": "signals",
+    "code": 140,
+    "context": "Application-specific signal (e.g., toggle debug mode, rotate credentials).
+Applications register custom handlers. Exit code 140 on Linux (128+12).
+Platform differences: macOS/FreeBSD use signal 31 (exit 159), not 12.",
+    "description": "User-defined signal 2 (SIGUSR2) - custom handler",
+    "name": "EXIT_SIGNAL_USR2",
+  },
   "141": {
     "bsdEquivalent": "128 + 13",
     "category": "signals",
     "code": 141,
-    "context": "Writing to closed pipe/socket, reader terminated",
-    "description": "Broken pipe (SIGPIPE)",
+    "context": "Writing to closed pipe/socket. Fulmen default is observe_only (log + graceful exit).
+Applications may override to ignore for network services.
+See signals.yaml for SIGPIPE handling guidance.",
+    "description": "Broken pipe (SIGPIPE) - observe only",
     "name": "EXIT_SIGNAL_PIPE",
     "pythonNote": "Raised as BrokenPipeError exception",
   },
@@ -156,8 +181,9 @@ exports[`exit codes bindings > metadata stays aligned with catalog snapshot 1`] 
     "bsdEquivalent": "128 + 14",
     "category": "signals",
     "code": 142,
-    "context": "Timer expiration, alarm clock",
-    "description": "Alarm signal (SIGALRM)",
+    "context": "Watchdog timer expired. Treat as timeout-induced exit.
+Watchdog pattern out of scope for v1.0.0 module implementations.",
+    "description": "Alarm signal (SIGALRM) - watchdog timeout",
     "name": "EXIT_SIGNAL_ALRM",
     "pythonNote": "Supported by signal module, rarely used in practice",
   },
@@ -165,8 +191,10 @@ exports[`exit codes bindings > metadata stays aligned with catalog snapshot 1`] 
     "bsdEquivalent": "128 + 15",
     "category": "signals",
     "code": 143,
-    "context": "Graceful shutdown requested, normal termination",
-    "description": "Termination signal (SIGTERM)",
+    "context": "Graceful shutdown requested by container orchestrator or process supervisor.
+Standard 30-second timeout for cleanup. Applications run cleanup handlers before exit.
+See signals.yaml for graceful shutdown behavior definition.",
+    "description": "Termination signal (SIGTERM) - graceful shutdown",
     "name": "EXIT_SIGNAL_TERM",
     "pythonNote": "Default signal for graceful shutdown",
   },
@@ -176,22 +204,6 @@ exports[`exit codes bindings > metadata stays aligned with catalog snapshot 1`] 
     "context": "Slow networks, unresponsive services, firewall blocks",
     "description": "Connection attempt timed out",
     "name": "EXIT_CONNECTION_TIMEOUT",
-  },
-  "159": {
-    "bsdEquivalent": "128 + 31",
-    "category": "signals",
-    "code": 159,
-    "context": "Application-specific signal handling (e.g., reopen logs, dump stats)",
-    "description": "User-defined signal 1 (SIGUSR1)",
-    "name": "EXIT_SIGNAL_USR1",
-  },
-  "160": {
-    "bsdEquivalent": "128 + 32",
-    "category": "signals",
-    "code": 160,
-    "context": "Application-specific signal handling (e.g., toggle debug mode)",
-    "description": "User-defined signal 2 (SIGUSR2)",
-    "name": "EXIT_SIGNAL_USR2",
   },
   "20": {
     "category": "configuration",
