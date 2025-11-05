@@ -9,6 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6] - 2025-11-05
+
+### Added
+
+- **Platform Introspection API**: Added `supports_signal()` API requirement to signal handling module standard
+  - Enables runtime platform detection before signal registration
+  - Allows conditional logic based on platform capabilities
+  - Supports cross-platform testing with deterministic behavior
+  - API contract documented for Go, Python, TypeScript
+  - Usage examples with Unix vs Windows conditional logic
+
+### Fixed
+
+- **Missing Foundry Config Accessors**: Added missing `Signals()` and `ExitCodes()` methods to `FoundryConfig` in `config.go`
+  - `Signals()` returns signals catalog from `config/library/foundry/signals.yaml`
+  - `ExitCodes()` returns exit codes catalog from `config/library/foundry/exit-codes.yaml`
+  - Enables helper libraries (gofulmen, pyfulmen, tsfulmen) to load catalogs via Crucible embed
+  - Added comprehensive test coverage for new accessors
+
 ## [0.2.5] - 2025-11-05
 
 ### Added

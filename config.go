@@ -81,6 +81,16 @@ func (f *FoundryConfig) SimilarityFixtures() ([]byte, error) {
 	return configFS.ReadFile("config/library/foundry/similarity-fixtures.yaml")
 }
 
+// ExitCodes returns the exit codes catalog
+func (f *FoundryConfig) ExitCodes() ([]byte, error) {
+	return configFS.ReadFile("config/library/foundry/exit-codes.yaml")
+}
+
+// Signals returns the signals catalog
+func (f *FoundryConfig) Signals() ([]byte, error) {
+	return configFS.ReadFile("config/library/foundry/signals.yaml")
+}
+
 // FulHashConfig provides access to FulHash module configurations
 type FulHashConfig struct{}
 

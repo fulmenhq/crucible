@@ -109,6 +109,34 @@ func TestConfigRegistryFoundry(t *testing.T) {
 			t.Error("expected non-empty similarity fixtures data")
 		}
 	})
+
+	t.Run("Foundry ExitCodes", func(t *testing.T) {
+		data, err := ConfigRegistry.Library().Foundry().ExitCodes()
+		if err != nil {
+			t.Fatalf("failed to read exit codes: %v", err)
+		}
+		if len(data) == 0 {
+			t.Error("expected non-empty exit codes data")
+		}
+		// Should contain YAML content with exit codes
+		if !strings.Contains(string(data), "exit_codes:") && !strings.Contains(string(data), "code:") {
+			t.Error("exit codes config should contain exit code definitions")
+		}
+	})
+
+	t.Run("Foundry Signals", func(t *testing.T) {
+		data, err := ConfigRegistry.Library().Foundry().Signals()
+		if err != nil {
+			t.Fatalf("failed to read signals: %v", err)
+		}
+		if len(data) == 0 {
+			t.Error("expected non-empty signals data")
+		}
+		// Should contain YAML content with signals
+		if !strings.Contains(string(data), "signals:") && !strings.Contains(string(data), "SIGTERM") {
+			t.Error("signals config should contain signal definitions")
+		}
+	})
 }
 
 func TestConfigRegistryLibrary(t *testing.T) {

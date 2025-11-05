@@ -189,6 +189,68 @@ signals.handle("SIGTERM", (sig) => {
 });
 ```
 
+### Platform Introspection
+
+Helper libraries **MUST** expose a `supports_signal()` API for runtime platform detection:
+
+**Purpose**:
+
+- Enable applications to check signal support before registration
+- Allow conditional logic based on platform capabilities
+- Support cross-platform testing with deterministic behavior
+- Enable dynamic capability reporting in documentation/help text
+
+**Go Example** (`gofulmen/pkg/signals`):
+
+```go
+if signals.SupportsSignal(syscall.SIGHUP) {
+    signals.Handle(syscall.SIGHUP, reloadConfigHandler)
+    log.Info("Config reload: send SIGHUP to reload")
+} else {
+    // Windows: HTTP endpoint fallback
+    log.Info("Config reload: POST /admin/signal with signal=HUP")
+}
+```
+
+**Python Example** (`pyfulmen/signals`):
+
+```python
+from pyfulmen import signals
+import signal
+
+if signals.supports_signal(signal.SIGHUP):
+    signals.handle(signal.SIGHUP, reload_config_handler)
+    print("Config reload: kill -HUP <pid>")
+else:
+    # Windows: HTTP endpoint fallback
+    print("Config reload: POST /admin/signal with signal=HUP")
+```
+
+**TypeScript Example** (`tsfulmen/signals`):
+
+```typescript
+import { signals } from "tsfulmen";
+
+if (signals.supportsSignal("SIGHUP")) {
+  signals.handle("SIGHUP", reloadConfigHandler);
+  console.log("Config reload: kill -HUP <pid>");
+} else {
+  // Windows: HTTP endpoint fallback
+  console.log("Config reload: POST /admin/signal with signal=HUP");
+}
+```
+
+**API Contract**:
+
+- **Function Signature**:
+  - Go: `SupportsSignal(sig os.Signal) bool`
+  - Python: `supports_signal(sig: signal.Signals) -> bool`
+  - TypeScript: `supportsSignal(sig: string) -> boolean`
+- **Return Value**:
+  - `true` / `True` if signal is natively supported on current platform
+  - `false` / `False` if signal uses Windows fallback mechanism
+- **Implementation Note**: Check against platform support matrix in `signals.yaml`
+
 ### Cleanup Function Chains
 
 Support ordered cleanup handler registration:
