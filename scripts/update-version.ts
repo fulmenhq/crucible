@@ -74,7 +74,12 @@ function replaceInFile(path: string, replacer: (contents: string) => string) {
 }
 
 function updateGo(version: string): boolean {
-  const target = join(ROOT, "lang/go/schemas.go");
+  const target = join(ROOT, "schemas.go");
+
+  if (!existsSync(target)) {
+    return false;
+  }
+
   return replaceInFile(target, (contents) =>
     contents.replace(/const\s+Version\s*=\s*"[^"]+"/, `const Version = "${version}"`),
   );
@@ -123,6 +128,18 @@ function updatePython(version: string): boolean {
   );
 }
 
+function updateTaxonomy(version: string): boolean {
+  const taxonomyPath = join(ROOT, "config/taxonomy/metrics.yaml");
+
+  if (!existsSync(taxonomyPath)) {
+    return false;
+  }
+
+  return replaceInFile(taxonomyPath, (contents) =>
+    contents.replace(/^version:\s*"[^"]+"/m, `version: "${version}"`),
+  );
+}
+
 function main() {
   let version = readVersion();
 
@@ -136,10 +153,11 @@ function main() {
   }
 
   const mutations = [
-    updateGo(version) && "lang/go/schemas.go",
+    updateGo(version) && "schemas.go",
     updateTypeScriptSources(version) && "lang/typescript/src/*.ts",
     updateTypeScriptPackage(version) && "lang/typescript/package.json",
     updatePython(version) && "lang/python/src/crucible/__init__.py",
+    updateTaxonomy(version) && "config/taxonomy/metrics.yaml",
   ].filter(Boolean) as string[];
 
   if (mutations.length === 0) {

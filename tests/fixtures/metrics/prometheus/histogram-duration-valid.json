@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-11-06T12:34:56.789Z",
+  "name": "prometheus_exporter_refresh_duration_seconds",
+  "value": {
+    "count": 100,
+    "sum": 42.5,
+    "buckets": [
+      {
+        "le": 0.001,
+        "count": 10
+      },
+      {
+        "le": 0.005,
+        "count": 25
+      },
+      {
+        "le": 0.01,
+        "count": 50
+      },
+      {
+        "le": 0.05,
+        "count": 75
+      },
+      {
+        "le": 0.1,
+        "count": 85
+      },
+      {
+        "le": 0.5,
+        "count": 95
+      },
+      {
+        "le": 1.0,
+        "count": 98
+      },
+      {
+        "le": 5.0,
+        "count": 100
+      },
+      {
+        "le": 10.0,
+        "count": 100
+      }
+    ]
+  },
+  "tags": {
+    "phase": "collect",
+    "result": "success"
+  },
+  "unit": "s"
+}

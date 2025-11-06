@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-11-06T12:34:56.789Z",
+  "name": "prometheus_exporter_refresh_total",
+  "value": 1250,
+  "tags": {
+    "result": "success"
+  },
+  "unit": "count"
+}

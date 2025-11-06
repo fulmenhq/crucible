@@ -466,9 +466,9 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-**Version**: 0.2.6 (SemVer: MAJOR.MINOR.PATCH)
+**Version**: 0.2.7 (SemVer: MAJOR.MINOR.PATCH)
 
-Active development. Core schemas, standards, and helper library contracts stabilized. Go module relocated to repository root for standard external installation (v0.1.4). Adopted Semantic Versioning for Go module compatibility (v0.2.0). Signal handling module (v0.2.5) establishes SSOT for graceful shutdown, Ctrl+C handling, and cross-platform signal semantics. Platform introspection API (v0.2.6) enables runtime signal support detection. Progressive logging, Foundry catalog patterns, and docscribe module ready for ecosystem integration.
+Active development. Core schemas, standards, and helper library contracts stabilized. Go module relocated to repository root for standard external installation (v0.1.4). Adopted Semantic Versioning for Go module compatibility (v0.2.0). Signal handling module (v0.2.5) establishes SSOT for graceful shutdown, Ctrl+C handling, and cross-platform signal semantics. Platform introspection API (v0.2.6) enables runtime signal support detection. Metrics taxonomy (v0.2.7) provides 26 standardized metrics (7 Prometheus exporter + 19 module metrics) with namespace governance and automated version synchronization. Progressive logging, Foundry catalog patterns, and docscribe module ready for ecosystem integration.
 
 ---
 

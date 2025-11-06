@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-11-06T12:34:56.789Z",
+  "name": "prometheus_exporter_refresh_total",
+  "value": 100,
+  "tags": {
+    "result": "success",
+    "unknown_label": "invalid_value"
+  },
+  "unit": "count",
+  "_comment": "This fixture is intentionally invalid - includes unknown_label not defined in schema. Use for negative test cases."
+}

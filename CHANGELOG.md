@@ -9,6 +9,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.7] - 2025-11-06
+
+### Added
+
+- **Prometheus Exporter Metrics Taxonomy**: Added 7 canonical metrics for Prometheus exporter observability
+  - `prometheus_exporter_refresh_duration_seconds` - Histogram tracking refresh cycle latency with ADR-0007 buckets (converted to seconds)
+  - `prometheus_exporter_refresh_total` - Counter for total refresh cycles with result labels (success|error)
+  - `prometheus_exporter_refresh_errors_total` - Counter for detailed error classification by error_type
+  - `prometheus_exporter_refresh_inflight` - Gauge tracking concurrent refresh operations
+  - `prometheus_exporter_http_requests_total` - Counter for HTTP scrape/exposition requests
+  - `prometheus_exporter_http_errors_total` - Counter for HTTP exposition failures
+  - `prometheus_exporter_restarts_total` - Counter for exporter restart events
+  - Standardized label value enumerations (phase, result, error_type, status, path, reason)
+  - Dual counter emission rules with mathematical invariants
+  - Prometheus client defaults guidance with code examples (TypeScript, Python, Go)
+- **Module Telemetry Metrics**: Added 19 metrics for Foundry, Error Handling, and FulHash modules
+  - **Foundry Module** (12 metrics): MIME type detection counters and histograms per content type (JSON, XML, YAML, CSV, plain text, unknown)
+  - **Error Handling Module** (2 metrics): Error wrap operation counters and latency histograms
+  - **FulHash Module** (5 metrics): Hash algorithm distribution (XXH3-128, SHA256), byte throughput, operation latency
+  - Per-type metrics design avoids high cardinality labels while enabling algorithm-specific performance analysis
+- **Metric Namespace Governance Framework**: Comprehensive rules for module vs application metrics
+  - Reserved prefixes for Fulmen modules (`foundry_*`, `error_handling_*`, `fulhash_*`, `prometheus_exporter_*`, etc.)
+  - Required vs optional module metrics distinction
+  - Application metric naming conventions (binary-prefixed: `percheron_*`, `groningen_*`)
+  - Three-tier architecture documentation (module internals, infrastructure, application)
+  - Collision prevention guidelines and petition process
+- **Taxonomy Version Sync Automation**: Repository VERSION now propagates to taxonomy automatically
+  - `scripts/update-version.ts` updates `config/taxonomy/metrics.yaml` version field
+  - `scripts/validate-taxonomy-version.ts` validates taxonomy version matches repository VERSION
+  - Integrated into `make validate-schemas` (fails CI on mismatch)
+  - Defense-in-depth: version sync at `make version-set`, `make version-propagate`, and `make sync`
+- **Metrics Test Fixtures**: Comprehensive test fixtures for validation and parity testing
+  - `tests/fixtures/metrics/prometheus/` - 7 valid Prometheus metric fixtures + 1 invalid
+  - `tests/fixtures/metrics/general/` - 2 general metric fixtures (counter, histogram)
+  - `tests/README.md` - Complete fixture documentation with parity testing examples
+  - All fixtures conform to `schemas/observability/metrics/v1.0.0/metrics-event.schema.json`
+- **Seconds Unit Support**: Added `s` (seconds) to `metricUnit` enum for Prometheus-native histogram conventions
+  - Reuses ADR-0007 millisecond buckets divided by 1000: `[0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0]` seconds
+  - Explicit conversion guidance to prevent double-conversion errors
+- **Telemetry Metrics Documentation Enhancement**: Comprehensive SSOT for telemetry implementation
+  - New "Prometheus Exporter Metrics" section with complete specification tables
+  - Label value standards with allowed enumerations and cardinality warnings
+  - Histogram bucket conversion guidance (ADR-0007 ms → seconds)
+  - Dual counter emission rules with PromQL examples and mathematical invariants
+  - Prometheus client defaults guidance (register.clear(), REGISTRY.unregister(), custom registries)
+  - Metric namespace governance with module/application separation
+  - Three-tier metric architecture explanation
+  - Compatibility matrix for helper library adoption
+  - Cross-language consistency requirements
+
+### Changed
+
+- **Taxonomy Versioning Scheme**: Switched from CalVer (`2025.10.3`) to SemVer (`0.2.7`) aligned with repository VERSION per ADR-0010
+  - Schema pattern updated: `"^\\d{4}\\.\\d{2}\\.\\d+$"` → `"^\\d+\\.\\d+\\.\\d+$"`
+  - Version description updated: "Taxonomy version (SemVer, aligned with Crucible releases)"
+  - Synchronization safeguards ensure taxonomy version never drifts from repository VERSION
+- **Makefile Version Targets**: Enhanced to update taxonomy automatically
+  - `make version-set`, `make version-propagate`, `make version-bump-*` now update taxonomy
+  - Version consistency validated in CI pipeline via `make validate-schemas`
+
 ## [0.2.6] - 2025-11-05
 
 ### Added

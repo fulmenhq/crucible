@@ -1,0 +1,51 @@
+{
+  "timestamp": "2025-11-06T12:34:56.789Z",
+  "name": "config_load_ms",
+  "value": {
+    "count": 250,
+    "sum": 8750,
+    "buckets": [
+      {
+        "le": 1,
+        "count": 5
+      },
+      {
+        "le": 5,
+        "count": 20
+      },
+      {
+        "le": 10,
+        "count": 50
+      },
+      {
+        "le": 50,
+        "count": 150
+      },
+      {
+        "le": 100,
+        "count": 220
+      },
+      {
+        "le": 500,
+        "count": 245
+      },
+      {
+        "le": 1000,
+        "count": 250
+      },
+      {
+        "le": 5000,
+        "count": 250
+      },
+      {
+        "le": 10000,
+        "count": 250
+      }
+    ]
+  },
+  "tags": {
+    "source": "file",
+    "format": "yaml"
+  },
+  "unit": "ms"
+}

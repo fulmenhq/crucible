@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-11-06T12:34:56.789Z",
+  "name": "prometheus_exporter_http_errors_total",
+  "value": 15,
+  "tags": {
+    "status": "500",
+    "path": "/metrics",
+    "client": "192.168.1.100"
+  },
+  "unit": "count"
+}

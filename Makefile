@@ -114,6 +114,7 @@ clean: ## Clean any build artifacts
 
 validate-schemas: ## Validate taxonomy registries and logging schema changes
 	@bun run scripts/validate-schemas.ts
+	@bun run scripts/validate-taxonomy-version.ts
 
 verify-codegen: ## Verify generated code is up-to-date with catalog
 	@bun run scripts/codegen/verify-exit-codes.ts
@@ -132,7 +133,8 @@ endif
 
 version-propagate: ## Propagate VERSION to package managers (package.json, etc.)
 	@$(BIN_DIR)/goneat version propagate
-	@echo "✅ Version propagated to package managers"
+	@bun run scripts/update-version.ts
+	@echo "✅ Version propagated to package managers and taxonomy"
 
 version-bump-major: ## Bump major version (CalVer year.month)
 	@$(BIN_DIR)/goneat version bump major
