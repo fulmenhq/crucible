@@ -51,6 +51,9 @@ async function main() {
     console.log("🔍 DRY RUN - no files will be modified");
   }
 
+  // Generate snapshots from YAML catalogs FIRST (ensures fresh snapshots before codegen)
+  await generateSnapshots(options);
+
   // Generate exit codes before syncing (generates artifacts in lang/* directories)
   await generateExitCodes(options);
 
@@ -65,6 +68,38 @@ async function main() {
   console.log("  3. Test Python build: cd lang/python && uv run pytest");
   console.log("  4. Test Go build: go test ./...");
   console.log("  5. Commit: git add lang/ && git commit -m 'chore: sync assets to lang wrappers'");
+}
+
+async function generateSnapshots(options: SyncOptions) {
+  console.log("📸 Generating snapshots from YAML catalogs...");
+
+  if (options.dryRun) {
+    console.log("   [DRY RUN] Would generate snapshots");
+    return;
+  }
+
+  const snapshotGeneratorPath = join(ROOT, "scripts/generate-exit-code-snapshots.ts");
+
+  if (!existsSync(snapshotGeneratorPath)) {
+    console.log("   ⚠️  Snapshot generator not found, skipping");
+    return;
+  }
+
+  const result = spawnSync("bun", ["run", snapshotGeneratorPath], {
+    cwd: ROOT,
+    stdio: options.verbose ? "inherit" : "pipe",
+    encoding: "utf8",
+  });
+
+  if (result.status !== 0) {
+    console.error("   ❌ Snapshot generation failed");
+    if (!options.verbose && result.stderr) {
+      console.error(result.stderr);
+    }
+    process.exit(1);
+  }
+
+  console.log("   ✓ Snapshots generated from YAML catalogs");
 }
 
 async function generateExitCodes(options: SyncOptions) {
@@ -207,8 +242,18 @@ OPTIONS:
   --help       Show this help
 
 DESCRIPTION:
-  Generates code from Crucible catalogs and syncs schemas/, config/,
-  and docs/ from repository root to:
+  Two-stage pipeline that ensures SSOT consistency:
+
+  STAGE 1 - SNAPSHOT GENERATION:
+    Regenerates JSON snapshots from YAML catalogs:
+    - config/library/foundry/exit-codes.snapshot.json (from exit-codes.yaml)
+    - config/library/foundry/simplified-modes.snapshot.json
+
+    This prevents snapshot staleness when YAML catalogs are edited.
+
+  STAGE 2 - CODE GENERATION & SYNC:
+    Generates language-native bindings from fresh snapshots and syncs
+    schemas/, config/, docs/ to:
     - lang/typescript/schemas/
     - lang/typescript/config/
     - lang/typescript/docs/
@@ -216,7 +261,7 @@ DESCRIPTION:
     - lang/python/config/
     - lang/python/docs/
 
-  Code generation step produces language-native bindings:
+  Code generation produces language-native bindings:
     - foundry/exit_codes.go
     - lang/python/src/pyfulmen/foundry/exit_codes.py
     - lang/typescript/src/foundry/exitCodes.ts

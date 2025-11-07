@@ -6,7 +6,7 @@ VERSION_FILE := VERSION
 # Standards forge for the FulmenHQ ecosystem
 
 .PHONY: help bootstrap tools sync test build build-all clean version fmt fmt-check lint typecheck
-.PHONY: sync-schemas sync-to-lang test-go test-ts test-python build-python lint-python
+.PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python build-python lint-python
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare prepush precommit check-all
 .PHONY: validate-schemas verify-codegen
@@ -33,7 +33,10 @@ sync: sync-to-lang ## Alias for sync-to-lang (most common sync operation)
 sync-schemas: ## Fetch curated JSON Schema meta-schemas (network required)
 	@bun run scripts/sync-schemas.ts
 
-sync-to-lang: ## Sync schemas and docs to Go and TypeScript packages
+generate-snapshots: ## Generate JSON snapshots from YAML catalogs (exit codes, etc.)
+	@bun run scripts/generate-exit-code-snapshots.ts
+
+sync-to-lang: ## Sync schemas and docs to Go and TypeScript packages (includes snapshot generation)
 	@bun run scripts/sync-to-lang.ts
 
 # Test targets

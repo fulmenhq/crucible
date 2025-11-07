@@ -9,7 +9,7 @@ const repoRoot = path.resolve(__dirname, '..');
 
 const LANGUAGE_KEYS = new Set(['go', 'python', 'typescript', 'rust', 'csharp']);
 const LANGUAGE_STATUS = new Set(['active', 'planned', 'deprecated']);
-const CATEGORY_KEYS = new Set(['cli', 'workhorse', 'service', 'library', 'pipeline', 'codex', 'sdk']);
+const CATEGORY_KEYS = new Set(['cli', 'workhorse', 'service', 'library', 'pipeline', 'codex', 'sdk', 'forge-workhorse', 'forge-codex', 'forge-gymnasium']);
 const MODULE_IDS = new Set([
   'config-path-api',
   'three-layer-config',

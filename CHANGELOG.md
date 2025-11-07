@@ -9,6 +9,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.8] - 2025-11-07
+
+### Added
+
+- **CDRL Template Standard System**: Comprehensive documentation and validation framework for template customization workflows
+  - **Architectural Standard** (`docs/architecture/fulmen-template-cdrl-standard.md`): Complete CDRL (Clone → Degit → Refit → Launch) compliance requirements for all forge templates
+  - **Workflow Guide** (`docs/standards/cdrl/workflow-guide.md`): Step-by-step user instructions for customizing templates (4,800+ words)
+  - **Reference Bootstrap Pattern** (`docs/standards/cdrl/reference-bootstrap.md`): Manifest-driven tool installation pattern for reproducible development environments (18,000+ words)
+    - Complete `.goneat/tools.yaml` manifest schema specification
+    - Canonical implementations by language (Python: percheron, TypeScript: aurora TBD, Go: native)
+    - Template maintainer adaptation guidance with step-by-step instructions
+    - Security requirements (checksum verification, HTTPS downloads)
+    - CI/CD integration examples and testing checklists
+  - **Required Documentation Outline**: Canonical structure for `fulmen_cdrl_guide.md` with 10 mandatory sections
+  - **Template Documentation Structure**: Optional supplementary guides (`tooling-guide.md`, `customization-advanced.md`, `distribution-options.md`)
+  - **Validation Targets**: Required Makefile targets (`validate-app-identity`, `doctor`) with implementation specifications
+  - **Parameterization Reference Tables**: Complete documentation of all customization points per template type
+  - **CDRL Compliance Sections**: Added to both Workhorse and Codex forge standards with validation requirements and bootstrap script recommendations
+- **Forge Template Categories**: Three new repository categories in taxonomy
+  - `forge-workhorse`: Production-ready backend service templates (groningen, percheron)
+  - `forge-codex`: Documentation site templates (aurora, future implementations)
+  - `forge-gymnasium`: Experimental templates (optional CDRL compliance until graduation)
+- **Makefile Standard Annex B**: Template repository CDRL validation targets specification with exit codes, implementation examples, and CI integration guidance
+
+### Changed
+
+- **Sync Pipeline Enhancement**: Two-stage snapshot generation process prevents YAML/JSON drift
+  - Stage 1: Regenerate JSON snapshots from YAML catalogs (`scripts/generate-exit-code-snapshots.ts`)
+  - Stage 2: Generate language bindings from fresh snapshots and sync assets
+  - `make sync` now includes automatic snapshot generation before codegen
+  - Added standalone `make generate-snapshots` target for manual invocation
+- **Validation Script**: Updated `scripts/validate-schemas.ts` to recognize new forge template categories
+- **Directory Structure Standard**: Templates now specify `docs/development/` structure with REQUIRED `fulmen_cdrl_guide.md` and OPTIONAL supplementary guides
+
+### Fixed
+
+- **Exit Codes Snapshot Staleness**: Resolved YAML enhancements not propagating to JSON snapshots
+  - Issue: Signal handling semantics added to YAML (v0.2.5) but snapshots not regenerated
+  - Impact: Helper library tests failing with description mismatches (e.g., "Hangup signal (SIGHUP)" vs expected "Hangup signal (SIGHUP) - config reload via restart")
+  - Solution: Automated snapshot generation in sync pipeline ensures consistency
+  - Prevents future YAML/snapshot drift through two-stage build process
+
+### Documentation
+
+- **Sync Model Documentation**: Updated `docs/architecture/sync-model.md` with two-stage pipeline explanation (snapshot generation → codegen → sync)
+- **Cross-Linking Network**: All CDRL documents properly reference each other (architectural standard ↔ workflow guide ↔ Makefile standard ↔ forge standards ↔ taxonomy)
+- **Repository Taxonomy**: Added CDRL references to workhorse, codex, and new forge-\* categories with comprehensive standards links
+
 ## [0.2.7] - 2025-11-06
 
 ### Added
