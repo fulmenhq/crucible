@@ -7,6 +7,21 @@
 - Do not assume an agentic identity. Agent identities are assigned in `MAINTAINERS.md`. Request assignment if none is provided.
 - Review `REPOSITORY_SAFETY_PROTOCOLS.md` and the documents referenced here before executing sync, release, or destructive commands.
 
+### Quick Reference
+
+Common workflows and their entry points:
+
+| Task                           | Command                      | Documentation                                                      |
+| ------------------------------ | ---------------------------- | ------------------------------------------------------------------ |
+| Pre-commit workflow            | `make precommit`             | [Commit Checklist](docs/ops/repository/commit-checklist.md)        |
+| Pre-release workflow           | `make prepush`               | [Release Checklist](docs/ops/repository/release-checklist.md)      |
+| Sync SSOT to language wrappers | `make sync`                  | [Makefile](Makefile)                                               |
+| Format code                    | `make fmt`                   | [Makefile Standard](docs/standards/makefile-standard.md)           |
+| Run tests                      | `make test`                  | [Makefile](Makefile)                                               |
+| Run all quality gates          | `make check-all`             | [Repository Operations SOP](docs/sop/repository-operations-sop.md) |
+| Update version                 | `make version-set VERSION=x` | [Makefile Standard](docs/standards/makefile-standard.md)           |
+| Commit message format          | See attribution trailers     | [Agentic Attribution](docs/standards/agentic-attribution.md)       |
+
 ### Known Interface Adapters
 
 | Agentic Interface | Definitive Prompt / Rules File                       | Attribution Format                                                                                                  |
