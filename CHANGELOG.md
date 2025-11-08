@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Language-Matching Naming Pattern**: Template naming follows `forge-microtool-{instrument}` where instrument first letter matches language (G-instruments for Go: grinder/gauge/gouge, T-instruments for TypeScript: tongs/tap/trammel, R-instruments for Rust: rasp/reamer/router)
   - **Schema Updates**: Added `microtool` to category key enum (`schemas/taxonomy/repository-category/v1.0.0/category-key.schema.json`)
   - **Validation Support**: Updated `scripts/validate-schemas.ts` to recognize microtool category
+- **Repository Naming Standard**: Comprehensive naming conventions for FulmenHQ repositories and binaries (`docs/standards/repository-naming-standard.md`)
+  - Fulmen-specific vs generic naming patterns (when to use `fulmen-` prefix)
+  - Conflict avoidance rules with prohibited well-known binaries list
+  - Required research checklist (GitHub, npm, PyPI, Homebrew, Docker Hub)
+  - Maintainer approval process for all new repository names
+  - Emergency exception clause for critical production issues
+  - Naming decision matrix and examples for all repository categories
 
 ## [0.2.8] - 2025-11-07
 
