@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Microtool Repository Category**: New taxonomy category for ultra-narrow, single-purpose CLI deployment/automation tools
+  - **Category Definition** (`config/taxonomy/repository-categories.yaml`): Strict architectural constraints for microtools
+    - MUST have single primary purpose (e.g., fixture deployment, config synchronization)
+    - MUST be written in Go, TypeScript/Bun, or Rust only
+    - SHOULD import helper library (gofulmen, tsfulmen, or rsfulmen)
+    - MUST NOT export packages or be imported by other repositories (one-way dependency flow)
+    - MUST obey exit codes, signals, logger, config standards
+  - **Microtool Standard** (`docs/architecture/fulmen-forge-microtool-standard.md`): Comprehensive standard covering language constraints, helper library requirements, directory structure, required modules, and security considerations
+  - **Language-Matching Naming Pattern**: Template naming follows `forge-microtool-{instrument}` where instrument first letter matches language (G-instruments for Go: grinder/gauge/gouge, T-instruments for TypeScript: tongs/tap/trammel, R-instruments for Rust: rasp/reamer/router)
+  - **Schema Updates**: Added `microtool` to category key enum (`schemas/taxonomy/repository-category/v1.0.0/category-key.schema.json`)
+  - **Validation Support**: Updated `scripts/validate-schemas.ts` to recognize microtool category
+
 ## [0.2.8] - 2025-11-07
 
 ### Added
