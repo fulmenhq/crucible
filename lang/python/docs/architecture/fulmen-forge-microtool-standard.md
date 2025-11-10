@@ -24,6 +24,20 @@ Microtool forges use **tool/instrument** themed names to distinguish from workho
 
 The canonical list of forge categories and statuses is maintained in the [Repository Category Taxonomy](config/taxonomy/repository-categories.yaml); consult that before proposing new forges or changing lifecycle states.
 
+For a quick view of module requirements across forge categories, see the [Module Compliance Matrix](./module-compliance-matrix.md). CDRL expectations for all templates are defined in the [Fulmen Template CDRL Standard](./fulmen-template-cdrl-standard.md); microtool forges must satisfy those requirements in addition to the guidance here.
+
+## Reference Implementation Requirement
+
+Microtool forges are **reference implementations**, not hollow templates. Every published microtool MUST:
+
+- Build, lint, and test successfully immediately after cloning.
+- Include working example commands demonstrating the single primary purpose.
+- Ship with sane defaults so maintainers can `clone → make check-all → run` before performing any refit.
+
+CDRL (Clone → Degit → Refit → Launch) happens **after** a team builds and validates the reference implementation. “Template” in this context means “ready-to-run forge that you refit,” not “collection of placeholders.” Any TODO-only files, stubbed logic, or unimplemented commands violate this standard.
+
+When creating a new microtool forge, ensure CI proves the repo is runnable prior to documentation mentioning CDRL. Refit scripts (rename, identity updates) exist to adapt a working tool—not to finish unfinished code.
+
 ## Scope
 
 Applies to Microtool-specific forge templates (e.g., `forge-microtool-anvil`, `forge-microtool-chisel`). Microtools MUST remain narrow in scope - a tool that grows beyond single purpose violates the category and must be promoted to `cli`. Forges are not SSOT repos or full applications but starters that integrate Fulmen helper libraries (gofulmen, pyfulmen, tsfulmen) to enforce standards while staying lightweight.
@@ -132,10 +146,15 @@ Microtool forges that import the helper library MUST integrate these modules to 
    - **Example**:
 
      ```go
-     ctx, cancel := signals.WithShutdown(context.Background())
-     defer cancel()
+     signals.OnShutdown(func(ctx context.Context) error {
+         logger.Info("closing resources")
+         return shutdown(ctx)
+     })
 
-     // Use ctx in operations for cancellation
+     signals.EnableDoubleTap(signals.DoubleTapConfig{})
+     if err := signals.Listen(context.Background()); err != nil {
+         logger.Error("signal listener failed", zap.Error(err))
+     }
      ```
 
 8. **Error Handling Module** (REQUIRED)
@@ -143,15 +162,52 @@ Microtool forges that import the helper library MUST integrate these modules to 
    - **Spec**: [Error Handling](../standards/library/modules/error-handling.md)
    - **Compliance**: Wrap errors with context, use exit codes appropriately
 
+9. **Pathfinder Integration Module** (REQUIRED)
+   - **Purpose**: Safe path discovery, checksum calculation, and file selection logic
+   - **Spec**: [Pathfinder Extension](../standards/library/extensions/pathfinder.md)
+   - **Compliance**:
+     - Use `github.com/fulmenhq/gofulmen/pathfinder` (Go) or the language equivalent for all filesystem traversal
+     - Expose CLI flags mapping to Pathfinder’s `FindQuery` fields (root, include, exclude, depth, checksum)
+     - Never shell out to `find`/`ls`; rely on Pathfinder to enforce traversal guardrails
+     - When checksums are needed, use the built-in FulHash integration (`ChecksumAlgorithm`, `CalculateChecksums`)
+   - **Rationale**: Microtools routinely inspect files; mandatory Pathfinder usage keeps traversal aligned with Fulmen security policy.
+
 ### Optional Modules
 
-9. **Telemetry/Metrics Module** (OPTIONAL)
-   - **When to use**: If tool runs long enough to benefit from metrics
-   - **Typically skip**: Most microtools are short-lived CLI operations
+10. **Telemetry/Metrics Module** (OPTIONAL)
 
-10. **Schema Validation Module** (OPTIONAL)
+- **When to use**: If tool runs long enough to benefit from metrics
+- **Typically skip**: Most microtools are short-lived CLI operations
+
+11. **Schema Validation Module** (OPTIONAL)
     - **When to use**: If tool reads/writes structured data
     - **Example**: Fixture manifest validation
+
+> **Documentation requirement**: Optional integrations (Crucible shim, telemetry, schema validation, etc.) MUST be documented in `docs/development/fulmen_cdrl_guide.md` with clear “keep vs. remove” guidance for teams refitting the template.
+
+### Module Summary Table
+
+| Module             | Status      | Purpose                           | Typical Use Case                | Spec Link                                                                                   |
+| ------------------ | ----------- | --------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------- |
+| App Identity       | REQUIRED    | Binary name, env prefix, metadata | All microtools                  | [app-identity.md](../standards/library/modules/app-identity.md)                             |
+| Logging            | REQUIRED    | Structured logging                | All microtools                  | [logging.md](../standards/observability/logging.md)                                         |
+| Exit Code          | REQUIRED    | Standardized exit codes           | All microtools (CI/CD)          | [exit-codes/README.md](../standards/fulmen/exit-codes/README.md)                            |
+| Signal Handling    | REQUIRED    | Graceful shutdown                 | All microtools                  | [signal-handling.md](../standards/library/modules/signal-handling.md)                       |
+| Error Handling     | REQUIRED    | Structured error propagation      | All microtools                  | [error-handling-propagation.md](../standards/library/modules/error-handling-propagation.md) |
+| Pathfinder         | REQUIRED    | Safe discovery & checksum data    | Any filesystem interaction      | [pathfinder.md](../standards/library/extensions/pathfinder.md)                              |
+| Crucible Shim      | RECOMMENDED | SSOT asset access                 | Tools using schemas/configs     | [crucible-shim.md](../standards/library/modules/crucible-shim.md)                           |
+| Three-Layer Config | RECOMMENDED | Layered configuration             | Tools with user config          | [three-layer-config.md](../standards/library/modules/three-layer-config.md)                 |
+| Config Path API    | RECOMMENDED | Config directory discovery        | Tools with config files         | [config-path-api.md](../standards/library/modules/config-path-api.md)                       |
+| Schema Validation  | OPTIONAL    | Data validation                   | Tools reading/writing YAML/JSON | [schema-validation.md](../standards/library/modules/schema-validation.md)                   |
+| Telemetry/Metrics  | OPTIONAL    | Metrics export                    | Long-running operations (rare)  | [telemetry-metrics.md](../standards/library/modules/telemetry-metrics.md)                   |
+
+**Key Differences from Workhorse**:
+
+- ❌ No server management module (microtools don't have HTTP endpoints)
+- ❌ No Docscribe module (microtools don't serve documentation)
+- ✅ Crucible Shim is RECOMMENDED (not REQUIRED - only if using schemas/configs)
+- ✅ Three-Layer Config is RECOMMENDED (not REQUIRED - simple tools may skip)
+- ✅ Telemetry/Metrics is OPTIONAL (most microtools are short-lived CLI operations)
 
 ## Prohibited Features
 
@@ -193,9 +249,11 @@ fulmen-{toolname}/                    # e.g., fulmen-fixtures
 ├── Makefile                          # Standard targets (see below)
 ├── go.mod                            # Dependencies (imports gofulmen)
 ├── go.sum
-├── README.md                         # Usage, CDRL guide
+├── README.md                         # Usage overview, links to docs/development guide
 ├── LICENSE                           # MIT recommended
-└── fulmen_cdrl_guide.md             # CDRL workflow guide (REQUIRED)
+└── docs/
+    └── development/
+        └── fulmen_cdrl_guide.md      # CDRL workflow + optional-module decisions (REQUIRED)
 ```
 
 **Key Points**:
@@ -225,7 +283,7 @@ fulmen-{toolname}/
 ├── tsconfig.json
 ├── README.md
 ├── LICENSE
-└── fulmen_cdrl_guide.md
+└── docs/development/fulmen_cdrl_guide.md
 ```
 
 ## Makefile Standard Targets
@@ -294,12 +352,25 @@ fulmen-fixtures deploy --recipe recipe.yaml --target s3://bucket/path
 fulmen-fixtures verify --recipe recipe.yaml --source https://example.com
 ```
 
-**Global Flags** (RECOMMENDED):
+### Required Commands
 
-- `--config` - Config file path
-- `--log-level` - Log level override
-- `--help` - Show help
-- `--version` - Show version
+1. **`version`**
+   - MUST support an `--extended/-e` flag that prints commit SHA, build date, Go runtime, and helper versions via `crucible.GetVersion()`.
+   - Default output: `<binary> <semver>`.
+2. **`envinfo`**
+   - Summarizes app identity, helper dependency versions, runtime details, and the currently loaded config file.
+   - Logs exclusively to stderr using the helper logger.
+3. **`doctor`**
+   - Performs environment diagnostics (Go version, access to Crucible/gofulmen, config directory health).
+   - Returns Fulmen exit codes via `foundry.Exit*`.
+   - Serves as the CLI counterpart to the Makefile `doctor` target.
+
+### Global Flags (REQUIRED)
+
+- `--config` – Config file path override
+- `--log-level` – Log level override (maps to helper logging severity)
+- `--help`
+- `--version` (auto-exposed; ensure subcommands honor it)
 
 **Output Conventions**:
 
@@ -425,7 +496,7 @@ func TestGenerateCommand(t *testing.T) {
 
 **Template Responsibilities**:
 
-- Provide `fulmen_cdrl_guide.md` with specific refit instructions
+- Provide `docs/development/fulmen_cdrl_guide.md` with specific refit instructions (Clone → Degit → Refit → Launch plus optional-module guidance)
 - Use App Identity for binary name parameterization
 - Make refit process as smooth as possible
 
@@ -437,7 +508,7 @@ func TestGenerateCommand(t *testing.T) {
 
 **Go (G-instruments)**:
 
-- `grinder` - Heavy processing tool
+- `gimlet` - Precision boring/ingest tool
 - `gauge` - Measurement/validation tool
 - `gouge` - Data extraction tool
 
@@ -493,11 +564,12 @@ func TestGenerateCommand(t *testing.T) {
 - Credential setup
 - CDRL guide reference
 
-**fulmen_cdrl_guide.md** (REQUIRED):
+**docs/development/fulmen_cdrl_guide.md** (REQUIRED):
 
 - Step-by-step refit instructions
 - What to rename (binary name, imports, etc.)
 - How to validate changes
+- Explain optional integrations (Crucible shim, telemetry, schema validation, Pathfinder knobs) and how to keep/remove them
 - Common pitfalls
 
 **Command Help** (REQUIRED):
@@ -569,14 +641,16 @@ If a microtool grows beyond single purpose, it must be promoted:
 - [ ] Uses exit codes from helper (or compliant implementation)
 - [ ] Structured logging to stderr
 - [ ] Graceful signal handling (SIGTERM, SIGINT)
+- [ ] Pathfinder integration for every filesystem traversal
 - [ ] App Identity implemented (`.fulmen/app.yaml`)
 - [ ] NO `pkg/` directory (not a library)
 - [ ] NO web server endpoints
 - [ ] Makefile with standard targets
-- [ ] CDRL guide (`fulmen_cdrl_guide.md`)
+- [ ] CDRL guide (`docs/development/fulmen_cdrl_guide.md`)
 - [ ] Help text for all commands
 - [ ] README with usage examples
 - [ ] Tests (unit + integration)
+- [ ] Repository builds/tests successfully before any refit instructions are applied
 
 ## See Also
 
@@ -584,6 +658,7 @@ If a microtool grows beyond single purpose, it must be promoted:
 - [Fulmen Template CDRL Standard](fulmen-template-cdrl-standard.md)
 - [App Identity Module](../standards/library/modules/app-identity.md)
 - [Exit Code Taxonomy](../standards/exit-codes.md)
+- [Pathfinder Extension](../standards/library/extensions/pathfinder.md)
 - [Observability Logging](../standards/observability/logging.md)
 - [Signal Handling](../standards/library/modules/signals.md)
 
