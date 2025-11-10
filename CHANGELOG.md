@@ -9,8 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.9] - 2025-11-10
+
 ### Added
 
+- **L'Orage Central DevSecOps Schemas (Wave 4 Complete)**: Final wave of experimental SemVer schemas for DevSecOps platform
+  - **Recipe Schema** (`schemas/devsecops/lorage-central/recipe/v1.0.0/recipe.schema.json`): Pipeline recipe definitions with strategy patterns
+    - Comprehensive strategy metadata (template patterns, security frameworks, delivery models)
+    - Trigger configuration (manual, scheduled, event-driven, approval-based)
+    - Parameter templating with type system (string, number, boolean, choice, secret)
+    - Reference architecture with canonical examples
+    - Default configuration (`config/devsecops/lorage-central/recipe/v1.0.0/defaults.yaml`)
+  - **Runbooks Schema** (`schemas/devsecops/lorage-central/runbooks/v1.0.0/runbooks.schema.json`): Operational procedure automation
+    - Multi-step procedure definitions with sequencing and conditional logic
+    - Rich step metadata (type, executor, timeout, retry, success criteria)
+    - Emergency runbook support with elevated privilege handling
+    - Rollback and validation capabilities per step
+    - Default configuration (`config/devsecops/lorage-central/runbooks/v1.0.0/defaults.yaml`)
+  - **Taxonomy Extensions**: Updated `config/taxonomy/devsecops/` with recipe strategies and runbook types
+  - **ADR-0011**: Architectural decision record for experimental L'Orage Central schemas with SemVer adoption
+    - Rationale for experimental SemVer pattern (v1.0.0 with semver-experimental tag)
+    - Multi-wave delivery plan (Activity, Credentials, Policy, Tenant, Recipe, Runbooks)
+    - Integration model with Crucible via helper library shims
+    - Graduation criteria for moving from experimental to stable
 - **Microtool Repository Category**: New taxonomy category for ultra-narrow, single-purpose CLI deployment/automation tools
   - **Category Definition** (`config/taxonomy/repository-categories.yaml`): Strict architectural constraints for microtools
     - MUST have single primary purpose (e.g., fixture deployment, config synchronization)
@@ -29,6 +50,72 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Maintainer approval process for all new repository names
   - Emergency exception clause for critical production issues
   - Naming decision matrix and examples for all repository categories
+- **Crucible Documentation Access Patterns**: Comprehensive cross-language guidance for accessing Crucible documentation programmatically
+  - **Crucible Shim Enhancement** (`docs/standards/library/modules/crucible-shim.md`): New "Accessing General Documentation" section
+    - Common documentation paths reference table (standards/, architecture/, guides/, sop/)
+    - Four real-world use cases with complete code examples (commit hooks, doc generators, CI validators, template refit tools)
+    - Cross-language API consistency table (Go, Python, TypeScript)
+    - Complete working examples: Go and Python commit hook validators accessing agentic-attribution standard
+    - Sustainability guidance and anti-patterns to avoid (no local filesystem reads, no HTTP requests, no git cloning)
+  - **Forge Standards Integration**: All forge standards updated with documentation access examples
+    - Microtool use cases: commit validation, doc generation, CI compliance, template automation
+    - Workhorse use cases: runtime compliance validation, API documentation generation, operational playbooks
+    - Codex use cases: searchable content ingestion, API reference generation, schema registry displays
+- **Module Compliance Matrix**: New comprehensive tracking matrix for helper library module adoption (`docs/architecture/module-compliance-matrix.md`)
+  - Compliance status across gofulmen, pyfulmen, tsfulmen for all modules
+  - Implementation phase tracking (Not Started, In Development, Testing, Stable, Deprecated)
+  - Module-by-module requirements and standards references
+  - Helper library maintainer coordination guide
+
+### Changed
+
+- **Forge Standards Enhancement Based on Real Implementation Feedback** (forge-microtool-gimlet validation)
+  - **Microtool Standard** (`docs/architecture/fulmen-forge-microtool-standard.md`):
+    - **API Corrections**: All examples verified against gofulmen v0.1.10
+      - Fixed App Identity: `appidentity.Get(ctx)` with fields (not methods): `identity.BinaryName`
+      - Fixed Logging: `logging.NewCLI(serviceName)` with `zap.Field` helpers
+      - Fixed Signals: `signals.OnShutdown()`, `signals.EnableDoubleTap()`, `signals.Listen()`
+      - Fixed Exit Codes: `foundry.ExitSuccess`, `foundry.ExitFailure`
+    - **Configuration Pattern Overhaul**: Microtools NEVER use Enterprise Three-Layer Config
+      - Removed: Three-Layer Config (RECOMMENDED)
+      - Added: Simple Config Pattern (REQUIRED) - two-layer: defaults → user overrides
+      - Explicit graduation criteria: needing enterprise config → promote to CLI category
+    - **Crucible Shim Refinement**: Changed from RECOMMENDED to CONDITIONAL
+      - REQUIRED for: schema validators, taxonomy tools, commit hooks, doc generators, CI validators
+      - Skip for: tools without Crucible asset dependencies (most microtools like gimlet)
+    - **Reference Implementation**: Added section pointing to forge-microtool-gimlet with key file references
+  - **CDRL Template Standard** (`docs/architecture/fulmen-template-cdrl-standard.md`):
+    - **Working Implementation Pattern**: New comprehensive section
+      - Build requirements: templates MUST compile/build/test/run as-is
+      - IDE experience: syntax highlighting, type checking, auto-complete MUST work
+      - CI/CD requirements: templates run linting, testing, building in CI
+      - Comparison table: Fulmen Forge vs Literal Templates (Cookiecutter/Yeoman)
+    - **Anti-Pattern Documentation**: NO `.template` file suffixes
+      - Templates ship working files (`go.mod`, `app.yaml`), NOT `.template` variants
+      - Users edit in place during CDRL refit
+      - Validation catches hardcoded references, no manual find-replace
+  - **Workhorse Standard** (`docs/architecture/fulmen-forge-workhorse-standard.md`):
+    - Updated Crucible Shim with documentation access APIs and use case examples
+  - **Codex Standard** (`docs/architecture/fulmen-forge-codex-standard.md`):
+    - Updated Crucible Shim with documentation ingestion use case examples
+- **Enterprise Three-Layer Config Module Renaming**: Renamed for clarity and explicit positioning
+  - **File renamed**: `three-layer-config.md` → `enterprise-three-layer-config.md`
+  - **Module Spec Updates** (`docs/standards/library/modules/enterprise-three-layer-config.md`):
+    - Added "when to use" guidance: workhorse services, complex CLI tools, apps requiring SSOT compliance
+    - Added "when NOT to use" guidance: microtools (use Simple Config Pattern), simple apps, prototypes
+    - Clarified "three layers" = SSOT Defaults → User Config → Runtime Overrides
+    - Added precedence explanation: Layer 3 (runtime) > Layer 2 (user) > Layer 1 (SSOT)
+  - **Cross-References Updated**: 13 files updated across all forge standards, helper library docs, and module manifests
+- **Ecosystem Guide Enhancement** (`docs/architecture/fulmen-ecosystem-guide.md`): Expanded coverage of helper libraries, forge templates, and module integration patterns
+  - Added module compliance matrix cross-reference
+  - Enhanced helper library coordination guidance
+
+### Documentation
+
+- **ADR-0011**: Comprehensive decision record for experimental L'Orage Central DevSecOps schemas
+  - Documents rationale for SemVer adoption in experimental schemas
+  - Outlines multi-wave delivery plan and integration model
+  - Establishes graduation criteria for stable schema promotion
 
 ## [0.2.8] - 2025-11-07
 

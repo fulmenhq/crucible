@@ -82,34 +82,128 @@ Microtool forges that import the helper library MUST integrate these modules to 
    - **Compliance**: MUST implement `.fulmen/app.yaml` with:
      - `binary_name`: Tool name for template (users rename during CDRL refit)
      - `vendor`: Default `fulmenhq` (users customize)
-     - `env_prefix`: Environment variable prefix (e.g., `ANVIL_`)
+     - `env_prefix`: Environment variable prefix (e.g., `GIMLET_`)
      - `config_name`: Config directory name (usually same as binary_name)
-   - **Helper API**: `app_identity.load()` → AppIdentity object
+   - **Helper API**: `appidentity.Get(ctx)` → `(*appidentity.Identity, error)`
+   - **Identity fields** (not methods): `identity.BinaryName`, `identity.Vendor`, `identity.EnvPrefix`, `identity.ConfigName`, `identity.Description`
+   - **Example**:
+
+     ```go
+     import "github.com/fulmenhq/gofulmen/appidentity"
+
+     identity, err := appidentity.Get(ctx)
+     if err != nil {
+         return fmt.Errorf("failed to load app identity: %w", err)
+     }
+
+     // Fields, not methods
+     fmt.Println(identity.BinaryName)   // ✅ Correct
+     fmt.Println(identity.BinaryName()) // ❌ Compile error
+     ```
+
    - **CDRL Workflow**: Users update `.fulmen/app.yaml` FIRST, then run `make validate-app-identity`
 
-2. **Crucible Shim Module** (RECOMMENDED)
-   - **Purpose**: Access Crucible SSOT assets (schemas, configs) without direct sync
+2. **Crucible Shim Module** (CONDITIONAL)
+   - **Purpose**: Access Crucible SSOT assets (schemas, standards, documentation, configs, taxonomies) without requiring crucible checkout
    - **Spec**: [Crucible Shim](../standards/library/modules/crucible-shim.md)
-   - **Compliance**: Use helper's `crucible.GetSchema()`, `crucible.GetConfig()`
-   - **When to skip**: If tool has no schema/config dependencies
-
-3. **Three-Layer Config Module** (RECOMMENDED)
-   - **Purpose**: Layered configuration (Crucible defaults → User config → Runtime overrides)
-   - **Spec**: [Three-Layer Config](../standards/library/modules/three-layer-config.md)
+   - **REQUIRED if**: Microtool validates schemas, reads taxonomies, accesses standards/docs, or needs any SSOT assets
+   - **Examples**:
+     - Schema validators
+     - Taxonomy tools
+     - Config generators
+     - **Commit validation hooks** (accessing agentic-attribution standard)
+     - **Documentation generators** (accessing coding standards)
+     - **CI compliance checkers** (accessing architecture standards)
+     - **Template refit automation** (accessing CDRL workflow)
+   - **Skip if**: Tool has no dependencies on Crucible assets (most microtools like gimlet)
+   - **Rationale**: Provides offline access without network fragility, local checkout requirements, or vendoring violations
    - **Compliance**:
-     - Layer 1: Crucible defaults via helper (if applicable)
-     - Layer 2: User config at `~/.config/{vendor}/{app}/config.yaml`
-     - Layer 3: Runtime env var/flag overrides
+     - **Schemas**: `crucible.GetSchema()`, `crucible.GetLoggingEventSchema()`
+     - **Configs**: `crucible.GetConfig()`
+     - **Documentation**: `crucible.GetDoc("standards/agentic-attribution.md")`
+     - **Standards**: `crucible.GetGoStandards()`, `crucible.GetTypeScriptStandards()`
+     - **Discovery**: `crucible.ListAssets("docs", "standards/")`
+     - **Version tracking**: `crucible.GetVersion()`
+
+   **Example - Accessing Standards Documentation:**
+
+   ```go
+   import "github.com/fulmenhq/gofulmen/crucible"
+
+   // Get agentic attribution standard for commit validation
+   attrStandard, err := crucible.GetDoc("standards/agentic-attribution.md")
+   if err != nil {
+       logger.Error("failed to load attribution standard", zap.Error(err))
+       return foundry.ExitFailure
+   }
+
+   // Validate commit message format against standard
+   if err := validateCommitAttribution(commitMsg, attrStandard); err != nil {
+       logger.Error("commit message validation failed", zap.Error(err))
+       return foundry.ExitFailure
+   }
+   ```
+
+   **Sustainability Note**: Always access Crucible assets through the helper library shim rather than filesystem reads. This ensures:
+   - No requirement for local crucible checkout
+   - Version-tracked through helper library dependency
+   - Offline access to embedded assets
+   - Consistent asset access across all ecosystem tools
+
+   **Cross-language pattern**:
+   - **Go**: `crucible.GetDoc("path/to/doc.md")`
+   - **Python**: `crucible.get_doc("path/to/doc.md")`
+   - **TypeScript**: `crucible.getDoc("path/to/doc.md")`
+
+   See [Crucible Shim - Accessing General Documentation](../standards/library/modules/crucible-shim.md#accessing-general-documentation) for comprehensive examples including commit hooks, doc generators, and CI validators.
+
+3. **Simple Config Pattern** (REQUIRED)
+   - **Purpose**: Two-layer configuration for single-purpose microtools
+   - **Pattern**: Defaults → User Overrides (env vars, flags, optional config file)
+   - **Microtools DO NOT use Enterprise Three-Layer Config** (see [Enterprise Three-Layer Config](../standards/library/modules/enterprise-three-layer-config.md))
+   - **Rationale**:
+     - Microtools don't need Crucible SSOT defaults (Layer 1 of three-layer config)
+     - Single-purpose tools need simple, self-contained configuration
+     - Enterprise Three-Layer Config is for complex applications requiring ecosystem-wide standardization
    - **Standard Env Vars** (RECOMMENDED):
      - `{PREFIX}LOG_LEVEL` - Log level (trace|debug|info|warn|error, default: info)
      - `{PREFIX}CONFIG_PATH` - Config file path override
    - **Precedence**: CLI flags → Env vars → Config file → Defaults
-   - **When to skip**: Very simple tools with minimal configuration
+   - **Example**:
 
-4. **Config Path API Module** (RECOMMENDED if using config files)
-   - **Purpose**: Discover Fulmen config directories
+     ```go
+     // Simple config loading for microtools
+     func LoadConfig(ctx context.Context, identity *appidentity.Identity, logger *logging.Logger) (*Config, error) {
+         // 1. Set defaults
+         cfg := &Config{
+             InputPath:  ".",
+             MaxDepth:   10,
+         }
+
+         // 2. Try to load optional user config file if exists
+         configPath := filepath.Join(os.UserHomeDir(), ".config", identity.Vendor, identity.ConfigName+".yaml")
+         if _, err := os.Stat(configPath); err == nil {
+             data, _ := os.ReadFile(configPath)
+             yaml.Unmarshal(data, cfg)
+             logger.Info("loaded config from file", zap.String("path", configPath))
+         }
+
+         // 3. Env var overrides
+         if envInput := os.Getenv(identity.EnvPrefix + "INPUT_PATH"); envInput != "" {
+             cfg.InputPath = envInput
+         }
+
+         return cfg, nil
+     }
+     ```
+
+   - **Graduation criteria**: If your microtool needs Enterprise Three-Layer Config → promote to `cli` category
+
+4. **Config Path API Module** (OPTIONAL - only if using config files)
+   - **Purpose**: Discover Fulmen config directories for optional user config
    - **Spec**: [Config Path API](../standards/library/modules/config-path-api.md)
-   - **Compliance**: Use `get_app_config_dir({app_name})` from App Identity
+   - **Compliance**: Use `get_app_config_dir({app_name})` from App Identity for user config path construction
+   - **When to skip**: Tool doesn't support user config files
 
 ### Observability & Resilience Modules
 
@@ -119,21 +213,35 @@ Microtool forges that import the helper library MUST integrate these modules to 
    - **Compliance**:
      - Use SIMPLE or STRUCTURED profile from Crucible logging schemas
      - Tool name from App Identity (`binary_name`)
-     - Support `{PREFIX}LOG_LEVEL` env var
      - Output to stderr (not stdout - keep stdout clean for data)
+   - **Helper API**: `logging.NewCLI(serviceName)` → `(*logging.Logger, error)` for simple CLI tools
+   - **Logging calls**: Use `zap.Field` helpers: `zap.String()`, `zap.Int()`, `zap.Error()`
+   - **Log level constants**: `logging.TRACE`, `logging.DEBUG`, `logging.INFO`, `logging.WARN`, `logging.ERROR`
    - **Example**:
+
      ```go
-     log.Info("deploying fixture",
-         "fixture_id", fixture.ID,
-         "target", target,
-         "size_bytes", size,
+     import (
+         "github.com/fulmenhq/gofulmen/logging"
+         "go.uber.org/zap"
      )
+
+     logger, err := logging.NewCLI(identity.BinaryName)
+     if err != nil {
+         return err
+     }
+
+     logger.Info("processing file", zap.String("path", filepath), zap.Int("size", size))
+     logger.Error("operation failed", zap.Error(err))
+
+     // Set level
+     logger.SetLevel(logging.DEBUG)
      ```
 
 6. **Exit Code Module** (REQUIRED)
    - **Purpose**: Standardized exit codes for automation
    - **Spec**: [Exit Code Taxonomy](../standards/exit-codes.md)
-   - **Compliance**: Use helper's exit code constants (SUCCESS, CONFIG_ERROR, NETWORK_ERROR, etc.)
+   - **Compliance**: Use `foundry.ExitSuccess`, `foundry.ExitFailure`, `foundry.ExitConfigInvalid`, `foundry.ExitInvalidArgument`
+   - **Exit**: Call `os.Exit(exitCode)` directly or use foundry helpers
    - **Critical**: Microtools are often invoked by CI/CD - consistent exit codes enable proper error handling
 
 7. **Signal Handling Module** (REQUIRED)
@@ -143,18 +251,27 @@ Microtool forges that import the helper library MUST integrate these modules to 
      - Trap SIGTERM, SIGINT
      - Clean up resources (close files, network connections)
      - Exit with appropriate code
+   - **Helper API**: `signals.OnShutdown()` for shutdown hooks, `signals.EnableDoubleTap()` for double-tap Ctrl+C, `signals.Listen()` to start listener
    - **Example**:
 
      ```go
+     import "github.com/fulmenhq/gofulmen/signals"
+
+     // Register shutdown hooks
      signals.OnShutdown(func(ctx context.Context) error {
-         logger.Info("closing resources")
-         return shutdown(ctx)
+         logger.Info("shutting down gracefully")
+         return cleanup(ctx)
      })
 
+     // Enable double-tap Ctrl+C
      signals.EnableDoubleTap(signals.DoubleTapConfig{})
-     if err := signals.Listen(context.Background()); err != nil {
-         logger.Error("signal listener failed", zap.Error(err))
-     }
+
+     // Start listener (blocks or run in goroutine)
+     go func() {
+         if err := signals.Listen(ctx); err != nil {
+             logger.Error("signal listener failed", zap.Error(err))
+         }
+     }()
      ```
 
 8. **Error Handling Module** (REQUIRED)
@@ -187,26 +304,27 @@ Microtool forges that import the helper library MUST integrate these modules to 
 
 ### Module Summary Table
 
-| Module             | Status      | Purpose                           | Typical Use Case                | Spec Link                                                                                   |
-| ------------------ | ----------- | --------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------- |
-| App Identity       | REQUIRED    | Binary name, env prefix, metadata | All microtools                  | [app-identity.md](../standards/library/modules/app-identity.md)                             |
-| Logging            | REQUIRED    | Structured logging                | All microtools                  | [logging.md](../standards/observability/logging.md)                                         |
-| Exit Code          | REQUIRED    | Standardized exit codes           | All microtools (CI/CD)          | [exit-codes/README.md](../standards/fulmen/exit-codes/README.md)                            |
-| Signal Handling    | REQUIRED    | Graceful shutdown                 | All microtools                  | [signal-handling.md](../standards/library/modules/signal-handling.md)                       |
-| Error Handling     | REQUIRED    | Structured error propagation      | All microtools                  | [error-handling-propagation.md](../standards/library/modules/error-handling-propagation.md) |
-| Pathfinder         | REQUIRED    | Safe discovery & checksum data    | Any filesystem interaction      | [pathfinder.md](../standards/library/extensions/pathfinder.md)                              |
-| Crucible Shim      | RECOMMENDED | SSOT asset access                 | Tools using schemas/configs     | [crucible-shim.md](../standards/library/modules/crucible-shim.md)                           |
-| Three-Layer Config | RECOMMENDED | Layered configuration             | Tools with user config          | [three-layer-config.md](../standards/library/modules/three-layer-config.md)                 |
-| Config Path API    | RECOMMENDED | Config directory discovery        | Tools with config files         | [config-path-api.md](../standards/library/modules/config-path-api.md)                       |
-| Schema Validation  | OPTIONAL    | Data validation                   | Tools reading/writing YAML/JSON | [schema-validation.md](../standards/library/modules/schema-validation.md)                   |
-| Telemetry/Metrics  | OPTIONAL    | Metrics export                    | Long-running operations (rare)  | [telemetry-metrics.md](../standards/library/modules/telemetry-metrics.md)                   |
+| Module            | Status      | Purpose                            | Typical Use Case                  | Spec Link                                                                                   |
+| ----------------- | ----------- | ---------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------- |
+| App Identity      | REQUIRED    | Binary name, env prefix, metadata  | All microtools                    | [app-identity.md](../standards/library/modules/app-identity.md)                             |
+| Simple Config     | REQUIRED    | Two-layer config (defaults + user) | All microtools                    | See section above                                                                           |
+| Logging           | REQUIRED    | Structured logging                 | All microtools                    | [logging.md](../standards/observability/logging.md)                                         |
+| Exit Code         | REQUIRED    | Standardized exit codes            | All microtools (CI/CD)            | [exit-codes/README.md](../standards/fulmen/exit-codes/README.md)                            |
+| Signal Handling   | REQUIRED    | Graceful shutdown                  | All microtools                    | [signal-handling.md](../standards/library/modules/signal-handling.md)                       |
+| Error Handling    | REQUIRED    | Structured error propagation       | All microtools                    | [error-handling-propagation.md](../standards/library/modules/error-handling-propagation.md) |
+| Pathfinder        | REQUIRED    | Safe discovery & checksum data     | Any filesystem interaction        | [pathfinder.md](../standards/library/extensions/pathfinder.md)                              |
+| Crucible Shim     | CONDITIONAL | SSOT asset access                  | Schema validators, taxonomy tools | [crucible-shim.md](../standards/library/modules/crucible-shim.md)                           |
+| Config Path API   | OPTIONAL    | Config directory discovery         | Tools with optional config files  | [config-path-api.md](../standards/library/modules/config-path-api.md)                       |
+| Schema Validation | OPTIONAL    | Data validation                    | Tools reading/writing YAML/JSON   | [schema-validation.md](../standards/library/modules/schema-validation.md)                   |
+| Telemetry/Metrics | OPTIONAL    | Metrics export                     | Long-running operations (rare)    | [telemetry-metrics.md](../standards/library/modules/telemetry-metrics.md)                   |
 
 **Key Differences from Workhorse**:
 
 - ❌ No server management module (microtools don't have HTTP endpoints)
 - ❌ No Docscribe module (microtools don't serve documentation)
-- ✅ Crucible Shim is RECOMMENDED (not REQUIRED - only if using schemas/configs)
-- ✅ Three-Layer Config is RECOMMENDED (not REQUIRED - simple tools may skip)
+- ❌ NO Enterprise Three-Layer Config (microtools use Simple Config Pattern)
+- ✅ Crucible Shim is CONDITIONAL (only for schema validators, taxonomy tools)
+- ✅ Config Path API is OPTIONAL (not REQUIRED - only if using config files)
 - ✅ Telemetry/Metrics is OPTIONAL (most microtools are short-lived CLI operations)
 
 ## Prohibited Features
@@ -652,6 +770,28 @@ If a microtool grows beyond single purpose, it must be promoted:
 - [ ] Tests (unit + integration)
 - [ ] Repository builds/tests successfully before any refit instructions are applied
 
+## Reference Implementation
+
+The `forge-microtool-gimlet` (formerly grinder) repository provides a complete, working reference implementation demonstrating all required integrations:
+
+**Key files to reference:**
+
+- `cmd/gimlet/main.go` - Entry point with appidentity, logging, signals
+- `internal/cmd/root.go` - Cobra command setup
+- `internal/runtime/logging.go` - Logger initialization
+- `internal/config/loader.go` - Simple config loading pattern
+- `internal/example/processor.go` - Business logic with structured logging
+
+**Validated against:**
+
+- gofulmen v0.1.10
+- forge-workhorse-groningen patterns
+- Real build/test/run workflows
+
+**URL**: `https://github.com/fulmenhq/forge-microtool-gimlet` (when published)
+
+**Why this matters**: All API examples in this standard are verified working code from gimlet. When in doubt, reference the implementation.
+
 ## See Also
 
 - [Repository Category Taxonomy](../../config/taxonomy/repository-categories.yaml)
@@ -661,6 +801,7 @@ If a microtool grows beyond single purpose, it must be promoted:
 - [Pathfinder Extension](../standards/library/extensions/pathfinder.md)
 - [Observability Logging](../standards/observability/logging.md)
 - [Signal Handling](../standards/library/modules/signals.md)
+- [Enterprise Three-Layer Config](../standards/library/modules/enterprise-three-layer-config.md) (NOT used by microtools)
 
 ---
 

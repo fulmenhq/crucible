@@ -73,14 +73,14 @@ build-python: ## Build Python wrapper (matches GitHub Actions)
 	@cd lang/python && uv sync
 
 # Format, Lint, Typecheck targets
-fmt: ## Format code files using goneat and Biome
+fmt: | bootstrap ## Format code files using goneat and Biome
 	@$(BIN_DIR)/goneat format --verbose
 	@cd lang/typescript && bun run format >/dev/null
 
-fmt-check: ## Check if files are formatted without modifying
+fmt-check: | bootstrap ## Check if files are formatted without modifying
 	@$(BIN_DIR)/goneat format --check --verbose
 
-lint: ## Run linting (matches GitHub Actions)
+lint: | bootstrap ## Run linting (matches GitHub Actions)
 	@echo "Linting TypeScript/JavaScript files..."
 	@cd lang/typescript && bun run lint
 	@echo ""
@@ -115,7 +115,7 @@ clean: ## Clean any build artifacts
 	@rm -rf dist/ lang/*/dist/ .plans/ bin/
 	@echo "✅ Clean completed"
 
-validate-schemas: ## Validate taxonomy registries and logging schema changes
+validate-schemas: | bootstrap ## Validate taxonomy registries and logging schema changes
 	@bun run scripts/validate-schemas.ts
 	@bun run scripts/validate-taxonomy-version.ts
 
@@ -126,7 +126,7 @@ verify-codegen: ## Verify generated code is up-to-date with catalog
 version: ## Print current repository version
 	@cat $(VERSION_FILE)
 
-version-set: ## Update VERSION and propagate to package.json (usage: make version-set VERSION=2025.11.0)
+version-set: | bootstrap ## Update VERSION and propagate to package.json (usage: make version-set VERSION=2025.11.0)
 ifndef VERSION
 	$(error VERSION is required. Usage: make version-set VERSION=2025.11.0)
 endif
@@ -134,22 +134,22 @@ endif
 	@$(MAKE) version-propagate
 	@echo "✅ Version set to $(VERSION) and propagated"
 
-version-propagate: ## Propagate VERSION to package managers (package.json, etc.)
+version-propagate: | bootstrap ## Propagate VERSION to package managers (package.json, etc.)
 	@$(BIN_DIR)/goneat version propagate
 	@bun run scripts/update-version.ts
 	@echo "✅ Version propagated to package managers and taxonomy"
 
-version-bump-major: ## Bump major version (CalVer year.month)
+version-bump-major: | bootstrap ## Bump major version (CalVer year.month)
 	@$(BIN_DIR)/goneat version bump major
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (major) and propagated"
 
-version-bump-minor: ## Bump minor version (CalVer patch within month)
+version-bump-minor: | bootstrap ## Bump minor version (CalVer patch within month)
 	@$(BIN_DIR)/goneat version bump minor
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (minor) and propagated"
 
-version-bump-patch: ## Bump patch version (CalVer micro within day)
+version-bump-patch: | bootstrap ## Bump patch version (CalVer micro within day)
 	@$(BIN_DIR)/goneat version bump patch
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (patch) and propagated"
