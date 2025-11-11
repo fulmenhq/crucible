@@ -516,8 +516,41 @@ modules:
         typescript: []
     status: active
     added_version: "0.2.7"
+  - module_name: fulpack
+    tier: common
+    description: Archive operations (tar.gz, zip, gzip) with Pathfinder integration
+    rationale: Common need for archive handling; uses stdlib only (tar, zip, gzip); Pathfinder integration for glob searches
+    evidence:
+      has_schema: true
+      schema_path: schemas/library/fulpack/v1.0.0/
+      has_config: true
+      config_path: config/library/fulpack/
+    languages:
+      go:
+        status: planned
+        package: github.com/fulmenhq/gofulmen/fulpack
+        version: "0.1.10"
+        implementation: "Wraps stdlib archive/tar, archive/zip, compress/gzip"
+      python:
+        status: planned
+        package: pyfulmen.fulpack
+        version: "0.1.10"
+        implementation: "Wraps stdlib tarfile, zipfile, gzip"
+      typescript:
+        status: planned
+        package: "@fulmenhq/tsfulmen/fulpack"
+        version: "0.1.10"
+        implementation: "Wraps tar-stream and archiver for cross-platform compatibility"
+    dependencies:
+      required_modules: [pathfinder]
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.2.10"
 
 # ============================================================================
 # SPECIALIZED TIER - Opt-in via extras/optional installs
 # ============================================================================
-# (Currently empty - fulencoding and fulpack planned for v0.2.11)
+# (Currently empty - fulencoding and fulpack-formats planned for v0.2.11)

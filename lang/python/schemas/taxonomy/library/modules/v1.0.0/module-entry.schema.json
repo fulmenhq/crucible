@@ -334,6 +334,11 @@
           "description": "Version when module became available in this language",
           "pattern": "^\\d+\\.\\d+\\.\\d+$"
         },
+        "implementation": {
+          "type": "string",
+          "description": "How this module is implemented (e.g., 'Wraps stdlib X', 'Custom implementation using Y', 'Wraps third-party Z')",
+          "minLength": 10
+        },
         "extras": {
           "type": "array",
           "description": "Python extras that include this module",

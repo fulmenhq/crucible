@@ -131,7 +131,7 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
   1. Edit the source files at root (`docs/`, `schemas/`, `config/`)
   2. Run `make sync` or `bun run sync:to-lang` to propagate changes
   3. Language-specific code files (`.go`, `.ts`, `.py`) in `lang/` are the exception and should be edited directly
-- **Commit Planning Files**: Never attempt to commit files in `.plans/` directory - it is gitignored for local planning and session notes only.
+- **Commit Planning Files**: NEVER attempt to commit files in `.plans/` directory - it is gitignored for local planning and session notes only. The `.plans/` directory is explicitly excluded from version control and attempting to add files from it will fail.
 - **Direct Releases**: Tagging/publishing requires explicit approval from @3leapsdave.
 - **Store Secrets**: Never commit API keys, tokens, or credentials. See `REPOSITORY_SAFETY_PROTOCOLS.md`.
 - **Skip Quality Gates**: Never stage/commit without first running `make precommit` or `make check-all`.

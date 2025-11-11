@@ -74,6 +74,7 @@ languages:
 ```
 
 This transparency allows developers to understand:
+
 - Performance characteristics per language
 - Dependency requirements
 - Platform compatibility
@@ -96,11 +97,13 @@ This transparency allows developers to understand:
 ### When Specialized Tier IS Appropriate
 
 Specialized tier is for:
+
 - **Niche use cases** (<50% of applications need it)
 - **Heavy external dependencies** (multiple third-party libs, large runtime footprint)
 - **Advanced/exotic capabilities** (e.g., `fulpack-formats` for 7z/rar/brotli, `fulencoding-advanced` for 200+ character sets)
 
 Examples:
+
 - `fulpack` (Common): Basic tar.gz and zip using stdlib
 - `fulpack-formats` (Specialized): Exotic formats (7z, rar, brotli) requiring heavy dependencies
 

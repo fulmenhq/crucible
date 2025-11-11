@@ -19,6 +19,100 @@ consult that table before proposing new foundations or changing lifecycle state.
 
 Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulmen, csfulmen, rufulmen, etc.). Excludes SSOT repos (Crucible, Cosmography) and application/tool repos (Fulward, goneat).
 
+## Canonical Façade Principle
+
+**ARCHITECTURAL DECREE**: Helper libraries MUST provide canonical façades for all modules, regardless of whether the underlying functionality wraps standard library features, third-party libraries, or custom implementations.
+
+### Rationale
+
+The Fulmen ecosystem prioritizes **cross-language interface consistency** over implementation details. When applications use helper library modules, they should encounter the same API surface, error handling patterns, and behavioral contracts across Go, Python, and TypeScript—even when the underlying implementations differ significantly.
+
+### Core Tenets
+
+1. **Façades Are Mandatory**: Every module in the helper library registry MUST ship a façade, even if the implementation simply wraps standard library functionality with minimal adaptation.
+
+2. **Implementation Details Are Separate**: Whether a module wraps `stdlib`, uses third-party dependencies, or provides custom logic is documented in the `implementation` field of the module registry—it does NOT determine tier assignment.
+
+3. **Tier Assignment Is About Use Case**: A module's tier (Core, Common, Specialized) reflects:
+   - **Universality**: How many applications need this capability
+   - **Dependency footprint**: External dependencies beyond stdlib
+   - **Adoption patterns**: Expected usage across the ecosystem
+
+4. **stdlib Wrapping Is Common**: If stdlib provides baseline functionality that most applications need, wrapping it in a Common tier module with a consistent façade is the CORRECT pattern. Examples:
+   - `config`: Wraps `os`, `path/filepath` (Go), `os`, `pathlib` (Python), `fs`, `path` (Node.js)
+   - `fulpack`: Wraps `archive/tar`, `archive/zip` (Go), `tarfile`, `zipfile` (Python), `tar-stream`, `archiver` (TypeScript)
+   - `logging`: Wraps `log/slog` (Go), `logging` (Python), `console` with structured output (TypeScript)
+
+5. **Cross-Language Orchestration**: The power of façades emerges when:
+   - Python developers call `pyfulmen.fulpack.create_tar_gz()`
+   - Go developers call `gofulmen.fulpack.CreateTarGz()`
+   - TypeScript developers call `@fulmenhq/tsfulmen/fulpack.createTarGz()`
+
+   ...and all three receive the same error envelope structure, the same checksum verification behavior, and the same path traversal protections, regardless of whether the implementation uses stdlib, third-party libs, or custom code.
+
+### Implementation Transparency
+
+The `implementation` field in the module registry provides full transparency about how each language implements a module:
+
+```yaml
+languages:
+  go:
+    status: available
+    package: github.com/fulmenhq/gofulmen/fulpack
+    version: "0.1.0"
+    implementation: "Wraps stdlib archive/tar, archive/zip, compress/gzip"
+  python:
+    status: available
+    package: pyfulmen.fulpack
+    version: "0.1.0"
+    implementation: "Wraps stdlib tarfile, zipfile, gzip"
+  typescript:
+    status: available
+    package: "@fulmenhq/tsfulmen/fulpack"
+    version: "0.1.0"
+    implementation: "Wraps tar-stream and archiver for cross-platform compatibility"
+```
+
+This transparency allows developers to understand:
+
+- Performance characteristics per language
+- Dependency requirements
+- Platform compatibility
+- Maintenance complexity
+
+### Anti-Patterns
+
+❌ **DO NOT** skip façades because "stdlib already provides this"
+✅ **DO** wrap stdlib to ensure consistent error handling and API surface
+
+❌ **DO NOT** make every stdlib wrapper a Specialized module
+✅ **DO** use Common tier for widely-needed stdlib wrappers (tar/zip, basic encoding, signals)
+
+❌ **DO NOT** assume "no external deps = no façade needed"
+✅ **DO** provide façades to orchestrate cross-language interface consistency
+
+❌ **DO NOT** document implementation strategy as an override reason
+✅ **DO** use the `implementation` field to explain how the module is built
+
+### When Specialized Tier IS Appropriate
+
+Specialized tier is for:
+
+- **Niche use cases** (<50% of applications need it)
+- **Heavy external dependencies** (multiple third-party libs, large runtime footprint)
+- **Advanced/exotic capabilities** (e.g., `fulpack-formats` for 7z/rar/brotli, `fulencoding-advanced` for 200+ character sets)
+
+Examples:
+
+- `fulpack` (Common): Basic tar.gz and zip using stdlib
+- `fulpack-formats` (Specialized): Exotic formats (7z, rar, brotli) requiring heavy dependencies
+
+### References
+
+- [Extension Framework v2 Clarifications](../../.plans/memos/helperlibs/2025-11-15-extension-framework-clarifications-v2.md)
+- [Team Responses Synthesis](../../.plans/memos/helperlibs/2025-11-15-team-responses-synthesis.md)
+- [Module Registry](../../config/taxonomy/library/platform-modules/v1.0.0/modules.yaml)
+
 ## Mandatory Capabilities
 
 1. **Goneat Bootstrap Pattern**
