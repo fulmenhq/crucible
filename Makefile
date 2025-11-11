@@ -112,7 +112,7 @@ check-all: validate-schemas verify-codegen build lint test typecheck ## Run all 
 # Clean build artifacts
 clean: ## Clean any build artifacts
 	@echo "Cleaning artifacts..."
-	@rm -rf dist/ lang/*/dist/ .plans/ bin/
+	@rm -rf dist/ lang/*/dist/ bin/
 	@echo "✅ Clean completed"
 
 validate-schemas: | bootstrap ## Validate taxonomy registries and logging schema changes
