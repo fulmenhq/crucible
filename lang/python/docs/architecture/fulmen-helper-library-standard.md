@@ -3,7 +3,7 @@ title: "Fulmen Helper Library Standard"
 description: "Standard structure and capabilities for gofulmen, tsfulmen, and future language helpers"
 author: "Schema Cartographer"
 date: "2025-10-02"
-last_updated: "2025-10-10"
+last_updated: "2025-11-11"
 status: "draft"
 tags: ["architecture", "helper-library", "multi-language", "local-development"]
 ---
@@ -92,6 +92,19 @@ Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulm
    - Use the default millisecond histogram buckets defined in [ADR-0007](decisions/ADR-0007-telemetry-default-histogram-buckets.md) unless overridden explicitly.
    - Refer to the [Telemetry & Metrics Standard](../standards/library/modules/telemetry-metrics.md).
 
+10. **Module Registry Compliance**
+
+- Read and use the definitive module registry SSOT at `config/taxonomy/library/modules/v1.0.0/modules.yaml`.
+- Implement modules according to their assigned tier (Core, Common, Specialized).
+- Respect language-specific tier overrides when present (e.g., Common in one language, Specialized in another).
+- For Specialized modules, implement optional installation patterns per language:
+  - Python: `pip install pyfulmen[extras]`
+  - TypeScript: Peer dependencies or optional dependencies
+  - Go: Separate import paths with tree-shaking
+- Validate module implementation matches registry metadata (tier, dependencies, version).
+- Report any registry inconsistencies to Crucible maintainers for correction.
+- Refer to the [Module Registry](config/taxonomy/library/modules/v1.0.0/modules.yaml) and [Extension Tier Standard](../standards/library/modules/extension-tiering.md) (available v0.2.11+).
+
 ## Ecosystem Tool Integration
 
 Helper libraries serve as the primary access point for Crucible assets in the broader Fulmen ecosystem. Tools and applications MUST access Crucible indirectly through helper libraries to ensure version alignment and consistent APIs.
@@ -153,9 +166,10 @@ except AssetNotFoundError as e:
 - Cosmography shims once that SSOT expands.
 - Registry API clients if SSOT repos expose HTTP endpoints in the future.
 
-Module requirement levels, coverage targets, and language overrides are tracked in
-`config/library/v1.0.0/module-manifest.yaml` (validated by
-`schemas/library/module-manifest/v1.0.0/module-manifest.schema.json`).
+Module tiers, language-specific implementations, and cross-language status are tracked in the
+definitive module registry at `config/taxonomy/library/modules/v1.0.0/modules.yaml` (validated by
+`schemas/taxonomy/library/modules/v1.0.0/module-entry.schema.json`). This registry is the canonical
+SSOT for all helper library modules and their tier assignments.
 
 ## Directory Structure
 

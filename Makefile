@@ -118,6 +118,7 @@ clean: ## Clean any build artifacts
 validate-schemas: | bootstrap ## Validate taxonomy registries and logging schema changes
 	@bun run scripts/validate-schemas.ts
 	@bun run scripts/validate-taxonomy-version.ts
+	@bun run scripts/validate-module-registry.ts
 
 verify-codegen: ## Verify generated code is up-to-date with catalog
 	@bun run scripts/codegen/verify-exit-codes.ts

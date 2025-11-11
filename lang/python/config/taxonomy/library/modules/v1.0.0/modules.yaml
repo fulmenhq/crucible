@@ -1,0 +1,474 @@
+# Fulmen Helper Library Module Registry
+# THE canonical SSOT for all helper library modules
+# Manually maintained but automatically validated
+version: "1.0.0"
+last_updated: "2025-11-11"
+modules:
+  # ============================================================================
+  # CORE TIER - Always present, zero optional dependencies
+  # ============================================================================
+  - module_name: config
+    tier: core
+    description: Three-Layer Configuration management for Fulmen applications
+    rationale: Required for all Fulmen apps; zero optional dependencies; foundational capability
+    evidence:
+      has_schema: false
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/config
+        version: "0.1.0"
+      python:
+        status: available
+        package: pyfulmen.config
+        version: "0.1.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/config"
+        version: "0.1.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.1.0"
+  - module_name: logging
+    tier: core
+    description: Structured logging with progressive profiles for Fulmen applications
+    rationale: Core observability requirement; zero optional dependencies; all apps need logging
+    evidence:
+      has_schema: true
+      schema_path: schemas/observability/logging/v1.0.0/
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/logging
+        version: "0.1.0"
+      python:
+        status: available
+        package: pyfulmen.logging
+        version: "0.1.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/logging"
+        version: "0.1.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.1.0"
+  - module_name: schema
+    tier: core
+    description: Schema validation primitives for JSON Schema validation
+    rationale: Foundational validation capability; zero optional dependencies
+    evidence:
+      has_schema: true
+      schema_path: schemas/schema-validation/v1.0.0/
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/schema
+        version: "0.1.0"
+      python:
+        status: available
+        package: pyfulmen.schema
+        version: "0.1.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/schema"
+        version: "0.1.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.1.0"
+  - module_name: crucible-shim
+    tier: core
+    description: Crucible SSOT access layer for docs, schemas, and config defaults
+    rationale: All Fulmen apps access Crucible through this layer; zero optional dependencies
+    evidence:
+      has_schema: false
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/crucible
+        version: "0.1.0"
+      python:
+        status: available
+        package: pyfulmen.crucible
+        version: "0.1.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/crucible"
+        version: "0.1.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.1.0"
+  - module_name: errors
+    tier: core
+    description: Error handling and standardized exit codes
+    rationale: All apps need error handling; uses stdlib only; foundational capability
+    evidence:
+      has_schema: false
+      has_config: true
+      config_path: config/library/foundry/exit-codes.yaml
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/errors
+        version: "0.1.0"
+      python:
+        status: available
+        package: pyfulmen.errors
+        version: "0.1.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/errors"
+        version: "0.1.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.1.0"
+  - module_name: appidentity
+    tier: core
+    description: Application identity and metadata management
+    rationale: All Fulmen apps need identity configuration; zero optional dependencies
+    evidence:
+      has_schema: false
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/appidentity
+        version: "0.1.0"
+      python:
+        status: available
+        package: pyfulmen.appidentity
+        version: "0.1.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/appidentity"
+        version: "0.1.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.1.0"
+  - module_name: platform
+    tier: core
+    description: Platform introspection for OS, architecture, and capability detection
+    rationale: All apps need runtime platform detection; uses stdlib only
+    evidence:
+      has_schema: false
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/platform
+        version: "0.2.6"
+      python:
+        status: available
+        package: pyfulmen.platform
+        version: "0.2.6"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/platform"
+        version: "0.2.6"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.2.6"
+  # ============================================================================
+  # COMMON TIER - Default install, lightweight
+  # ============================================================================
+  - module_name: pathfinder
+    tier: common
+    description: Safe file and directory discovery with constraint enforcement
+    rationale: Frequently used for file operations; lightweight stdlib dependencies
+    evidence:
+      has_schema: true
+      schema_path: schemas/pathfinder/v1.0.0/
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/pathfinder
+        version: "0.1.0"
+      python:
+        status: available
+        package: pyfulmen.pathfinder
+        version: "0.1.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/pathfinder"
+        version: "0.1.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.1.0"
+  - module_name: ascii
+    tier: common
+    description: Unicode-aware string analysis and box drawing utilities
+    rationale: Frequently used for text processing; lightweight stdlib dependencies
+    evidence:
+      has_schema: true
+      schema_path: schemas/ascii/v1.0.0/
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/ascii
+        version: "0.1.0"
+      python:
+        status: available
+        package: pyfulmen.ascii
+        version: "0.1.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/ascii"
+        version: "0.1.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.1.0"
+  - module_name: foundry
+    tier: common
+    description: Catalogs for countries, HTTP status codes, MIME types, signals, and text similarity
+    rationale: Widely useful reference data; zero external dependencies
+    evidence:
+      has_schema: true
+      schema_path: schemas/library/foundry/v2.0.0/
+      has_config: true
+      config_path: config/library/foundry/
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/foundry
+        version: "0.2.0"
+      python:
+        status: available
+        package: pyfulmen.foundry
+        version: "0.2.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/foundry"
+        version: "0.2.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.2.0"
+  - module_name: fulhash
+    tier: common
+    description: Enterprise-grade hashing utilities with versioned algorithms
+    rationale: Common need for content hashing; uses stdlib crypto only
+    evidence:
+      has_schema: false
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/fulhash
+        version: "0.2.2"
+      python:
+        status: available
+        package: pyfulmen.fulhash
+        version: "0.2.2"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/fulhash"
+        version: "0.2.2"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.2.2"
+  - module_name: signals
+    tier: common
+    description: Cross-platform signal handling for graceful shutdown and Ctrl+C
+    rationale: Common need for server applications; uses stdlib signal APIs only
+    evidence:
+      has_schema: false
+      has_config: true
+      config_path: config/library/foundry/signals.yaml
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/signals
+        version: "0.2.5"
+      python:
+        status: available
+        package: pyfulmen.signals
+        version: "0.2.5"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/signals"
+        version: "0.2.5"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.2.5"
+  - module_name: telemetry
+    tier: common
+    description: Telemetry coordination and module-level telemetry configuration
+    rationale: Common observability need; lightweight coordination layer
+    evidence:
+      has_schema: false
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/telemetry
+        version: "0.2.0"
+      python:
+        status: available
+        package: pyfulmen.telemetry
+        version: "0.2.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/telemetry"
+        version: "0.2.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.2.0"
+  - module_name: docscribe
+    tier: common
+    description: Documentation metadata extraction and frontmatter parsing
+    rationale: Useful for doc-driven tooling; lightweight YAML parsing only
+    evidence:
+      has_schema: false
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/docscribe
+        version: "0.2.0"
+      python:
+        status: available
+        package: pyfulmen.docscribe
+        version: "0.2.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/docscribe"
+        version: "0.2.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.2.0"
+  - module_name: ssot-sync
+    tier: common
+    description: SSOT synchronization utilities for pulling Crucible assets
+    rationale: Common need for SSOT consumers; lightweight utilities
+    evidence:
+      has_schema: false
+      has_config: false
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/ssotsync
+        version: "0.2.0"
+      python:
+        status: available
+        package: pyfulmen.ssot_sync
+        version: "0.2.0"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/ssot-sync"
+        version: "0.2.0"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.2.0"
+  - module_name: metrics
+    tier: common
+    description: Metrics taxonomy and standardized metrics collection
+    rationale: Common observability need; lightweight taxonomy and helpers
+    evidence:
+      has_schema: false
+      has_config: true
+      config_path: config/taxonomy/metrics.yaml
+    languages:
+      go:
+        status: available
+        package: github.com/fulmenhq/gofulmen/metrics
+        version: "0.2.7"
+      python:
+        status: available
+        package: pyfulmen.metrics
+        version: "0.2.7"
+      typescript:
+        status: available
+        package: "@fulmenhq/tsfulmen/metrics"
+        version: "0.2.7"
+    dependencies:
+      required_modules: []
+      external_deps:
+        go: []
+        python: []
+        typescript: []
+    status: active
+    added_version: "0.2.7"
+
+# ============================================================================
+# SPECIALIZED TIER - Opt-in via extras/optional installs
+# ============================================================================
+# (Currently empty - fulencoding and fulpack planned for v0.2.11)

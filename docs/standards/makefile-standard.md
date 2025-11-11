@@ -118,6 +118,7 @@ build-all: ## Build multi-platform binaries and generate checksums
 The `make clean` target removes **build artifacts** only. It must **never** delete working directories containing user-created content.
 
 **What to Delete** (safe, reproducible artifacts):
+
 - Compiled binaries: `dist/`, `build/`, language-specific output directories
 - Generated code: Auto-generated files with headers indicating generation
 - Downloaded dependencies: `node_modules/` (restorable via `npm install`), language package caches
@@ -125,6 +126,7 @@ The `make clean` target removes **build artifacts** only. It must **never** dele
 - External tool caches: `bin/` directory from `make bootstrap` (restorable via re-bootstrap)
 
 **What NOT to Delete** (user workspace, non-reproducible):
+
 - `.plans/` - Local planning workspace with session notes, incident logs, user-created content
 - `.env` - User's local environment configuration
 - `.vscode/`, `.idea/` - User's IDE settings
@@ -132,6 +134,7 @@ The `make clean` target removes **build artifacts** only. It must **never** dele
 - Any gitignored directory containing user-authored content
 
 **Example Clean Target:**
+
 ```makefile
 clean: ## Clean build artifacts only
 	@echo "Cleaning artifacts..."

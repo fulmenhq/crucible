@@ -255,10 +255,10 @@ DESCRIPTION:
     Generates language-native bindings from fresh snapshots and syncs
     schemas/, config/, docs/ to:
     - lang/typescript/schemas/
-    - lang/typescript/config/
+    - lang/typescript/config/  (includes both platform-modules and foundry-catalogs registries)
     - lang/typescript/docs/
     - lang/python/schemas/
-    - lang/python/config/
+    - lang/python/config/  (includes both platform-modules and foundry-catalogs registries)
     - lang/python/docs/
 
   Code generation produces language-native bindings:
