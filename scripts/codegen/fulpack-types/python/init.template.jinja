@@ -1,0 +1,57 @@
+"""Fulpack - Archive operations module for Crucible.
+
+This file is AUTO-GENERATED from the Fulpack module specification.
+DO NOT EDIT MANUALLY - changes will be overwritten.
+
+Schema Version: {{ version }}
+Last Reviewed: {{ last_reviewed }}
+
+Common-tier archive operations with security-by-default protections
+and mandatory Pathfinder integration.
+
+Supported formats:
+- tar.gz (POSIX tar with gzip compression)
+- zip (ZIP with deflate compression)
+- gzip (Single file compression)
+
+See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/modules/fulpack.md
+"""
+
+# Enums
+from .enums import (
+{% for taxonomy in taxonomies %}
+    {{ taxonomy.className }},
+{% endfor %}
+)
+
+# Data structures
+from .types import (
+{% for schema in data_structures %}
+    {{ schema.className }},
+{% endfor %}
+)
+
+# Options (TypedDicts)
+from .options import (
+{% for schema in options %}
+    {{ schema.className }},
+{% endfor %}
+)
+
+__all__ = [
+    # Enums
+{% for taxonomy in taxonomies %}
+    "{{ taxonomy.className }}",
+{% endfor %}
+    # Data structures
+{% for schema in data_structures %}
+    "{{ schema.className }}",
+{% endfor %}
+    # Options
+{% for schema in options %}
+    "{{ schema.className }}",
+{% endfor %}
+]
+
+# Module version for compatibility checks
+__version__ = "{{ version }}"

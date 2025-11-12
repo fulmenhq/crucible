@@ -1,0 +1,53 @@
+{
+  "module": "fulpack",
+  "schema_base_path": "schemas/library/fulpack/v1.0.0",
+  "taxonomy_base_path": "schemas/taxonomy/library/fulpack",
+  "owner": "@schema-cartographer",
+  "last_reviewed": "2025-11-12",
+  "version": "v1.0.0",
+  "languages": {
+    "python": {
+      "output_dir": "lang/python/src/crucible/fulpack",
+      "templates": {
+        "types": "types.template.jinja",
+        "enums": "enums.template.jinja",
+        "options": "options.template.jinja",
+        "init": "init.template.jinja"
+      },
+      "postprocess": "postprocess.sh"
+    },
+    "go": {
+      "output_dir": "fulpack",
+      "templates": {
+        "types": "types.template.ejs"
+      },
+      "postprocess": "postprocess.sh"
+    },
+    "typescript": {
+      "output_dir": "lang/typescript/src/fulpack",
+      "templates": {
+        "types": "types.template.ejs"
+      },
+      "postprocess": "postprocess.sh"
+    }
+  },
+  "schemas": {
+    "data_structures": [
+      "archive-info.schema.json",
+      "archive-entry.schema.json",
+      "archive-manifest.schema.json",
+      "validation-result.schema.json",
+      "extract-result.schema.json"
+    ],
+    "options": [
+      "create-options.schema.json",
+      "extract-options.schema.json",
+      "scan-options.schema.json"
+    ]
+  },
+  "taxonomies": {
+    "archive-formats": "archive-formats/v1.0.0/formats.yaml",
+    "entry-types": "entry-types/v1.0.0/types.yaml",
+    "operations": "operations/v1.0.0/operations.yaml"
+  }
+}

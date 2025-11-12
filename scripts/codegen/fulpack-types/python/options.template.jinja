@@ -1,0 +1,28 @@
+"""Fulpack Options - Generated from Crucible schemas.
+
+This file is AUTO-GENERATED from the Fulpack module specification.
+DO NOT EDIT MANUALLY - changes will be overwritten.
+
+Schema Version: {{ version }}
+Last Reviewed: {{ last_reviewed }}
+Source: schemas/library/fulpack/v1.0.0/
+
+See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/modules/fulpack.md
+"""
+
+from typing import Literal, TypedDict
+
+{% for schema in options %}
+
+class {{ schema.className }}(TypedDict, total=False):
+    """{{ schema.description }}
+
+    Generated from: schemas/library/fulpack/v1.0.0/{{ schema.filename }}
+
+    All fields are optional. Use as **kwargs when calling functions.
+    """
+{% for prop in schema.properties %}
+    {{ prop.name }}: {{ prop.python_type }}{% if prop.description %}  # {{ prop.description }}{% endif %}
+
+{% endfor %}
+{% endfor %}

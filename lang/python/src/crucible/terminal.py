@@ -18,10 +18,7 @@ def load_terminal_catalog() -> dict[str, Any]:
             data = yaml.safe_load(f)
             if isinstance(data, dict) and "terminals" in data:
                 for key, terminal_data in data["terminals"].items():
-                    if "name" in terminal_data:
-                        name = terminal_data["name"]
-                    else:
-                        name = key
+                    name = terminal_data.get("name", key)
                     catalog[name] = terminal_data
                     catalog[name]["name"] = name
 

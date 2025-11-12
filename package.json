@@ -19,7 +19,7 @@
     "typescript": "^5.9.3"
   },
   "engines": {
-    "bun": ">=1.2.0"
+    "bun": "\u003e=1.2.0"
   },
   "homepage": "https://github.com/fulmenhq/crucible#readme",
   "keywords": [
@@ -60,5 +60,5 @@
     "version:set": "make version:set"
   },
   "type": "module",
-  "version": "0.2.10"
+  "version": "0.2.11"
 }

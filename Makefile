@@ -9,7 +9,7 @@ VERSION_FILE := VERSION
 .PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python build-python lint-python
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare prepush precommit check-all
-.PHONY: validate-schemas verify-codegen
+.PHONY: validate-schemas verify-codegen codegen-exit-codes codegen-fulpack codegen-fulpack-python codegen-all
 
 # Default target
 all: sync-schemas
@@ -122,6 +122,26 @@ validate-schemas: | bootstrap ## Validate taxonomy registries and logging schema
 
 verify-codegen: ## Verify generated code is up-to-date with catalog
 	@bun run scripts/codegen/verify-exit-codes.ts
+	@bun run scripts/codegen/verify-fulpack-types.ts
+
+# Code generation targets
+codegen-exit-codes: ## Generate exit codes for all languages
+	@echo "Generating exit codes..."
+	@bun run scripts/codegen/generate-exit-codes.ts --all --format
+	@echo "✅ Exit codes generated"
+
+codegen-fulpack: ## Generate fulpack types for all languages
+	@echo "Generating fulpack types..."
+	@bun run scripts/codegen/generate-fulpack-types.ts --all --format
+	@echo "✅ Fulpack types generated"
+
+codegen-fulpack-python: ## Generate fulpack types for Python only
+	@echo "Generating fulpack types for Python..."
+	@bun run scripts/codegen/generate-fulpack-types.ts --lang python --format
+	@echo "✅ Fulpack types generated (Python)"
+
+codegen-all: codegen-exit-codes codegen-fulpack ## Regenerate all generated code
+	@echo "✅ All code generation complete"
 
 # Version management
 version: ## Print current repository version

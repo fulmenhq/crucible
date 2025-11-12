@@ -546,12 +546,13 @@ All implementations MUST pass security tests for:
 **Rationale**: Symlink validation is security-critical but separate from discovery. `scan()` provides raw TOC; `verify()`/`extract()` enforce security.
 
 **Example**:
+
 ```yaml
 # Archive contains: docs/link.md -> ../secret.txt
 # scan() returns:
 - path: "docs/link.md"
   type: "symlink"
-  symlink_target: "../secret.txt"  # Original target, not resolved
+  symlink_target: "../secret.txt" # Original target, not resolved
   size: 0
 ```
 
@@ -567,10 +568,11 @@ All implementations MUST pass security tests for:
 **Rationale**: Archives may contain non-UTF-8 paths (legacy encodings, binary names). Implementations must handle gracefully without crashing.
 
 **Example (replacement character approach)**:
+
 ```yaml
 # Archive contains: data/file_\xFF\xFE.txt (invalid UTF-8)
 # scan() returns:
-- path: "data/file_��.txt"  # U+FFFD replacement characters
+- path: "data/file_��.txt" # U+FFFD replacement characters
   type: "file"
 ```
 
@@ -653,12 +655,13 @@ All fulpack errors MUST use this envelope structure (compatible with Foundry err
 
 ```typescript
 interface FulpackError {
-  code: string;           // Canonical error code (see below)
-  message: string;        // Human-readable message
-  path?: string;          // Entry path that caused error (if applicable)
-  archive?: string;       // Archive file path
-  operation: string;      // Operation name (create, extract, scan, verify, info)
-  details?: {             // Optional context
+  code: string; // Canonical error code (see below)
+  message: string; // Human-readable message
+  path?: string; // Entry path that caused error (if applicable)
+  archive?: string; // Archive file path
+  operation: string; // Operation name (create, extract, scan, verify, info)
+  details?: {
+    // Optional context
     entry_index?: number;
     compression_ratio?: number;
     actual_size?: number;
@@ -670,11 +673,13 @@ interface FulpackError {
 #### Canonical Error Codes
 
 **Validation Errors** (invalid input):
+
 - `INVALID_ARCHIVE_FORMAT` - Archive format not recognized
 - `INVALID_PATH` - Entry path contains invalid characters
 - `INVALID_OPTIONS` - Invalid options passed to operation
 
 **Security Errors** (protection triggered):
+
 - `PATH_TRAVERSAL` - Entry path attempts directory traversal (`../`)
 - `ABSOLUTE_PATH` - Entry path is absolute (`/etc/passwd`)
 - `SYMLINK_ESCAPE` - Symlink target outside archive/destination bounds
@@ -682,6 +687,7 @@ interface FulpackError {
 - `CHECKSUM_MISMATCH` - Entry checksum verification failed
 
 **Runtime Errors** (I/O failures):
+
 - `ARCHIVE_NOT_FOUND` - Archive file does not exist
 - `ARCHIVE_CORRUPT` - Archive structure is invalid/corrupted
 - `EXTRACTION_FAILED` - Failed to write extracted file
@@ -782,6 +788,7 @@ All implementations MUST provide:
    - Document any language-specific behavior (e.g., UTF-8 handling differences)
 
 **Example fixture documentation** (`pathological-traversal.tar.gz.txt`):
+
 ```
 Fixture: pathological-traversal.tar.gz
 Purpose: Test path traversal protection

@@ -9,6 +9,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.10] - 2025-11-15
+
+### Added
+
+- **Extension Framework Foundation**: Infrastructure for helper library module extensibility
+  - **Registry Split**: Separated module registry into platform-modules (code modules) and foundry-catalogs (reference data)
+    - Platform modules: `config/taxonomy/library/platform-modules/v1.0.0/modules.yaml` (17 modules: 7 Core, 10 Common)
+    - Foundry catalogs: `config/taxonomy/library/foundry-catalogs/v1.0.0/catalogs.yaml` (7 reference data catalogs)
+  - **Module Entry Schema**: Taxonomy-based schema for module registration (`schemas/taxonomy/library/modules/v1.0.0/module-entry.schema.json`)
+    - Three tiers: Core (always present), Common (default install), Specialized (opt-in)
+    - Implementation transparency field (stdlib vs third-party packages)
+    - Evidence pointers (schemas, config, fixtures) for validation
+    - Cross-language status tracking (planned, available, deprecated)
+  - **Validation Script**: Comprehensive module registry validator (`scripts/validate-module-registry.ts`)
+    - 7 automated checks: orphan detection, dead entries, evidence validation, cross-language status, schema compliance, tier rules, cross-references
+    - Artifact discovery from schemas/config/fixtures
+    - Zero errors, zero warnings validation target
+  - **Canonical Façade Principle**: Documented in Helper Library Standard
+    - Helper libraries provide canonical façades for ALL functionality (even stdlib wrappers)
+    - Ensures cross-language consistency, unified error envelopes, taxonomy-driven design
+    - Implementation strategy flexibility (stdlib, third-party, custom) per language
+    - Single API surface principle: applications import from helper library, never directly from stdlib/third-party
+  - **Sync Integration**: Module registry synced to language wrappers alongside schemas/docs
+- **Fulpack Archive Module Specification**: Common-tier archive operations with Pathfinder integration
+  - **Taxonomy Schemas** (3 files):
+    - `schemas/taxonomy/library/fulpack/archive-formats/v1.0.0/formats.yaml`: Defines tar.gz, zip, gzip with feature matrices
+    - `schemas/taxonomy/library/fulpack/operations/v1.0.0/operations.yaml`: 5 canonical operations (create, extract, scan, verify, info)
+    - `schemas/taxonomy/library/fulpack/entry-types/v1.0.0/types.yaml`: Entry types (file, directory, symlink)
+  - **Data Structure Schemas** (8 files in `schemas/library/fulpack/v1.0.0/`):
+    - `archive-info.schema.json`: Archive metadata (format, sizes, compression ratio)
+    - `archive-entry.schema.json`: Entry metadata (path, type, size, checksum, mode)
+    - `archive-manifest.schema.json`: Complete TOC with optional indexes
+    - `validation-result.schema.json`: Integrity verification results
+    - `create-options.schema.json`: Archive creation parameters
+    - `extract-options.schema.json`: Extraction parameters with security limits
+    - `scan-options.schema.json`: Scanning parameters (Pathfinder integration)
+    - `extract-result.schema.json`: Extraction operation results
+  - **Canonical API**: 5 verb-based operations working across all formats
+    - `create(source, output, format, options?)` - Create archives from files/directories
+    - `extract(archive, destination, options?)` - Extract with explicit destination (no CWD)
+    - `scan(archive, options?)` - List entries without extraction (Pathfinder integration)
+    - `verify(archive, options?)` - Validate integrity, checksums, detect threats
+    - `info(archive)` - Get metadata without extraction (format detection, size estimation)
+  - **Security Model**: Mandatory protections for all implementations
+    - Path traversal protection (reject `../`, absolute paths)
+    - Decompression bomb protection (size/entry limits, compression ratio monitoring)
+    - Checksum verification (SHA-256 default, fail on mismatch)
+    - Safe defaults (explicit destination, error on overwrite, no symlink following)
+  - **Pathfinder Integration**: Unified glob searches across filesystems and archives
+    - `scan()` operation returns `ArchiveEntry[]` for Pathfinder pattern matching
+    - No extraction required (fast TOC read, <1s target)
+    - Edge case handling documented: symlinks, invalid UTF-8, absolute paths, traversal attempts
+    - Deterministic cross-language behavior requirements
+  - **Error Envelope**: Canonical error codes across 3 categories
+    - Validation errors (3 codes): INVALID_ARCHIVE_FORMAT, INVALID_PATH, INVALID_OPTIONS
+    - Security errors (5 codes): PATH_TRAVERSAL, ABSOLUTE_PATH, SYMLINK_ESCAPE, DECOMPRESSION_BOMB, CHECKSUM_MISMATCH
+    - Runtime errors (5 codes): ARCHIVE_NOT_FOUND, ARCHIVE_CORRUPT, EXTRACTION_FAILED, PERMISSION_DENIED, DISK_FULL
+    - FulpackError structure with code, message, path, archive, operation, details fields
+  - **Test Fixtures** (3 archives in `config/library/fulpack/fixtures/`):
+    - `basic.tar.gz` (740B): Normal structure for basic operations
+    - `nested.zip` (3.2KB): 3-level directory nesting
+    - `pathological.tar.gz` (816B): Security test cases (path traversal, absolute paths, symlinks)
+  - **Fixture Governance**: Naming conventions, approval process, documentation requirements
+  - **Module Documentation**: Complete specification at `docs/standards/library/modules/fulpack.md` (800+ lines)
+  - **Streaming API**: Planned for v0.2.11, current schemas forward-compatible (no breaking changes needed)
+  - **Registry Entry**: Added to platform-modules.yaml (Common tier, depends on pathfinder)
+
+### Changed
+
+- **Helper Library Standard**: Enhanced with Canonical Façade Principle and Module Registry Compliance requirement
+  - Requirement #10: All helper libraries MUST comply with module registry (platform-modules + foundry-catalogs)
+  - Canonical Façade Principle section: Detailed explanation of façade pattern, when to wrap stdlib, implementation flexibility
+  - Updated module tier descriptions with extension framework context
+- **AGENTS.md**: Clarified that `.plans/` files are NEVER committed (gitignored, attempts to add will fail)
+
 ## [0.2.9] - 2025-11-10
 
 ### Added

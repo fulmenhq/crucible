@@ -1,4 +1,5 @@
 import pytest
+
 from crucible.terminal import get_terminal_config, load_terminal_catalog
 
 
