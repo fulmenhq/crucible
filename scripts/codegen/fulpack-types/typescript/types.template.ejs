@@ -1,0 +1,66 @@
+/**
+ * Fulpack Types - Generated from Crucible schemas.
+ *
+ * This file is AUTO-GENERATED from the Fulpack module specification.
+ * DO NOT EDIT MANUALLY - changes will be overwritten.
+ *
+ * Schema Version: <%- version %>
+ * Last Reviewed: <%- last_reviewed %>
+ * Source: schemas/library/fulpack/v1.0.0/
+ *
+ * See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/modules/fulpack.md
+ */
+
+// ============================================================================
+// Enums (String Literal Union Types)
+// ============================================================================
+
+<% taxonomies.forEach(taxonomy => { %>
+/**
+ * <%- taxonomy.description %>
+ * @see schemas/taxonomy/library/fulpack/<%- taxonomy.path %>
+ */
+export type <%- taxonomy.className %> =
+<% taxonomy.items.forEach((item, index) => { %>  | "<%- item.id %>"<% if (index < taxonomy.items.length - 1) { %><% } else { %>;<% } %>
+<% }); %>
+
+<% }); %>
+// ============================================================================
+// Data Structures (Interfaces)
+// ============================================================================
+
+<% data_structures.forEach(schema => { %>
+/**
+ * <%- schema.description %>
+ * @see schemas/library/fulpack/v1.0.0/<%- schema.filename %>
+ */
+export interface <%- schema.className %> {
+<% schema.required_properties.forEach(prop => { %>  readonly <%- prop.name %>: <%- prop.typescript_type %>;<% if (prop.description) { %> // <%- prop.description %><% } %>
+<% }); %><% schema.optional_properties.forEach(prop => { %>  readonly <%- prop.name %>?: <%- prop.typescript_type %>;<% if (prop.description) { %> // <%- prop.description %><% } %>
+<% }); %>}
+
+<% }); %>
+// ============================================================================
+// Options (Partial Interfaces)
+// ============================================================================
+
+<% options.forEach(schema => { %>
+/**
+ * <%- schema.description %>
+ * @see schemas/library/fulpack/v1.0.0/<%- schema.filename %>
+ *
+ * All fields are optional. Use when calling functions.
+ */
+export interface <%- schema.className %> {
+<% schema.properties.forEach(prop => { %>  <%- prop.name %>?: <%- prop.typescript_type %>;<% if (prop.description) { %> // <%- prop.description %><% } %>
+<% }); %>}
+
+<% }); %>
+// ============================================================================
+// Module Metadata
+// ============================================================================
+
+/**
+ * Module version for compatibility checks.
+ */
+export const FULPACK_VERSION = "<%- version %>";

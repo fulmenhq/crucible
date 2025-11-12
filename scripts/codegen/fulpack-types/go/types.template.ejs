@@ -1,0 +1,73 @@
+// Package fulpack provides type definitions for fulpack archive operations.
+//
+// This file is AUTO-GENERATED from the Fulpack module specification.
+// DO NOT EDIT MANUALLY - changes will be overwritten.
+//
+// Schema Version: <%- version %>
+// Last Reviewed: <%- last_reviewed %>
+// Source: schemas/library/fulpack/v1.0.0/
+//
+// See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/modules/fulpack.md
+package fulpack
+
+import (
+	"fmt"
+)
+
+// ============================================================================
+// Enums (Typed String Constants)
+// ============================================================================
+
+<% taxonomies.forEach(taxonomy => { %>
+// <%- taxonomy.className %> represents <%- taxonomy.description.toLowerCase() %>.
+// See: schemas/taxonomy/library/fulpack/<%- taxonomy.path %>
+type <%- taxonomy.className %> string
+
+const (
+<% taxonomy.items.forEach(item => { %>	<%- taxonomy.className %><%- item.constant_name_go %> <%- taxonomy.className %> = "<%- item.id %>"
+<% }); %>)
+
+// Validate<%- taxonomy.className %> checks if the value is valid.
+func Validate<%- taxonomy.className %>(value <%- taxonomy.className %>) error {
+	switch value {
+<% taxonomy.items.forEach(item => { %>	case <%- taxonomy.className %><%- item.constant_name_go %>:
+<% }); %>	default:
+		return fmt.Errorf("invalid <%- taxonomy.className.toLowerCase() %>: %s", value)
+	}
+	return nil
+}
+
+<% }); %>
+// ============================================================================
+// Data Structures
+// ============================================================================
+
+<% data_structures.forEach(schema => { %>
+// <%- schema.className %> <%- schema.description.toLowerCase() %>.
+// See: schemas/library/fulpack/v1.0.0/<%- schema.filename %>
+type <%- schema.className %> struct {
+<% schema.required_properties.forEach(prop => { %>	<%- prop.name_go %> <%- prop.go_type %> `json:"<%- prop.name %>"`<% if (prop.description) { %> // <%- prop.description %><% } %>
+<% }); %><% schema.optional_properties.forEach(prop => { %>	<%- prop.name_go %> <%- prop.go_type %> `json:"<%- prop.name %>,omitempty"`<% if (prop.description) { %> // <%- prop.description %><% } %>
+<% }); %>}
+
+<% }); %>
+// ============================================================================
+// Options
+// ============================================================================
+
+<% options.forEach(schema => { %>
+// <%- schema.className %> <%- schema.description.toLowerCase() %>.
+// See: schemas/library/fulpack/v1.0.0/<%- schema.filename %>
+//
+// All fields are optional.
+type <%- schema.className %> struct {
+<% schema.properties.forEach(prop => { %>	<%- prop.name_go %> <%- prop.go_type %> `json:"<%- prop.name %>,omitempty"`<% if (prop.description) { %> // <%- prop.description %><% } %>
+<% }); %>}
+
+<% }); %>
+// ============================================================================
+// Module Metadata
+// ============================================================================
+
+// FulpackVersion is the module version for compatibility checks.
+const FulpackVersion = "<%- version %>"

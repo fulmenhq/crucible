@@ -15,6 +15,8 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { resolve, dirname, basename } from "node:path";
 import { load as loadYaml } from "js-yaml";
 import { execSync } from "node:child_process";
+import { Environment } from "nunjucks";
+import * as ejs from "ejs";
 
 // Type definitions
 interface Metadata {
@@ -183,6 +185,121 @@ function inferPythonType(property: JSONSchemaProperty, isOptional: boolean = fal
   return pythonType;
 }
 
+// Helper: Infer TypeScript type from JSON Schema property
+function inferTypeScriptType(property: JSONSchemaProperty): string {
+  const { type, enum: enumValues, items, format } = property;
+
+  // Handle enums
+  if (enumValues && enumValues.length > 0) {
+    const literalTypes = enumValues.map((v) => JSON.stringify(v)).join(" | ");
+    return literalTypes;
+  }
+
+  // Handle arrays
+  if (type === "array" && items) {
+    const itemType = inferTypeScriptType(items);
+    return `${itemType}[]`;
+  }
+
+  // Handle format-specific types
+  if (format === "date-time") {
+    return "string"; // ISO 8601 datetime string
+  }
+
+  // Handle basic types
+  const typeMap: { [key: string]: string } = {
+    string: "string",
+    integer: "number",
+    number: "number",
+    boolean: "boolean",
+    object: "Record<string, unknown>",
+  };
+
+  // Handle union types (e.g., ["integer", "null"])
+  if (Array.isArray(type)) {
+    const hasNull = type.includes("null");
+    const nonNullTypes = type.filter((t) => t !== "null");
+
+    if (nonNullTypes.length === 0) {
+      return "null";
+    }
+
+    const baseType = nonNullTypes[0]!;
+    const tsType = typeMap[baseType] || "unknown";
+
+    return hasNull ? `${tsType} | null` : tsType;
+  }
+
+  return type ? typeMap[type] || "unknown" : "unknown";
+}
+
+// Helper: Infer Go type from JSON Schema property
+function inferGoType(property: JSONSchemaProperty, isOptional: boolean = false): string {
+  const { type, enum: enumValues, items, format } = property;
+
+  // Handle enums - use string type, will be defined as type alias
+  if (enumValues && enumValues.length > 0) {
+    return "string";
+  }
+
+  // Handle arrays
+  if (type === "array" && items) {
+    const itemType = inferGoType(items, false);
+    return `[]${itemType}`;
+  }
+
+  // Handle format-specific types
+  if (format === "date-time") {
+    return "string"; // ISO 8601 datetime string
+  }
+
+  // Handle basic types
+  const typeMap: { [key: string]: string } = {
+    string: "string",
+    integer: "int64",
+    number: "float64",
+    boolean: "bool",
+    object: "map[string]interface{}",
+  };
+
+  // Handle union types (e.g., ["integer", "null"])
+  if (Array.isArray(type)) {
+    const hasNull = type.includes("null");
+    const nonNullTypes = type.filter((t) => t !== "null");
+
+    if (nonNullTypes.length === 0) {
+      return "*interface{}";
+    }
+
+    const baseType = nonNullTypes[0]!;
+    const goType = typeMap[baseType] || "interface{}";
+
+    // Use pointer type for nullable
+    return hasNull || isOptional ? `*${goType}` : goType;
+  }
+
+  const goType = type ? typeMap[type] || "interface{}" : "interface{}";
+  return isOptional ? `*${goType}` : goType;
+}
+
+// Helper: Convert snake_case to PascalCase for Go
+function toGoPascalCase(snakeCase: string): string {
+  return snakeCase
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join("");
+}
+
+// Helper: Convert kebab-case or snake_case to Go constant format
+function toGoConstantCase(name: string): string {
+  // Handle cases like "tar.gz" -> "TarGz"
+  return name
+    .replace(/[.\-]/g, "_")
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join("");
+}
+
 // Helper: Load and parse JSON schema
 function loadSchema(schemaPath: string): JSONSchema {
   const fullPath = resolve(schemaPath);
@@ -218,10 +335,16 @@ function processSchema(
     const isRequired = required.includes(propName);
     const pythonType = inferPythonType(propDef);
     const isAlreadyNullable = pythonType.endsWith(" | None");
+    const typescriptType = inferTypeScriptType(propDef);
+    const goType = inferGoType(propDef, !isRequired);
+    const nameGo = toGoPascalCase(propName);
 
     return {
       name: propName,
+      name_go: nameGo,
       python_type: pythonType,
+      typescript_type: typescriptType,
+      go_type: goType,
       description: propDef.description || "",
       is_required: isRequired,
       is_already_nullable: isAlreadyNullable,
@@ -267,6 +390,7 @@ function processTaxonomy(taxonomyKey: string, taxonomyFullPath: string, taxonomy
   const enumItems = items.map((item) => ({
     id: item.id || item.key,
     constant_name: toConstantCase(item.id || item.key || ""),
+    constant_name_go: toGoConstantCase(item.id || item.key || ""),
     display_name: item.name,
     description: item.description || "",
   }));
@@ -380,12 +504,20 @@ async function generateLanguage(lang: string) {
     console.log(`  Rendering ${templateType} template: ${templateFilename}`);
     const rendered = await renderTemplate(lang, templateType, data);
 
-    // Determine output filename
+    // Determine output filename based on language and template type
     let outputFilename: string;
-    if (templateType === "init") {
-      outputFilename = "__init__.py";
+    if (lang === "python") {
+      if (templateType === "init") {
+        outputFilename = "__init__.py";
+      } else {
+        outputFilename = `${templateType}.py`;
+      }
+    } else if (lang === "typescript") {
+      outputFilename = `${templateType}.ts`;
+    } else if (lang === "go") {
+      outputFilename = `${templateType}.go`;
     } else {
-      outputFilename = `${templateType}.py`;
+      outputFilename = `${templateType}.txt`;
     }
 
     const outputPath = `${outputDir}/${outputFilename}`;

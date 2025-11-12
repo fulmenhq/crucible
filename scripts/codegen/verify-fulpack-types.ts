@@ -98,6 +98,7 @@ function regenerateTypes(): void {
   console.log("→ Step 1: Regenerating fulpack types to temp directory...");
 
   try {
+    // Generate Python types
     console.log("  • Python: generating temp types...");
     const tempPythonDir = join(TEMP_DIR, "python");
     mkdirSync(tempPythonDir, { recursive: true });
@@ -114,14 +115,58 @@ function regenerateTypes(): void {
       }
     );
 
-    // Copy generated files to temp directory
+    // Copy generated Python files to temp directory
     const pythonOutputDir = resolve(ROOT, "lang/python/src/crucible/fulpack");
     if (existsSync(pythonOutputDir)) {
       for (const file of readdirSync(pythonOutputDir)) {
         if (file.endsWith(".py")) {
-          const content = readFileSync(join(pythonOutputDir, file), "utf8");
-          // Files are regenerated in place, copy them to temp
           execSync(`cp "${join(pythonOutputDir, file)}" "${join(tempPythonDir, file)}"`);
+        }
+      }
+    }
+
+    // Generate TypeScript types
+    console.log("  • TypeScript: generating temp types...");
+    const tempTypescriptDir = join(TEMP_DIR, "typescript");
+    mkdirSync(tempTypescriptDir, { recursive: true });
+
+    execSync(
+      `bun run ${ROOT}/scripts/codegen/generate-fulpack-types.ts --lang typescript --format`,
+      {
+        cwd: ROOT,
+        stdio: "pipe",
+      }
+    );
+
+    // Copy generated TypeScript files to temp directory
+    const typescriptOutputDir = resolve(ROOT, "lang/typescript/src/fulpack");
+    if (existsSync(typescriptOutputDir)) {
+      for (const file of readdirSync(typescriptOutputDir)) {
+        if (file.endsWith(".ts")) {
+          execSync(`cp "${join(typescriptOutputDir, file)}" "${join(tempTypescriptDir, file)}"`);
+        }
+      }
+    }
+
+    // Generate Go types
+    console.log("  • Go: generating temp types...");
+    const tempGoDir = join(TEMP_DIR, "go");
+    mkdirSync(tempGoDir, { recursive: true });
+
+    execSync(
+      `bun run ${ROOT}/scripts/codegen/generate-fulpack-types.ts --lang go --format`,
+      {
+        cwd: ROOT,
+        stdio: "pipe",
+      }
+    );
+
+    // Copy generated Go files to temp directory
+    const goOutputDir = resolve(ROOT, "fulpack");
+    if (existsSync(goOutputDir)) {
+      for (const file of readdirSync(goOutputDir)) {
+        if (file.endsWith(".go")) {
+          execSync(`cp "${join(goOutputDir, file)}" "${join(tempGoDir, file)}"`);
         }
       }
     }
@@ -137,49 +182,134 @@ function regenerateTypes(): void {
 function compareFiles(metadata: Metadata): boolean {
   console.log("→ Step 2: Comparing generated files with checked-in versions...");
 
-  const pythonConfig = metadata.languages["python"];
-  if (!pythonConfig) {
-    console.error("  ❌ Python configuration not found in metadata.json");
-    return true;
-  }
-
-  const outputDir = resolve(ROOT, pythonConfig.output_dir);
-  const tempDir = join(TEMP_DIR, "python");
-
-  if (!existsSync(outputDir)) {
-    console.error("  ❌ Python output directory not found");
-    console.error(`     Expected: ${outputDir}`);
-    return true;
-  }
-
-  const pythonFiles = ["__init__.py", "enums.py", "types.py", "options.py"];
   let driftDetected = false;
 
-  for (const file of pythonFiles) {
-    const checkedInPath = join(outputDir, file);
-    const tempPath = join(tempDir, file);
+  // Check Python files
+  const pythonConfig = metadata.languages["python"];
+  if (pythonConfig) {
+    const outputDir = resolve(ROOT, pythonConfig.output_dir);
+    const tempDir = join(TEMP_DIR, "python");
 
-    if (!existsSync(checkedInPath)) {
-      console.error(`  ❌ Python ${file}: Checked-in file not found`);
+    if (!existsSync(outputDir)) {
+      console.error("  ❌ Python output directory not found");
+      console.error(`     Expected: ${outputDir}`);
       driftDetected = true;
-      continue;
-    }
-
-    if (!existsSync(tempPath)) {
-      console.error(`  ❌ Python ${file}: Temp file not generated`);
-      driftDetected = true;
-      continue;
-    }
-
-    const checkedInContent = readFileSync(checkedInPath, "utf8");
-    const regeneratedContent = readFileSync(tempPath, "utf8");
-
-    if (checkedInContent === regeneratedContent) {
-      console.log(`  ✓ Python ${file}: Up-to-date`);
     } else {
-      console.error(`  ❌ Python ${file}: Drift detected`);
-      console.error(`     Checked-in file differs from freshly generated code`);
+      const pythonFiles = ["__init__.py", "enums.py", "types.py", "options.py"];
+
+      for (const file of pythonFiles) {
+        const checkedInPath = join(outputDir, file);
+        const tempPath = join(tempDir, file);
+
+        if (!existsSync(checkedInPath)) {
+          console.error(`  ❌ Python ${file}: Checked-in file not found`);
+          driftDetected = true;
+          continue;
+        }
+
+        if (!existsSync(tempPath)) {
+          console.error(`  ❌ Python ${file}: Temp file not generated`);
+          driftDetected = true;
+          continue;
+        }
+
+        const checkedInContent = readFileSync(checkedInPath, "utf8");
+        const regeneratedContent = readFileSync(tempPath, "utf8");
+
+        if (checkedInContent === regeneratedContent) {
+          console.log(`  ✓ Python ${file}: Up-to-date`);
+        } else {
+          console.error(`  ❌ Python ${file}: Drift detected`);
+          console.error(`     Checked-in file differs from freshly generated code`);
+          driftDetected = true;
+        }
+      }
+    }
+  }
+
+  // Check TypeScript files
+  const typescriptConfig = metadata.languages["typescript"];
+  if (typescriptConfig) {
+    const outputDir = resolve(ROOT, typescriptConfig.output_dir);
+    const tempDir = join(TEMP_DIR, "typescript");
+
+    if (!existsSync(outputDir)) {
+      console.error("  ❌ TypeScript output directory not found");
+      console.error(`     Expected: ${outputDir}`);
       driftDetected = true;
+    } else {
+      const typescriptFiles = ["types.ts", "index.ts"];
+
+      for (const file of typescriptFiles) {
+        const checkedInPath = join(outputDir, file);
+        const tempPath = join(tempDir, file);
+
+        if (!existsSync(checkedInPath)) {
+          console.error(`  ❌ TypeScript ${file}: Checked-in file not found`);
+          driftDetected = true;
+          continue;
+        }
+
+        if (!existsSync(tempPath)) {
+          console.error(`  ❌ TypeScript ${file}: Temp file not generated`);
+          driftDetected = true;
+          continue;
+        }
+
+        const checkedInContent = readFileSync(checkedInPath, "utf8");
+        const regeneratedContent = readFileSync(tempPath, "utf8");
+
+        if (checkedInContent === regeneratedContent) {
+          console.log(`  ✓ TypeScript ${file}: Up-to-date`);
+        } else {
+          console.error(`  ❌ TypeScript ${file}: Drift detected`);
+          console.error(`     Checked-in file differs from freshly generated code`);
+          driftDetected = true;
+        }
+      }
+    }
+  }
+
+  // Check Go files
+  const goConfig = metadata.languages["go"];
+  if (goConfig) {
+    const outputDir = resolve(ROOT, goConfig.output_dir);
+    const tempDir = join(TEMP_DIR, "go");
+
+    if (!existsSync(outputDir)) {
+      console.error("  ❌ Go output directory not found");
+      console.error(`     Expected: ${outputDir}`);
+      driftDetected = true;
+    } else {
+      const goFiles = ["types.go"];
+
+      for (const file of goFiles) {
+        const checkedInPath = join(outputDir, file);
+        const tempPath = join(tempDir, file);
+
+        if (!existsSync(checkedInPath)) {
+          console.error(`  ❌ Go ${file}: Checked-in file not found`);
+          driftDetected = true;
+          continue;
+        }
+
+        if (!existsSync(tempPath)) {
+          console.error(`  ❌ Go ${file}: Temp file not generated`);
+          driftDetected = true;
+          continue;
+        }
+
+        const checkedInContent = readFileSync(checkedInPath, "utf8");
+        const regeneratedContent = readFileSync(tempPath, "utf8");
+
+        if (checkedInContent === regeneratedContent) {
+          console.log(`  ✓ Go ${file}: Up-to-date`);
+        } else {
+          console.error(`  ❌ Go ${file}: Drift detected`);
+          console.error(`     Checked-in file differs from freshly generated code`);
+          driftDetected = true;
+        }
+      }
     }
   }
 
@@ -235,6 +365,43 @@ function runCompilationChecks(metadata: Metadata): boolean {
     console.log("  ✓ Python imports valid");
   } catch (error) {
     console.error("  ❌ Python imports failed");
+    console.error(`     ${error instanceof Error ? error.message : String(error)}`);
+    passed = false;
+  }
+
+  // TypeScript type check
+  try {
+    const typescriptConfig = metadata.languages["typescript"];
+    if (!typescriptConfig) {
+      throw new Error("TypeScript configuration not found");
+    }
+
+    const outputDir = resolve(ROOT, typescriptConfig.output_dir);
+    execSync(`bunx tsc --noEmit ${join(outputDir, "types.ts")} ${join(outputDir, "index.ts")}`, {
+      cwd: ROOT,
+      stdio: "pipe",
+    });
+    console.log("  ✓ TypeScript syntax valid");
+  } catch (error) {
+    console.error("  ❌ TypeScript type check failed");
+    console.error(`     ${error instanceof Error ? error.message : String(error)}`);
+    passed = false;
+  }
+
+  // Go compilation check
+  try {
+    const goConfig = metadata.languages["go"];
+    if (!goConfig) {
+      throw new Error("Go configuration not found");
+    }
+
+    execSync("go build ./fulpack", {
+      cwd: ROOT,
+      stdio: "pipe",
+    });
+    console.log("  ✓ Go compilation valid");
+  } catch (error) {
+    console.error("  ❌ Go compilation failed");
     console.error(`     ${error instanceof Error ? error.message : String(error)}`);
     passed = false;
   }
