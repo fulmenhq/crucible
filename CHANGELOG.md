@@ -9,6 +9,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.11] - 2025-11-12
+
+### Added
+
+- **Fulpack Type Generation Complete**: Cross-language type bindings for fulpack archive module
+  - **TypeScript Types** (`lang/typescript/src/fulpack/`):
+    - `types.ts` (172 lines): Enums, interfaces, constants with proper readonly modifiers
+    - `index.ts`: Clean module exports for `import { ArchiveFormat } from '@fulmenhq/crucible/fulpack'`
+    - Type inference: Automatic TypeScript type mapping from JSON schemas
+  - **Go Types** (`fulpack/types.go`):
+    - Typed enums with validators (204 lines): `ArchiveFormat`, `EntryType`, `Operation`
+    - Validator functions: `ValidateArchiveFormat()`, `ValidateEntryType()`, `ValidateOperation()`
+    - Structs: `ArchiveInfo`, `ArchiveEntry`, `ArchiveManifest`, `ValidationResult`, `ExtractResult`
+    - Options structs: `CreateOptions`, `ExtractOptions`, `ScanOptions`
+  - **Python Types** (completed in v0.2.10, now matched with TypeScript/Go):
+    - Enums: `ArchiveFormat`, `EntryType`, `Operation`
+    - TypedDicts: Data structures and options
+    - Full cross-language parity
+  - **Code Generation Infrastructure**:
+    - Templates: EJS templates for each language with language-specific postprocessing
+    - Generator script: `scripts/codegen/generate-fulpack-types.ts` with type inference functions
+    - Verification script: `scripts/codegen/verify-fulpack-types.ts` updated for all 3 languages
+    - Compilation checks: `tsc --noEmit`, `go build`, `python -m py_compile`
+  - **Metadata Configuration**: `scripts/codegen/fulpack-types/metadata.json` with language configs
+  - **Template Fixes**:
+    - EJS escaping: Changed `<%=` to `<%-` for raw output (prevents HTML entity encoding)
+    - Go switch logic: Moved `return nil` outside switch for correct validator functions
+  - **Verification**: All generated types compile cleanly with zero errors across all languages
+- **Portable Testing Practices Standard**: Ecosystem-wide testing guidance for deterministic execution
+  - **New Standard Document** (`docs/standards/testing/portable-testing-practices.md`):
+    - **Core Principles**: Deterministic execution, capability detection, in-memory-first, context propagation, isolated cleanup
+    - **Test Modes**: Support for `-short`, `FOO_TEST_FAST=1` flags to disable heavy integrations
+    - **Shared Skip Helpers**: Language-specific capability detection (`RequireNetwork(t)` in Go, `require_network()` in Python)
+    - **Resource Guards**: Wrap expensive operations with capability checks
+  - **Language-Specific Guidance**:
+    - **Go**: Bind listeners via `net.Listen("127.0.0.1:0")`, use gofulmen in-memory emitter, context propagation
+    - **Python**: pytest fixtures (`tmp_path`, `monkeypatch`), explicit skip messages
+    - **TypeScript**: Avoid privileged ports, `get-port` utility, clean up mocked timers/servers in `afterEach`
+  - **Integration Points**: Cross-linked from all coding standards and forge standards
+  - **Synced to Language Wrappers**: Available in `lang/python/docs/standards/testing/` and `lang/typescript/docs/standards/testing/`
+
+### Changed
+
+- **Coding Standards Updated**: Go, Python, and TypeScript coding standards now reference portable testing practices
+- **Forge Standards Updated**: Workhorse, codex, and microtool standards now include testing section references to portable testing guide
+- **README Version**: Updated to 0.2.11 with release summary
+
 ## [0.2.10] - 2025-11-15
 
 ### Added
