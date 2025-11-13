@@ -23,6 +23,7 @@ import (
 type ArchiveFormat string
 
 const (
+	ArchiveFormatTar   ArchiveFormat = "tar"
 	ArchiveFormatTarGz ArchiveFormat = "tar.gz"
 	ArchiveFormatZip   ArchiveFormat = "zip"
 	ArchiveFormatGzip  ArchiveFormat = "gzip"
@@ -31,6 +32,7 @@ const (
 // ValidateArchiveFormat checks if the value is valid.
 func ValidateArchiveFormat(value ArchiveFormat) error {
 	switch value {
+	case ArchiveFormatTar:
 	case ArchiveFormatTarGz:
 	case ArchiveFormatZip:
 	case ArchiveFormatGzip:
@@ -102,7 +104,7 @@ type ArchiveInfo struct {
 	Compression       string   `json:"compression,omitempty"`        // Compression algorithm used
 	CompressionRatio  *float64 `json:"compression_ratio,omitempty"`  // Compression ratio (total_size / compressed_size)
 	HasChecksums      *bool    `json:"has_checksums,omitempty"`      // Whether the archive contains checksums
-	ChecksumAlgorithm string   `json:"checksum_algorithm,omitempty"` // Checksum algorithm used (if has_checksums is true)
+	ChecksumAlgorithm string   `json:"checksum_algorithm,omitempty"` // Checksum algorithm used from fulhash module (xxh3-128 and sha256 are standard, others may require optional extensions)
 	Created           string   `json:"created,omitempty"`            // Archive creation timestamp (ISO 8601 format)
 }
 
@@ -167,7 +169,7 @@ type CreateOptions struct {
 	CompressionLevel    *int64   `json:"compression_level,omitempty"`    // Compression level (1=fastest, 9=best compression, format-dependent)
 	IncludePatterns     []string `json:"include_patterns,omitempty"`     // Glob patterns for files to include (e.g., ['**/*.py', '**/*.md'])
 	ExcludePatterns     []string `json:"exclude_patterns,omitempty"`     // Glob patterns for files to exclude (e.g., ['**/__pycache__', '**/.git'])
-	ChecksumAlgorithm   string   `json:"checksum_algorithm,omitempty"`   // Checksum algorithm for entry verification
+	ChecksumAlgorithm   string   `json:"checksum_algorithm,omitempty"`   // Checksum algorithm for entry verification (xxh3-128 and sha256 are standard via fulhash module, others may require optional extensions)
 	PreservePermissions *bool    `json:"preserve_permissions,omitempty"` // Preserve Unix file permissions in archive
 	FollowSymlinks      *bool    `json:"follow_symlinks,omitempty"`      // Follow symbolic links and archive their targets
 }

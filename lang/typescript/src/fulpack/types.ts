@@ -19,7 +19,7 @@
  * ArchiveFormat enum
  * @see schemas/taxonomy/library/fulpack/archive-formats/v1.0.0/formats.yaml
  */
-export type ArchiveFormat = "tar.gz" | "zip" | "gzip";
+export type ArchiveFormat = "tar" | "tar.gz" | "zip" | "gzip";
 
 /**
  * EntryType enum
@@ -42,14 +42,14 @@ export type Operation = "create" | "extract" | "scan" | "verify" | "info";
  * @see schemas/library/fulpack/v1.0.0/archive-info.schema.json
  */
 export interface ArchiveInfo {
-  readonly format: "tar.gz" | "zip" | "gzip"; // Archive format from archive-formats taxonomy
+  readonly format: "tar" | "tar.gz" | "zip" | "gzip"; // Archive format from archive-formats taxonomy
   readonly entry_count: number; // Total number of entries in the archive
   readonly total_size: number; // Total uncompressed size in bytes
   readonly compressed_size: number; // Compressed archive file size in bytes
   readonly compression?: "gzip" | "deflate" | "none"; // Compression algorithm used
   readonly compression_ratio?: number; // Compression ratio (total_size / compressed_size)
   readonly has_checksums?: boolean; // Whether the archive contains checksums
-  readonly checksum_algorithm?: "sha256" | "sha512" | "sha1" | "md5"; // Checksum algorithm used (if has_checksums is true)
+  readonly checksum_algorithm?: "xxh3-128" | "sha256" | "sha512" | "sha1" | "md5"; // Checksum algorithm used from fulhash module (xxh3-128 and sha256 are standard, others may require optional extensions)
   readonly created?: string; // Archive creation timestamp (ISO 8601 format)
 }
 
@@ -73,7 +73,7 @@ export interface ArchiveEntry {
  * @see schemas/library/fulpack/v1.0.0/archive-manifest.schema.json
  */
 export interface ArchiveManifest {
-  readonly format: "tar.gz" | "zip" | "gzip"; // Archive format from archive-formats taxonomy
+  readonly format: "tar" | "tar.gz" | "zip" | "gzip"; // Archive format from archive-formats taxonomy
   readonly version: string; // Manifest schema version (semantic versioning)
   readonly generated: string; // Manifest generation timestamp (ISO 8601 format)
   readonly entry_count: number; // Total number of entries in manifest
@@ -129,7 +129,7 @@ export interface CreateOptions {
   compression_level?: number; // Compression level (1=fastest, 9=best compression, format-dependent)
   include_patterns?: string[]; // Glob patterns for files to include (e.g., ['**/*.py', '**/*.md'])
   exclude_patterns?: string[]; // Glob patterns for files to exclude (e.g., ['**/__pycache__', '**/.git'])
-  checksum_algorithm?: "sha256" | "sha512" | "sha1" | "md5"; // Checksum algorithm for entry verification
+  checksum_algorithm?: "xxh3-128" | "sha256" | "sha512" | "sha1" | "md5"; // Checksum algorithm for entry verification (xxh3-128 and sha256 are standard via fulhash module, others may require optional extensions)
   preserve_permissions?: boolean; // Preserve Unix file permissions in archive
   follow_symlinks?: boolean; // Follow symbolic links and archive their targets
 }
