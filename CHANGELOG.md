@@ -11,6 +11,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Fulpack Test Fixtures**: Reproducible script-generated fixtures for comprehensive fulpack testing
+  - **Fixture Generator** (`scripts/generate-fulpack-fixtures.ts`):
+    - TypeScript-based generator creating all 4 standard fixtures from code
+    - Size validation enforced programmatically (10KB compressed, 25KB tar, 50KB pathological)
+    - Fresh content for each fixture (no reuse to prevent coupling)
+    - Auto-generates `.txt` documentation for each fixture
+  - **Fixtures** (`config/library/fulpack/fixtures/`):
+    - `basic.tar` (21.5KB): Uncompressed tar with binary+text content
+      - Binary file: `data/tiny.png` (~100 bytes PNG-like blob)
+      - Text files: README.md, config.json, metadata.txt, data/sample.txt
+      - Tests: tar format operations, compression_ratio=1.0, binary data integrity
+    - `basic.tar.gz` (847 bytes): Compressed tar archive
+      - Same 5-file structure as basic.tar
+      - Tests: standard tar.gz operations, compression ratio (~3:1), directory nesting
+    - `nested.zip` (3.4KB): 3-level directory nesting
+      - Structure: root.txt → level1/ → level2/ → level3/ (5 files total)
+      - Tests: deep directory nesting, path handling, zip format operations
+    - `pathological.tar.gz` (1.3KB): Security test cases
+      - Malicious entries: path traversal (../../../etc/passwd), absolute paths (/etc/passwd, /root/.ssh/id_rsa)
+      - Symlink escapes targeting outside archive bounds
+      - Tests: security protections (PATH_TRAVERSAL, ABSOLUTE_PATH, SYMLINK_ESCAPE errors)
+  - **Documentation**:
+    - `README.md` in fixtures directory explaining purpose, inventory table, generation instructions, size governance
+    - Each fixture includes `.txt` file documenting purpose, structure, expected behavior, test coverage
+  - **Cross-Language Parity**: Fixtures synced to Python/TypeScript wrappers via `sync-to-lang`
+  - **Rationale**: Enables testing all 4 archive formats (tar, tar.gz, zip, gzip) with consistent behavior across gofulmen, pyfulmen, tsfulmen
+  - **Status**: ✅ All fixtures generated, validated, documented, and synced to language wrappers
+
+## [0.2.12] - 2025-11-14
+
+### Added
+
 - **Language-Specific Testing Patterns Standard**: CLI testing isolation guidance for all supported languages
   - **New Standard Document** (`docs/standards/testing/language-testing-patterns.md`):
     - **Go - Cobra Command Isolation**: Factory functions, flag reset helpers, test isolation pattern for spf13/cobra CLIs
