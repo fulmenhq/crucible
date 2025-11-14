@@ -1,0 +1,35 @@
+/**
+ * Fulencode Types - Generated from Crucible schemas.
+ *
+ * This file is AUTO-GENERATED from the Fulencode module specification.
+ * DO NOT EDIT MANUALLY - changes will be overwritten.
+ *
+ * Schema Version: <%- version %>
+ * Last Reviewed: <%- last_reviewed %>
+ * Source: schemas/taxonomy/library/fulencode/
+ *
+ * See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/modules/fulencode.md
+ */
+
+// ============================================================================
+// Enums (String Literal Union Types)
+// ============================================================================
+
+<% taxonomies.forEach(taxonomy => { %>
+/**
+ * <%- taxonomy.description %>
+ * @see schemas/taxonomy/library/fulencode/<%- taxonomy.path %>
+ */
+export type <%- taxonomy.className %> =
+<% taxonomy.items.forEach((item, index) => { %>  | "<%- item.id %>"<% if (index < taxonomy.items.length - 1) { %><% } else { %>;<% } %>
+<% }); %>
+
+<% }); %>
+// ============================================================================
+// Module Metadata
+// ============================================================================
+
+/**
+ * Module version for compatibility checks.
+ */
+export const FULENCODE_VERSION = "<%- version %>";

@@ -9,6 +9,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Language-Specific Testing Patterns Standard**: CLI testing isolation guidance for all supported languages
+  - **New Standard Document** (`docs/standards/testing/language-testing-patterns.md`):
+    - **Go - Cobra Command Isolation**: Factory functions, flag reset helpers, test isolation pattern for spf13/cobra CLIs
+    - **Python - Typer/Click CLI Isolation**: Application factory pattern, contextvars reset, runner helpers
+    - **TypeScript - Commander/oclif Isolation**: Factory pattern, process state mocking, output capture
+    - **Rust - Clap/Tokio CLIs**: Builder functions, async isolation, tokio test configuration
+    - **C# - System.CommandLine**: CommandFactory pattern, dependency injection, output capture
+  - **Testing Standards Index** (`docs/standards/testing/README.md`):
+    - Navigation index for all testing guidance documents
+    - Quick-reference table linking portable-testing-practices and language-testing-patterns
+  - **Cross-References Added**: All coding standards (Go, Python, TypeScript) now link to language-specific CLI testing patterns
+    - Go coding standard: References Cobra command isolation pattern
+    - Python coding standard: References Typer/Click application factory pattern
+    - TypeScript coding standard: References Commander/oclif factory pattern
+- **Fulencode Module Complete**: Common-tier encoding/decoding operations with security and normalization
+  - **Module Specification** (`docs/standards/library/modules/fulencode.md`):
+    - Complete API specification (4,124 lines, 97 sections) with 8 integration examples
+    - 5 core operations: `encode()`, `decode()`, `detect()`, `normalize()`, `bom()`
+    - Canonical façade for Base64, Base32, Hex, UTF detection, Unicode normalization
+    - Security model: Buffer limits, encoding bomb detection, normalization attack prevention
+    - Custom normalization profiles with step-by-step transformation algorithms
+    - Minimum detection algorithm for Common tier (BOM + UTF-8 validation only)
+    - Telemetry specification with 14 metrics and implementation checklist
+    - Integration patterns for Fulpack, Nimbus, Pathfinder
+  - **Taxonomy Schemas** (6 files):
+    - `schemas/taxonomy/library/fulencode/encoding-families/v1.0.0/`: Binary-to-text and character encodings
+      - `families.schema.json`: JSON Schema for encoding families taxonomy
+      - `families.yaml`: 12 Common-tier formats (base64, base32, hex, utf-8, utf-16, iso-8859-1, cp1252, ascii)
+    - `schemas/taxonomy/library/fulencode/normalization-profiles/v1.0.0/`: Unicode normalization profiles
+      - `profiles.schema.json`: JSON Schema for normalization profiles taxonomy
+      - `profiles.yaml`: 8 profiles (NFC, NFD, NFKC, NFKD + 4 custom: safe_identifiers, search_optimized, filename_safe, legacy_compatible)
+    - `schemas/taxonomy/library/fulencode/detection-confidence/v1.0.0/`: Detection confidence levels
+      - `levels.schema.json`: JSON Schema for confidence levels taxonomy
+      - `levels.yaml`: 3 confidence levels (HIGH ≥90%, MEDIUM 50-89%, LOW <50%)
+  - **Data Structure Schema** (1 file):
+    - `schemas/library/fulencode/v1.0.0/fulencode-config.schema.json`: Configuration schema
+  - **Code Generation Infrastructure**:
+    - Generator: `scripts/codegen/generate-fulencode-types.ts` (follows fulpack pattern)
+    - Verifier: `scripts/codegen/verify-fulencode-types.ts` with drift detection and compilation checks
+    - Metadata: `scripts/codegen/fulencode-types/metadata.json` (multi-language configuration)
+    - Templates: Python (Jinja2), Go (EJS), TypeScript (EJS) with postprocess scripts (6 files)
+    - Makefile integration: `make codegen-fulencode`, `make verify-codegen` includes fulencode
+  - **Generated Types** (3 languages):
+    - Go: `fulencode/types.go` - EncodingFormat, NormalizationProfile, ConfidenceLevel enums with validators
+    - Python: `lang/python/src/crucible/fulencode/enums.py` - str-based Enum classes
+    - TypeScript: `lang/typescript/src/fulencode/types.ts` - String literal union types
+    - All types compile cleanly with zero errors, pass drift detection
+  - **Telemetry Specification**: 14 metrics across 6 categories
+    - Core operations (2): `operation.duration_seconds`, `operation.total`
+    - Data volume (2): `bytes.processed`, `expansion.ratio`
+    - Detection (2): `detect.result_total`, `detect.duration_seconds`
+    - Normalization (2): `normalize.total`, `normalize.semantic_changes_total`
+    - Security (2): `security.violations_total`, `corrections.total`
+    - BOM handling (2): `bom.operations_total`, `bom.mismatches_total`
+    - Implementation checklist with operation → metric mapping table
+  - **Dependency Guidance**:
+    - Python: Pure stdlib (zero PyPI packages) - `base64`, `binascii`, `unicodedata`, `codecs`
+    - TypeScript: Pure stdlib (zero npm packages) - `Buffer`, `String.prototype.normalize()`
+    - Go: Stdlib + `golang.org/x/text/unicode/norm` (extended stdlib for Unicode normalization, already vendored)
+    - Specialized add-ons (Phase 3): `fulencode-detect-pro`, `fulencode-base58`, `fulencode-legacy-{cjk,mainframe,european}`
+  - **Custom Normalization Profiles**: Explicit transformation algorithms
+    - `safe_identifiers`: Reject zero-width chars, validate Unicode categories, limit combining marks
+    - `search_optimized`: Strip accents, case folding, remove punctuation, compress whitespace
+    - `filename_safe`: Reject control chars and path separators, normalize spaces, Windows reserved names
+    - `legacy_compatible`: Optional transliteration (lossy), strip non-ASCII
+  - **Detection Algorithm**: 4-step minimum for Common tier
+    - Step 1: BOM detection (UTF-8/16/32 signatures) - HIGH confidence
+    - Step 2: UTF-8 validation (legal bytes, no overlong encodings) - HIGH confidence
+    - Step 3: NULL pattern detection (UTF-16LE/BE indicators) - HIGH confidence if consistent
+    - Step 4: ASCII fallback (all bytes < 0x80) - LOW confidence (ambiguous)
+    - No statistical detection in Common tier (deferred to `fulencode-detect-pro` Specialized tier)
+  - **Helper Library Feedback**: All 3 teams reviewed and approved
+    - tsfulmen (EA Steward): 6 items addressed - detection scope, dependency guidance, types integration, telemetry checklist, packaging
+    - pyfulmen: 5 items addressed - minimum detection algorithm, transformation rules, extras naming (`fulencode-{capability}`)
+    - gofulmen: Dependency clarification - `x/text` documented as extended stdlib (acceptable exception)
+  - **Validation**: All 74 repository schemas meta-validate (includes fulencode)
+  - **Status**: ✅ Crucible artifacts complete, ready for helper library implementation
+
 ## [0.2.11] - 2025-11-12
 
 ### Added

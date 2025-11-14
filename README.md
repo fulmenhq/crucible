@@ -188,6 +188,12 @@ Crucible provides JSON schemas for cross-language consistency:
   - Logging schemas (`v1.0.0/`) - Logger configuration, log events, severity filters, middleware
   - Metrics schemas (`v1.0.0/`) - Metrics event structure
 
+- **Fulencode** (`schemas/library/fulencode/v1.0.0/`, `schemas/taxonomy/library/fulencode/`)
+  - Data structure: `fulencode-config.schema.json` - Configuration schema
+  - Encoding families taxonomy (`encoding-families/v1.0.0/`) - Binary-to-text and character encodings (base64, hex, utf-8, etc.)
+  - Normalization profiles taxonomy (`normalization-profiles/v1.0.0/`) - Unicode normalization (NFC, NFD, NFKC, NFKD + custom profiles)
+  - Detection confidence taxonomy (`detection-confidence/v1.0.0/`) - Detection confidence levels (HIGH, MEDIUM, LOW)
+
 ### Standards & Documentation
 
 - **Coding Standards** (`docs/standards/coding/`)
@@ -195,8 +201,12 @@ Crucible provides JSON schemas for cross-language consistency:
   - TypeScript coding practices
   - Python coding practices
 
+- **Testing Standards** (`docs/standards/testing/`)
+  - Portable testing practices (cross-language patterns for deterministic tests)
+  - Language-specific testing patterns (CLI isolation for Go Cobra, Python Typer/Click, TypeScript Commander/oclif, Rust, C#)
+
 - **Library Standards** (`docs/standards/library/`)
-  - **Modules**: Crucible Shim, Docscribe, Config Path API, Three-Layer Config, Schema Validation, Signal Handling
+  - **Modules**: Crucible Shim, Docscribe, Config Path API, Three-Layer Config, Schema Validation, Signal Handling, Fulpack (archive operations), Fulencode (encoding/decoding/normalization)
   - **Catalogs**: Foundry (country codes, HTTP status, MIME types, text similarity, signal handling)
   - Helper library standard with Crucible Overview and version documentation requirements
 
@@ -466,9 +476,9 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-**Version**: 0.2.11 (SemVer: MAJOR.MINOR.PATCH)
+**Version**: 0.2.12 (SemVer: MAJOR.MINOR.PATCH)
 
-Active development. Core schemas, standards, and helper library contracts stabilized. Go module relocated to repository root for standard external installation (v0.1.4). Adopted Semantic Versioning for Go module compatibility (v0.2.0). Signal handling module (v0.2.5) establishes SSOT for graceful shutdown, Ctrl+C handling, and cross-platform signal semantics. Platform introspection API (v0.2.6) enables runtime signal support detection. Metrics taxonomy (v0.2.7) provides 26 standardized metrics with namespace governance and automated version synchronization. CDRL template standard system (v0.2.8) provides comprehensive customization framework. Forge standards enhanced (v0.2.9) with real implementation feedback, Enterprise Three-Layer Config renamed for clarity, cross-language Crucible documentation access patterns established, L'Orage Central DevSecOps schemas Wave 4 complete (Recipe + Runbooks), microtool repository category added, and repository naming standard published. Extension Framework Foundation (v0.2.10) provides module registry infrastructure with platform-modules/foundry-catalogs split, Canonical Façade Principle documentation, and comprehensive validation tooling. Fulpack Type Generation Complete (v0.2.11) delivers cross-language type bindings (Python, TypeScript, Go) for fulpack archive module with compile-time verification, plus Portable Testing Practices standard establishing deterministic test execution patterns across FulmenHQ ecosystem (capability detection, in-memory-first, context propagation, isolated cleanup) cross-linked from all coding and forge standards.
+Active development. Core schemas, standards, and helper library contracts stabilized. Go module relocated to repository root for standard external installation (v0.1.4). Adopted Semantic Versioning for Go module compatibility (v0.2.0). Signal handling module (v0.2.5) establishes SSOT for graceful shutdown, Ctrl+C handling, and cross-platform signal semantics. Platform introspection API (v0.2.6) enables runtime signal support detection. Metrics taxonomy (v0.2.7) provides 26 standardized metrics with namespace governance and automated version synchronization. CDRL template standard system (v0.2.8) provides comprehensive customization framework. Forge standards enhanced (v0.2.9) with real implementation feedback, Enterprise Three-Layer Config renamed for clarity, cross-language Crucible documentation access patterns established, L'Orage Central DevSecOps schemas Wave 4 complete (Recipe + Runbooks), microtool repository category added, and repository naming standard published. Extension Framework Foundation (v0.2.10) provides module registry infrastructure with platform-modules/foundry-catalogs split, Canonical Façade Principle documentation, and comprehensive validation tooling. Fulpack Type Generation Complete (v0.2.11) delivers cross-language type bindings (Python, TypeScript, Go) for fulpack archive module with compile-time verification, plus Portable Testing Practices standard establishing deterministic test execution patterns across FulmenHQ ecosystem (capability detection, in-memory-first, context propagation, isolated cleanup) cross-linked from all coding and forge standards. Fulencode Module Complete (v0.2.12) provides Common-tier encoding/decoding operations (Base64, Base32, Hex, UTF detection, Unicode normalization) with security-first design, 14-metric telemetry specification, cross-language type generation (Python, TypeScript, Go), explicit transformation algorithms for custom normalization profiles, and comprehensive helper library feedback integration from all three language teams.
 
 ---
 

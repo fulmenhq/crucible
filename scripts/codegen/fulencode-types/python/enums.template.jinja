@@ -1,0 +1,25 @@
+"""Fulencode Enums - Generated from Crucible taxonomies.
+
+This file is AUTO-GENERATED from the Fulencode taxonomy schemas.
+DO NOT EDIT MANUALLY - changes will be overwritten.
+
+Taxonomy Version: {{ version }}
+Last Reviewed: {{ last_reviewed }}
+Source: schemas/taxonomy/library/fulencode/
+
+See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/modules/fulencode.md
+"""
+
+from enum import Enum
+
+{% for taxonomy in taxonomies %}
+
+class {{ taxonomy.className }}(str, Enum):
+    """{{ taxonomy.description }}
+
+    Generated from: schemas/taxonomy/library/fulencode/{{ taxonomy.path }}
+    """
+{% for item in taxonomy.items %}
+    {{ item.constant_name }} = "{{ item.id }}"
+{% endfor %}
+{% endfor %}

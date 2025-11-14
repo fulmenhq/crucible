@@ -1,0 +1,46 @@
+// Package fulencode provides type definitions for fulencode operations.
+//
+// This file is AUTO-GENERATED from the Fulencode module specification.
+// DO NOT EDIT MANUALLY - changes will be overwritten.
+//
+// Schema Version: <%- version %>
+// Last Reviewed: <%- last_reviewed %>
+// Source: schemas/taxonomy/library/fulencode/
+//
+// See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/modules/fulencode.md
+package fulencode
+
+import (
+	"fmt"
+)
+
+// ============================================================================
+// Enums (Typed String Constants)
+// ============================================================================
+
+<% taxonomies.forEach(taxonomy => { %>
+// <%- taxonomy.className %> represents <%- taxonomy.description.toLowerCase() %>.
+// See: schemas/taxonomy/library/fulencode/<%- taxonomy.path %>
+type <%- taxonomy.className %> string
+
+const (
+<% taxonomy.items.forEach(item => { %>	<%- taxonomy.className %><%- item.constant_name_go %> <%- taxonomy.className %> = "<%- item.id %>"
+<% }); %>)
+
+// Validate<%- taxonomy.className %> checks if the value is valid.
+func Validate<%- taxonomy.className %>(value <%- taxonomy.className %>) error {
+	switch value {
+<% taxonomy.items.forEach(item => { %>	case <%- taxonomy.className %><%- item.constant_name_go %>:
+<% }); %>	default:
+		return fmt.Errorf("invalid <%- taxonomy.className.toLowerCase() %>: %s", value)
+	}
+	return nil
+}
+
+<% }); %>
+// ============================================================================
+// Module Metadata
+// ============================================================================
+
+// FulencodeVersion is the module version for compatibility checks.
+const FulencodeVersion = "<%- version %>"

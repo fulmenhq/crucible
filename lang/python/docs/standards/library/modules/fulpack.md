@@ -777,8 +777,34 @@ All implementations MUST provide:
 - **Security tests**: Path traversal, bombs, checksums
 - **Integration tests**: Pathfinder integration
 - **Fixture tests**: Using fixtures from `config/library/fulpack/fixtures/`
+- **Portable testing compliance**: Follow [Portable Testing Practices](../../testing/portable-testing-practices.md)
+  - **Critical for fulpack**: Temp file cleanup, in-memory testing where possible, capability detection for filesystem features
+  - See [Coding Standards](../../coding/README.md) for language-specific testing patterns
 
 **Test coverage target**: ≥70%
+
+**Sandbox audit requirements**:
+
+Fulpack implementations MUST pass tests in restricted environments (no network, limited filesystem access) to support security audits and sandboxed CI/CD pipelines.
+
+- **Network isolation**: Tests MUST NOT require network/DNS access
+  - Pathological archive tests (malicious paths, bombs) run entirely local
+  - No external downloads or validation services
+- **Filesystem capability detection**: Use skip helpers for optional features
+  - Symlink support: Skip symlink tests if OS doesn't support them
+  - Compression algorithms: Skip tests for unavailable algorithms (e.g., xz, zstd)
+  - Permissions: Skip permission tests on Windows FAT32 filesystems
+- **Temporary file cleanup**: MUST clean up ALL temp files in test teardown
+  - Go: Use `t.Cleanup()` to register cleanup handlers
+  - Python: Use pytest `tmp_path` fixture or `@pytest.fixture` with cleanup
+  - TypeScript: Use `afterEach()` to remove temp directories
+  - **Why critical**: Temp file leaks cause audit failures and disk exhaustion
+- **Memory limits**: Decompression bomb tests MUST verify memory limits work
+  - Test that `max_size` limit prevents OOM in bomb scenarios
+  - Use in-memory archives for unit tests (avoid disk I/O)
+- **Deterministic extraction**: Same archive → same output across environments
+  - Verify timestamp preservation, permission handling, path normalization
+  - Test cross-platform compatibility (Windows paths, Unix permissions)
 
 ---
 
@@ -1254,6 +1280,8 @@ def test_extract_metrics():
 - [Canonical Façade Principle](../../../architecture/fulmen-helper-library-standard.md#canonical-façade-principle)
 - [Pathfinder Module Standard](pathfinder.md) - Required dependency for glob-based archive scanning
 - [FulHash Module Standard](fulhash.md) - Required dependency for checksum generation and verification
+- [Portable Testing Practices](../../testing/portable-testing-practices.md) - **Required for all implementations** (especially temp file cleanup, sandbox compatibility)
+- [Coding Standards](../../coding/README.md) - Language-specific implementation and testing patterns
 - [Module Registry](../../../../config/taxonomy/library/platform-modules/v1.0.0/modules.yaml)
 
 ---

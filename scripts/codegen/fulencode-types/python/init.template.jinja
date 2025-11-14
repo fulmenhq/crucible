@@ -1,0 +1,20 @@
+"""Fulencode module - Encoding, decoding, and normalization utilities.
+
+This file is AUTO-GENERATED from the Fulencode module specification.
+DO NOT EDIT MANUALLY - changes will be overwritten.
+
+Module Version: {{ version }}
+Last Reviewed: {{ last_reviewed }}
+
+See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/modules/fulencode.md
+"""
+
+from crucible.fulencode.enums import (
+{% for taxonomy in taxonomies %}    {{ taxonomy.className }},
+{% endfor %})
+
+__all__ = [
+{% for taxonomy in taxonomies %}    "{{ taxonomy.className }}",
+{% endfor %}]
+
+__version__ = "{{ version }}"

@@ -1,0 +1,41 @@
+{
+  "module": "fulencode",
+  "schema_base_path": "schemas/library/fulencode/v1.0.0",
+  "taxonomy_base_path": "schemas/taxonomy/library/fulencode",
+  "owner": "@schema-cartographer",
+  "last_reviewed": "2025-11-13",
+  "version": "v1.0.0",
+  "languages": {
+    "python": {
+      "output_dir": "lang/python/src/crucible/fulencode",
+      "templates": {
+        "enums": "enums.template.jinja",
+        "init": "init.template.jinja"
+      },
+      "postprocess": "postprocess.sh"
+    },
+    "go": {
+      "output_dir": "fulencode",
+      "templates": {
+        "types": "types.template.ejs"
+      },
+      "postprocess": "postprocess.sh"
+    },
+    "typescript": {
+      "output_dir": "lang/typescript/src/fulencode",
+      "templates": {
+        "types": "types.template.ejs"
+      },
+      "postprocess": "postprocess.sh"
+    }
+  },
+  "schemas": {
+    "data_structures": [],
+    "options": []
+  },
+  "taxonomies": {
+    "encoding-formats": "encoding-families/v1.0.0/families.yaml",
+    "normalization-profiles": "normalization-profiles/v1.0.0/profiles.yaml",
+    "confidence-levels": "detection-confidence/v1.0.0/levels.yaml"
+  }
+}

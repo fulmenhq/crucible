@@ -5,11 +5,11 @@ VERSION_FILE := VERSION
 # Crucible Makefile
 # Standards forge for the FulmenHQ ecosystem
 
-.PHONY: help bootstrap tools sync test build build-all clean version fmt fmt-check lint typecheck
+.PHONY: help bootstrap tools sync test build build-all clean version fmt fmt-check lint lint-fix typecheck
 .PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python build-python lint-python
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare prepush precommit check-all
-.PHONY: validate-schemas verify-codegen codegen-exit-codes codegen-fulpack codegen-fulpack-python codegen-all
+.PHONY: validate-schemas verify-codegen codegen-exit-codes codegen-fulpack codegen-fulpack-python codegen-fulencode codegen-all
 
 # Default target
 all: sync-schemas
@@ -60,7 +60,7 @@ test-python: ## Run Python wrapper tests (matches GitHub Actions)
 	@cd lang/python && uv run pytest
 
 # Build targets
-build: fmt sync-to-lang build-go build-ts build-python ## Build language wrappers (matches GitHub Actions)
+build: sync-to-lang fmt build-go build-ts build-python ## Build language wrappers (matches GitHub Actions)
 	@echo "✅ Language wrappers built"
 
 build-go: ## Build Go wrapper (matches GitHub Actions)
@@ -73,14 +73,16 @@ build-python: ## Build Python wrapper (matches GitHub Actions)
 	@cd lang/python && uv sync
 
 # Format, Lint, Typecheck targets
-fmt: | bootstrap ## Format code files using goneat and Biome
+# Note: fmt depends on sync-to-lang having run (via build target order) to format synced files in lang/ directories
+fmt: | bootstrap ## Format code files (Go/markdown/YAML via goneat, TypeScript via biome, Python via ruff)
 	@$(BIN_DIR)/goneat format --verbose
 	@cd lang/typescript && bun run format >/dev/null
+	@cd lang/python && uv run ruff format . >/dev/null 2>&1 || true
 
 fmt-check: | bootstrap ## Check if files are formatted without modifying
 	@$(BIN_DIR)/goneat format --check --verbose
 
-lint: | bootstrap ## Run linting (matches GitHub Actions)
+lint: | bootstrap ## Run linting (check only, no auto-fix - use 'make lint-fix' to auto-fix)
 	@echo "Linting TypeScript/JavaScript files..."
 	@cd lang/typescript && bun run lint
 	@echo ""
@@ -91,6 +93,10 @@ lint: | bootstrap ## Run linting (matches GitHub Actions)
 	@$(BIN_DIR)/goneat assess --categories format,security --check --include "**/*.go"
 	@$(BIN_DIR)/goneat assess --categories format --check --exclude "lang/**" --exclude "**/*.go"
 
+lint-fix: | bootstrap ## Run linting with auto-fix (Python only - TypeScript uses biome via fmt)
+	@echo "Auto-fixing Python linting issues..."
+	@cd lang/python && uv run ruff check --fix .
+
 lint-python: ## Lint Python code (matches GitHub Actions)
 	@cd lang/python && uv run ruff check .
 
@@ -100,7 +106,7 @@ typecheck: ## Type-check TypeScript files
 	@echo "✅ TypeScript type-check complete"
 
 # Hook stubs
-prepush: check-all ## Run pre-push hooks (check-all + build)
+prepush: precommit ## Run pre-push hooks (depends on precommit for completeness)
 	@echo "✅ Pre-push checks passed"
 
 precommit: check-all ## Run pre-commit hooks (check-all + build)
@@ -115,7 +121,11 @@ clean: ## Clean any build artifacts
 	@rm -rf dist/ lang/*/dist/ bin/
 	@echo "✅ Clean completed"
 
-validate-schemas: | bootstrap ## Validate taxonomy registries and logging schema changes
+validate-schemas: | bootstrap ## Validate all schemas (meta + semantic validation)
+	@echo "🔍 Phase 1: Meta-validating all .schema.json files..."
+	@bun run scripts/validate-all-schemas.ts
+	@echo ""
+	@echo "🔍 Phase 2: Semantic validation of data files..."
 	@bun run scripts/validate-schemas.ts
 	@bun run scripts/validate-taxonomy-version.ts
 	@bun run scripts/validate-module-registry.ts
@@ -123,6 +133,7 @@ validate-schemas: | bootstrap ## Validate taxonomy registries and logging schema
 verify-codegen: ## Verify generated code is up-to-date with catalog
 	@bun run scripts/codegen/verify-exit-codes.ts
 	@bun run scripts/codegen/verify-fulpack-types.ts
+	@bun run scripts/codegen/verify-fulencode-types.ts
 
 # Code generation targets
 codegen-exit-codes: ## Generate exit codes for all languages
@@ -140,7 +151,12 @@ codegen-fulpack-python: ## Generate fulpack types for Python only
 	@bun run scripts/codegen/generate-fulpack-types.ts --lang python --format
 	@echo "✅ Fulpack types generated (Python)"
 
-codegen-all: codegen-exit-codes codegen-fulpack ## Regenerate all generated code
+codegen-fulencode: ## Generate fulencode types for all languages
+	@echo "Generating fulencode types..."
+	@bun run scripts/codegen/generate-fulencode-types.ts --all --format
+	@echo "✅ Fulencode types generated"
+
+codegen-all: codegen-exit-codes codegen-fulpack codegen-fulencode ## Regenerate all generated code
 	@echo "✅ All code generation complete"
 
 # Version management
