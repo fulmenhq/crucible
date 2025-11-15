@@ -12,7 +12,7 @@
  */
 
 // ============================================================================
-// Enums (String Literal Union Types)
+// Enums (TypeScript Enums)
 // ============================================================================
 
 <% taxonomies.forEach(taxonomy => { %>
@@ -20,9 +20,10 @@
  * <%- taxonomy.description %>
  * @see schemas/taxonomy/library/fulencode/<%- taxonomy.path %>
  */
-export type <%- taxonomy.className %> =
-<% taxonomy.items.forEach((item, index) => { %>  | "<%- item.id %>"<% if (index < taxonomy.items.length - 1) { %><% } else { %>;<% } %>
-<% }); %>
+export enum <%- taxonomy.className %> {
+<% taxonomy.items.forEach((item, index) => { %><% if (item.description) { %>  /** <%- item.description %> */
+<% } %>  <%- item.constant_name %> = "<%- item.id %>",
+<% }); %>}
 
 <% }); %>
 // ============================================================================

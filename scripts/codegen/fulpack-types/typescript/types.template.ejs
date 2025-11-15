@@ -12,7 +12,7 @@
  */
 
 // ============================================================================
-// Enums (String Literal Union Types)
+// Enums (TypeScript Enums)
 // ============================================================================
 
 <% taxonomies.forEach(taxonomy => { %>
@@ -20,11 +20,76 @@
  * <%- taxonomy.description %>
  * @see schemas/taxonomy/library/fulpack/<%- taxonomy.path %>
  */
-export type <%- taxonomy.className %> =
-<% taxonomy.items.forEach((item, index) => { %>  | "<%- item.id %>"<% if (index < taxonomy.items.length - 1) { %><% } else { %>;<% } %>
-<% }); %>
+export enum <%- taxonomy.className %> {
+<% taxonomy.items.forEach((item, index) => { %><% if (item.description) { %>  /** <%- item.description %> */
+<% } %>  <%- item.constant_name %> = "<%- item.id %>",
+<% }); %>}
 
 <% }); %>
+// ============================================================================
+// Structured Error Types
+// ============================================================================
+
+/**
+ * Structured error context for fulpack operations.
+ * Enables programmatic error handling and observability.
+ *
+ * @see docs/standards/library/modules/fulpack.md
+ */
+export interface FulpackError {
+  /**
+   * Canonical error code for programmatic handling.
+   * Examples: "PATH_TRAVERSAL", "DECOMPRESSION_BOMB", "ABSOLUTE_PATH", "SYMLINK_ESCAPE"
+   */
+  readonly code: string;
+
+  /**
+   * Human-readable error message describing what went wrong.
+   */
+  readonly message: string;
+
+  /**
+   * Operation that generated this error.
+   */
+  readonly operation: Operation;
+
+  /**
+   * Entry path that caused the error (if applicable).
+   * Example: "../../../etc/passwd"
+   */
+  readonly path?: string;
+
+  /**
+   * Archive file path being processed.
+   */
+  readonly archive?: string;
+
+  /**
+   * Source file path for create operations.
+   */
+  readonly source?: string;
+
+  /**
+   * Additional structured context for debugging and telemetry.
+   */
+  readonly details?: {
+    /** Entry index in archive (0-based) */
+    readonly entry_index?: number;
+    /** Compression ratio that triggered bomb detection */
+    readonly compression_ratio?: number;
+    /** Actual decompressed size in bytes */
+    readonly actual_size?: number;
+    /** Maximum allowed size in bytes */
+    readonly max_size?: number;
+    /** Maximum allowed entries */
+    readonly max_entries?: number;
+    /** Actual entry count */
+    readonly entry_count?: number;
+    /** Additional context (extensible) */
+    readonly [key: string]: unknown;
+  };
+}
+
 // ============================================================================
 // Data Structures (Interfaces)
 // ============================================================================
@@ -35,8 +100,20 @@ export type <%- taxonomy.className %> =
  * @see schemas/library/fulpack/v1.0.0/<%- schema.filename %>
  */
 export interface <%- schema.className %> {
-<% schema.required_properties.forEach(prop => { %>  readonly <%- prop.name %>: <%- prop.typescript_type %>;<% if (prop.description) { %> // <%- prop.description %><% } %>
-<% }); %><% schema.optional_properties.forEach(prop => { %>  readonly <%- prop.name %>?: <%- prop.typescript_type %>;<% if (prop.description) { %> // <%- prop.description %><% } %>
+<% schema.required_properties.forEach(prop => { %><%
+  // Override errors field to use FulpackError[] for ValidationResult and ExtractResult
+  let fieldType = prop.typescript_type;
+  if (prop.name === 'errors' && (schema.className === 'ValidationResult' || schema.className === 'ExtractResult')) {
+    fieldType = 'FulpackError[]';
+  }
+%>  readonly <%- prop.name %>: <%- fieldType %>;<% if (prop.description) { %> // <%- prop.description %><% } %>
+<% }); %><% schema.optional_properties.forEach(prop => { %><%
+  // Override errors field to use FulpackError[] for ValidationResult and ExtractResult
+  let fieldType = prop.typescript_type;
+  if (prop.name === 'errors' && (schema.className === 'ValidationResult' || schema.className === 'ExtractResult')) {
+    fieldType = 'FulpackError[]';
+  }
+%>  readonly <%- prop.name %>?: <%- fieldType %>;<% if (prop.description) { %> // <%- prop.description %><% } %>
 <% }); %>}
 
 <% }); %>

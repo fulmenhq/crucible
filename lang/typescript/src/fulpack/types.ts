@@ -12,26 +12,117 @@
  */
 
 // ============================================================================
-// Enums (String Literal Union Types)
+// Enums (TypeScript Enums)
 // ============================================================================
 
 /**
  * ArchiveFormat enum
  * @see schemas/taxonomy/library/fulpack/archive-formats/v1.0.0/formats.yaml
  */
-export type ArchiveFormat = "tar" | "tar.gz" | "zip" | "gzip";
+export enum ArchiveFormat {
+  /** POSIX tar archive (uncompressed) */
+  TAR = "tar",
+  /** POSIX tar archive with gzip compression */
+  TAR_GZ = "tar.gz",
+  /** ZIP archive with deflate compression */
+  ZIP = "zip",
+  /** GZIP compressed single file */
+  GZIP = "gzip",
+}
 
 /**
  * EntryType enum
  * @see schemas/taxonomy/library/fulpack/entry-types/v1.0.0/types.yaml
  */
-export type EntryType = "file" | "directory" | "symlink";
+export enum EntryType {
+  /** Normal file with data */
+  FILE = "file",
+  /** Directory/folder entry */
+  DIRECTORY = "directory",
+  /** Symbolic link to another entry */
+  SYMLINK = "symlink",
+}
 
 /**
  * Operation enum
  * @see schemas/taxonomy/library/fulpack/operations/v1.0.0/operations.yaml
  */
-export type Operation = "create" | "extract" | "scan" | "verify" | "info";
+export enum Operation {
+  /** Create new archive from source files/directories */
+  CREATE = "create",
+  /** Extract archive contents to destination */
+  EXTRACT = "extract",
+  /** List archive entries (for Pathfinder integration) */
+  SCAN = "scan",
+  /** Validate archive integrity and checksums */
+  VERIFY = "verify",
+  /** Get archive metadata without extraction */
+  INFO = "info",
+}
+
+// ============================================================================
+// Structured Error Types
+// ============================================================================
+
+/**
+ * Structured error context for fulpack operations.
+ * Enables programmatic error handling and observability.
+ *
+ * @see docs/standards/library/modules/fulpack.md
+ */
+export interface FulpackError {
+  /**
+   * Canonical error code for programmatic handling.
+   * Examples: "PATH_TRAVERSAL", "DECOMPRESSION_BOMB", "ABSOLUTE_PATH", "SYMLINK_ESCAPE"
+   */
+  readonly code: string;
+
+  /**
+   * Human-readable error message describing what went wrong.
+   */
+  readonly message: string;
+
+  /**
+   * Operation that generated this error.
+   */
+  readonly operation: Operation;
+
+  /**
+   * Entry path that caused the error (if applicable).
+   * Example: "../../../etc/passwd"
+   */
+  readonly path?: string;
+
+  /**
+   * Archive file path being processed.
+   */
+  readonly archive?: string;
+
+  /**
+   * Source file path for create operations.
+   */
+  readonly source?: string;
+
+  /**
+   * Additional structured context for debugging and telemetry.
+   */
+  readonly details?: {
+    /** Entry index in archive (0-based) */
+    readonly entry_index?: number;
+    /** Compression ratio that triggered bomb detection */
+    readonly compression_ratio?: number;
+    /** Actual decompressed size in bytes */
+    readonly actual_size?: number;
+    /** Maximum allowed size in bytes */
+    readonly max_size?: number;
+    /** Maximum allowed entries */
+    readonly max_entries?: number;
+    /** Actual entry count */
+    readonly entry_count?: number;
+    /** Additional context (extensible) */
+    readonly [key: string]: unknown;
+  };
+}
 
 // ============================================================================
 // Data Structures (Interfaces)
@@ -89,7 +180,7 @@ export interface ArchiveManifest {
  */
 export interface ValidationResult {
   readonly valid: boolean; // Whether the archive is valid and intact
-  readonly errors: string[]; // Array of validation errors (empty if valid)
+  readonly errors: FulpackError[]; // Array of validation errors (empty if valid)
   readonly warnings: string[]; // Array of non-critical warnings (e.g., missing checksums)
   readonly entry_count: number; // Number of entries validated
   readonly checksums_verified?: number; // Number of checksums successfully verified
@@ -109,7 +200,7 @@ export interface ExtractResult {
   readonly extracted_count: number; // Number of entries successfully extracted
   readonly skipped_count: number; // Number of entries skipped (e.g., already exists)
   readonly error_count: number; // Number of entries that failed to extract
-  readonly errors?: string[]; // Array of error messages for failed extractions
+  readonly errors?: FulpackError[]; // Array of error messages for failed extractions
   readonly warnings?: string[]; // Array of warning messages (e.g., skipped files)
   readonly checksums_verified?: number; // Number of checksums successfully verified during extraction
   readonly total_bytes?: number; // Total bytes extracted
