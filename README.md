@@ -476,9 +476,60 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-**Version**: 0.2.14 (SemVer: MAJOR.MINOR.PATCH)
+**Version**: 0.2.15 (SemVer: MAJOR.MINOR.PATCH)
+**Maturity**: Active Development - Production-Ready Core
+**Role**: Layer 0 infrastructure serving the FulmenHQ ecosystem
 
-Active development. Core schemas, standards, and helper library contracts stabilized. Go module relocated to repository root for standard external installation (v0.1.4). Adopted Semantic Versioning for Go module compatibility (v0.2.0). Signal handling module (v0.2.5) establishes SSOT for graceful shutdown, Ctrl+C handling, and cross-platform signal semantics. Platform introspection API (v0.2.6) enables runtime signal support detection. Metrics taxonomy (v0.2.7) provides 26 standardized metrics with namespace governance and automated version synchronization. CDRL template standard system (v0.2.8) provides comprehensive customization framework. Forge standards enhanced (v0.2.9) with real implementation feedback, Enterprise Three-Layer Config renamed for clarity, cross-language Crucible documentation access patterns established, L'Orage Central DevSecOps schemas Wave 4 complete (Recipe + Runbooks), microtool repository category added, and repository naming standard published. Extension Framework Foundation (v0.2.10) provides module registry infrastructure with platform-modules/foundry-catalogs split, Canonical Façade Principle documentation, and comprehensive validation tooling. Fulpack Type Generation Complete (v0.2.11) delivers cross-language type bindings (Python, TypeScript, Go) for fulpack archive module with compile-time verification, plus Portable Testing Practices standard establishing deterministic test execution patterns across FulmenHQ ecosystem (capability detection, in-memory-first, context propagation, isolated cleanup) cross-linked from all coding and forge standards. Fulencode Module Complete (v0.2.12) provides Common-tier encoding/decoding operations (Base64, Base32, Hex, UTF detection, Unicode normalization) with security-first design, 14-metric telemetry specification, cross-language type generation (Python, TypeScript, Go), explicit transformation algorithms for custom normalization profiles, and comprehensive helper library feedback integration from all three language teams. Fulpack Test Fixtures (v0.2.13) adds reproducible script-generated test fixtures for all 4 archive formats (tar, tar.gz, zip, gzip) with programmatic size enforcement, binary+text content testing, security validation (pathological archives), and comprehensive documentation enabling consistent cross-language testing in gofulmen, pyfulmen, and tsfulmen. TypeScript Enum Generation + DevSecOps Secrets Schema (v0.2.14) updates code generation to produce TypeScript enums instead of string literal unions for fulpack and fulencode modules, achieving cross-language parity with Go (typed constants) and Python (Enum classes), plus structured FulpackError interface for better observability. Adds canonical DevSecOps project secrets schema with dual-mode plaintext/encrypted support, encryption metadata tracking (GPG/age/passphrase), policy enforcement (FIPS mode), and comprehensive documentation enabling fulmen-secrets (fulsecrets) CLI tool for secure environment variable management across development, staging, and production environments.
+### What is "Blueprints for Enterprise Scale"?
+
+Crucible is the **single source of truth** (SSOT) that enables the Fulmen layer cake to scale reliably. Rather than each tool, template, or library maintaining its own schemas, standards, and specifications, Crucible provides the canonical definitions that all layers consume.
+
+**The SSOT Advantage**:
+
+- **One definition, many consumers** - Update a schema once, propagate everywhere
+- **Cross-language consistency** - Go, TypeScript, Python share identical contracts
+- **Version-controlled evolution** - Schemas evolve with backward compatibility guarantees
+- **Quality enforcement** - Standards are testable, not just documented
+- **Discovery through usage** - Users find Crucible through gofulmen, groningen, or apps—not standalone
+
+Crucible anchors the ecosystem. Apps and templates rely on helper libraries (gofulmen, tsfulmen, pyfulmen), which consume Crucible's schemas and standards. When you need to understand _why_ your library works a certain way, you'll find the answer here.
+
+### Current State
+
+**Stable & Production-Ready**:
+
+- ✅ JSON Schema contracts (versioned, backward-compatible)
+- ✅ Cross-language library integrations (Go, TypeScript, Python)
+- ✅ Helper library module specifications (Fulpack, Fulencode, Pathfinder, Signal Handling)
+- ✅ Code generation tooling with type safety guarantees
+- ✅ Quality enforcement via goneat integration
+
+**In Active Development**:
+
+- Library extension specifications (Pathfinder repository discovery, cloud storage)
+- DevSecOps schemas (L'Orage Central integration, secrets management)
+- Enterprise logging features (middleware, redaction, structured observability)
+
+### Recent Focus (v0.2.15)
+
+Quality & reliability improvements:
+
+- Fixed critical schema mismatches blocking downstream development
+- Enhanced TypeScript type generation with comprehensive test coverage
+- Extended Pathfinder specification for repository root discovery
+- Documented logging redaction middleware for enterprise features
+
+**See**: [Release Notes](release-notes/v0.2.15.md) | [Full Changelog](CHANGELOG.md)
+
+### Ecosystem Adoption
+
+Anchoring production systems:
+
+- **goneat** - Format/lint enforcement
+- **fulward** - Infrastructure protection
+- **gofulmen, tsfulmen, pyfulmen** - Multi-language helper libraries
+- **groningen, percheron** - Forge template implementations
+- **brooklyn-mcp, sumpter** - Production applications
 
 ---
 

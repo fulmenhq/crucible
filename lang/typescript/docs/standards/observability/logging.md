@@ -206,6 +206,7 @@ Recommended built-ins: `redact-secrets`, `redact-pii`, `request-context` (inject
 Redaction middleware is **available** for SIMPLE, STRUCTURED, and ENTERPRISE profiles as an **opt-in capability**. Implementations follow the middleware configuration schema at `schemas/observability/logging/v1.0.0/middleware-config.schema.json`.
 
 **Availability**:
+
 - **Profiles**: SIMPLE, STRUCTURED, ENTERPRISE
 - **Default**: Disabled (no redaction applied)
 - **Enabled via**: LoggerConfig `middleware` array with `type: "redaction"`
@@ -219,14 +220,14 @@ Redaction middleware is **available** for SIMPLE, STRUCTURED, and ENTERPRISE pro
 middleware:
   - type: redaction
     enabled: true
-    priority: 10  # Lower priority runs first (before correlation, etc.)
+    priority: 10 # Lower priority runs first (before correlation, etc.)
     redaction:
       # Regex patterns to match and redact
       patterns:
-        - "SECRET_[A-Z0-9_]+"           # Environment variables like SECRET_KEY
-        - "[A-Z0-9_]*TOKEN[A-Z0-9_]*"   # API tokens like GITHUB_TOKEN
-        - "[A-Z0-9_]*KEY[A-Z0-9_]*"     # Keys like API_KEY, DATABASE_KEY
-        - "[A-Za-z0-9+/]{40,}={0,2}"    # Base64-encoded secrets (40+ chars)
+        - "SECRET_[A-Z0-9_]+" # Environment variables like SECRET_KEY
+        - "[A-Z0-9_]*TOKEN[A-Z0-9_]*" # API tokens like GITHUB_TOKEN
+        - "[A-Z0-9_]*KEY[A-Z0-9_]*" # Keys like API_KEY, DATABASE_KEY
+        - "[A-Za-z0-9+/]{40,}={0,2}" # Base64-encoded secrets (40+ chars)
 
       # Specific field names to redact completely
       fields:
@@ -241,24 +242,26 @@ middleware:
 ```
 
 **Schema Reference** (`middleware-config.schema.json`):
+
 - `patterns` (array of strings): Regex patterns to match and redact in message text
 - `fields` (array of strings): Structured field names to redact completely
 - `replacement` (string, default `"[REDACTED]"`): Text replacing redacted content
 
 **Pattern Examples** (implementation-specific defaults may vary):
 
-| Pattern Category | Regex Example | Matches |
-|-----------------|---------------|---------|
-| Environment Variables | `SECRET_[A-Z0-9_]+` | `SECRET_KEY`, `SECRET_DATABASE_URL` |
-| API Tokens | `[A-Z0-9_]*TOKEN[A-Z0-9_]*` | `GITHUB_TOKEN`, `API_TOKEN`, `AUTH_TOKEN` |
-| Keys | `[A-Z0-9_]*KEY[A-Z0-9_]*` | `API_KEY`, `DATABASE_KEY`, `ENCRYPTION_KEY` |
-| Base64 Secrets | `[A-Za-z0-9+/]{40,}={0,2}` | Long base64-encoded strings (40+ characters) |
-| Email Addresses | `[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}` | `user@example.com` |
-| Credit Cards | `\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}` | `4111-1111-1111-1111` |
+| Pattern Category      | Regex Example                                    | Matches                                      |
+| --------------------- | ------------------------------------------------ | -------------------------------------------- |
+| Environment Variables | `SECRET_[A-Z0-9_]+`                              | `SECRET_KEY`, `SECRET_DATABASE_URL`          |
+| API Tokens            | `[A-Z0-9_]*TOKEN[A-Z0-9_]*`                      | `GITHUB_TOKEN`, `API_TOKEN`, `AUTH_TOKEN`    |
+| Keys                  | `[A-Z0-9_]*KEY[A-Z0-9_]*`                        | `API_KEY`, `DATABASE_KEY`, `ENCRYPTION_KEY`  |
+| Base64 Secrets        | `[A-Za-z0-9+/]{40,}={0,2}`                       | Long base64-encoded strings (40+ characters) |
+| Email Addresses       | `[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}` | `user@example.com`                           |
+| Credit Cards          | `\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}`         | `4111-1111-1111-1111`                        |
 
 **NOTE**: Patterns shown are examples. Helper library implementations (gofulmen, tsfulmen, pyfulmen) MAY provide these as defaults but MUST allow full configuration via `patterns` array per schema. No patterns are hardcoded in the Crucible schema.
 
 **Behavior**:
+
 - **Execution Order**: Controlled by `priority` field (lower values run first). If multiple middleware have the same priority, execution order is undefined (implementation-specific). Recommend assigning distinct priorities to avoid ambiguity.
 - **Scope**: Applies to message text AND structured context fields
 - **Field Matching**: Field names SHOULD be matched case-insensitively (e.g., `password`, `Password`, `PASSWORD` all match field `"password"`)
@@ -268,6 +271,7 @@ middleware:
 - **Safe**: Never modifies original log call arguments, only emitted events
 
 **Compatibility**:
+
 - ✅ Console sinks (stderr JSON)
 - ✅ File sinks (JSON, NDJSON)
 - ✅ All profiles (SIMPLE, STRUCTURED, ENTERPRISE)
@@ -275,15 +279,16 @@ middleware:
 
 **Profile-Specific Recommendations**:
 
-| Profile | When to Enable Redaction | Typical Configuration |
-|---------|-------------------------|----------------------|
-| **SIMPLE** | CLI tools handling secrets (deployment scripts, Fulmen-Secrets) | Minimal patterns targeting known env vars (`SECRET_*`, `*_TOKEN`) |
-| **STRUCTURED** | Services processing user data or credentials | Field-based redaction (`password`, `token`) + common token patterns |
-| **ENTERPRISE** | Production environments with compliance requirements (GDPR, HIPAA, PCI-DSS) | Comprehensive patterns + field redaction + audit flags |
+| Profile        | When to Enable Redaction                                                    | Typical Configuration                                               |
+| -------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **SIMPLE**     | CLI tools handling secrets (deployment scripts, Fulmen-Secrets)             | Minimal patterns targeting known env vars (`SECRET_*`, `*_TOKEN`)   |
+| **STRUCTURED** | Services processing user data or credentials                                | Field-based redaction (`password`, `token`) + common token patterns |
+| **ENTERPRISE** | Production environments with compliance requirements (GDPR, HIPAA, PCI-DSS) | Comprehensive patterns + field redaction + audit flags              |
 
 **Example Configurations**:
 
 **SIMPLE Profile** (CLI tool with secrets):
+
 ```yaml
 profile: SIMPLE
 service: deployment-tool
@@ -298,6 +303,7 @@ middleware:
 ```
 
 **STRUCTURED Profile** (API service):
+
 ```yaml
 profile: STRUCTURED
 service: user-api
@@ -311,7 +317,7 @@ middleware:
         - accessToken
         - refreshToken
       patterns:
-        - "[A-Za-z0-9+/]{40,}={0,2}"  # Base64 tokens
+        - "[A-Za-z0-9+/]{40,}={0,2}" # Base64 tokens
       replacement: "[REDACTED]"
   - type: augmentation
     priority: 10
@@ -321,6 +327,7 @@ middleware:
 ```
 
 **ENTERPRISE Profile** (compliance-driven):
+
 ```yaml
 profile: ENTERPRISE
 service: payment-processor
@@ -328,12 +335,12 @@ policyFile: /etc/fulmen/logging-policy.yaml
 middleware:
   - type: redaction
     enabled: true
-    priority: 1  # Run before all other middleware
+    priority: 1 # Run before all other middleware
     redaction:
       patterns:
-        - "\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}"  # Credit cards
-        - "\\d{3}-\\d{2}-\\d{4}"  # SSN
-        - "[A-Za-z0-9+/]{40,}={0,2}"  # Tokens
+        - "\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}" # Credit cards
+        - "\\d{3}-\\d{2}-\\d{4}" # SSN
+        - "[A-Za-z0-9+/]{40,}={0,2}" # Tokens
       fields:
         - cardNumber
         - cvv
@@ -344,28 +351,31 @@ middleware:
 
 **Recommended Default Priorities** (for cross-language consistency):
 
-| Middleware Type | Recommended Priority | Rationale |
-|----------------|---------------------|-----------|
-| Redaction | 10 | Run early to mask secrets before other middleware processes |
-| Augmentation | 15 | Add fields after redaction, before correlation |
-| Correlation | 20 | Generate IDs after augmentation |
-| Sampling | 25 | Sample after correlation IDs assigned |
-| Throttling | 30 | Run last to control output rate |
+| Middleware Type | Recommended Priority | Rationale                                                   |
+| --------------- | -------------------- | ----------------------------------------------------------- |
+| Redaction       | 10                   | Run early to mask secrets before other middleware processes |
+| Augmentation    | 15                   | Add fields after redaction, before correlation              |
+| Correlation     | 20                   | Generate IDs after augmentation                             |
+| Sampling        | 25                   | Sample after correlation IDs assigned                       |
+| Throttling      | 30                   | Run last to control output rate                             |
 
 **Note**: These are recommendations, not requirements. Applications MAY assign different priorities based on specific needs. When middleware have the same priority, execution order is undefined.
 
 **Performance Considerations**:
+
 - **Regex Overhead**: Each pattern adds ~0.1-1ms per log event (depends on message length)
 - **Recommendation**: Use specific patterns, avoid greedy regex like `.*`
 - **Optimization**: Helper libraries MUST pre-compile all regex patterns at logger initialization (not per-event). Store compiled patterns in middleware struct. Fail fast on invalid patterns with clear error messages.
 - **Trade-off**: Opt-in by default because not all applications handle secrets
 
 **Schema Validation**:
+
 - Middleware configuration MUST validate against `middleware-config.schema.json`
 - Invalid patterns (malformed regex) MUST fail at logger initialization
 - Unknown fields in `redaction` config MUST be rejected per schema `additionalProperties: false`
 
 **Testing**:
+
 - Helper libraries MUST include redaction test fixtures
 - Tests MUST verify patterns match expected inputs (see schema examples)
 - Cross-language parity tests ensure identical redaction behavior
@@ -409,12 +419,12 @@ Each package must be installable standalone (e.g., `fulmen-logging` on PyPI) but
 
 ### Progressive Logging Playbook
 
-| Profile    | Default Sinks                                   | Required Middleware                                             | Notes                                                                                   |
-| ---------- | ----------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| SIMPLE     | `console` (stderr JSON)                         | `annotate-trace` (optional), `throttle` (optional), `redact-*` (optional)              | Zero-config path for tooling; inherits defaults from schema. Redaction opt-in for secrets handling (see Redaction Middleware).                            |
-| STRUCTURED | `console` + optional `file`                     | `annotate-trace`, `throttle`, `correlation-context`, `redact-*` (optional)             | Targets long-running CLIs and services needing durable logs. Redaction opt-in for sensitive data (see Redaction Middleware).                            |
-| ENTERPRISE | `console`, `file`, optional external transports | `annotate-trace`, `throttle`, `correlation-context`, `redact-*` | MUST honour `policyFile` and throttle limits; supports per-sink middleware ordering. Redaction recommended for compliance (GDPR, HIPAA, PCI-DSS).    |
-| CUSTOM     | Author-defined                                  | Author-defined                                                  | Reserved for advanced scenarios; still must validate against schema + policy contracts. |
+| Profile    | Default Sinks                                   | Required Middleware                                                        | Notes                                                                                                                                             |
+| ---------- | ----------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SIMPLE     | `console` (stderr JSON)                         | `annotate-trace` (optional), `throttle` (optional), `redact-*` (optional)  | Zero-config path for tooling; inherits defaults from schema. Redaction opt-in for secrets handling (see Redaction Middleware).                    |
+| STRUCTURED | `console` + optional `file`                     | `annotate-trace`, `throttle`, `correlation-context`, `redact-*` (optional) | Targets long-running CLIs and services needing durable logs. Redaction opt-in for sensitive data (see Redaction Middleware).                      |
+| ENTERPRISE | `console`, `file`, optional external transports | `annotate-trace`, `throttle`, `correlation-context`, `redact-*`            | MUST honour `policyFile` and throttle limits; supports per-sink middleware ordering. Redaction recommended for compliance (GDPR, HIPAA, PCI-DSS). |
+| CUSTOM     | Author-defined                                  | Author-defined                                                             | Reserved for advanced scenarios; still must validate against schema + policy contracts.                                                           |
 
 Implementations MUST document how these defaults materialize (zap cores, pino transports, structlog processors, etc.) so auditors can trace configuration to runtime behaviour.
 

@@ -82,9 +82,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - Regenerated TypeScript types for fulpack and fulencode modules
   - **Verification**: `bunx tsc --noEmit` passes without errors
   - **Downstream**: Unblocks TSFulmen v0.1.10+ to remove `as any` workaround
+  - **Prevention Measures**:
+    - Added 20 comprehensive type instantiation tests (`lang/typescript/test/types/fulpack-types.test.ts`)
+    - Tests verify generated types accept correctly-typed data (catches semantic bugs `tsc` misses)
+    - Regression tests for array-of-union patterns across all fulpack interfaces
+    - Tests integrated into CI/CD pipeline via `make test`
   - **Files**:
     - Generator: `scripts/codegen/generate-fulpack-types.ts` (+7 lines)
     - Types: `lang/typescript/src/fulpack/types.ts`, `lang/typescript/src/fulencode/types.ts` (regenerated)
+    - Tests: `lang/typescript/test/types/fulpack-types.test.ts` (+340 lines, 20 tests)
   - **Triggered by**: TSFulmen v0.1.9 type checking errors during enum migration
 
 - **Logging Schema Bugfix** - Middleware Configuration Schema Mismatch:

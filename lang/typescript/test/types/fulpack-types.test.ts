@@ -1,14 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  type ValidationResult,
-  type ExtractResult,
-  type CreateOptions,
-  type ExtractOptions,
-  type ValidateOptions,
   ArchiveFormat,
+  type CreateOptions,
   EntryType,
-  Operation,
+  type ExtractOptions,
+  type ExtractResult,
   type FulpackError,
+  Operation,
+  type ValidateOptions,
+  type ValidationResult,
 } from "../../src/fulpack/types";
 
 describe("Fulpack Type Definitions", () => {

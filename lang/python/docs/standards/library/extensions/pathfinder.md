@@ -191,6 +191,7 @@ Pathfinder provides safe upward filesystem traversal to locate repository marker
 ### API Signature
 
 **Go**:
+
 ```go
 package pathfinder
 
@@ -228,6 +229,7 @@ type FindOptions struct {
 ```
 
 **Python**:
+
 ```python
 from pyfulmen.pathfinder import find_repository_root, GitMarkers, GoModMarkers
 
@@ -241,13 +243,14 @@ root = find_repository_root(
 ```
 
 **TypeScript**:
+
 ```typescript
 import { findRepositoryRoot, GitMarkers } from "@fulmenhq/tsfulmen/pathfinder";
 
 // Returns path string or throws RepositoryNotFoundError
 const root = await findRepositoryRoot(".", GitMarkers, {
-    maxDepth: 10,
-    boundary: os.homedir()
+  maxDepth: 10,
+  boundary: os.homedir(),
 });
 ```
 
@@ -319,6 +322,7 @@ Safety comes not from **whether** we traverse upward, but from **where we stop**
 4. **Return Directory**: Return the directory path, not the marker file path
 
 **Example**:
+
 ```go
 // Directory structure:
 // /home/user/.git
@@ -433,6 +437,7 @@ func findAppYaml(start string) (string, error) {
 ### Usage Examples
 
 **Go Example**:
+
 ```go
 package main
 
@@ -461,6 +466,7 @@ func main() {
 ```
 
 **Python Example**:
+
 ```python
 from pyfulmen.pathfinder import (
     find_repository_root,
@@ -476,16 +482,17 @@ except RepositoryNotFoundError as e:
 ```
 
 **TypeScript Example**:
+
 ```typescript
 import { findRepositoryRoot, GitMarkers } from "@fulmenhq/tsfulmen/pathfinder";
 
 async function findRoot() {
-    try {
-        const root = await findRepositoryRoot(".", GitMarkers);
-        console.log(`Repository root: ${root}`);
-    } catch (err) {
-        console.error(`Not in a Git repository: ${err.message}`);
-    }
+  try {
+    const root = await findRepositoryRoot(".", GitMarkers);
+    console.log(`Repository root: ${root}`);
+  } catch (err) {
+    console.error(`Not in a Git repository: ${err.message}`);
+  }
 }
 ```
 
