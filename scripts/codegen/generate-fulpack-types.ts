@@ -198,7 +198,12 @@ function inferTypeScriptType(property: JSONSchemaProperty): string {
   // Handle arrays
   if (type === "array" && items) {
     const itemType = inferTypeScriptType(items);
-    return `${itemType}[]`;
+
+    // Wrap union types in parentheses before applying array bracket
+    // This ensures array bracket applies to entire union, not last member
+    // Example: ("a" | "b" | "c")[] instead of "a" | "b" | "c"[]
+    const needsParens = itemType.includes(" | ");
+    return needsParens ? `(${itemType})[]` : `${itemType}[]`;
   }
 
   // Handle format-specific types

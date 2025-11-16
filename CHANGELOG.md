@@ -65,6 +65,87 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Template Logic**: Added conditional override for `errors` fields in ValidationResult and ExtractResult
 - **Verification**: All generated types compile with `tsc --noEmit`, pass drift detection, maintain parity across languages
 
+## [0.2.15] - 2025-11-16
+
+### Fixed
+
+- **TypeScript Code Generation Bugfix** - Array-of-Union Type Wrapping:
+  - **Problem**: TypeScript code generator produced malformed type definitions for array-of-enum fields
+    - Array bracket `[]` incorrectly applied only to last union member instead of entire union
+    - Example (wrong): `"a" | "b" | "c"[]` (only "c" is array type)
+    - Example (correct): `("a" | "b" | "c")[]` (entire union is array type)
+  - **Affected Field**: `ValidationResult.checks_performed` in fulpack types
+  - **Impact**: Type checking errors when assigning correctly-typed arrays, forced `as any` workarounds in TSFulmen
+  - **Fix Applied**:
+    - Updated `inferTypeScriptType()` in `scripts/codegen/generate-fulpack-types.ts`
+    - Added parentheses wrapping for union types before array bracket: `needsParens ? (${itemType})[] : ${itemType}[]`
+    - Regenerated TypeScript types for fulpack and fulencode modules
+  - **Verification**: `bunx tsc --noEmit` passes without errors
+  - **Downstream**: Unblocks TSFulmen v0.1.10+ to remove `as any` workaround
+  - **Files**:
+    - Generator: `scripts/codegen/generate-fulpack-types.ts` (+7 lines)
+    - Types: `lang/typescript/src/fulpack/types.ts`, `lang/typescript/src/fulencode/types.ts` (regenerated)
+  - **Triggered by**: TSFulmen v0.1.9 type checking errors during enum migration
+
+- **Logging Schema Bugfix** - Middleware Configuration Schema Mismatch:
+  - **Problem**: `logger-config.schema.json` had two conflicting definitions for middleware configuration
+    - Standalone schema (`middleware-config.schema.json`): Updated with new `type`, `priority`, `redaction` fields ✅
+    - Embedded definition in `logger-config.schema.json`: Still used old `name`, `order`, `config` fields ❌
+  - **Fix Applied**:
+    - Updated `middleware` array items `$ref` from `#/$defs/middlewareConfig` to `middleware-config.schema.json`
+    - Removed 30-line embedded `middlewareConfig` definition (conflicted with documented format)
+    - Standalone schema now single source of truth for middleware configuration
+  - **Impact**: Enables new-style middleware configs with `type`/`priority`/`redaction` fields per documentation
+  - **Downstream**: Unblocks gofulmen v0.1.15 redaction middleware implementation
+  - **Files**: `schemas/observability/logging/v1.0.0/logger-config.schema.json` (+1, -30 lines)
+  - **Reported by**: Foundation Forge (gofulmen agent) during v0.1.15 development
+
+### Added
+
+- **Pathfinder Repository Root Discovery Specification** (`docs/standards/library/extensions/pathfinder.md`):
+  - **Purpose**: Safe upward filesystem traversal to locate repository markers (`.git`, `go.mod`, `package.json`, etc.)
+  - **API Specification**:
+    - `FindRepositoryRoot(startPath, markers, ...opts)` function signature for Go/Python/TypeScript
+    - Predefined marker sets: `GitMarkers`, `GoModMarkers`, `NodeMarkers`, `PythonMarkers`, `MonorepoMarkers`
+    - Options: `StopAtFirst`, `MaxDepth`, `Boundary`, `RespectConstraints`, `FollowSymlinks`
+  - **Safety Model**:
+    - Default home directory ceiling (never traverse above `$HOME`/`%USERPROFILE%`)
+    - Max depth guard (default: 10 directories upward)
+    - PathConstraint integration (respects existing boundaries)
+    - Platform-specific boundaries (Windows UNC paths, drive roots, filesystem boundaries)
+  - **Error Handling**: Schema-compliant errors (`REPOSITORY_NOT_FOUND`, `INVALID_START_PATH`, `TRAVERSAL_LOOP`)
+  - **Use Cases**: Finding repository root from nested source directories, locating project configuration files, establishing path context
+  - **Eliminates Duplication**: Replaces hand-rolled upward traversal in groningen, schema catalog, identity discovery
+  - **Performance**: Expected <5ms typical (3-5 dirs up), <20ms worst case (max depth)
+  - **Cross-Language**: Specification ready for implementation in gofulmen, pyfulmen, tsfulmen
+  - **Triggered by**: Groningen `findProjectRoot()` implementation revealing pattern duplication across repos
+  - **Lines**: 328 lines of API specification, safety model, usage examples, integration patterns
+
+- **Logging Redaction Middleware Documentation** (`docs/standards/observability/logging.md`):
+  - **Purpose**: Comprehensive specification for redaction middleware in logging pipeline
+  - **Middleware Configuration**:
+    - New-style format: `type` (required), `enabled`, `priority`, type-specific config objects
+    - Replaces old format: `name`, `order`, generic `config` object
+    - Supports multiple middleware types: redaction, filter, augmentation, sampling, custom
+  - **Redaction Specification**:
+    - Pattern-based redaction with regex support (`SECRET_*`, `TOKEN_*`, etc.)
+    - Field-based redaction (sensitive field names: password, token, apiKey)
+    - Case-insensitive matching option (`case_insensitive: true`)
+    - Configurable replacement text (default: `[REDACTED]`)
+    - Priority recommendations (redaction: 10, filter: 20, augmentation: 30, sampling: 40)
+  - **Schema References**: Links to `middleware-config.schema.json` and redaction config schema
+  - **Usage Examples**: YAML/JSON config examples with real-world patterns
+  - **Integration**: Works with SIMPLE, STANDARD, ENTERPRISE logging profiles
+  - **Lines**: 177 lines of middleware specification, redaction patterns, configuration examples
+  - **Triggered by**: EA Steward memo for gofulmen v0.1.15 enterprise logging features
+
+### Technical Details
+
+- **Schema Synchronization**: All schema changes synced to Python/TypeScript language wrappers via `make sync`
+- **Documentation Alignment**: Logging schema now matches documentation (`docs/standards/observability/logging.md` lines 204-405)
+- **Backward Compatibility**: Language implementations MAY support old middleware format during transition period via shims
+- **Validation**: Schema enforces new middleware format; old `name`/`order`/`config` fields no longer valid
+
 ## [0.2.13] - 2025-11-14
 
 ### Added

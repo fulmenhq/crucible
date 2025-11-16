@@ -184,12 +184,13 @@ export interface ValidationResult {
   readonly warnings: string[]; // Array of non-critical warnings (e.g., missing checksums)
   readonly entry_count: number; // Number of entries validated
   readonly checksums_verified?: number; // Number of checksums successfully verified
-  readonly checks_performed?:
+  readonly checks_performed?: (
     | "structure_valid"
     | "checksums_verified"
     | "no_path_traversal"
     | "no_decompression_bomb"
-    | "symlinks_safe"[]; // List of security and integrity checks performed
+    | "symlinks_safe"
+  )[]; // List of security and integrity checks performed
 }
 
 /**
@@ -248,7 +249,7 @@ export interface ExtractOptions {
  */
 export interface ScanOptions {
   include_metadata?: boolean; // Include metadata (size, checksum, modified timestamp) in results
-  entry_types?: "file" | "directory" | "symlink"[]; // Filter entries by type (from entry-types taxonomy)
+  entry_types?: ("file" | "directory" | "symlink")[]; // Filter entries by type (from entry-types taxonomy)
   max_depth?: number | null; // Maximum depth for directory traversal (null = unlimited)
   max_entries?: number; // Safety limit for maximum entries to return
 }
