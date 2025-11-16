@@ -11,6 +11,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No unreleased changes yet._
 
+## [0.2.16] - 2025-11-16
+
+### Fixed
+
+- **Schema Reference Resolution** - Cross-File $ref Using Absolute $id URLs:
+  - **Problem**: Logging schema used relative cross-file `$ref` (e.g., `"$ref": "middleware-config.schema.json"`)
+    - Relative references fail in memory-based validators without filesystem context
+    - gofulmen v0.1.15 encountered schema compilation failures when loading logger-config.schema.json
+    - JSON Schema best practice recommends absolute `$id` URLs for cross-schema references
+  - **Fix Applied**:
+    - Updated `logger-config.schema.json` line 51: `middleware` array items now reference absolute URL
+    - Changed from: `"$ref": "middleware-config.schema.json"` (relative path)
+    - Changed to: `"$ref": "https://schemas.fulmenhq.dev/crucible/observability/logging/middleware-config-v1.0.0.json"` (absolute $id)
+    - References target schema's `$id` field for consistent resolution
+  - **Impact**: Validators can now resolve cross-schema references without filesystem context
+  - **Downstream**: Unblocks gofulmen v0.1.15 logging module implementation
+  - **Architecture Decision**: See [ADR-0012](docs/architecture/decisions/ADR-0012-schema-ref-ids.md) for full rationale
+  - **Files**:
+    - Schema: `schemas/observability/logging/v1.0.0/logger-config.schema.json` (line 51)
+    - ADR: `docs/architecture/decisions/ADR-0012-schema-ref-ids.md` (new)
+    - Synced to Python/TypeScript language wrappers
+  - **Future Work**: Apply absolute $id references to other cross-file $refs when touched
+  - **Reported by**: EA Steward during gofulmen v0.1.15 development
+
 ## [0.2.15] - 2025-11-16
 
 ### Fixed
