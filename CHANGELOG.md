@@ -9,61 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- **TypeScript Enum Generation**: Updated code generation to produce TypeScript enums instead of string literal unions for cross-language parity
-  - **Fulpack TypeScript Types** (`lang/typescript/src/fulpack/types.ts`):
-    - `ArchiveFormat` enum (TAR, TAR_GZ, ZIP, GZIP) - was `type ArchiveFormat = "tar" | "tar.gz" | ...`
-    - `EntryType` enum (FILE, DIRECTORY, SYMLINK) - was `type EntryType = "file" | "directory" | ...`
-    - `Operation` enum (CREATE, EXTRACT, SCAN, VERIFY, INFO) - was `type Operation = "create" | "extract" | ...`
-    - Enum constant names follow SCREAMING_SNAKE_CASE (e.g., TAR_GZ, UTF_8, ISO_8859_1)
-  - **Fulencode TypeScript Types** (`lang/typescript/src/fulencode/types.ts`):
-    - `EncodingFormat` enum (BASE64, BASE32, HEX, UTF_8, UTF_16LE, UTF_16BE, ISO_8859_1, CP1252, ASCII, BASE64URL, BASE64_RAW, BASE32HEX)
-    - `NormalizationProfile` enum (NFC, NFD, NFKC, NFKD, SAFE_IDENTIFIERS, SEARCH_OPTIMIZED, FILENAME_SAFE, LEGACY_COMPATIBLE)
-    - `ConfidenceLevel` enum (HIGH, MEDIUM, LOW)
-  - **Cross-Language Alignment**: TypeScript now matches Go (typed string constants) and Python (Enum classes) patterns
-  - **Developer Experience**: Enums provide autocomplete, refactoring safety, exhaustiveness checking, and prevent typos
-  - **Template Updates**: Updated EJS templates for both fulpack and fulencode TypeScript generation
-
-### Added
-
-- **Fulpack Structured Error Interface** (`lang/typescript/src/fulpack/types.ts`):
-  - `FulpackError` interface with structured error context for better observability and programmatic error handling
-  - Fields: `code` (string), `message` (string), `operation` (Operation enum), `path` (optional), `archive` (optional), `source` (optional), `details` (optional object with compression_ratio, sizes, etc.)
-  - `ValidationResult.errors` changed from `string[]` to `FulpackError[]`
-  - `ExtractResult.errors` changed from `string[]` to `FulpackError[]`
-  - Enables telemetry categorization, programmatic error handling, and better debugging context
-  - Aligns with gofulmen and pyfulmen structured error patterns
-
-- **DevSecOps Project Secrets Schema** (`schemas/devsecops/secrets/v1.0.0/`):
-  - Canonical schema for project-scoped secrets files with encryption support
-  - **Dual-mode support**: Plaintext (development) OR encrypted (production) - mutually exclusive
-  - **Project scoping**: `projects[]` array with `project_slug` for multi-project secrets in single file
-  - **Encryption metadata**: Tracks method (gpg/age/passphrase), key_id, encrypted_at timestamp, cipher
-  - **Secret entries**: Simple key-value map (string → string, no nested objects in v1.0.0)
-  - **Policy enforcement**: `allow_plain_secrets: false` for compliance/"FIPS mode" (rejects plaintext files)
-  - **Use case**: Environment variable management for fulmen-secrets (fulsecrets) CLI tool, L'Orage Central, Etknow
-  - **Files**:
-    - `schemas/devsecops/secrets/v1.0.0/secrets.schema.json` - JSON Schema with dual-mode validation
-    - `config/devsecops/secrets/v1.0.0/defaults.yaml` - Sample configs (plaintext, GPG, age, passphrase examples)
-    - `docs/standards/devsecops/project-secrets.md` - Comprehensive documentation with security recommendations
-  - **Security features**: Schema-level validation prevents plaintext in prod, supports roundtrip encryption, subprocess wrapping pattern
-  - **Deferred to v1.1.0**: Reference-based secrets, expiry/rotation metadata, audit tags
-
-### Breaking Changes
-
-- **TypeScript Type Changes** (Non-breaking in practice):
-  - Fulpack types: String literal unions replaced with enums
-  - Fulencode types: String literal unions replaced with enums
-  - Structured errors: `ValidationResult.errors` and `ExtractResult.errors` use `FulpackError[]` instead of `string[]`
-  - **Impact**: Zero breaking changes - no implementations exist yet (fulpack v0.2.11, fulencode v0.2.12 only provided type definitions)
-  - **Migration**: TSFulmen, PyFulmen, GoFulmen implementations will use new enum types from start
-
-### Technical Details
-
-- **Code Generation**: `toConstantCase()` helper transforms taxonomy values to enum constant names
-- **Template Logic**: Added conditional override for `errors` fields in ValidationResult and ExtractResult
-- **Verification**: All generated types compile with `tsc --noEmit`, pass drift detection, maintain parity across languages
+_No unreleased changes yet._
 
 ## [0.2.15] - 2025-11-16
 
@@ -151,6 +97,81 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Documentation Alignment**: Logging schema now matches documentation (`docs/standards/observability/logging.md` lines 204-405)
 - **Backward Compatibility**: Language implementations MAY support old middleware format during transition period via shims
 - **Validation**: Schema enforces new middleware format; old `name`/`order`/`config` fields no longer valid
+
+- **DevSecOps Modules Taxonomy** (`config/taxonomy/devsecops/modules/v1.0.0/modules.yaml`):
+  - Created dedicated DevSecOps modules registry separate from platform modules
+  - **Architecture Decision**: DevSecOps modules don't belong in platform-modules registry
+    - Platform modules (config, logging, pathfinder) → gofulmen/pyfulmen/tsfulmen
+    - DevSecOps modules (lorage-central, secrets) → goloragecentral/pyloragecentral (future L'Orage-branded libraries)
+  - **Registry Structure**: Tracks schemas, configs, potential implementations, consumer apps
+  - **No Tier System**: DevSecOps modules don't use Core/Common/Specialized tiers (infrastructure, not general-purpose)
+  - **No Graduation/Sunset**: DevSecOps modules don't need to prove universality
+  - **Validation Updated**: Module registry validation checks both platform and DevSecOps registries (no orphaned artifact warnings)
+  - **Modules Tracked**:
+    - `lorage-central`: L'Orage Central DevSecOps infrastructure (6 schemas: activity, credentials, policy, recipe, runbooks, tenant)
+    - `secrets`: Project secrets management for fulmen-secrets CLI and L'Orage Central
+  - **Files**:
+    - Schema: `schemas/taxonomy/devsecops/modules/v1.0.0/devsecops-module-entry.schema.json`
+    - Registry: `config/taxonomy/devsecops/modules/v1.0.0/modules.yaml`
+    - Validation: `scripts/validate-module-registry.ts` (updated to check both registries)
+
+## [0.2.14] - 2025-11-15
+
+### Changed
+
+- **TypeScript Enum Generation**: Updated code generation to produce TypeScript enums instead of string literal unions for cross-language parity
+  - **Fulpack TypeScript Types** (`lang/typescript/src/fulpack/types.ts`):
+    - `ArchiveFormat` enum (TAR, TAR_GZ, ZIP, GZIP) - was `type ArchiveFormat = "tar" | "tar.gz" | ...`
+    - `EntryType` enum (FILE, DIRECTORY, SYMLINK) - was `type EntryType = "file" | "directory" | ...`
+    - `Operation` enum (CREATE, EXTRACT, SCAN, VERIFY, INFO) - was `type Operation = "create" | "extract" | ...`
+    - Enum constant names follow SCREAMING_SNAKE_CASE (e.g., TAR_GZ, UTF_8, ISO_8859_1)
+  - **Fulencode TypeScript Types** (`lang/typescript/src/fulencode/types.ts`):
+    - `EncodingFormat` enum (BASE64, BASE32, HEX, UTF_8, UTF_16LE, UTF_16BE, ISO_8859_1, CP1252, ASCII, BASE64URL, BASE64_RAW, BASE32HEX)
+    - `NormalizationProfile` enum (NFC, NFD, NFKC, NFKD, SAFE_IDENTIFIERS, SEARCH_OPTIMIZED, FILENAME_SAFE, LEGACY_COMPATIBLE)
+    - `ConfidenceLevel` enum (HIGH, MEDIUM, LOW)
+  - **Cross-Language Alignment**: TypeScript now matches Go (typed string constants) and Python (Enum classes) patterns
+  - **Developer Experience**: Enums provide autocomplete, refactoring safety, exhaustiveness checking, and prevent typos
+  - **Template Updates**: Updated EJS templates for both fulpack and fulencode TypeScript generation
+
+### Added
+
+- **Fulpack Structured Error Interface** (`lang/typescript/src/fulpack/types.ts`):
+  - `FulpackError` interface with structured error context for better observability and programmatic error handling
+  - Fields: `code` (string), `message` (string), `operation` (Operation enum), `path` (optional), `archive` (optional), `source` (optional), `details` (optional object with compression_ratio, sizes, etc.)
+  - `ValidationResult.errors` changed from `string[]` to `FulpackError[]`
+  - `ExtractResult.errors` changed from `string[]` to `FulpackError[]`
+  - Enables telemetry categorization, programmatic error handling, and better debugging context
+  - Aligns with gofulmen and pyfulmen structured error patterns
+
+- **DevSecOps Project Secrets Schema** (`schemas/devsecops/secrets/v1.0.0/`):
+  - Canonical schema for project-scoped secrets files with encryption support
+  - **Dual-mode support**: Plaintext (development) OR encrypted (production) - mutually exclusive
+  - **Project scoping**: `projects[]` array with `project_slug` for multi-project secrets in single file
+  - **Encryption metadata**: Tracks method (gpg/age/passphrase), key_id, encrypted_at timestamp, cipher
+  - **Secret entries**: Simple key-value map (string → string, no nested objects in v1.0.0)
+  - **Policy enforcement**: `allow_plain_secrets: false` for compliance/"FIPS mode" (rejects plaintext files)
+  - **Use case**: Environment variable management for fulmen-secrets (fulsecrets) CLI tool, L'Orage Central, Etknow
+  - **Files**:
+    - `schemas/devsecops/secrets/v1.0.0/secrets.schema.json` - JSON Schema with dual-mode validation
+    - `config/devsecops/secrets/v1.0.0/defaults.yaml` - Sample configs (plaintext, GPG, age, passphrase examples)
+    - `docs/standards/devsecops/project-secrets.md` - Comprehensive documentation with security recommendations
+  - **Security features**: Schema-level validation prevents plaintext in prod, supports roundtrip encryption, subprocess wrapping pattern
+  - **Deferred to v1.1.0**: Reference-based secrets, expiry/rotation metadata, audit tags
+
+### Breaking Changes
+
+- **TypeScript Type Changes** (Non-breaking in practice):
+  - Fulpack types: String literal unions replaced with enums
+  - Fulencode types: String literal unions replaced with enums
+  - Structured errors: `ValidationResult.errors` and `ExtractResult.errors` use `FulpackError[]` instead of `string[]`
+  - **Impact**: Zero breaking changes - no implementations exist yet (fulpack v0.2.11, fulencode v0.2.12 only provided type definitions)
+  - **Migration**: TSFulmen, PyFulmen, GoFulmen implementations will use new enum types from start
+
+### Technical Details
+
+- **Code Generation**: `toConstantCase()` helper transforms taxonomy values to enum constant names
+- **Template Logic**: Added conditional override for `errors` fields in ValidationResult and ExtractResult
+- **Verification**: All generated types compile with `tsc --noEmit`, pass drift detection, maintain parity across languages
 
 ## [0.2.13] - 2025-11-14
 

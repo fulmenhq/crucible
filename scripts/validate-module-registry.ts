@@ -82,10 +82,13 @@ interface EvidenceMap {
 const PLATFORM_MODULES_PATH = "config/taxonomy/library/platform-modules/v1.0.0/modules.yaml";
 // Foundry Catalogs Registry (reference data catalogs like countries, http-statuses, etc.)
 const FOUNDRY_CATALOGS_PATH = "config/taxonomy/library/foundry-catalogs/v1.0.0/catalogs.yaml";
+// DevSecOps Modules Registry (DevSecOps schemas/configs, potential L'Orage implementations)
+const DEVSECOPS_MODULES_PATH = "config/taxonomy/devsecops/modules/v1.0.0/modules.yaml";
 const SCHEMA_PATH = "schemas/taxonomy/library/modules/v1.0.0/module-entry.schema.json";
 
 // Note: This script currently validates platform-modules only.
 // TODO v0.2.11: Add foundry-catalogs validation (simpler checks: schema_path exists, config_path exists, format valid)
+// DevSecOps modules are loaded to prevent orphaned artifact warnings but not fully validated yet
 
 let errorCount = 0;
 let warnCount = 0;
@@ -189,19 +192,35 @@ function loadRegistry(): ModuleRegistry {
 function checkOrphans(registry: ModuleRegistry, evidence: EvidenceMap) {
   info("Check 1: Detecting orphaned artifacts...");
 
-  // Known non-module artifacts that should not be in the module registry
+  // Load DevSecOps modules registry to check for DevSecOps artifacts
+  let devsecopsModules = new Set<string>();
+  if (existsSync(DEVSECOPS_MODULES_PATH)) {
+    try {
+      const devsecopsRegistry = parseYAML(readFileSync(DEVSECOPS_MODULES_PATH, "utf8")) as ModuleRegistry;
+      devsecopsModules = new Set(devsecopsRegistry.modules.map(m => m.module_name));
+      info(`  Loaded DevSecOps modules registry with ${devsecopsModules.size} modules`);
+    } catch (err) {
+      warn(`Failed to load DevSecOps registry: ${err}`);
+    }
+  }
+
+  // Known non-module artifacts that should not be in any module registry
   const knownNonModules = new Set([
-    "lorage-central", // L'Orage Central DevSecOps schemas (ADR-0011) - not helper library modules
     "app-identity",   // Application identity config - used by appidentity module but not a module itself
   ]);
 
-  const registryModules = new Set(registry.modules.map(m => m.module_name));
+  const platformModules = new Set(registry.modules.map(m => m.module_name));
   let orphanCount = 0;
 
   for (const [moduleName, moduleEvidence] of Object.entries(evidence)) {
-    if (!registryModules.has(moduleName) && !knownNonModules.has(moduleName)) {
+    // Check if module is in platform registry, DevSecOps registry, or known non-modules
+    const isInPlatformRegistry = platformModules.has(moduleName);
+    const isInDevsecopsRegistry = devsecopsModules.has(moduleName);
+    const isKnownNonModule = knownNonModules.has(moduleName);
+
+    if (!isInPlatformRegistry && !isInDevsecopsRegistry && !isKnownNonModule) {
       if (moduleEvidence.schemas.length > 0 || moduleEvidence.configs.length > 0) {
-        warn(`Orphaned artifacts for module '${moduleName}' - has ${moduleEvidence.schemas.length} schemas, ${moduleEvidence.configs.length} configs but no registry entry`);
+        warn(`Orphaned artifacts for module '${moduleName}' - has ${moduleEvidence.schemas.length} schemas, ${moduleEvidence.configs.length} configs but no registry entry (checked platform-modules and devsecops registries)`);
         orphanCount++;
       }
     }
