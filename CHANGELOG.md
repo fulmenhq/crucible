@@ -11,6 +11,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No unreleased changes yet._
 
+## [0.2.18] - 2025-11-17
+
+### Added
+
+- **HTTP Server Metrics - Canonical Taxonomy for Application Observability**:
+  - **Motivation**: Standardize HTTP server instrumentation across gofulmen, tsfulmen, and pyfulmen; prevent cardinality explosions from unbounded route labels; align duration units (seconds) and bucket defaults ecosystem-wide
+  - **Metrics Added** (5 canonical HTTP server metrics):
+    - `http_requests_total` (Counter): Total HTTP requests with method, route (templated), status, service labels; optional outcome (2xx/4xx/5xx) grouping
+    - `http_request_duration_seconds` (Histogram): Request latency in seconds; buckets [5ms...10s] covering in-memory to backend calls
+    - `http_request_size_bytes` (Histogram): Request body size in bytes; buckets [1KB...100MB]
+    - `http_response_size_bytes` (Histogram): Response body size in bytes; buckets [1KB...100MB]
+    - `http_active_requests` (Gauge): Concurrent request count; minimal labels (service only) to avoid cardinality
+  - **Histogram Bucket Defaults Added**:
+    - `seconds_metrics`: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10] - Duration metrics (5ms to 10s)
+    - `bytes_metrics`: [1024, 10240, 102400, 1048576, 10485760, 104857600] - Size metrics (1KB to 100MB)
+  - **Documentation Additions** (~450 lines in `telemetry-metrics.md`):
+    - **Route Normalization (CRITICAL)**: Comprehensive guidance on using templated routes (`/users/:id`) instead of literal paths (`/users/123`) to prevent metric cardinality explosions
+    - **Framework-Specific Route Extraction**:
+      - TypeScript: Express (`req.route.path`), Fastify (`request.routeOptions.url`)
+      - Go: chi (`RouteContext().RoutePattern()`), gin (`c.FullPath()`), httprouter (pattern from registration)
+      - Python: FastAPI (`request.scope["route"]`)
+    - **Canonical normalizeRoute() Helper**: Fallback normalization for frameworks without route introspection (UUID/ID/ObjectID replacement)
+    - **Unit Conversion Requirements**: CRITICAL guidance on converting milliseconds → seconds for duration metrics; helpers MUST emit canonical units
+      - TypeScript: `durationMs / 1000` conversion examples
+      - Go: `time.Since(start).Seconds()` automatic conversion
+      - Python: `time.time()` already returns seconds (no conversion)
+    - **Label Cardinality Budget**: Analysis showing ~92K time series per service (50 routes × 5 methods × 20 status codes)
+    - **prom-client Collision Warning**: CRITICAL warning about TypeScript prom-client auto-emitting `http_*` metrics that collide with taxonomy; registry clearing required
+    - **Full Middleware Examples**: Production-ready Express, Go chi, and Python FastAPI middleware implementations
+  - **Schema Updates**:
+    - Added 5 metric names to `metricName` enum in metrics.yaml schema
+    - Updated schema properties to document seconds and bytes bucket types
+    - Comprehensive metric descriptions with required/optional labels, cardinality warnings, and use case guidance
+  - **Files Updated**:
+    - Root SSOT: `config/taxonomy/metrics.yaml`, `docs/standards/library/modules/telemetry-metrics.md`
+    - TypeScript wrapper: Synced metrics.yaml + docs, package.json → 0.2.18
+    - Python wrapper: Synced metrics.yaml + docs, pyproject.toml → 0.2.18
+    - Go wrapper: schemas.go → 0.2.18
+  - **Cardinality Mitigation Strategies**:
+    - Use templated routes to bound route label values
+    - Optional `outcome` label (2xx/4xx/5xx) for simplified high-level dashboards
+    - `http_active_requests` uses service-only label to minimize series
+  - **Quality Gates**: All passed (schema validation, build, lint, test, typecheck) across Go/TypeScript/Python
+  - **Downstream Impact**: Unblocks HTTP server instrumentation in gofulmen, tsfulmen, and pyfulmen with consistent metric names, labels, buckets, and units
+
 ## [0.2.17] - 2025-11-17
 
 ### Changed
