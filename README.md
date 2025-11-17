@@ -476,7 +476,7 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-**Version**: 0.2.15 (SemVer: MAJOR.MINOR.PATCH)
+**Version**: 0.2.17 (SemVer: MAJOR.MINOR.PATCH)
 **Maturity**: Active Development - Production-Ready Core
 **Role**: Layer 0 infrastructure serving the FulmenHQ ecosystem
 
@@ -510,16 +510,17 @@ Crucible anchors the ecosystem. Apps and templates rely on helper libraries (gof
 - DevSecOps schemas (L'Orage Central integration, secrets management)
 - Enterprise logging features (middleware, redaction, structured observability)
 
-### Recent Focus (v0.2.15)
+### Recent Focus (v0.2.17)
 
-Quality & reliability improvements:
+DevSecOps secrets schema enhancement:
 
-- Fixed critical schema mismatches blocking downstream development
-- Enhanced TypeScript type generation with comprehensive test coverage
-- Extended Pathfinder specification for repository root discovery
-- Documented logging redaction middleware for enterprise features
+- Enhanced secrets schema with structured credential objects (type, metadata, rotation)
+- Added smart masking by credential type (api_key, password, token)
+- Implemented lifecycle tracking (created, expires, purpose, tags, owner)
+- Introduced rotation policies for enterprise credential management
+- Updated schema domain consistency (schemas.fulmenhq.dev)
 
-**See**: [Release Notes](release-notes/v0.2.15.md) | [Full Changelog](CHANGELOG.md)
+**See**: [Release Notes](release-notes/v0.2.17.md) | [Full Changelog](CHANGELOG.md)
 
 ### Ecosystem Adoption
 

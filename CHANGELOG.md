@@ -11,6 +11,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No unreleased changes yet._
 
+## [0.2.17] - 2025-11-17
+
+### Changed
+
+- **DevSecOps Secrets Schema Update** - Rich Credential Objects with Lifecycle Management:
+  - **Motivation**: Align Crucible schema with fulmen-secrets v0.1.1 pre-release features; add credential structure (type, metadata, rotation) for enterprise credential management
+  - **Top-Level Changes**:
+    - Added `env_prefix` (optional): Global environment variable prefix for all projects (e.g., `MYAPP_`)
+    - Added `description` (optional): Multi-line description of the secrets file
+  - **Project-Level Changes**:
+    - Updated `project_slug` pattern: Now allows underscores in addition to hyphens (`^[a-z0-9]([a-z0-9_-]*[a-z0-9])?$`)
+    - Valid examples: `backend-api`, `api_staging`, `worker-dev`, `my_service-v2`
+    - Added `description` (optional): Multi-line description of the project
+    - **Breaking**: Renamed `secrets` → `credentials` (field name change)
+  - **Credential Object Structure** (New):
+    - Changed from flat string map to structured credential objects
+    - **Required fields**:
+      - `type` (enum): `api_key`, `password`, or `token` - determines smart masking behavior
+      - Exactly one of: `value` (inline plaintext) OR `ref` (external secret manager reference)
+    - **Optional fields**:
+      - `description`: Human-readable purpose description
+      - `metadata`: Lifecycle tracking (created, expires, purpose, tags, owner)
+      - `rotation`: Rotation policy (interval: `30d`/`90d`/`180d`, method: `auto`/`manual`)
+    - **Masking Behavior**:
+      - `api_key`: Show prefix (`sk_live_...xyz`) for debugging without exposing full key
+      - `token`: Show suffix (`...1234`) for token identification
+      - `password`: Full redaction (`***REDACTED***`) for maximum security
+  - **External References**: `ref` field supports secret manager URIs (`vault://`, `aws-secrets://`)
+  - **Metadata Tracking**:
+    - `created`/`expires`: ISO 8601 timestamps for rotation tracking
+    - `purpose`: Categorization slug (e.g., `payment-processing`)
+    - `tags`: Array of tags for monitoring/alerting (e.g., `["critical", "pci-scope"]`)
+    - `owner`: Team/owner identifier for credential ownership
+  - **Rotation Policy**:
+    - `interval`: Human-readable rotation interval (`30d`, `90d`, `6m`, `1y`)
+    - `method`: `auto` (automated rotation) or `manual` (manual process required)
+  - **Files Updated**:
+    - Schema: `schemas/devsecops/secrets/v1.0.0/secrets.schema.json` (credential object definitions)
+    - Defaults: `config/devsecops/secrets/v1.0.0/defaults.yaml` (6 updated examples with metadata/rotation)
+    - Docs: `docs/standards/devsecops/project-secrets.md` (comprehensive update with credential structure, masking, lifecycle)
+    - Synced to Python/TypeScript language wrappers
+  - **Breaking Change Impact**:
+    - Tool not yet released (fulmen-secrets v0.1.0 unreleased) → safe pre-release update
+    - No external consumers affected
+    - fulmen-secrets will drop local schema copies after gofulmen embed refresh
+  - **Downstream**: Unblocks fulmen-secrets v0.1.1+ with rich credential management, smart masking, rotation tracking
+  - **Use Cases**: API key lifecycle tracking, password rotation policies, credential expiry monitoring, compliance auditing
+
 ## [0.2.16] - 2025-11-16
 
 ### Fixed

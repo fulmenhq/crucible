@@ -22,19 +22,23 @@ Some schemas in Crucible (e.g., `schemas/observability/logging/v1.0.0/logger-con
 For cross-file references in Crucible schemas, **use absolute URLs pointing to the target schema’s `$id`**. This ensures references resolve consistently in memory-based validators and aligns with JSON Schema best practices.
 
 **Example:**
+
 ```json
 "$ref": "https://schemas.fulmenhq.dev/crucible/observability/logging/middleware-config-v1.0.0.json"
 ```
 
 ## Status
+
 - Applied to: `schemas/observability/logging/v1.0.0/logger-config.schema.json` (middleware reference).
 - To be applied: Any remaining cross-file references in other schema sets when touched.
 
 ## Consequences
+
 - Validators that preload schemas by `$id` or support HTTP resolution will succeed without filesystem context.
 - Authors should prefer absolute `$id` references for cross-file links; relative refs remain acceptable for internal `$defs`.
 
 ## Action Items
+
 1. Update gofulmen validators to preload schemas by `$id` or allow HTTP resolution if needed.
 2. When adding or modifying schemas, use absolute `$id` references for cross-schema `$ref`.
 3. Optionally add a lint check to catch relative cross-file `$ref` uses in future changes.
