@@ -11,6 +11,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No unreleased changes yet._
 
+## [0.2.19] - 2025-11-19
+
+### Changed
+
+- **DevSecOps Secrets Schema Hardening - Size Limits & Enhanced Metadata**:
+  - **Motivation**: Add DoS protection and compliance tracking to secrets schema v1.0.0 before fulmen-secrets release; limits generous but defensive; metadata fields support enterprise credential management
+  - **Size Limits Added** (DoS protection + OS alignment):
+    - Credential `value`: max 65,536 chars (64KB, UTF-8) - generous for keys/certs/tokens
+    - Credential `ref`: max 2,048 chars (printable ASCII only) - covers vault URIs, ARNs
+    - Descriptions (file/project/credential): max 4,096 chars each - audit-friendly
+    - Credential key names (env vars): max 255 chars - POSIX standard limit
+    - Projects per file: max 256 - monorepo support
+    - Credentials per project: max 1,024 - enterprise scale
+  - **Enhanced Metadata Fields** (all optional, backwards-compatible):
+    - Rotation tracking: `last_rotated` (ISO 8601), `next_rotation` (ISO 8601), `rotation_count` (integer ≥0)
+    - Service integration: `service_name` (string), `service_url` (URI), `required_scope` (OAuth/API scope)
+    - Compliance & environment: `compliance_tags` (array, max 20), `environment` (enum: production/staging/development/test/qa/demo), `tier` (enum: critical/high/medium/low)
+  - **Files Updated**:
+    - Schema: `schemas/devsecops/secrets/v1.0.0/secrets.schema.json` - constraints + metadata fields
+    - Defaults: `config/devsecops/secrets/v1.0.0/defaults.yaml` - showcases new fields with size limit comments
+    - Documentation: `docs/standards/devsecops/project-secrets.md` - new "Size Limits & DoS Protection" section + expanded metadata tables
+  - **Design Philosophy**:
+    - Generous defaults (10-100x typical use cases) to avoid blocking legitimate workflows
+    - DoS prevention caps (prevent accidental/malicious resource exhaustion)
+    - OS alignment (env var limit matches POSIX/Linux/macOS standards)
+    - Audit-friendly (large descriptions support compliance docs)
+  - **Breaking Change**: None - limits are generous; existing valid secrets files remain compatible
+  - **Override Strategy**: Split files, use external refs, or contact maintainers if limits blocking
+  - **Pre-release Note**: Safe to revise v1.0.0 schema since fulmen-secrets unreleased
+  - **Quality Gates**: All passed (schema validation, build, lint, test, typecheck)
+  - **Downstream Impact**: fulmen-secrets, gofulmen, pyfulmen can consume enhanced schema on v0.2.19 sync
+
 ## [0.2.18] - 2025-11-17
 
 ### Added
