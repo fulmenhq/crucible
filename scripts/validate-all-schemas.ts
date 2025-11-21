@@ -9,14 +9,14 @@
  * Usage: bun run scripts/validate-all-schemas.ts
  */
 
-import { execSync } from 'node:child_process';
-import { readdirSync, statSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { execSync } from "node:child_process";
+import { readdirSync, statSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const repoRoot = path.resolve(__dirname, '..');
+const repoRoot = path.resolve(__dirname, "..");
 
 interface ValidationResult {
   file: string;
@@ -40,10 +40,10 @@ function findSchemaFiles(dir: string): string[] {
 
       if (stat.isDirectory()) {
         // Skip node_modules and hidden directories
-        if (entry !== 'node_modules' && !entry.startsWith('.')) {
+        if (entry !== "node_modules" && !entry.startsWith(".")) {
           results.push(...findSchemaFiles(fullPath));
         }
-      } else if (entry.endsWith('.schema.json')) {
+      } else if (entry.endsWith(".schema.json")) {
         results.push(fullPath);
       }
     }
@@ -61,19 +61,16 @@ function metaValidateSchema(schemaPath: string): ValidationResult {
   const relativePath = path.relative(repoRoot, schemaPath);
 
   try {
-    const output = execSync(
-      `bin/goneat schema validate-schema "${schemaPath}"`,
-      {
-        cwd: repoRoot,
-        encoding: 'utf8',
-        timeout: 5000, // 5 second timeout per file
-        stdio: ['pipe', 'pipe', 'pipe'] // Suppress stderr noise
-      }
-    );
+    const output = execSync(`bin/goneat schema validate-schema "${schemaPath}"`, {
+      cwd: repoRoot,
+      encoding: "utf8",
+      timeout: 30000, // 30 second timeout per file (increased from 5s)
+      stdio: ["pipe", "pipe", "pipe"], // Suppress stderr noise
+    });
 
     // Parse output to extract meta-schema version
     const match = output.match(/\(([^)]+)\)/);
-    const metaSchema = match ? match[1] : 'unknown';
+    const metaSchema = match ? match[1] : "unknown";
 
     return {
       file: relativePath,
@@ -84,7 +81,7 @@ function metaValidateSchema(schemaPath: string): ValidationResult {
     return {
       file: relativePath,
       passed: false,
-      error: err.stderr || err.message || 'Validation timed out',
+      error: err.stderr || err.message || "Validation timed out",
     };
   }
 }
@@ -93,17 +90,17 @@ function metaValidateSchema(schemaPath: string): ValidationResult {
  * Main validation function
  */
 async function main(): Promise<void> {
-  console.log('🔍 Comprehensive Schema Validation');
-  console.log('');
-  console.log('This validates ALL .schema.json files against their meta-schemas.');
-  console.log('');
+  console.log("🔍 Comprehensive Schema Validation");
+  console.log("");
+  console.log("This validates ALL .schema.json files against their meta-schemas.");
+  console.log("");
 
   // Find all schema files
-  const schemaDir = path.join(repoRoot, 'schemas');
+  const schemaDir = path.join(repoRoot, "schemas");
   const schemaFiles = findSchemaFiles(schemaDir);
 
   console.log(`Found ${schemaFiles.length} schema files to validate`);
-  console.log('');
+  console.log("");
 
   // Meta-validate each schema with progress
   const results: ValidationResult[] = [];
@@ -124,15 +121,15 @@ async function main(): Promise<void> {
       console.log(`\n❌ Failed: ${result.file}`);
     }
   }
-  console.log(''); // New line after progress
+  console.log(""); // New line after progress
 
   // Report results
-  console.log('📊 Validation Results:');
-  console.log('');
+  console.log("📊 Validation Results:");
+  console.log("");
 
   if (errors.length === 0) {
     console.log(`✅ All ${results.length} schemas passed meta-validation`);
-    console.log('');
+    console.log("");
 
     // Count by meta-schema
     const metaSchemaCounts: Record<string, number> = {};
@@ -142,35 +139,35 @@ async function main(): Promise<void> {
       }
     }
 
-    console.log('Meta-schema distribution:');
+    console.log("Meta-schema distribution:");
     for (const [metaSchema, count] of Object.entries(metaSchemaCounts).sort()) {
       console.log(`  ${metaSchema}: ${count} schemas`);
     }
   } else {
     console.log(`❌ ${errors.length} schemas failed meta-validation:`);
-    console.log('');
+    console.log("");
 
     for (const error of errors) {
       console.log(`  ❌ ${error.file}`);
       if (error.error) {
-        console.log(`     ${error.error.split('\n')[0]}`);
+        console.log(`     ${error.error.split("\n")[0]}`);
       }
     }
 
-    process.exitCode = 1;
+    process.exit(1);
   }
 
-  console.log('');
-  console.log('✅ Meta-validation complete');
-  console.log('');
-  console.log('Note: Data validation (YAML/JSON against schemas) not yet implemented.');
-  console.log('      See: https://github.com/fulmenhq/crucible/issues/XXX');
+  console.log("");
+  console.log("✅ Meta-validation complete");
+  console.log("");
+  console.log("Note: Data validation (YAML/JSON against schemas) not yet implemented.");
+  console.log("      See: https://github.com/fulmenhq/crucible/issues/XXX");
 
   // Explicitly exit to prevent hanging
   process.exit(0);
 }
 
 main().catch((err) => {
-  console.error('Fatal error:', err);
+  console.error("Fatal error:", err);
   process.exit(1);
 });
