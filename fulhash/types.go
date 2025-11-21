@@ -22,7 +22,6 @@ const (
 	// CRC-32C (Castagnoli)
 	// 32-bit CRC with Castagnoli polynomial. Hardware accelerated on modern CPUs (SSE4.2/ARMv8). Use for cloud storage (GCS, AWS) and network protocols (SCTP, iSCSI).
 	CRC32C Algorithm = "crc32c"
-
 )
 
 // IsValid checks if the algorithm is supported
@@ -39,16 +38,14 @@ func (a Algorithm) String() string {
 	return string(a)
 }
 
-
 // Standard digest payload returned by FulHash helpers
 type Digest struct {
 	// Hash algorithm identifier
 	Algorithm string `json:"algorithm"`
 	// Lowercase hexadecimal representation of the digest
 	Hex string `json:"hex"`
-	// Canonical string representation &#39;&lt;algorithm&gt;:&lt;hex&gt;&#39;
+	// Canonical string representation '<algorithm>:<hex>'
 	Formatted string `json:"formatted"`
 	// Raw digest bytes (optional)
 	Bytes []byte `json:"bytes,omitempty"`
 }
-

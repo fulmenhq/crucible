@@ -127,6 +127,7 @@ Calculate multiple digests in a single pass (I/O optimization).
 **Use Case**: Calculate `sha256` for security and `crc32` for legacy metadata simultaneously while reading a stream once.
 
 **Go**:
+
 ```go
 digests, err := fulhash.MultiHashString("content", []Algorithm{XXH3_128, SHA256})
 fmt.Println(digests[XXH3_128].Hex)
@@ -140,11 +141,13 @@ Helper to verify data against an expected digest.
 **Signature**: `Verify(reader, expected_digest) -> bool`
 
 **Behavior**:
+
 - Returns `true` if hash matches.
 - Returns `false` if hash mismatches.
 - Raises `IntegrityError` (or language equivalent) on I/O failure or malformed digest.
 
 **Python**:
+
 ```python
 valid = fulhash.verify(file_path, "sha256:e3b0c44...")
 ```
@@ -185,12 +188,12 @@ Implementers MUST use these generated types for `Algorithm` enums and `Digest` s
 
 Represents a computed hash with metadata.
 
-| Field       | Type   | Description                                     |
-| ----------- | ------ | ----------------------------------------------- |
+| Field       | Type   | Description                                                            |
+| ----------- | ------ | ---------------------------------------------------------------------- |
 | `algorithm` | string | Algorithm identifier (`"xxh3-128"`, `"crc32"`, `"crc32c"`, `"sha256"`) |
-| `hex`       | string | Lowercase hexadecimal representation            |
-| `bytes`     | bytes  | Raw hash bytes (language-specific type)         |
-| `formatted` | string | Prefixed format: `"<algorithm>:<hex>"`          |
+| `hex`       | string | Lowercase hexadecimal representation                                   |
+| `bytes`     | bytes  | Raw hash bytes (language-specific type)                                |
+| `formatted` | string | Prefixed format: `"<algorithm>:<hex>"`                                 |
 
 Canonical schema: [`digest.schema.json`](../../../schemas/library/fulhash/v1.0.0/digest.schema.json)
 

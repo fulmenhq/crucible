@@ -7,7 +7,6 @@
  * Supported hashing algorithms for FulHash
  */
 export enum Algorithm {
-
   /**
    * XXH3 (128-bit)
    * Fast non-cryptographic hash (default). Excellent collision resistance, extremely high throughput (50GB/s+).
@@ -31,19 +30,16 @@ export enum Algorithm {
    * 32-bit CRC with Castagnoli polynomial. Hardware accelerated on modern CPUs (SSE4.2/ARMv8). Use for cloud storage (GCS, AWS) and network protocols (SCTP, iSCSI).
    */
   CRC32C = "crc32c",
-
 }
-
 
 /**
  * Standard digest payload returned by FulHash helpers
  */
 export interface Digest {
-
   /**
    * Hash algorithm identifier
    */
-  algorithm: &#34;xxh3-128&#34; | &#34;crc32&#34; | &#34;crc32c&#34; | &#34;sha256&#34;;
+  algorithm: "xxh3-128" | "crc32" | "crc32c" | "sha256";
 
   /**
    * Lowercase hexadecimal representation of the digest
@@ -51,7 +47,7 @@ export interface Digest {
   hex: string;
 
   /**
-   * Canonical string representation &#39;&lt;algorithm&gt;:&lt;hex&gt;&#39;
+   * Canonical string representation '<algorithm>:<hex>'
    */
   formatted: string;
 
@@ -59,6 +55,4 @@ export interface Digest {
    * Raw digest bytes (optional)
    */
   bytes?: number[];
-
 }
-

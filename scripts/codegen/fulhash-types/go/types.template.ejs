@@ -7,8 +7,8 @@ type Algorithm string
 
 const (
 <% taxonomies[0].items.forEach(function(item) { %>
-	// <%= item.display_name %>
-	// <%= item.description %>
+	// <%- item.display_name %>
+	// <%- item.description %>
 	<%= item.constant_name_go %> Algorithm = "<%= item.id %>"
 <% }); %>
 )
@@ -28,9 +28,9 @@ func (a Algorithm) String() string {
 }
 
 <% data_structures.forEach(function(schema) { %>
-// <%= schema.description %>
+// <%- schema.description %>
 type <%= schema.className %> struct {
-<% schema.properties.forEach(function(prop) { %>	// <%= prop.description %>
+<% schema.properties.forEach(function(prop) { %>	// <%- prop.description %>
 	<%= prop.name_go %> <%= prop.go_type %> `json:"<%= prop.name %><% if (!prop.is_required) { %>,omitempty<% } %>"`
 <% }); %>}
 <% }); %>

@@ -11,6 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No unreleased changes yet._
 
+## [0.2.20] - 2025-11-21
+
+### Added
+
+- **FulHash CRC Extension & Codegen** - Expanded hashing capabilities and automated type safety
+  - **Algorithm Expansion**: Added `crc32` (IEEE) and `crc32c` (Castagnoli) to supported algorithms taxonomy
+    - `crc32`: Standard for legacy archive compatibility (ZIP, GZIP, PNG)
+    - `crc32c`: Hardware-accelerated checksums for cloud storage (GCS, AWS) and network protocols (SCTP, iSCSI)
+  - **Automated Code Generation**: Implemented "Taxonomy → Schema → Template → Code" pipeline for FulHash module
+    - **SSOT**: `schemas/taxonomy/library/fulhash/algorithms/v1.0.0/algorithms.yaml` defines all supported algorithms
+    - **Generator**: `scripts/codegen/generate-fulhash-types.ts` renders language-specific bindings
+    - **Outputs**: Type-safe `Algorithm` enums and `Digest` structs for Go, Python, and TypeScript
+    - **Parity**: Ensures identical constant values and type definitions across all helper libraries
+  - **New Convenience Interfaces** (Spec only, implementation in helpers):
+    - `MultiHash(reader, algorithms[])`: Calculate multiple digests (e.g., SHA256 + CRC32) in a single I/O pass
+    - `Verify(reader, expected_digest)`: Boolean helper to validate data against a checksum string
+  - **Documentation**: Comprehensive update to `docs/standards/library/modules/fulhash.md` with new signatures and usage guidance
+  - **Python Specifics**: Documented recommendation for `google-crc32c` C-extension for performance
+  - **Quality Gates**: `make codegen-fulhash` target integrated into `codegen-all` and `precommit` workflow
+
 ## [0.2.19] - 2025-11-19
 
 ### Changed

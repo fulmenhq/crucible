@@ -9,8 +9,8 @@
 export enum Algorithm {
 <% taxonomies[0].items.forEach(function(item) { %>
   /**
-   * <%= item.display_name %>
-   * <%= item.description %>
+   * <%- item.display_name %>
+   * <%- item.description %>
    */
   <%= item.constant_name %> = "<%= item.id %>",
 <% }); %>
@@ -18,14 +18,14 @@ export enum Algorithm {
 
 <% data_structures.forEach(function(schema) { %>
 /**
- * <%= schema.description %>
+ * <%- schema.description %>
  */
 export interface <%= schema.className %> {
 <% schema.properties.forEach(function(prop) { %>
   /**
-   * <%= prop.description %>
+   * <%- prop.description %>
    */
-  <%= prop.name %><% if (!prop.is_required) { %>?<% } %>: <%= prop.typescript_type %>;
+  <%= prop.name %><% if (!prop.is_required) { %>?<% } %>: <%- prop.typescript_type %>;
 <% }); %>
 }
 <% }); %>
