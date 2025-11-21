@@ -12,15 +12,15 @@ const (
 	XXH3_128 Algorithm = "xxh3-128"
 
 	// SHA-256
-	// Cryptographic security standard. Slower but resistant to intentional collisions. Use for security verification.
+	// Cryptographic security standard. Resistant to intentional collisions. Use for security verification.
 	SHA256 Algorithm = "sha256"
 
 	// CRC-32 (IEEE)
-	// 32-bit Cyclic Redundancy Check. Standard for GZIP, ZIP, PNG. Use for legacy format interoperability.
+	// 32-bit Cyclic Redundancy Check. Standard for GZIP/ZIP/PNG legacy format interoperability.
 	CRC32 Algorithm = "crc32"
 
 	// CRC-32C (Castagnoli)
-	// 32-bit CRC with Castagnoli polynomial. Hardware accelerated on modern CPUs (SSE4.2/ARMv8). Use for cloud storage (GCS, AWS) and network protocols (SCTP, iSCSI).
+	// 32-bit CRC (Castagnoli). HW accelerated (SSE4.2/ARMv8). Use for cloud storage (GCS, AWS) and networking.
 	CRC32C Algorithm = "crc32c"
 )
 
