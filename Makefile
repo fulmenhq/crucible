@@ -156,7 +156,12 @@ codegen-fulencode: ## Generate fulencode types for all languages
 	@bun run scripts/codegen/generate-fulencode-types.ts --all --format
 	@echo "✅ Fulencode types generated"
 
-codegen-all: codegen-exit-codes codegen-fulpack codegen-fulencode ## Regenerate all generated code
+codegen-fulhash: ## Generate fulhash types for all languages
+	@echo "Generating fulhash types..."
+	@bun run scripts/codegen/generate-fulhash-types.ts --all --format
+	@echo "✅ Fulhash types generated"
+
+codegen-all: codegen-exit-codes codegen-fulpack codegen-fulencode codegen-fulhash ## Regenerate all generated code
 	@echo "✅ All code generation complete"
 
 # Version management

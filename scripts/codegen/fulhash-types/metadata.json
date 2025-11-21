@@ -1,0 +1,41 @@
+{
+  "module": "fulhash",
+  "schema_base_path": "schemas/library/fulhash/v1.0.0",
+  "taxonomy_base_path": "schemas/taxonomy/library/fulhash",
+  "owner": "@schema-cartographer",
+  "last_reviewed": "2025-11-21",
+  "version": "v1.0.0",
+  "languages": {
+    "python": {
+      "output_dir": "lang/python/src/crucible/fulhash",
+      "templates": {
+        "types": "types.template.jinja",
+        "init": "init.template.jinja"
+      },
+      "postprocess": "postprocess.sh"
+    },
+    "go": {
+      "output_dir": "fulhash",
+      "templates": {
+        "types": "types.template.ejs"
+      },
+      "postprocess": "postprocess.sh"
+    },
+    "typescript": {
+      "output_dir": "lang/typescript/src/fulhash",
+      "templates": {
+        "types": "types.template.ejs"
+      },
+      "postprocess": "postprocess.sh"
+    }
+  },
+  "schemas": {
+    "data_structures": [
+      "digest.schema.json"
+    ],
+    "options": []
+  },
+  "taxonomies": {
+    "algorithms": "algorithms/v1.0.0/algorithms.yaml"
+  }
+}
