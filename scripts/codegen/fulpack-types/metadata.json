@@ -29,6 +29,13 @@
         "types": "types.template.ejs"
       },
       "postprocess": "postprocess.sh"
+    },
+    "rust": {
+      "output_dir": "lang/rust/src/fulpack",
+      "templates": {
+        "types": "types.template.ejs"
+      },
+      "postprocess": "postprocess.sh"
     }
   },
   "schemas": {

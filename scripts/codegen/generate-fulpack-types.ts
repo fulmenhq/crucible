@@ -109,7 +109,7 @@ console.log(`✓ Loaded metadata for ${metadata.module} module (version ${metada
 // Helper: Convert snake_case to PascalCase
 function toPascalCase(name: string): string {
   return name
-    .split(/[-_]/)
+    .split(/[-_.]/)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join("");
 }
@@ -287,6 +287,55 @@ function inferGoType(property: JSONSchemaProperty, isOptional: boolean = false):
   return isOptional ? `*${goType}` : goType;
 }
 
+// Helper: Infer Rust type from JSON Schema property
+function inferRustType(property: JSONSchemaProperty, isOptional: boolean = false): string {
+  const { type, enum: enumValues, items, format } = property;
+
+  // Handle enums - use String for now (or specific enum if we can link it later)
+  if (enumValues && enumValues.length > 0) {
+    return isOptional ? "Option<String>" : "String";
+  }
+
+  // Handle arrays
+  if (type === "array" && items) {
+    const itemType = inferRustType(items, false);
+    const vecType = `Vec<${itemType}>`;
+    return isOptional ? `Option<${vecType}>` : vecType;
+  }
+
+  // Handle format-specific types
+  if (format === "date-time") {
+    return isOptional ? "Option<String>" : "String"; // ISO 8601 datetime string
+  }
+
+  // Handle basic types
+  const typeMap: { [key: string]: string } = {
+    string: "String",
+    integer: "i64",
+    number: "f64",
+    boolean: "bool",
+    object: "std::collections::HashMap<String, serde_json::Value>",
+  };
+
+  // Handle union types
+  if (Array.isArray(type)) {
+    const hasNull = type.includes("null");
+    const nonNullTypes = type.filter((t) => t !== "null");
+
+    if (nonNullTypes.length === 0) {
+      return "Option<serde_json::Value>";
+    }
+
+    const baseType = nonNullTypes[0]!;
+    const rustType = typeMap[baseType] || "serde_json::Value";
+
+    return hasNull || isOptional ? `Option<${rustType}>` : rustType;
+  }
+
+  const rustType = type ? typeMap[type] || "serde_json::Value" : "serde_json::Value";
+  return isOptional ? `Option<${rustType}>` : rustType;
+}
+
 // Helper: Convert snake_case to PascalCase for Go
 function toGoPascalCase(snakeCase: string): string {
   return snakeCase
@@ -303,6 +352,60 @@ function toGoConstantCase(name: string): string {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join("");
+}
+
+// Helper: Convert camelCase or PascalCase to snake_case for Rust
+const RUST_KEYWORDS = [
+  "type",
+  "struct",
+  "enum",
+  "fn",
+  "impl",
+  "trait",
+  "pub",
+  "mod",
+  "use",
+  "crate",
+  "super",
+  "self",
+  "Self",
+  "let",
+  "const",
+  "static",
+  "mut",
+  "if",
+  "else",
+  "match",
+  "while",
+  "for",
+  "loop",
+  "return",
+  "break",
+  "continue",
+  "in",
+  "where",
+  "as",
+  "async",
+  "await",
+  "dyn",
+  "move",
+  "ref",
+  "unsafe",
+  "box",
+  "virtual",
+  "yield",
+];
+
+function toRustSnakeCase(name: string): string {
+  const snake = name
+    .replace(/([a-z])([A-Z])/g, "$1_$2")
+    .replace(/([A-Z])([A-Z][a-z])/g, "$1_$2")
+    .toLowerCase();
+
+  if (RUST_KEYWORDS.includes(snake)) {
+    return `r#${snake}`;
+  }
+  return snake;
 }
 
 // Helper: Load and parse JSON schema
@@ -327,7 +430,7 @@ function loadTaxonomy(taxonomyPath: string): Taxonomy {
 function processSchema(
   schemaFilename: string,
   schemaBasePath: string,
-  isOptions: boolean = false
+  isOptions: boolean = false,
 ): any {
   const schemaPath = `${schemaBasePath}/${schemaFilename}`;
   const schema = loadSchema(schemaPath);
@@ -342,14 +445,18 @@ function processSchema(
     const isAlreadyNullable = pythonType.endsWith(" | None");
     const typescriptType = inferTypeScriptType(propDef);
     const goType = inferGoType(propDef, !isRequired);
+    const rustType = inferRustType(propDef, !isRequired);
     const nameGo = toGoPascalCase(propName);
+    const nameRust = toRustSnakeCase(propName);
 
     return {
       name: propName,
       name_go: nameGo,
+      name_rust: nameRust,
       python_type: pythonType,
       typescript_type: typescriptType,
       go_type: goType,
+      rust_type: rustType,
       description: propDef.description || "",
       is_required: isRequired,
       is_already_nullable: isAlreadyNullable,
@@ -372,7 +479,11 @@ function processSchema(
 }
 
 // Helper: Process taxonomy into enum data
-function processTaxonomy(taxonomyKey: string, taxonomyFullPath: string, taxonomyRelPath: string): any {
+function processTaxonomy(
+  taxonomyKey: string,
+  taxonomyFullPath: string,
+  taxonomyRelPath: string,
+): any {
   const taxonomy = loadTaxonomy(taxonomyFullPath);
 
   // Determine the array key (formats, types, operations, etc.)
@@ -396,6 +507,7 @@ function processTaxonomy(taxonomyKey: string, taxonomyFullPath: string, taxonomy
     id: item.id || item.key,
     constant_name: toConstantCase(item.id || item.key || ""),
     constant_name_go: toGoConstantCase(item.id || item.key || ""),
+    variant_name: toPascalCase(item.id || item.key || ""),
     display_name: item.name,
     description: item.description || "",
   }));
@@ -416,17 +528,17 @@ function prepareTemplateData(lang: string) {
 
   // Process data structure schemas
   const dataStructures = metadata.schemas.data_structures.map((filename) =>
-    processSchema(filename, schemaBasePath, false)
+    processSchema(filename, schemaBasePath, false),
   );
 
   // Process options schemas
   const optionsSchemas = metadata.schemas.options.map((filename) =>
-    processSchema(filename, schemaBasePath, true)
+    processSchema(filename, schemaBasePath, true),
   );
 
   // Process taxonomies
   const taxonomies = Object.entries(metadata.taxonomies).map(([key, path]) =>
-    processTaxonomy(key, `${taxonomyBasePath}/${path}`, path)
+    processTaxonomy(key, `${taxonomyBasePath}/${path}`, path),
   );
 
   return {
@@ -441,11 +553,7 @@ function prepareTemplateData(lang: string) {
 }
 
 // Render template for a specific language and template type
-async function renderTemplate(
-  lang: string,
-  templateType: string,
-  data: any
-): Promise<string> {
+async function renderTemplate(lang: string, templateType: string, data: any): Promise<string> {
   const langConfig = metadata.languages[lang];
   if (!langConfig) {
     throw new Error(`Language "${lang}" not found in metadata.json`);
@@ -474,8 +582,8 @@ async function renderTemplate(
     });
 
     return env.renderString(templateContent, data);
-  } else if (lang === "typescript" || lang === "go") {
-    // Use EJS for TypeScript and Go
+  } else if (lang === "typescript" || lang === "go" || lang === "rust") {
+    // Use EJS for TypeScript, Go, and Rust
     const ejs = await import("ejs");
     return ejs.render(templateContent, { ...data, JSON });
   }
@@ -521,6 +629,8 @@ async function generateLanguage(lang: string) {
       outputFilename = `${templateType}.ts`;
     } else if (lang === "go") {
       outputFilename = `${templateType}.go`;
+    } else if (lang === "rust") {
+      outputFilename = `${templateType}.rs`;
     } else {
       outputFilename = `${templateType}.txt`;
     }
@@ -532,7 +642,7 @@ async function generateLanguage(lang: string) {
     // Run postprocess script if --format flag present
     if (flags.format && langConfig.postprocess) {
       const postprocessPath = resolve(
-        `scripts/codegen/fulpack-types/${lang}/${langConfig.postprocess}`
+        `scripts/codegen/fulpack-types/${lang}/${langConfig.postprocess}`,
       );
       if (existsSync(postprocessPath)) {
         console.log(`  Formatting with: ${langConfig.postprocess}`);

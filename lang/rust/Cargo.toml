@@ -1,0 +1,25 @@
+[package]
+name = "crucible-codegen"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70"
+description = "Generated Crucible SSOT bindings for Rust"
+license = "MIT"
+repository = "https://github.com/fulmenhq/crucible"
+keywords = ["fulmenhq", "crucible", "schemas", "codegen"]
+categories = ["development-tools", "config"]
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+
+[dev-dependencies]
+serde_json = "1"
+
+# Note: [lints] table requires Rust 1.74+
+# For MSRV 1.70 compatibility, lint configuration is in lib.rs via attributes
+# and enforced via `cargo clippy -- -D warnings` in CI

@@ -6,7 +6,7 @@ VERSION_FILE := VERSION
 # Standards forge for the FulmenHQ ecosystem
 
 .PHONY: help bootstrap tools sync test build build-all clean version fmt fmt-check lint lint-fix typecheck
-.PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python build-python lint-python
+.PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python test-rust build-python build-rust lint-python lint-rust fmt-rust
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare prepush precommit check-all
 .PHONY: validate-schemas verify-codegen codegen-exit-codes codegen-fulpack codegen-fulpack-python codegen-fulencode codegen-all
@@ -49,6 +49,9 @@ test: ## Run all language wrapper tests (matches GitHub Actions)
 	@echo ""
 	@echo "Running Python tests..."
 	@cd lang/python && uv run pytest
+	@echo ""
+	@echo "Running Rust tests..."
+	@cd lang/rust && cargo test
 
 test-go: ## Run Go wrapper tests (matches GitHub Actions)
 	@go test ./...
@@ -59,8 +62,11 @@ test-ts: ## Run TypeScript wrapper tests (matches GitHub Actions)
 test-python: ## Run Python wrapper tests (matches GitHub Actions)
 	@cd lang/python && uv run pytest
 
+test-rust: ## Run Rust crate tests (matches GitHub Actions)
+	@cd lang/rust && cargo test
+
 # Build targets
-build: sync-to-lang fmt build-go build-ts build-python ## Build language wrappers (matches GitHub Actions)
+build: sync-to-lang fmt build-go build-ts build-python build-rust ## Build language wrappers (matches GitHub Actions)
 	@echo "✅ Language wrappers built"
 
 build-go: ## Build Go wrapper (matches GitHub Actions)
@@ -72,12 +78,19 @@ build-ts: ## Build TypeScript wrapper (matches GitHub Actions)
 build-python: ## Build Python wrapper (matches GitHub Actions)
 	@cd lang/python && uv sync
 
+build-rust: ## Build Rust crate (matches GitHub Actions)
+	@cd lang/rust && cargo build
+
 # Format, Lint, Typecheck targets
 # Note: fmt depends on sync-to-lang having run (via build target order) to format synced files in lang/ directories
-fmt: | bootstrap ## Format code files (Go/markdown/YAML via goneat, TypeScript via biome, Python via ruff)
+fmt: | bootstrap ## Format code files (Go/markdown/YAML via goneat, TypeScript via biome, Python via ruff, Rust via rustfmt)
 	@$(BIN_DIR)/goneat format --verbose
 	@cd lang/typescript && bun run format >/dev/null
 	@cd lang/python && uv run ruff format . >/dev/null 2>&1 || true
+	@cd lang/rust && cargo fmt >/dev/null 2>&1 || true
+
+fmt-rust: ## Format Rust code (matches GitHub Actions)
+	@cd lang/rust && cargo fmt
 
 fmt-check: | bootstrap ## Check if files are formatted without modifying
 	@$(BIN_DIR)/goneat format --check --verbose
@@ -89,6 +102,9 @@ lint: | bootstrap ## Run linting (check only, no auto-fix - use 'make lint-fix' 
 	@echo "Linting Python files..."
 	@cd lang/python && uv run ruff check .
 	@echo ""
+	@echo "Linting Rust files..."
+	@cd lang/rust && cargo clippy -- -D warnings
+	@echo ""
 	@echo "Running goneat assessment (Go, YAML, schemas)..."
 	@$(BIN_DIR)/goneat assess --categories format,security --check --include "**/*.go"
 	@$(BIN_DIR)/goneat assess --categories format --check --exclude "lang/**" --exclude "**/*.go"
@@ -99,6 +115,9 @@ lint-fix: | bootstrap ## Run linting with auto-fix (Python only - TypeScript use
 
 lint-python: ## Lint Python code (matches GitHub Actions)
 	@cd lang/python && uv run ruff check .
+
+lint-rust: ## Lint Rust code (matches GitHub Actions)
+	@cd lang/rust && cargo clippy -- -D warnings
 
 typecheck: ## Type-check TypeScript files
 	@echo "Type-checking TypeScript files..."

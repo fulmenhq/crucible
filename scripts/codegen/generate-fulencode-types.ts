@@ -48,6 +48,7 @@ interface TaxonomyItem {
   id: string;
   constant_name: string;
   constant_name_go: string;
+  variant_name: string;
   display_name?: string;
   description?: string;
 }
@@ -133,7 +134,11 @@ function loadTaxonomy(taxonomyPath: string): any {
 
 // Helper: Process fulencode taxonomy into enum data
 // Fulencode taxonomies have nested structures unlike fulpack's flat arrays
-function processTaxonomy(taxonomyKey: string, taxonomyFullPath: string, taxonomyRelPath: string): Taxonomy {
+function processTaxonomy(
+  taxonomyKey: string,
+  taxonomyFullPath: string,
+  taxonomyRelPath: string,
+): Taxonomy {
   const taxonomy = loadTaxonomy(taxonomyFullPath);
   const items: TaxonomyItem[] = [];
 
@@ -149,6 +154,7 @@ function processTaxonomy(taxonomyKey: string, taxonomyFullPath: string, taxonomy
             id: key,
             constant_name: toConstantCase(key),
             constant_name_go: toGoConstantCase(key),
+            variant_name: toPascalCase(key),
             display_name: key,
             description: sectionData[key].use_case || "",
           });
@@ -166,6 +172,7 @@ function processTaxonomy(taxonomyKey: string, taxonomyFullPath: string, taxonomy
             id: key,
             constant_name: toConstantCase(key),
             constant_name_go: toGoConstantCase(key),
+            variant_name: toPascalCase(key),
             display_name: sectionData[key].full_name || key,
             description: sectionData[key].description || sectionData[key].use_case || "",
           });
@@ -181,6 +188,7 @@ function processTaxonomy(taxonomyKey: string, taxonomyFullPath: string, taxonomy
           id: key,
           constant_name: toConstantCase(key),
           constant_name_go: toGoConstantCase(key),
+          variant_name: toPascalCase(key),
           display_name: key,
           description: levelsData[key].description || "",
         });
@@ -205,7 +213,7 @@ function prepareTemplateData(lang: string) {
 
   // Process taxonomies
   const taxonomies = Object.entries(metadata.taxonomies).map(([key, path]) =>
-    processTaxonomy(key, `${taxonomyBasePath}/${path}`, path)
+    processTaxonomy(key, `${taxonomyBasePath}/${path}`, path),
   );
 
   return {
@@ -218,11 +226,7 @@ function prepareTemplateData(lang: string) {
 }
 
 // Render template for a specific language and template type
-async function renderTemplate(
-  lang: string,
-  templateType: string,
-  data: any
-): Promise<string> {
+async function renderTemplate(lang: string, templateType: string, data: any): Promise<string> {
   const langConfig = metadata.languages[lang];
   if (!langConfig) {
     throw new Error(`Language "${lang}" not found in metadata.json`);
@@ -251,8 +255,8 @@ async function renderTemplate(
     });
 
     return env.renderString(templateContent, data);
-  } else if (lang === "typescript" || lang === "go") {
-    // Use EJS for TypeScript and Go
+  } else if (lang === "typescript" || lang === "go" || lang === "rust") {
+    // Use EJS for TypeScript, Go, and Rust
     const ejs = await import("ejs");
     return ejs.render(templateContent, { ...data, JSON });
   }
@@ -298,6 +302,8 @@ async function generateLanguage(lang: string) {
       outputFilename = `${templateType}.ts`;
     } else if (lang === "go") {
       outputFilename = `${templateType}.go`;
+    } else if (lang === "rust") {
+      outputFilename = `${templateType}.rs`;
     } else {
       outputFilename = `${templateType}.txt`;
     }
@@ -309,7 +315,7 @@ async function generateLanguage(lang: string) {
     // Run postprocess script if --format flag present
     if (flags.format && langConfig.postprocess) {
       const postprocessPath = resolve(
-        `scripts/codegen/fulencode-types/${lang}/${langConfig.postprocess}`
+        `scripts/codegen/fulencode-types/${lang}/${langConfig.postprocess}`,
       );
       if (existsSync(postprocessPath)) {
         console.log(`  Formatting with: ${langConfig.postprocess}`);

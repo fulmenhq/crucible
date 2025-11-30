@@ -83,7 +83,7 @@ async function main(): Promise<number> {
     console.error("Remediation:");
     if (driftDetected) {
       console.error(
-        "  • Regenerate types: bun run scripts/codegen/generate-fulpack-types.ts --all --format"
+        "  • Regenerate types: bun run scripts/codegen/generate-fulpack-types.ts --all --format",
       );
       console.error("  • Review changes: git diff lang/python/src/crucible/fulpack/");
       console.error("  • Commit updated types: git add . && git commit");
@@ -103,17 +103,14 @@ function regenerateTypes(): void {
     const tempPythonDir = join(TEMP_DIR, "python");
     mkdirSync(tempPythonDir, { recursive: true });
 
-    execSync(
-      `bun run ${ROOT}/scripts/codegen/generate-fulpack-types.ts --lang python --format`,
-      {
-        cwd: ROOT,
-        stdio: "pipe",
-        env: {
-          ...process.env,
-          FULPACK_OUTPUT_OVERRIDE: tempPythonDir,
-        },
-      }
-    );
+    execSync(`bun run ${ROOT}/scripts/codegen/generate-fulpack-types.ts --lang python --format`, {
+      cwd: ROOT,
+      stdio: "pipe",
+      env: {
+        ...process.env,
+        FULPACK_OUTPUT_OVERRIDE: tempPythonDir,
+      },
+    });
 
     // Copy generated Python files to temp directory
     const pythonOutputDir = resolve(ROOT, "lang/python/src/crucible/fulpack");
@@ -135,7 +132,7 @@ function regenerateTypes(): void {
       {
         cwd: ROOT,
         stdio: "pipe",
-      }
+      },
     );
 
     // Copy generated TypeScript files to temp directory
@@ -153,13 +150,10 @@ function regenerateTypes(): void {
     const tempGoDir = join(TEMP_DIR, "go");
     mkdirSync(tempGoDir, { recursive: true });
 
-    execSync(
-      `bun run ${ROOT}/scripts/codegen/generate-fulpack-types.ts --lang go --format`,
-      {
-        cwd: ROOT,
-        stdio: "pipe",
-      }
-    );
+    execSync(`bun run ${ROOT}/scripts/codegen/generate-fulpack-types.ts --lang go --format`, {
+      cwd: ROOT,
+      stdio: "pipe",
+    });
 
     // Copy generated Go files to temp directory
     const goOutputDir = resolve(ROOT, "fulpack");
@@ -171,10 +165,30 @@ function regenerateTypes(): void {
       }
     }
 
+    // Generate Rust types
+    console.log("  • Rust: generating temp types...");
+    const tempRustDir = join(TEMP_DIR, "rust");
+    mkdirSync(tempRustDir, { recursive: true });
+
+    execSync(`bun run ${ROOT}/scripts/codegen/generate-fulpack-types.ts --lang rust --format`, {
+      cwd: ROOT,
+      stdio: "pipe",
+    });
+
+    // Copy generated Rust files to temp directory
+    const rustOutputDir = resolve(ROOT, "lang/rust/src/fulpack");
+    if (existsSync(rustOutputDir)) {
+      for (const file of readdirSync(rustOutputDir)) {
+        if (file.endsWith(".rs")) {
+          execSync(`cp "${join(rustOutputDir, file)}" "${join(tempRustDir, file)}"`);
+        }
+      }
+    }
+
     console.log("  ✓ Code generation complete\n");
   } catch (error) {
     throw new Error(
-      `Code generation failed: ${error instanceof Error ? error.message : String(error)}`
+      `Code generation failed: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }
@@ -313,6 +327,49 @@ function compareFiles(metadata: Metadata): boolean {
     }
   }
 
+  // Check Rust files
+  const rustConfig = metadata.languages["rust"];
+  if (rustConfig) {
+    const outputDir = resolve(ROOT, rustConfig.output_dir);
+    const tempDir = join(TEMP_DIR, "rust");
+
+    if (!existsSync(outputDir)) {
+      console.error("  ❌ Rust output directory not found");
+      console.error(`     Expected: ${outputDir}`);
+      driftDetected = true;
+    } else {
+      const rustFiles = ["types.rs"];
+
+      for (const file of rustFiles) {
+        const checkedInPath = join(outputDir, file);
+        const tempPath = join(tempDir, file);
+
+        if (!existsSync(checkedInPath)) {
+          console.error(`  ❌ Rust ${file}: Checked-in file not found`);
+          driftDetected = true;
+          continue;
+        }
+
+        if (!existsSync(tempPath)) {
+          console.error(`  ❌ Rust ${file}: Temp file not generated`);
+          driftDetected = true;
+          continue;
+        }
+
+        const checkedInContent = readFileSync(checkedInPath, "utf8");
+        const regeneratedContent = readFileSync(tempPath, "utf8");
+
+        if (checkedInContent === regeneratedContent) {
+          console.log(`  ✓ Rust ${file}: Up-to-date`);
+        } else {
+          console.error(`  ❌ Rust ${file}: Drift detected`);
+          console.error(`     Checked-in file differs from freshly generated code`);
+          driftDetected = true;
+        }
+      }
+    }
+  }
+
   console.log("");
   return driftDetected;
 }
@@ -360,7 +417,7 @@ function runCompilationChecks(metadata: Metadata): boolean {
       {
         cwd: ROOT,
         stdio: "pipe",
-      }
+      },
     );
     console.log("  ✓ Python imports valid");
   } catch (error) {
@@ -402,6 +459,24 @@ function runCompilationChecks(metadata: Metadata): boolean {
     console.log("  ✓ Go compilation valid");
   } catch (error) {
     console.error("  ❌ Go compilation failed");
+    console.error(`     ${error instanceof Error ? error.message : String(error)}`);
+    passed = false;
+  }
+
+  // Rust compilation check
+  try {
+    const rustConfig = metadata.languages["rust"];
+    if (rustConfig) {
+      // Need to find package root (lang/rust)
+      const rustPkgRoot = resolve(ROOT, rustConfig.output_dir, "../..");
+      execSync("cargo check", {
+        cwd: rustPkgRoot,
+        stdio: "pipe",
+      });
+      console.log("  ✓ Rust compilation valid");
+    }
+  } catch (error) {
+    console.error("  ❌ Rust compilation failed");
     console.error(`     ${error instanceof Error ? error.message : String(error)}`);
     passed = false;
   }

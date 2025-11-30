@@ -80,6 +80,7 @@ const PYTHON_BYTECODE_CACHE = join(TEMP_DIR, "python-bytecode");
 let goOutputPath = "";
 let pythonOutputPath = "";
 let typescriptOutputPath = "";
+let rustOutputPath = "";
 
 async function main(): Promise<number> {
   console.log("🔍 Verifying exit codes code generation...\n");
@@ -102,6 +103,9 @@ async function main(): Promise<number> {
   goOutputPath = resolve(ROOT, metadata.languages["go"]!.output_path);
   pythonOutputPath = resolve(ROOT, metadata.languages["python"]!.output_path);
   typescriptOutputPath = resolve(ROOT, metadata.languages["typescript"]!.output_path);
+  if (metadata.languages["rust"]) {
+    rustOutputPath = resolve(ROOT, metadata.languages["rust"].output_path);
+  }
 
   try {
     regenerateBindings(languageEntries);
@@ -125,11 +129,13 @@ async function main(): Promise<number> {
     const goContent = readFileSync(goOutputPath, "utf8");
     const pyContent = readFileSync(pythonOutputPath, "utf8");
     const tsContent = readFileSync(typescriptOutputPath, "utf8");
+    const rustContent = rustOutputPath ? readFileSync(rustOutputPath, "utf8") : "";
 
     const parityResults = await validateParity(expectedEntries, catalog.version, {
       go: goContent,
       python: pyContent,
       typescript: tsContent,
+      rust: rustContent,
     });
 
     if (snapshot) {
@@ -179,7 +185,7 @@ async function main(): Promise<number> {
     console.error("Remediation:");
     if (driftDetected) {
       console.error(
-        "  • Regenerate bindings: bun run scripts/codegen/generate-exit-codes.ts --all --format"
+        "  • Regenerate bindings: bun run scripts/codegen/generate-exit-codes.ts --all --format",
       );
       console.error("  • Review changes: git diff lang/");
       console.error("  • Commit updated bindings: git add lang/ && git commit");
@@ -192,7 +198,7 @@ async function main(): Promise<number> {
 }
 
 function regenerateBindings(
-  languageEntries: [string, { output_path: string; template?: string; postprocess?: string }][]
+  languageEntries: [string, { output_path: string; template?: string; postprocess?: string }][],
 ): void {
   console.log("→ Step 1: Regenerating exit codes to temp directory...");
 
@@ -201,7 +207,13 @@ function regenerateBindings(
       console.log(`  • ${langKey}: generating temp binding...`);
       const ext =
         extname(config.output_path) ||
-        (langKey === "go" ? ".go" : langKey === "python" ? ".py" : ".ts");
+        (langKey === "go"
+          ? ".go"
+          : langKey === "python"
+            ? ".py"
+            : langKey === "rust"
+              ? ".rs"
+              : ".ts");
       const tempOutPath = join(TEMP_DIR, `${langKey}${ext}`);
       const tempDir = dirname(tempOutPath);
       if (!existsSync(tempDir)) {
@@ -213,28 +225,44 @@ function regenerateBindings(
         {
           cwd: ROOT,
           stdio: "pipe",
-        }
+        },
       );
     }
     console.log("  ✓ Code generation complete\n");
   } catch (error) {
     throw new Error(
-      `Code generation failed: ${error instanceof Error ? error.message : String(error)}`
+      `Code generation failed: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
 }
 
 function compareBindings(
-  languageEntries: [string, { output_path: string; template?: string; postprocess?: string }][]
+  languageEntries: [string, { output_path: string; template?: string; postprocess?: string }][],
 ): boolean {
   console.log("→ Step 2: Comparing generated files with checked-in versions...");
 
   const filesToCompare = languageEntries.map(([key, config]) => {
     const ext =
       extname(config.output_path) ||
-      (key === "go" ? ".go" : key === "python" ? ".py" : key === "typescript" ? ".ts" : "");
+      (key === "go"
+        ? ".go"
+        : key === "python"
+          ? ".py"
+          : key === "typescript"
+            ? ".ts"
+            : key === "rust"
+              ? ".rs"
+              : "");
     const display =
-      key === "go" ? "Go" : key === "python" ? "Python" : key === "typescript" ? "TypeScript" : key;
+      key === "go"
+        ? "Go"
+        : key === "python"
+          ? "Python"
+          : key === "typescript"
+            ? "TypeScript"
+            : key === "rust"
+              ? "Rust"
+              : key;
     return {
       key,
       display,
@@ -301,7 +329,7 @@ function runCompilationChecks(): boolean {
 
   try {
     mkdirSync(PYTHON_BYTECODE_CACHE, { recursive: true });
-    const pythonRelPath = relative(join(ROOT, 'lang/python'), pythonOutputPath);
+    const pythonRelPath = relative(join(ROOT, "lang/python"), pythonOutputPath);
     execSync(`cd lang/python && uv run python -m py_compile "${pythonRelPath}"`, {
       cwd: ROOT,
       stdio: "pipe",
@@ -328,6 +356,24 @@ function runCompilationChecks(): boolean {
     console.error("  ❌ TypeScript type check failed");
     console.error(`     ${error instanceof Error ? error.message : String(error)}`);
     passed = false;
+  }
+
+  if (rustOutputPath) {
+    try {
+      // output path is lang/rust/src/foundry/exit_codes.rs
+      // dirname is .../lang/rust/src/foundry
+      // we need .../lang/rust
+      const rustPkgRoot = resolve(dirname(rustOutputPath), "../..");
+      execSync(`cargo check`, {
+        cwd: rustPkgRoot,
+        stdio: "pipe",
+      });
+      console.log("  ✓ Rust compilation valid");
+    } catch (error) {
+      console.error("  ❌ Rust compilation failed");
+      console.error(`     ${error instanceof Error ? error.message : String(error)}`);
+      passed = false;
+    }
   }
 
   console.log("");
@@ -358,7 +404,7 @@ function buildExpectedEntryMap(catalog: ExitCodeCatalog): Map<number, ExpectedEn
 async function validateParity(
   expectedEntries: Map<number, ExpectedEntry>,
   version: string,
-  contents: { go: string; python: string; typescript: string }
+  contents: { go: string; python: string; typescript: string; rust: string },
 ): Promise<LanguageParityResult[]> {
   const reports: LanguageParityResult[] = [];
 
@@ -380,13 +426,80 @@ async function validateParity(
     ...(await validateTypeScript(expectedEntries, contents.typescript, version)),
   });
 
+  if (contents.rust) {
+    reports.push({
+      language: "rust",
+      display: "Rust",
+      ...validateRust(expectedEntries, contents.rust, version),
+    });
+  }
+
   return reports;
+}
+
+function validateRust(
+  expectedEntries: Map<number, ExpectedEntry>,
+  content: string,
+  version: string,
+): Omit<LanguageParityResult, "language" | "display"> {
+  const errors: string[] = [];
+
+  if (!content.includes(`Version: ${version}`)) {
+    errors.push(`Catalog version header missing or incorrect (expected ${version})`);
+  }
+
+  const constants = parseRustConstants(content);
+
+  if (constants.size !== expectedEntries.size) {
+    errors.push(`Expected ${expectedEntries.size} constants, found ${constants.size}`);
+  }
+
+  for (const [code, entry] of expectedEntries.entries()) {
+    const constantName = constants.get(code);
+    if (!constantName) {
+      errors.push(`Missing constant for ${entry.name} (${code})`);
+    } else if (constantName !== entry.name) {
+      errors.push(
+        `Constant mismatch for code ${code}: expected ${entry.name}, found ${constantName}`,
+      );
+    }
+  }
+
+  for (const code of constants.keys()) {
+    if (!expectedEntries.has(code)) {
+      errors.push(`Unexpected Rust constant for code ${code}`);
+    }
+  }
+
+  return { errors, codeCount: constants.size };
+}
+
+function parseRustConstants(content: string): Map<number, string> {
+  // Regex to match "NamePascal = Code," inside enum
+  const regex = /^\s*([A-Za-z0-9]+)\s*=\s*(\d+),/gm;
+  const map = new Map<number, string>();
+
+  let match: RegExpExecArray | null;
+  while ((match = regex.exec(content)) !== null) {
+    const pascalName = match[1]!;
+    const code = Number(match[2]);
+    const constName = pascalToConstName(pascalName); // Reusing pascalToConstName from generated utils
+    if (!map.has(code)) {
+      map.set(code, constName);
+    }
+  }
+
+  return map;
+}
+
+function normalizeForGo(value: string): string {
+  return value.replace(/\n/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function validateGo(
   expectedEntries: Map<number, ExpectedEntry>,
   content: string,
-  version: string
+  version: string,
 ): Omit<LanguageParityResult, "language" | "display"> {
   const errors: string[] = [];
 
@@ -398,9 +511,7 @@ function validateGo(
   const metadata = parseGoMetadata(content);
 
   if (constants.size !== expectedEntries.size) {
-    errors.push(
-      `Expected ${expectedEntries.size} constants, found ${constants.size}`
-    );
+    errors.push(`Expected ${expectedEntries.size} constants, found ${constants.size}`);
   }
 
   for (const [code, entry] of expectedEntries.entries()) {
@@ -409,7 +520,7 @@ function validateGo(
       errors.push(`Missing constant for ${entry.name} (${code})`);
     } else if (constantName !== entry.name) {
       errors.push(
-        `Constant mismatch for code ${code}: expected ${entry.name}, found ${constantName}`
+        `Constant mismatch for code ${code}: expected ${entry.name}, found ${constantName}`,
       );
     }
 
@@ -422,10 +533,11 @@ function validateGo(
     if (meta.name !== entry.name) {
       errors.push(`Metadata name mismatch for code ${code} (${entry.name})`);
     }
-    if (meta.description !== entry.description) {
+    // Go/Rust generator normalizes descriptions and context to single line
+    if (meta.description !== normalizeForGo(entry.description)) {
       errors.push(`Metadata description mismatch for code ${code} (${entry.name})`);
     }
-    if (meta.context !== entry.context) {
+    if (meta.context !== normalizeForGo(entry.context)) {
       errors.push(`Metadata context mismatch for code ${code} (${entry.name})`);
     }
     if (meta.category !== entry.category) {
@@ -466,9 +578,7 @@ function parseGoConstants(content: string): Map<number, string> {
   return map;
 }
 
-function parseGoMetadata(
-  content: string
-): Map<
+function parseGoMetadata(content: string): Map<
   number,
   {
     name: string;
@@ -546,7 +656,7 @@ function decodeGoStringLiteral(value: string): string {
 function validatePython(
   expectedEntries: Map<number, ExpectedEntry>,
   content: string,
-  version: string
+  version: string,
 ): Omit<LanguageParityResult, "language" | "display"> {
   const errors: string[] = [];
 
@@ -611,9 +721,7 @@ print(json.dumps({"codes": codes, "metadata": metadata}))
     if (!name) {
       errors.push(`Missing Python enum entry for ${entry.name} (${code})`);
     } else if (name !== entry.name) {
-      errors.push(
-        `Python enum mismatch for code ${code}: expected ${entry.name}, found ${name}`
-      );
+      errors.push(`Python enum mismatch for code ${code}: expected ${entry.name}, found ${name}`);
     }
 
     const metadataEntry = parsed.metadata[String(code)];
@@ -638,7 +746,7 @@ print(json.dumps({"codes": codes, "metadata": metadata}))
     if (
       !optionalEquals(
         normalizeOptional(metadataEntry["retry_hint"]),
-        normalizeOptional(entry.retry_hint)
+        normalizeOptional(entry.retry_hint),
       )
     ) {
       errors.push(`Python metadata retry_hint mismatch for code ${code} (${entry.name})`);
@@ -647,23 +755,19 @@ print(json.dumps({"codes": codes, "metadata": metadata}))
     if (
       !optionalEquals(
         normalizeOptional(metadataEntry["bsd_equivalent"]),
-        normalizeOptional(entry.bsd_equivalent)
+        normalizeOptional(entry.bsd_equivalent),
       )
     ) {
-      errors.push(
-        `Python metadata bsd_equivalent mismatch for code ${code} (${entry.name})`
-      );
+      errors.push(`Python metadata bsd_equivalent mismatch for code ${code} (${entry.name})`);
     }
 
     if (
       !optionalEquals(
         normalizeOptional(metadataEntry["python_note"]),
-        normalizeOptional(entry.python_note)
+        normalizeOptional(entry.python_note),
       )
     ) {
-      errors.push(
-        `Python metadata python_note mismatch for code ${code} (${entry.name})`
-      );
+      errors.push(`Python metadata python_note mismatch for code ${code} (${entry.name})`);
     }
   }
 
@@ -679,7 +783,7 @@ print(json.dumps({"codes": codes, "metadata": metadata}))
 async function validateTypeScript(
   expectedEntries: Map<number, ExpectedEntry>,
   content: string,
-  version: string
+  version: string,
 ): Promise<Omit<LanguageParityResult, "language" | "display">> {
   const errors: string[] = [];
 
@@ -738,7 +842,7 @@ async function validateTypeScript(
       errors.push(`Missing TypeScript constant for ${entry.name} (${code})`);
     } else if (name !== entry.name) {
       errors.push(
-        `TypeScript constant mismatch for code ${code}: expected ${entry.name}, found ${name}`
+        `TypeScript constant mismatch for code ${code}: expected ${entry.name}, found ${name}`,
       );
     }
 
@@ -752,33 +856,23 @@ async function validateTypeScript(
       errors.push(`TypeScript metadata name mismatch for code ${code} (${entry.name})`);
     }
     if (meta.description !== entry.description) {
-      errors.push(
-        `TypeScript metadata description mismatch for code ${code} (${entry.name})`
-      );
+      errors.push(`TypeScript metadata description mismatch for code ${code} (${entry.name})`);
     }
     if (meta.context !== entry.context) {
       errors.push(`TypeScript metadata context mismatch for code ${code} (${entry.name})`);
     }
     if (meta.category !== entry.category) {
-      errors.push(
-        `TypeScript metadata category mismatch for code ${code} (${entry.name})`
-      );
+      errors.push(`TypeScript metadata category mismatch for code ${code} (${entry.name})`);
     }
 
     if (!optionalEquals(meta.retry_hint, entry.retry_hint)) {
-      errors.push(
-        `TypeScript metadata retry_hint mismatch for code ${code} (${entry.name})`
-      );
+      errors.push(`TypeScript metadata retry_hint mismatch for code ${code} (${entry.name})`);
     }
     if (!optionalEquals(meta.bsd_equivalent, entry.bsd_equivalent)) {
-      errors.push(
-        `TypeScript metadata bsd_equivalent mismatch for code ${code} (${entry.name})`
-      );
+      errors.push(`TypeScript metadata bsd_equivalent mismatch for code ${code} (${entry.name})`);
     }
     if (!optionalEquals(meta.python_note, entry.python_note)) {
-      errors.push(
-        `TypeScript metadata python_note mismatch for code ${code} (${entry.name})`
-      );
+      errors.push(`TypeScript metadata python_note mismatch for code ${code} (${entry.name})`);
     }
   }
 

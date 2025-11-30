@@ -19,6 +19,11 @@
       "template": "template.ejs",
       "output_path": "lang/typescript/src/foundry/exitCodes.ts",
       "postprocess": "postprocess.sh"
+    },
+    "rust": {
+      "template": "template.ejs",
+      "output_path": "lang/rust/src/foundry/exit_codes.rs",
+      "postprocess": "postprocess.sh"
     }
   }
 }

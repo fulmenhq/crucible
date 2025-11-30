@@ -59,6 +59,7 @@ async function main() {
 
   await syncToTypeScript(options);
   await syncToPython(options);
+  await syncToRust(options);
 
   console.log("✅ Sync complete - language wrappers updated");
   console.log("");
@@ -66,8 +67,9 @@ async function main() {
   console.log("  1. Review changes: git diff lang/");
   console.log("  2. Test TS build: cd lang/typescript && bun test");
   console.log("  3. Test Python build: cd lang/python && uv run pytest");
-  console.log("  4. Test Go build: go test ./...");
-  console.log("  5. Commit: git add lang/ && git commit -m 'chore: sync assets to lang wrappers'");
+  console.log("  4. Test Rust build: cd lang/rust && cargo test");
+  console.log("  5. Test Go build: go test ./...");
+  console.log("  6. Commit: git add lang/ && git commit -m 'chore: sync assets to lang wrappers'");
 }
 
 async function generateSnapshots(options: SyncOptions) {
@@ -156,6 +158,24 @@ async function syncToPython(options: SyncOptions) {
   await syncDirectory(join(ROOT, "config"), join(pythonRoot, "config"), "config/", options);
 
   await syncDirectory(join(ROOT, "docs"), join(pythonRoot, "docs"), "docs/", options, ["ops"]);
+}
+
+async function syncToRust(options: SyncOptions) {
+  console.log("📦 Rust crate...");
+
+  const rustRoot = join(ROOT, "lang/rust");
+
+  // Check if Rust scaffold exists
+  if (!existsSync(rustRoot)) {
+    console.log("   ⚠️  lang/rust/ not found, skipping Rust sync");
+    return;
+  }
+
+  await syncDirectory(join(ROOT, "schemas"), join(rustRoot, "schemas"), "schemas/", options);
+
+  await syncDirectory(join(ROOT, "config"), join(rustRoot, "config"), "config/", options);
+
+  await syncDirectory(join(ROOT, "docs"), join(rustRoot, "docs"), "docs/", options, ["ops"]);
 }
 
 async function syncDirectory(
@@ -254,20 +274,19 @@ DESCRIPTION:
   STAGE 2 - CODE GENERATION & SYNC:
     Generates language-native bindings from fresh snapshots and syncs
     schemas/, config/, docs/ to:
-    - lang/typescript/schemas/
-    - lang/typescript/config/  (includes both platform-modules and foundry-catalogs registries)
-    - lang/typescript/docs/
-    - lang/python/schemas/
-    - lang/python/config/  (includes both platform-modules and foundry-catalogs registries)
-    - lang/python/docs/
+    - lang/typescript/{schemas,config,docs}/
+    - lang/python/{schemas,config,docs}/
+    - lang/rust/{schemas,config,docs}/
 
   Code generation produces language-native bindings:
     - foundry/exit_codes.go
-    - lang/python/src/pyfulmen/foundry/exit_codes.py
+    - lang/python/src/crucible/foundry/exit_codes.py
     - lang/typescript/src/foundry/exitCodes.ts
+    - lang/rust/src/foundry/exit_codes.rs (future - W2)
 
   Note: Go module at root embeds directly from root SSOT directories
   via go:embed directives, so no sync is required for YAML/JSON assets.
+  Rust uses the sync pattern per ADR-0013.
 
   This ensures language wrappers have up-to-date copies
   of assets before publishing packages.

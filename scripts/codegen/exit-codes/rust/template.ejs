@@ -1,0 +1,59 @@
+//! Standardized exit codes for Fulmen ecosystem.
+//!
+//! This file is AUTO-GENERATED from the Foundry exit codes catalog.
+//! Source: config/library/foundry/exit-codes.yaml
+//! Version: <%- Version %>
+//! Last Reviewed: <%- LastReviewed %>
+
+/// Standardized exit codes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[non_exhaustive]
+#[repr(i32)]
+pub enum ExitCode {
+<% for (const category of Categories) { -%>
+    // <%- category.Name %> (<%- category.Range.Min %>-<%- category.Range.Max %>)
+    // <%- category.Description %>
+
+<%   for (const code of category.Codes) { -%>
+    /// <%- code.Description %>
+    ///
+    /// Context: <%- code.Context %>
+    <%- code.NamePascal %> = <%- code.Code %>,
+<%   } -%>
+
+<% } -%>
+}
+
+impl ExitCode {
+    /// Returns the numeric exit code value.
+    #[must_use]
+    pub const fn code(self) -> i32 {
+        self as i32
+    }
+
+    /// Returns the category ID for this exit code.
+    #[must_use]
+    pub const fn category(&self) -> &'static str {
+        match self {
+<% for (const category of Categories) { -%>
+<%   for (const code of category.Codes) { -%>
+            Self::<%- code.NamePascal %> => "<%- code.CategoryID %>",
+<%   } -%>
+<% } -%>
+        }
+    }
+}
+
+impl std::fmt::Display for ExitCode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+<% for (const category of Categories) { -%>
+<%   for (const code of category.Codes) { -%>
+            Self::<%- code.NamePascal %> => write!(f, "<%- code.Description %>"),
+<%   } -%>
+<% } -%>
+        }
+    }
+}
+
+impl std::error::Error for ExitCode {}

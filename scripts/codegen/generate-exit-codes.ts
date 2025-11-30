@@ -128,8 +128,8 @@ function prepareTemplateData(lang: string) {
     simplified_modes: catalog.simplified_modes || [],
   };
 
-  if (lang === "go") {
-    // Transform for Go: add PascalCase names and flatten category ID
+  if (lang === "go" || lang === "rust") {
+    // Transform for Go/Rust: add PascalCase names and flatten category ID
     return {
       ...baseData,
       LastReviewed: metadata.last_reviewed,
@@ -156,8 +156,8 @@ function prepareTemplateData(lang: string) {
           Code: code.code,
           Name: code.name,
           NamePascal: toPascalCase(code.name),
-          Description: code.description,
-          Context: code.context,
+          Description: code.description.replace(/\n/g, " ").replace(/\s+/g, " ").trim(),
+          Context: code.context.replace(/\n/g, " ").replace(/\s+/g, " ").trim(),
           CategoryID: cat.id,
           RetryHint: code.retry_hint || "",
           BSDEquivalent: code.bsd_equivalent || "",
@@ -185,8 +185,8 @@ async function renderTemplate(lang: string): Promise<string> {
   const templateContent = readFileSync(templatePath, "utf8");
   const data = prepareTemplateData(lang);
 
-  if (lang === "typescript" || lang === "go") {
-    // Use EJS for TypeScript and Go
+  if (lang === "typescript" || lang === "go" || lang === "rust") {
+    // Use EJS for TypeScript, Go, and Rust
     const ejs = await import("ejs");
     return ejs.render(templateContent, { ...data, JSON });
   } else if (lang === "python") {
@@ -195,7 +195,7 @@ async function renderTemplate(lang: string): Promise<string> {
     const env = new nunjucks.Environment(null, { autoescape: false });
 
     // Add custom filter for JSON serialization (properly escapes strings for Python)
-    env.addFilter("pyjson", function(str: string) {
+    env.addFilter("pyjson", function (str: string) {
       return JSON.stringify(str);
     });
 
@@ -232,9 +232,7 @@ async function generateLanguage(lang: string) {
 
   // Run postprocess script if --format flag present
   if (flags.format && langConfig.postprocess) {
-    const postprocessPath = resolve(
-      `scripts/codegen/exit-codes/${lang}/${langConfig.postprocess}`
-    );
+    const postprocessPath = resolve(`scripts/codegen/exit-codes/${lang}/${langConfig.postprocess}`);
     if (existsSync(postprocessPath)) {
       console.log(`  Formatting with: ${langConfig.postprocess}`);
       try {
@@ -251,6 +249,12 @@ async function generateLanguage(lang: string) {
     try {
       if (lang === "go") {
         execSync(`go build -o /dev/null ${outputPath}`, { stdio: "pipe" });
+      } else if (lang === "rust") {
+        // Run cargo check in the package root (assumed to be 2 dirs up from src/foundry/exit_codes.rs)
+        // Adjust path logic if necessary.
+        // lang/rust/src/foundry/exit_codes.rs -> lang/rust
+        const rustPkgRoot = resolve(dirname(outputPath), "../../..");
+        execSync(`cargo check`, { cwd: rustPkgRoot, stdio: "pipe" });
       } else if (lang === "python") {
         execSync(`python -m py_compile ${outputPath}`, { stdio: "pipe" });
       } else if (lang === "typescript") {
@@ -288,7 +292,9 @@ async function main() {
     console.error(`   ${error instanceof Error ? error.message : String(error)}`);
     console.error(`\nRemediation:`);
     console.error(`   - Verify catalog exists: ${metadata.catalog_path}`);
-    console.error(`   - Verify templates exist: scripts/codegen/exit-codes/{go,python,typescript}/`);
+    console.error(
+      `   - Verify templates exist: scripts/codegen/exit-codes/{go,python,typescript}/`,
+    );
     console.error(`   - Check template syntax and data structure`);
     process.exit(1); // EXIT_FAILURE
   }

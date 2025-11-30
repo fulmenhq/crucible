@@ -105,9 +105,17 @@ console.log(`✓ Loaded metadata for ${metadata.module} module (version ${metada
 // Helper: Convert snake_case to PascalCase
 function toPascalCase(name: string): string {
   return name
-    .split(/[-_]/)
+    .split(/[-_.]/)
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join("");
+}
+
+// Helper: Convert camelCase or PascalCase to snake_case for Rust
+function toRustSnakeCase(name: string): string {
+  return name
+    .replace(/([a-z])([A-Z])/g, "$1_$2")
+    .replace(/([A-Z])([A-Z][a-z])/g, "$1_$2")
+    .toLowerCase();
 }
 
 // Helper: Convert snake_case to CONSTANT_CASE
@@ -184,6 +192,60 @@ function inferTypeScriptType(property: JSONSchemaProperty): string {
   }
 
   return type ? typeMap[type] || "unknown" : "unknown";
+}
+
+// Helper: Infer Rust type from JSON Schema property
+function inferRustType(property: JSONSchemaProperty, isOptional: boolean = false): string {
+  const { type, enum: enumValues, items, format } = property;
+
+  // Handle enums - use String for now (or specific enum if we can link it later)
+  if (enumValues && enumValues.length > 0) {
+    return isOptional ? "Option<String>" : "String";
+  }
+
+  // Handle arrays
+  if (type === "array" && items) {
+    let vecType = "";
+    if (items.type === "integer" && items.maximum === 255) {
+      vecType = "Vec<u8>";
+    } else {
+      const itemType = inferRustType(items, false);
+      vecType = `Vec<${itemType}>`;
+    }
+    return isOptional ? `Option<${vecType}>` : vecType;
+  }
+
+  // Handle format-specific types
+  if (format === "date-time") {
+    return isOptional ? "Option<String>" : "String"; // ISO 8601 datetime string
+  }
+
+  // Handle basic types
+  const typeMap: { [key: string]: string } = {
+    string: "String",
+    integer: "i64",
+    number: "f64",
+    boolean: "bool",
+    object: "std::collections::HashMap<String, serde_json::Value>",
+  };
+
+  // Handle union types
+  if (Array.isArray(type)) {
+    const hasNull = type.includes("null");
+    const nonNullTypes = type.filter((t) => t !== "null");
+
+    if (nonNullTypes.length === 0) {
+      return "Option<serde_json::Value>";
+    }
+
+    const baseType = nonNullTypes[0]!;
+    const rustType = typeMap[baseType] || "serde_json::Value";
+
+    return hasNull || isOptional ? `Option<${rustType}>` : rustType;
+  }
+
+  const rustType = type ? typeMap[type] || "serde_json::Value" : "serde_json::Value";
+  return isOptional ? `Option<${rustType}>` : rustType;
 }
 
 // Helper: Infer Go type
@@ -263,14 +325,18 @@ function processSchema(schemaFilename: string, schemaBasePath: string): any {
     const pythonType = inferPythonType(propDef);
     const typescriptType = inferTypeScriptType(propDef);
     const goType = inferGoType(propDef, !isRequired);
+    const rustType = inferRustType(propDef, !isRequired);
     const nameGo = toGoPascalCase(propName);
+    const nameRust = toRustSnakeCase(propName);
 
     return {
       name: propName,
       name_go: nameGo,
+      name_rust: nameRust,
       python_type: pythonType,
       typescript_type: typescriptType,
       go_type: goType,
+      rust_type: rustType,
       description: propDef.description || "",
       is_required: isRequired,
       default: propDef.default,
@@ -300,6 +366,7 @@ function processTaxonomy(
       id: algo.id,
       constant_name: toConstantCase(algo.id),
       constant_name_go: toGoConstantCase(algo.id),
+      variant_name: toPascalCase(algo.id),
       display_name: algo.name,
       description: algo.description || "",
     }));
@@ -357,7 +424,7 @@ async function renderTemplate(lang: string, templateType: string, data: any): Pr
     const env = new nunjucks.Environment(null, { autoescape: false });
     env.addFilter("pyjson", (str: string) => JSON.stringify(str));
     return env.renderString(templateContent, data);
-  } else if (lang === "typescript" || lang === "go") {
+  } else if (lang === "typescript" || lang === "go" || lang === "rust") {
     const ejs = await import("ejs");
     return ejs.render(templateContent, { ...data, JSON });
   }
@@ -391,6 +458,8 @@ async function generateLanguage(lang: string) {
       // or algorithms.go if we want to split. Let's match template keys.
       if (templateType === "types") outputFilename = "types.go";
       else outputFilename = `${templateType}.go`;
+    } else if (lang === "rust") {
+      outputFilename = `${templateType}.rs`;
     } else {
       outputFilename = `${templateType}.txt`;
     }
