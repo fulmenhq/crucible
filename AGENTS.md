@@ -149,7 +149,9 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
 **Key Crucible-specific requirements**:
 
 1. Run `make precommit` (includes sync, format, lint, test)
-2. Verify `git status` shows synced files in `lang/*/`
+2. Verify `git status` shows synced files in `lang/*/` and NO modified files (especially docs/markdown) that were changed by the formatter.
+   - ⚠️ **CRITICAL**: Always run `git status` immediately before `git commit` to ensure you haven't missed files modified by pre-commit tools (fmt, sync).
+   - If `git status` shows modified files after your initial staging, stage them too (`git add -u`).
 3. Stage ALL files including language wrappers
 4. Use concise commit message style (see [Commit Message Style](docs/sop/repository-operations-sop.md#commit-message-style))
 5. Verify clean working tree after commit

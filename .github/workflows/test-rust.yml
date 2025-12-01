@@ -1,0 +1,30 @@
+name: Test Rust
+on:
+  push:
+  pull_request:
+jobs:
+  test-rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: '1.70'
+          components: rustfmt, clippy
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: lang/rust
+      - name: Check formatting
+        working-directory: ./lang/rust
+        run: cargo fmt --check
+      - name: Lint
+        working-directory: ./lang/rust
+        run: cargo clippy -- -D warnings
+      - name: Build
+        working-directory: ./lang/rust
+        run: cargo build
+      - name: Test
+        working-directory: ./lang/rust
+        run: cargo test

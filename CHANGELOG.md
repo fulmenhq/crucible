@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _No unreleased changes yet._
 
+## [0.2.21] - 2025-11-30
+
+### Added
+
+- **Rust Language Enablement** - Foundation for `rsfulmen` helper library
+  - **Scaffolding**: Complete `lang/rust` crate structure with Cargo workspace and MSRV 1.70 configuration
+  - **Code Generation**: Automated bindings for Exit Codes, Fulpack, Fulencode, and Fulhash modules
+  - **Sync Pipeline**: `make sync` now hydrates `lang/rust/schemas`, `lang/rust/config`, and `lang/rust/docs`
+  - **Quality Gates**: `make check-all` integrates `rustfmt`, `clippy` (pedantic), and `cargo test`
+  - **Coding Standards**: New [Rust Coding Standards](docs/standards/coding/rust.md) and [Rust Testing Patterns](docs/standards/testing/language-testing-patterns.md#rust--claptokio-clis)
+  - **Documentation**: `ADR-0013` (Rust Sync Pattern Validation) and updated `languages.yaml` status
+  - **Tooling**: Added `rustup` to `.goneat/tools.yaml` for standardized environment bootstrapping
+
 ## [0.2.20] - 2025-11-21
 
 ### Added

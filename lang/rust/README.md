@@ -7,9 +7,9 @@ Generated Rust types and constants from the FulmenHQ Crucible SSOT repository.
 This crate (`crucible-codegen`) provides Rust bindings for Crucible's standardized types:
 
 - **Exit Codes** - Standardized CLI exit codes with Display and Error implementations
-- **Fulpack Types** - (Coming soon) Package format types
-- **Fulencode Types** - (Coming soon) Encoding format types
-- **Fulhash Types** - (Coming soon) Hash algorithm types
+- **Fulpack Types** - Archive format types and structures
+- **Fulencode Types** - Encoding format types
+- **Fulhash Types** - Hash algorithm types
 
 ## Installation
 
