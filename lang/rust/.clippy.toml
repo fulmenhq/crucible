@@ -1,0 +1,21 @@
+# Crucible Rust Clippy Configuration
+# See: docs/standards/coding/rust.md Section 9.3
+
+# Words that don't need backticks in documentation
+# (clippy::doc_markdown exceptions)
+doc-valid-idents = [
+    "FulmenHQ",
+    "Crucible",
+    "SSOT",
+    "MSRV",
+    "rsfulmen",
+    "gofulmen",
+    "pyfulmen",
+    "tsfulmen",
+    "goneat",
+    "CalVer",
+    "SemVer",
+]
+
+# Cognitive complexity threshold (default is 25)
+cognitive-complexity-threshold = 30

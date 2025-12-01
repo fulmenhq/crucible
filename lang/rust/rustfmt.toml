@@ -1,0 +1,19 @@
+# Crucible Rust Formatting Configuration
+# See: docs/standards/coding/rust.md Section 9.1
+#
+# Note: Some options (imports_granularity, group_imports, wrap_comments,
+# normalize_doc_attributes) require nightly Rust. We use only stable options
+# here for MSRV 1.70 compatibility.
+
+edition = "2021"
+newline_style = "Unix"
+max_width = 100
+tab_spaces = 4
+use_small_heuristics = "Default"
+
+# Unstable options (uncomment when using nightly or when stabilized):
+# imports_granularity = "Crate"
+# group_imports = "StdExternalCrate"
+# wrap_comments = true
+# comment_width = 80
+# normalize_doc_attributes = true

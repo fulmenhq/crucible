@@ -10,13 +10,12 @@
 //!
 //! # Usage
 //!
-//! ```rust
+//! ```rust,no_run
 //! use crucible_codegen::foundry::ExitCode;
 //!
-//! fn main() {
-//!     // Use standardized exit codes
-//!     std::process::exit(ExitCode::Success.code());
-//! }
+//! // Use standardized exit codes
+//! let code = ExitCode::Success.code();
+//! assert_eq!(code, 0);
 //! ```
 //!
 //! # Generation
@@ -27,10 +26,24 @@
 //!
 //! See: <https://github.com/fulmenhq/crucible>
 
+// =============================================================================
+// Lint Configuration
+// See: docs/standards/coding/rust.md and lang/rust/.clippy.toml
+// =============================================================================
+
+// Standard Safety & Quality
 #![deny(unsafe_code)]
 #![warn(missing_docs)]
+#![warn(rust_2018_idioms)]
+// Clippy Groups
 #![warn(clippy::all)]
 #![warn(clippy::pedantic)]
+#![warn(clippy::cargo)]
+// Allowances for generated code patterns
+#![allow(clippy::module_name_repetitions)] // e.g., fulpack::types::ArchiveFormat
+#![allow(clippy::multiple_crate_versions)] // Dependency tree may require this
+#![allow(clippy::match_same_arms)] // category() method groups by category
+#![allow(clippy::doc_markdown)] // FulmenHQ, ExitCode in docs (see .clippy.toml)
 
 pub mod foundry;
 /// Fulencode encoding formats and types

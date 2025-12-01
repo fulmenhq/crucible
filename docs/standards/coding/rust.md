@@ -750,15 +750,26 @@ impl Default for ServerConfig {
 
 ### 9.1 Rustfmt Configuration
 
+FulmenHQ Rust projects use a standard `rustfmt.toml` configuration aligned with MSRV 1.70.
+
 ```toml
 # rustfmt.toml
 edition = "2021"
+newline_style = "Unix"
 max_width = 100
 tab_spaces = 4
-use_small_heuristics = "Default"
-imports_granularity = "Module"
-group_imports = "StdExternalCrate"
+
+# Consistency
+wrap_comments = true
+comment_width = 80
+normalize_doc_attributes = true
+
+# Unstable options (commented out for MSRV 1.70 compatibility)
+# imports_granularity = "Crate"
+# group_imports = "StdExternalCrate"
 ```
+
+**Reference implementation:** `lang/rust/rustfmt.toml` in Crucible.
 
 ### 9.2 Documentation Comments
 
@@ -799,19 +810,62 @@ pub fn load(path: impl AsRef<Path>) -> Result<Config> {
 
 ### 9.3 Clippy Configuration
 
-```toml
-# Cargo.toml or .cargo/config.toml
-[lints.clippy]
-all = "warn"
-pedantic = "warn"
-nursery = "warn"
-unwrap_used = "deny"
-expect_used = "deny"
-panic = "deny"
+**MSRV Note:** The `[lints]` table in `Cargo.toml` requires Rust 1.74+. For MSRV 1.70 compatibility, use crate-level attributes in `lib.rs`.
 
-# Allow specific lints with justification
-missing_errors_doc = "allow"  # TODO: Add error documentation
+**Crate-level attributes (`src/lib.rs`):**
+
+```rust
+// Standard Safety & Quality
+#![deny(unsafe_code)]
+#![warn(missing_docs)]
+#![warn(rust_2018_idioms)]
+
+// Clippy Groups
+#![warn(clippy::all)]
+#![warn(clippy::pedantic)]
+#![warn(clippy::cargo)]
+
+// Allowances (with justification)
+#![allow(clippy::module_name_repetitions)]  // Common in module::Type patterns
+#![allow(clippy::multiple_crate_versions)]  // Dependency tree may require
+#![allow(clippy::match_same_arms)]          // Acceptable for category grouping
+#![allow(clippy::doc_markdown)]             // See .clippy.toml for valid-idents
 ```
+
+**Clippy configuration (`.clippy.toml`):**
+
+```toml
+# Clippy configuration
+cognitive-complexity-threshold = 30
+
+# Words that should be considered valid identifiers in documentation
+doc-valid-idents = [
+    "FulmenHQ",
+    "Crucible",
+    "Fulmen",
+    "Fulpack",
+    "Fulencode",
+    "Fulhash",
+    "Opencode",
+    "Lorage",
+    "DevSecOps",
+    "SSOT",
+    "Codex",
+    "Foundry",
+    "GitHub",
+    "OAuth",
+    "OpenID",
+    "OIDC",
+    "SAML",
+    "JWT",
+    "mTLS",
+    "gRPC",
+]
+```
+
+**CI enforcement:** Run `cargo clippy -- -D warnings` to treat all warnings as errors.
+
+**Reference implementation:** `lang/rust/src/lib.rs` and `lang/rust/.clippy.toml` in Crucible.
 
 ---
 
