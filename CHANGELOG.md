@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Note**: Versions 0.1.0 through 0.1.4 were originally released with CalVer tags (v2025.10.1 through v2025.10.5). Retroactive SemVer tags have been added for migration continuity. See [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md) for details.
 
-## [Unreleased]
+## [0.2.22] - 2025-12-04
 
-_No unreleased changes yet._
+### Added
+
+- **Goneat Tools Schema Enhancement** - Extended installer kinds to support Node.js and Python package managers
+  - Added `"node"` and `"python"` to the `kind` enum in `schemas/tooling/goneat-tools/v1.0.0/goneat-tools-config.schema.yaml`
+  - Enables goneat to install tools via npm/pnpm/yarn (node) and pip/uv/poetry (python)
+  - Synced to all language wrappers (`lang/python/`, `lang/typescript/`, `lang/rust/`)
 
 ## [0.2.21] - 2025-11-30
 

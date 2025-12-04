@@ -84,7 +84,7 @@ build-rust: ## Build Rust crate (matches GitHub Actions)
 # Format, Lint, Typecheck targets
 # Note: fmt depends on sync-to-lang having run (via build target order) to format synced files in lang/ directories
 fmt: | bootstrap ## Format code files (Go/markdown/YAML via goneat, TypeScript via biome, Python via ruff, Rust via rustfmt)
-	@$(BIN_DIR)/goneat format --verbose
+	@$(BIN_DIR)/goneat format
 	@cd lang/typescript && bun run format >/dev/null
 	@cd lang/python && uv run ruff format . >/dev/null 2>&1 || true
 	@cd lang/rust && cargo fmt >/dev/null 2>&1 || true
