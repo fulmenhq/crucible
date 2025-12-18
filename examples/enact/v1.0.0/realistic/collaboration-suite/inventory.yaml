@@ -1,0 +1,198 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/state/inventory.schema.json
+#
+# Example inventory after a successful apply.
+schema_version: "1.0.0"
+metadata:
+  last_updated: "2024-12-17T10:30:00Z"
+  updated_by: "enact sync"
+  last_run_ref: ".enact/runlog/2024-12-17T10-15-00.yaml"
+deployment:
+  name: acme-collab
+  recipe_version: "1.0.0"
+  variant: standard
+  environment: prod
+  created_at: "2024-12-10T14:00:00Z"
+provider:
+  compute: digitalocean
+  dns: cloudflare
+  storage: digitalocean
+  region: nyc3
+infrastructure:
+  compute:
+    - name: acme-collab-01
+      provider_id: "do:droplet:429581234"
+      size: s-4vcpu-8gb
+      image: ubuntu-24-04-x64
+      vcpus: 4
+      memory_gb: 8
+      disk_gb: 160
+      ipv4_public: "167.99.123.45"
+      ipv4_private: "10.132.0.2"
+      ssh_keys:
+        - "SHA256:abc123DEF456ghi789JKL012mno345PQR678stu901V"
+      tags:
+        - enact
+        - production
+        - acme
+      created_at: "2024-12-10T14:15:00Z"
+      status: active
+  database:
+    - name: acme-db
+      provider_id: "do:database:abcd1234-5678-90ab-cdef"
+      engine: pg
+      version: "16"
+      size: db-s-2vcpu-4gb
+      nodes: 1
+      host: acme-db-do-user-12345-0.b.db.ondigitalocean.com
+      port: 25060
+      database: defaultdb
+      ssl_mode: require
+      connection_pool_mode: transaction
+      created_at: "2024-12-10T14:10:00Z"
+      status: online
+  storage:
+    - name: acme-collab-files
+      provider_id: "do:space:acme-collab-files"
+      region: nyc3
+      endpoint: nyc3.digitaloceanspaces.com
+      cdn_enabled: true
+      cdn_endpoint: acme-collab-files.nyc3.cdn.digitaloceanspaces.com
+      acl: private
+      created_at: "2024-12-10T14:05:00Z"
+  firewall:
+    - name: acme-web
+      provider_id: "do:firewall:fw-12345678"
+      inbound_rules:
+        - protocol: tcp
+          ports: "22"
+          sources:
+            - "10.0.0.0/8"
+        - protocol: tcp
+          ports: "80"
+          sources:
+            - "0.0.0.0/0"
+        - protocol: tcp
+          ports: "443"
+          sources:
+            - "0.0.0.0/0"
+      outbound_rules:
+        - protocol: tcp
+          ports: "1-65535"
+          sources:
+            - "0.0.0.0/0"
+      droplet_ids:
+        - "429581234"
+dns:
+  provider: cloudflare
+  zone_id: "cf:zone:xyz789abcdef"
+  zone_name: example.education
+  records:
+    - name: files.example.education
+      type: A
+      value: "167.99.123.45"
+      ttl: 300
+      proxied: true
+      record_id: "cf:dns:rec001"
+    - name: chat.example.education
+      type: A
+      value: "167.99.123.45"
+      ttl: 300
+      proxied: true
+      record_id: "cf:dns:rec002"
+    - name: wiki.example.education
+      type: A
+      value: "167.99.123.45"
+      ttl: 300
+      proxied: true
+      record_id: "cf:dns:rec003"
+    - name: auth.example.education
+      type: A
+      value: "167.99.123.45"
+      ttl: 300
+      proxied: true
+      record_id: "cf:dns:rec004"
+services:
+  reverse-proxy:
+    status: running
+    container_id: "a1b2c3d4e5f6"
+    image: "caddy:2.8.4-alpine"
+    version: "2.8.4"
+    config_path: /opt/enact/caddy/Caddyfile
+    config_hash: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    ports:
+      - "80:80"
+      - "443:443"
+    endpoints:
+      - url: https://files.example.education
+        purpose: Primary application ingress
+        internal: false
+    uptime_seconds: 604800
+    health_endpoint: http://localhost:2019/health
+  identity:
+    status: running
+    container_id: "b2c3d4e5f6a7"
+    image: "ghcr.io/goauthentik/server:2024.10.2"
+    version: "2024.10.2"
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    endpoints:
+      - url: https://auth.example.education
+        purpose: SSO login
+        internal: false
+    uptime_seconds: 604800
+    health_endpoint: https://auth.example.education/-/health/live/
+  file-storage:
+    status: running
+    container_id: "d4e5f6a7b8c9"
+    image: "nextcloud:29"
+    version: "29"
+    endpoints:
+      - url: https://files.example.education
+        purpose: File storage
+        internal: false
+    uptime_seconds: 604800
+  chat:
+    status: running
+    container_id: "e5f6a7b8c9d0"
+    image: "mattermost/mattermost-team-edition:9.11"
+    version: "9.11"
+    endpoints:
+      - url: https://chat.example.education
+        purpose: Team chat
+        internal: false
+    uptime_seconds: 604800
+  wiki:
+    status: running
+    container_id: "f6a7b8c9d0e1"
+    image: "lscr.io/linuxserver/bookstack:24"
+    version: "24"
+    endpoints:
+      - url: https://wiki.example.education
+        purpose: Knowledge base
+        internal: false
+    uptime_seconds: 604800
+  cache:
+    status: running
+    container_id: "c3d4e5f6a7b8"
+    image: "redis:7-alpine"
+    version: "7-alpine"
+    ports:
+      - "6379:6379"
+    uptime_seconds: 604800
+checks:
+  last_run: "2024-12-17T10:00:00Z"
+  next_scheduled: "2024-12-17T11:00:00Z"
+  results:
+    file-storage:
+      status: pass
+      response_ms: 245
+      checked_at: "2024-12-17T10:00:05Z"
+    identity:
+      status: pass
+      response_ms: 89
+      checked_at: "2024-12-17T10:00:03Z"
+    database:
+      status: pass
+      response_ms: 12
+      checked_at: "2024-12-17T10:00:01Z"

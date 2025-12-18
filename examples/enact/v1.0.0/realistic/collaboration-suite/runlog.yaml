@@ -1,0 +1,166 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/execution/runlog.schema.json
+#
+# Example runlog for a successful apply.
+schema_version: "1.0.0"
+run:
+  id: "2024-12-17T10-15-00-abc123"
+  started_at: "2024-12-17T10:15:00Z"
+  completed_at: "2024-12-17T10:45:23Z"
+  duration_ms: 1823000
+  status: completed
+  command: apply
+  operator: "@operator"
+  hostname: "workhorse.local"
+  runner_version: "0.1.0"
+context:
+  recipe_path: ./recipe.yaml
+  recipe_hash: "sha256:a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd"
+  deployment_name: acme-collab
+  variant: standard
+  environment: prod
+  dry_run: false
+  phases_requested: []
+plan:
+  phases_to_run:
+    - dns-network
+    - compute
+    - database
+    - services
+    - health-check
+  phases_skipped: []
+  estimated_changes:
+    create: 8
+    update: 0
+    delete: 0
+    unchanged: 0
+  estimated_duration_seconds: 1800
+phases:
+  - phase: dns-network
+    name: DNS & Network Setup
+    status: completed
+    started_at: "2024-12-17T10:15:05Z"
+    completed_at: "2024-12-17T10:17:30Z"
+    duration_ms: 145000
+    commands:
+      - command: "doctl compute firewall create --name acme-web --inbound-rules '...' --outbound-rules '...'"
+        host: local
+        started_at: "2024-12-17T10:15:10Z"
+        completed_at: "2024-12-17T10:15:45Z"
+        duration_ms: 35000
+        exit_code: 0
+        stdout: "ID                                      Name\nfw-12345678                            acme-web"
+        truncated: false
+        sensitive: false
+    changes:
+      - resource_type: firewall
+        resource_id: acme-web
+        action: create
+        provider_id: "do:firewall:fw-12345678"
+        after:
+          name: acme-web
+          inbound_rules: 3
+          outbound_rules: 1
+  - phase: compute
+    name: Compute Provisioning
+    status: completed
+    started_at: "2024-12-17T10:17:35Z"
+    completed_at: "2024-12-17T10:25:00Z"
+    duration_ms: 445000
+    commands:
+      - command: "doctl compute droplet create acme-app-01 --size s-4vcpu-8gb --image ubuntu-24-04-x64 --region nyc3 --ssh-keys '...' --tag-names enact,production,acme --wait"
+        host: local
+        started_at: "2024-12-17T10:17:40Z"
+        completed_at: "2024-12-17T10:24:30Z"
+        duration_ms: 410000
+        exit_code: 0
+        stdout: "ID           Name            Public IPv4      Status\n429581234    acme-app-01     167.99.123.45    active"
+        truncated: false
+        sensitive: false
+    changes:
+      - resource_type: droplet
+        resource_id: acme-app-01
+        action: create
+        provider_id: "do:droplet:429581234"
+        after:
+          name: acme-app-01
+          ipv4: "167.99.123.45"
+          size: s-4vcpu-8gb
+  - phase: database
+    name: Database Setup
+    status: completed
+    started_at: "2024-12-17T10:25:05Z"
+    completed_at: "2024-12-17T10:32:00Z"
+    duration_ms: 415000
+    commands:
+      - command: "doctl databases create acme-db --engine pg --version 16 --size db-s-2vcpu-4gb --region nyc3 --num-nodes 1 --wait"
+        host: local
+        started_at: "2024-12-17T10:25:10Z"
+        completed_at: "2024-12-17T10:31:45Z"
+        duration_ms: 395000
+        exit_code: 0
+        stdout: "ID                                       Name         Engine    Status\nabcd1234-5678-90ab-cdef                  acme-db      pg        online"
+        truncated: false
+        sensitive: false
+    changes:
+      - resource_type: database
+        resource_id: acme-db
+        action: create
+        provider_id: "do:database:abcd1234-5678-90ab-cdef"
+  - phase: services
+    name: Service Deployment
+    status: completed
+    started_at: "2024-12-17T10:32:05Z"
+    completed_at: "2024-12-17T10:43:00Z"
+    duration_ms: 655000
+    commands:
+      - command: "ssh root@167.99.123.45 'docker compose -f /opt/enact/docker-compose.yml up -d'"
+        host: "167.99.123.45"
+        started_at: "2024-12-17T10:35:00Z"
+        completed_at: "2024-12-17T10:42:30Z"
+        duration_ms: 450000
+        exit_code: 0
+        stdout: "[+] Running 4/4\n ✔ Container reverse-proxy Started\n ✔ Container identity      Started\n ✔ Container app           Started\n ✔ Container cache          Started"
+        truncated: true
+        sensitive: false
+    changes:
+      - resource_type: container
+        resource_id: reverse-proxy
+        action: create
+      - resource_type: container
+        resource_id: identity
+        action: create
+      - resource_type: container
+        resource_id: app
+        action: create
+      - resource_type: container
+        resource_id: cache
+        action: create
+  - phase: health-check
+    name: Health Verification
+    status: completed
+    started_at: "2024-12-17T10:43:05Z"
+    completed_at: "2024-12-17T10:45:20Z"
+    duration_ms: 135000
+    notes: "All health checks passed after initial stabilization period"
+inventory_diff:
+  before_hash: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  after_hash: "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  changes_summary:
+    created: 8
+    updated: 0
+    deleted: 0
+    unchanged: 0
+summary:
+  phases_completed: 5
+  phases_failed: 0
+  phases_skipped: 0
+  commands_executed: 12
+  resources_created: 8
+  resources_updated: 0
+  resources_deleted: 0
+  errors: []
+  warnings: []
+next_steps:
+  - "Bootstrap initial admin user"
+  - "Configure OIDC/OAuth provider in identity service"
+  - "Set up monitoring alerts"

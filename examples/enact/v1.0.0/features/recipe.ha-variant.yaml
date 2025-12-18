@@ -1,0 +1,56 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/configuration/recipe.schema.json
+#
+# FEATURE: High Availability Variant
+# Demonstrates the 'ha' variant with multi-node infrastructure.
+schema_version: "1.0.0"
+metadata:
+  name: ha-demo
+  description: "Demonstrates high-availability variant configuration"
+  tags:
+    - ha
+    - multi-node
+    - feature-demo
+deployment:
+  variant: ha # System-wide variant
+  provider: digitalocean
+  region: nyc3
+  base_domain: ha.example.com
+infrastructure:
+  compute:
+    size: s-4vcpu-8gb
+    image: ubuntu-24-04-x64
+    count: 2 # Multiple nodes for HA
+    tags:
+      - ha
+      - production
+  database:
+    engine: pg
+    version: "16"
+    size: db-s-2vcpu-4gb
+    nodes: 2 # Primary + standby
+    ha_enabled: true
+  load_balancer:
+    enabled: true # Required for HA variant
+    algorithm: round_robin
+    health_check:
+      protocol: https
+      path: /health
+      interval_seconds: 10
+  storage:
+    name: ha-demo-shared
+    region: nyc3
+components:
+  reverse-proxy:
+    enabled: true
+    implementation: caddy
+    # HA variant auto-applies:
+    # - caddy-storage-s3 plugin for shared certs
+    # - Multiple instance configuration
+  identity:
+    enabled: true
+    implementation: authentik
+  cache:
+    enabled: true
+    implementation: redis
+    config:
+      cluster_mode: true # Redis cluster for HA

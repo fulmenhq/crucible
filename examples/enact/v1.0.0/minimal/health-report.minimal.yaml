@@ -1,0 +1,33 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/execution/health-report.schema.json
+#
+# MINIMAL VALID HEALTH REPORT
+# Smallest possible health report - one suite with one check.
+schema_version: "1.0.0"
+report:
+  id: "health-2024-12-17-minimal"
+  generated_at: "2024-12-17T10:00:00Z"
+  duration_ms: 1000
+deployment:
+  name: my-deployment
+  variant: minimal
+overall_status: pass
+suites:
+  - name: Basic Health
+    status: pass
+    pass_count: 1
+    fail_count: 0
+    warn_count: 0
+    skip_count: 0
+    checks:
+      - name: Service Running
+        category: service
+        status: pass
+        message: "Service is responding"
+        checked_at: "2024-12-17T10:00:00Z"
+summary:
+  total_checks: 1
+  passed: 1
+  failed: 0
+  warnings: 0
+  skipped: 0
+  pass_rate: 100.0

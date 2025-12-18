@@ -1,0 +1,73 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/configuration/recipe.schema.json
+#
+# REALISTIC: Team Collaboration Suite
+# Self-hosted productivity tools for a small team or family.
+schema_version: "1.0.0"
+metadata:
+  name: family-collab
+  description: "Family collaboration platform - files, chat, and docs"
+  owner: homelab
+  environment: prod
+  tags:
+    - collaboration
+    - family
+    - self-hosted
+deployment:
+  variant: standard
+  provider: hetzner
+  region: fsn1
+  base_domain: home.example.family
+infrastructure:
+  compute:
+    size: cx21 # 2 vCPU, 4GB RAM
+    image: ubuntu-24.04
+    count: 1
+    ssh_keys:
+      - admin-key
+  database:
+    engine: pg
+    version: "16"
+    size: cx11
+    nodes: 1
+  storage:
+    name: family-files
+    region: fsn1
+    acl: private
+  dns:
+    provider: cloudflare
+    zone: example.family
+components:
+  reverse-proxy:
+    enabled: true
+    implementation: caddy
+  identity:
+    enabled: true
+    implementation: authentik
+    config:
+      # Family members as users
+      default_group: family
+  file-storage:
+    enabled: true
+    implementation: nextcloud
+    config:
+      admin_user: admin
+      default_quota: 50GB
+      apps:
+        - calendar
+        - contacts
+        - tasks
+        - notes
+  chat:
+    enabled: true
+    implementation: mattermost
+    config:
+      team_name: Family
+      enable_mobile_push: true
+  wiki:
+    enabled: true
+    implementation: bookstack
+    config:
+      app_name: "Family Wiki"
+  cache:
+    enabled: true
+    implementation: redis

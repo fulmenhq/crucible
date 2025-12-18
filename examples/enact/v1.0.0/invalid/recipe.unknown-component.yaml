@@ -1,0 +1,24 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/configuration/recipe.schema.json
+#
+# INVALID: Unknown component slug (SEMANTIC ERROR)
+#
+# This file passes STRUCTURAL validation (all fields are correct types)
+# but FAILS SEMANTIC validation (cross-reference against taxonomy data).
+#
+# Expected error: "component 'magic-portal' not found in system-components taxonomy"
+schema_version: "1.0.0"
+metadata:
+  name: semantic-error-demo
+deployment:
+  variant: standard
+  provider: digitalocean
+  base_domain: example.com
+components:
+  reverse-proxy:
+    enabled: true
+    implementation: caddy
+  # ERROR: 'magic-portal' is not a valid component slug
+  # Valid slugs come from system-components_data.json
+  magic-portal:
+    enabled: true
+    implementation: teleporter

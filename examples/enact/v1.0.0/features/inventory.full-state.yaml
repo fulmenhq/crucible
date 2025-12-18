@@ -1,0 +1,158 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/state/inventory.schema.json
+#
+# FEATURE: Complete Infrastructure State
+# Demonstrates all inventory sections populated after a full deployment.
+schema_version: "1.0.0"
+metadata:
+  last_updated: "2024-12-17T15:30:00Z"
+  updated_by: "enact sync"
+  last_run_ref: ".enact/runlog/2024-12-17T14-00-00.yaml"
+deployment:
+  name: full-state-demo
+  recipe_version: "1.2.0"
+  variant: standard
+  environment: prod
+  created_at: "2024-12-01T10:00:00Z"
+provider:
+  compute: digitalocean
+  dns: cloudflare
+  storage: digitalocean
+  region: nyc3
+# All infrastructure resources
+infrastructure:
+  compute:
+    - name: app-01
+      provider_id: "do:droplet:429581234"
+      size: s-4vcpu-8gb
+      image: ubuntu-24-04-x64
+      vcpus: 4
+      memory_gb: 8
+      disk_gb: 160
+      ipv4_public: "167.99.100.50"
+      ipv4_private: "10.132.0.5"
+      ssh_keys:
+        - "SHA256:abcd1234..."
+      tags:
+        - enact
+        - production
+      created_at: "2024-12-01T10:15:00Z"
+      status: active
+  database:
+    - name: main-db
+      provider_id: "do:database:db-abc123"
+      engine: pg
+      version: "16"
+      size: db-s-2vcpu-4gb
+      nodes: 1
+      host: main-db-do-user-12345-0.b.db.ondigitalocean.com
+      port: 25060
+      database: defaultdb
+      ssl_mode: require
+      created_at: "2024-12-01T10:10:00Z"
+      status: online
+  storage:
+    - name: app-media
+      provider_id: "do:space:app-media-prod"
+      region: nyc3
+      endpoint: nyc3.digitaloceanspaces.com
+      cdn_enabled: true
+      cdn_endpoint: app-media-prod.nyc3.cdn.digitaloceanspaces.com
+      acl: private
+      created_at: "2024-12-01T10:05:00Z"
+  firewall:
+    - name: web-firewall
+      provider_id: "do:firewall:fw-web123"
+      inbound_rules:
+        - protocol: tcp
+          ports: "22"
+          sources: ["10.0.0.0/8"]
+        - protocol: tcp
+          ports: "80,443"
+          sources: ["0.0.0.0/0"]
+      droplet_ids: ["429581234"]
+dns:
+  provider: cloudflare
+  zone_id: "cf:zone:xyz789"
+  zone_name: example.com
+  records:
+    - name: app.example.com
+      type: A
+      value: "167.99.100.50"
+      ttl: 300
+      proxied: true
+      record_id: "cf:dns:rec001"
+    - name: files.example.com
+      type: A
+      value: "167.99.100.50"
+      ttl: 300
+      proxied: true
+      record_id: "cf:dns:rec002"
+    - name: auth.example.com
+      type: A
+      value: "167.99.100.50"
+      ttl: 300
+      proxied: false # Not proxied for OAuth callbacks
+      record_id: "cf:dns:rec003"
+# All running services
+services:
+  reverse-proxy:
+    status: running
+    container_id: "caddy-abc123"
+    image: "caddy:2.8.4-alpine"
+    version: "2.8.4"
+    config_path: /opt/enact/caddy/Caddyfile
+    config_hash: "sha256:e3b0c442..."
+    ports: ["80:80", "443:443"]
+    endpoints:
+      - url: https://app.example.com
+        purpose: Primary ingress
+    uptime_seconds: 1382400
+    health_endpoint: http://localhost:2019/health
+  identity:
+    status: running
+    container_id: "authentik-server-def456"
+    image: "ghcr.io/goauthentik/server:2024.10.2"
+    version: "2024.10.2"
+    ports: ["9000:9000"]
+    endpoints:
+      - url: https://auth.example.com
+        purpose: SSO login
+    uptime_seconds: 1382400
+    health_endpoint: https://auth.example.com/-/health/live/
+  file-storage:
+    status: running
+    container_id: "nextcloud-ghi789"
+    image: "nextcloud:29-apache"
+    version: "29"
+    endpoints:
+      - url: https://files.example.com
+        purpose: File storage
+    uptime_seconds: 1382400
+  cache:
+    status: running
+    container_id: "redis-jkl012"
+    image: "redis:7-alpine"
+    version: "7"
+    ports: ["6379:6379"]
+    uptime_seconds: 1382400
+# Health check results
+checks:
+  last_run: "2024-12-17T15:00:00Z"
+  next_scheduled: "2024-12-17T16:00:00Z"
+  results:
+    reverse-proxy:
+      status: pass
+      response_ms: 12
+      checked_at: "2024-12-17T15:00:01Z"
+    identity:
+      status: pass
+      response_ms: 89
+      checked_at: "2024-12-17T15:00:02Z"
+    file-storage:
+      status: pass
+      response_ms: 245
+      checked_at: "2024-12-17T15:00:03Z"
+    database:
+      status: pass
+      response_ms: 15
+      checked_at: "2024-12-17T15:00:04Z"

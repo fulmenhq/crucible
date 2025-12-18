@@ -1,0 +1,80 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/configuration/recipe.schema.json
+#
+# REALISTIC: Developer Platform
+# Self-hosted Git forge and CI/CD for a small dev team.
+schema_version: "1.0.0"
+metadata:
+  name: devteam-platform
+  description: "Self-hosted dev tools - Git, CI, docs"
+  owner: engineering
+  environment: prod
+  tags:
+    - development
+    - ci-cd
+    - git
+deployment:
+  variant: standard
+  provider: digitalocean
+  region: sfo3
+  base_domain: dev.startup.io
+infrastructure:
+  compute:
+    size: s-4vcpu-8gb
+    image: ubuntu-24-04-x64
+    count: 1
+    tags:
+      - dev-platform
+  database:
+    engine: pg
+    version: "16"
+    size: db-s-2vcpu-4gb
+    nodes: 1
+  storage:
+    name: dev-artifacts
+    region: sfo3
+    acl: private
+  dns:
+    provider: cloudflare
+    zone: startup.io
+components:
+  reverse-proxy:
+    enabled: true
+    implementation: caddy
+  identity:
+    enabled: true
+    implementation: authentik
+    config:
+      # OIDC for all dev tools
+      applications:
+        - gitea
+        - drone
+  git-forge:
+    enabled: true
+    implementation: gitea
+    config:
+      app_name: "Startup Code"
+      disable_registration: true
+      require_signin: true
+      lfs_enabled: true
+  wiki:
+    enabled: true
+    implementation: wiki-js
+    config:
+      # Engineering docs and runbooks
+      title: "Engineering Wiki"
+      git_sync: true
+  bi-dashboard:
+    enabled: true
+    implementation: metabase
+    config:
+      # Track engineering metrics
+      site_name: "Dev Metrics"
+  monitoring:
+    enabled: true
+    implementation: uptime-kuma
+    config:
+      # Monitor our own services
+      status_page: true
+  cache:
+    enabled: true
+    implementation: redis

@@ -1,0 +1,26 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/execution/runlog.schema.json
+#
+# MINIMAL VALID RUNLOG
+# Smallest possible runlog - a completed run with one phase.
+schema_version: "1.0.0"
+run:
+  id: "2024-12-17T10-00-00-minimal"
+  started_at: "2024-12-17T10:00:00Z"
+  completed_at: "2024-12-17T10:01:00Z"
+  duration_ms: 60000
+  status: completed
+  command: apply
+context:
+  recipe_path: ./recipe.yaml
+  deployment_name: my-deployment
+  variant: minimal
+phases:
+  - phase: preflight
+    status: completed
+    started_at: "2024-12-17T10:00:05Z"
+    completed_at: "2024-12-17T10:00:55Z"
+    duration_ms: 50000
+summary:
+  phases_completed: 1
+  phases_failed: 0
+  phases_skipped: 0

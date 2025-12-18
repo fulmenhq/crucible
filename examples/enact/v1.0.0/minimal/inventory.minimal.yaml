@@ -1,0 +1,11 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/state/inventory.schema.json
+#
+# MINIMAL VALID INVENTORY
+# Represents an initialized but not-yet-deployed state.
+schema_version: "1.0.0"
+metadata:
+  last_updated: "2024-12-17T10:00:00Z"
+deployment:
+  name: my-deployment
+  variant: minimal
+  environment: dev

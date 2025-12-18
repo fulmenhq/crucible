@@ -1,0 +1,24 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/configuration/recipe.schema.json
+#
+# INVALID: Unknown implementation for valid component (SEMANTIC ERROR)
+#
+# This file passes STRUCTURAL validation but FAILS SEMANTIC validation.
+#
+# Expected error: "implementation 'apache' not found for component 'reverse-proxy'"
+# Valid implementations for reverse-proxy: caddy, nginx, traefik
+schema_version: "1.0.0"
+metadata:
+  name: bad-implementation-demo
+deployment:
+  variant: standard
+  provider: digitalocean
+  base_domain: example.com
+components:
+  reverse-proxy:
+    enabled: true
+    # ERROR: 'apache' is not a valid implementation for reverse-proxy
+    # Valid options: caddy, nginx, traefik
+    implementation: apache
+  identity:
+    enabled: true
+    implementation: authentik

@@ -1,0 +1,66 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/configuration/recipe.schema.json
+#
+# NOTE: This is a *data-model* example only.
+# It does not imply the existence of any specific Enact plugins.
+schema_version: "1.0.0"
+metadata:
+  name: acme-collab-prod
+  description: "Example Enact deployment (vendor-neutral collaboration suite)"
+  owner: platform-team
+  environment: prod
+  tags:
+    - enact
+    - example
+    - production
+deployment:
+  variant: standard
+  provider: digitalocean
+  region: nyc3
+  base_domain: example.education
+# Optional sections shown for realism.
+infrastructure:
+  compute:
+    size: s-4vcpu-8gb
+    image: ubuntu-24-04-x64
+    count: 1
+    ssh_keys:
+      - "acme-ops"
+    tags:
+      - enact
+      - acme
+      - production
+  database:
+    engine: pg
+    version: "16"
+    size: db-s-2vcpu-4gb
+    nodes: 1
+  storage:
+    name: acme-learning-media
+    region: nyc3
+    acl: private
+  dns:
+    provider: cloudflare
+    zone: example.education
+components:
+  reverse-proxy:
+    enabled: true
+    implementation: caddy
+  identity:
+    enabled: true
+    implementation: authentik
+  cache:
+    enabled: true
+    implementation: redis
+  # Optional application-layer components
+  file-storage:
+    enabled: true
+    implementation: nextcloud
+  chat:
+    enabled: true
+    implementation: mattermost
+  wiki:
+    enabled: true
+    implementation: bookstack
+  analytics:
+    enabled: true
+    implementation: plausible

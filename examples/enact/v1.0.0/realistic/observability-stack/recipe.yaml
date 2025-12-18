@@ -1,0 +1,63 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/configuration/recipe.schema.json
+#
+# REALISTIC: Observability Stack
+# A monitoring and dashboard deployment for SaaS or internal infrastructure.
+schema_version: "1.0.0"
+metadata:
+  name: acme-observability
+  description: "Monitoring stack for ACME Corp infrastructure"
+  owner: platform-team
+  environment: prod
+  tags:
+    - observability
+    - monitoring
+    - production
+deployment:
+  variant: standard
+  provider: digitalocean
+  region: nyc3
+  base_domain: observe.acme.internal
+infrastructure:
+  compute:
+    size: s-2vcpu-4gb
+    image: ubuntu-24-04-x64
+    count: 1
+    tags:
+      - monitoring
+      - acme
+  database:
+    engine: pg
+    version: "16"
+    size: db-s-1vcpu-1gb
+    nodes: 1
+  dns:
+    provider: cloudflare
+    zone: acme.internal
+components:
+  reverse-proxy:
+    enabled: true
+    implementation: caddy
+  identity:
+    enabled: true
+    implementation: authentik
+    config:
+      # Protect dashboards with SSO
+      protected_apps:
+        - grafana
+        - prometheus
+  monitoring:
+    enabled: true
+    implementation: prometheus-grafana
+    config:
+      retention_days: 30
+      scrape_interval: 15s
+  analytics:
+    enabled: true
+    implementation: plausible
+    config:
+      # Track internal tool usage
+      sites:
+        - observe.acme.internal
+  cache:
+    enabled: true
+    implementation: redis

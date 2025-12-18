@@ -1,0 +1,70 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/configuration/recipe.schema.json
+#
+# FEATURE: Multiple Application Components
+# Demonstrates deploying several application-layer components together.
+schema_version: "1.0.0"
+metadata:
+  name: multi-component-demo
+  description: "Shows multiple application components in one deployment"
+  tags:
+    - multi-component
+    - feature-demo
+deployment:
+  variant: standard
+  provider: hetzner
+  region: fsn1
+  base_domain: apps.example.com
+infrastructure:
+  compute:
+    size: cx31
+    count: 1
+  database:
+    engine: pg
+    version: "16"
+  dns:
+    provider: cloudflare
+    zone: example.com
+# Multiple application-layer components
+components:
+  # Infrastructure (required)
+  reverse-proxy:
+    enabled: true
+    implementation: caddy
+  identity:
+    enabled: true
+    implementation: authentik
+  cache:
+    enabled: true
+    implementation: redis
+  # Applications (optional, pick what you need)
+  file-storage:
+    enabled: true
+    implementation: nextcloud
+    config:
+      subdomain: files
+  chat:
+    enabled: true
+    implementation: mattermost
+    config:
+      subdomain: chat
+  wiki:
+    enabled: true
+    implementation: bookstack
+    config:
+      subdomain: wiki
+  bi-dashboard:
+    enabled: true
+    implementation: metabase
+    config:
+      subdomain: analytics
+  analytics:
+    enabled: true
+    implementation: plausible
+    config:
+      subdomain: stats
+  # Observability
+  monitoring:
+    enabled: true
+    implementation: uptime-kuma
+    config:
+      subdomain: status

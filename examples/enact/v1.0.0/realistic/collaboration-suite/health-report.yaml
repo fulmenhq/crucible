@@ -1,0 +1,187 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/execution/health-report.schema.json
+#
+# Example health report for a mostly healthy deployment with one warning.
+schema_version: "1.0.0"
+report:
+  id: "health-2024-12-17T10-00-00"
+  generated_at: "2024-12-17T10:00:30Z"
+  duration_ms: 30000
+  runner_version: "0.1.0"
+  triggered_by: scheduled
+deployment:
+  name: acme-collab
+  variant: standard
+  environment: prod
+overall_status: warn
+suites:
+  - name: DNS Resolution
+    description: Verify DNS records resolve correctly
+    status: pass
+    pass_count: 3
+    fail_count: 0
+    warn_count: 0
+    skip_count: 0
+    checks:
+      - name: Files DNS
+        category: dns
+        status: pass
+        message: "files.example.education resolves to 167.99.123.45"
+        target: files.example.education
+        expected: "167.99.123.45"
+        actual: "167.99.123.45"
+        response_ms: 45
+        checked_at: "2024-12-17T10:00:02Z"
+        component: file-storage
+      - name: Chat DNS
+        category: dns
+        status: pass
+        message: "chat.example.education resolves correctly"
+        target: chat.example.education
+        response_ms: 42
+        checked_at: "2024-12-17T10:00:03Z"
+        component: chat
+      - name: Wiki DNS
+        category: dns
+        status: pass
+        message: "wiki.example.education resolves correctly"
+        target: wiki.example.education
+        response_ms: 41
+        checked_at: "2024-12-17T10:00:04Z"
+        component: wiki
+  - name: TLS Certificates
+    description: Verify SSL certificates are valid
+    status: warn
+    pass_count: 2
+    fail_count: 0
+    warn_count: 1
+    skip_count: 0
+    checks:
+      - name: Files TLS
+        category: tls
+        status: pass
+        message: "Valid certificate, expires in 60 days"
+        target: files.example.education
+        response_ms: 150
+        checked_at: "2024-12-17T10:00:06Z"
+        component: reverse-proxy
+        details:
+          issuer: "Let's Encrypt"
+          not_after: "2025-02-15T10:00:00Z"
+          days_until_expiry: 60
+          chain_valid: true
+          protocol_version: "TLSv1.3"
+      - name: Chat TLS
+        category: tls
+        status: pass
+        message: "Valid certificate"
+        target: chat.example.education
+        response_ms: 145
+        checked_at: "2024-12-17T10:00:07Z"
+        component: reverse-proxy
+      - name: Wiki TLS
+        category: tls
+        status: warn
+        message: "Certificate expires in 14 days"
+        target: wiki.example.education
+        response_ms: 148
+        checked_at: "2024-12-17T10:00:08Z"
+        component: reverse-proxy
+        remediation: "Certificate should auto-renew via ACME, but monitor closely"
+        details:
+          days_until_expiry: 14
+  - name: Service Health
+    description: Verify services are responding
+    status: pass
+    pass_count: 4
+    fail_count: 0
+    warn_count: 0
+    skip_count: 0
+    checks:
+      - name: File Storage Health
+        category: service
+        status: pass
+        message: "File storage responding with 200 OK"
+        target: https://files.example.education/status.php
+        response_ms: 245
+        checked_at: "2024-12-17T10:00:10Z"
+        component: file-storage
+        details:
+          http_status: 200
+          container_status: running
+          uptime_seconds: 604800
+      - name: Chat Health
+        category: service
+        status: pass
+        message: "Chat responding"
+        target: https://chat.example.education/api/v4/system/ping
+        response_ms: 312
+        checked_at: "2024-12-17T10:00:11Z"
+        component: chat
+      - name: Identity Health
+        category: service
+        status: pass
+        message: "Identity service healthy"
+        target: https://auth.example.education/-/health/live/
+        response_ms: 89
+        checked_at: "2024-12-17T10:00:12Z"
+        component: identity
+      - name: Reverse Proxy Health
+        category: service
+        status: pass
+        message: "Reverse proxy healthy"
+        target: http://localhost:2019/health
+        response_ms: 5
+        checked_at: "2024-12-17T10:00:13Z"
+        component: reverse-proxy
+  - name: Infrastructure Resources
+    description: Verify cloud resources are healthy
+    status: pass
+    pass_count: 3
+    fail_count: 0
+    warn_count: 0
+    skip_count: 0
+    checks:
+      - name: Droplet Status
+        category: resource
+        status: pass
+        message: "Droplet active with healthy resources"
+        target: "do:droplet:429581234"
+        checked_at: "2024-12-17T10:00:15Z"
+        details:
+          provider_status: active
+          disk_used_percent: 42
+          memory_used_percent: 68
+          cpu_used_percent: 15
+      - name: Database Status
+        category: resource
+        status: pass
+        message: "Database cluster online"
+        target: "do:database:abcd1234-5678-90ab-cdef"
+        checked_at: "2024-12-17T10:00:16Z"
+        details:
+          provider_status: online
+      - name: Storage Bucket
+        category: resource
+        status: pass
+        message: "Object storage accessible"
+        target: "do:space:acme-collab-files"
+        checked_at: "2024-12-17T10:00:17Z"
+summary:
+  total_checks: 13
+  passed: 12
+  failed: 0
+  warnings: 1
+  skipped: 0
+  pass_rate: 92.3
+critical_issues: []
+warnings:
+  - check_name: Wiki TLS
+    message: "Certificate expires in 14 days"
+    remediation: "Certificate should auto-renew via ACME, but monitor the renewal"
+comparison:
+  previous_report_id: "health-2024-12-16T10-00-00"
+  previous_status: pass
+  status_change: degraded
+  new_failures: []
+  resolved_failures: []
+next_check: "2024-12-17T11:00:00Z"

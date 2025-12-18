@@ -24,5 +24,5 @@ tools:
     description: Rust toolchain installer
     required: false
     install:
-      type: system
-      command: "curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y"
+      type: verify
+      command: rustup

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Note**: Versions 0.1.0 through 0.1.4 were originally released with CalVer tags (v2025.10.1 through v2025.10.5). Retroactive SemVer tags have been added for migration continuity. See [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md) for details.
 
+## [0.2.23] - 2025-12-18
+
+### Added
+
+- **Experimental: Enact Schema Support** - Introduced initial Enact schemas, docs, and example instances
+  - Schemas: `schemas/enact/v1.0.0/`
+  - Docs: `docs/architecture/enact/`
+  - Examples: `examples/enact/v1.0.0/`
+
+Further Enact schema and validation updates will follow in subsequent releases.
+
 ## [0.2.22] - 2025-12-04
 
 ### Added

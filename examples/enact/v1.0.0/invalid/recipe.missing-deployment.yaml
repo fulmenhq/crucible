@@ -1,0 +1,13 @@
+# Schema: https://schemas.fulmenhq.dev/enact/v1.0.0/configuration/recipe.schema.json
+#
+# INVALID: Missing required 'deployment' section
+# Expected error: "required property 'deployment' not found"
+schema_version: "1.0.0"
+metadata:
+  name: broken-recipe
+  description: "This recipe is missing the deployment section"
+# ERROR: 'deployment' section is required but missing
+components:
+  reverse-proxy:
+    enabled: true
+    implementation: caddy
