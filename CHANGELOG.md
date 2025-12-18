@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Note**: Versions 0.1.0 through 0.1.4 were originally released with CalVer tags (v2025.10.1 through v2025.10.5). Retroactive SemVer tags have been added for migration continuity. See [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md) for details.
 
+## [0.2.24] - 2025-12-18
+
+### Changed
+
+- **App Identity (Embedded Fallback Standard)** - Clarified template requirements for embedding `.fulmen/app.yaml` into distributed artifacts
+  - Updated App Identity standard with embedded fallback, drift-prevention targets, and acceptance criteria
+  - Updated CDRL and forge standards (workhorse/codex/microtool) to reference the new requirement
+
 ## [0.2.23] - 2025-12-18
 
 ### Added
