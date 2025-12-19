@@ -230,6 +230,12 @@ Optional: verify GitHub’s interpretation (CI-friendly; requires `gh` auth):
 make release-verify-remote-tag
 ```
 
+**Note (expected during key bootstrap)**:
+
+- If GitHub reports `.verification.verified=false` with `.verification.reason="unknown_key"`, it usually means the release signing **public** key has not been uploaded to the GitHub release identity (or the tagger email doesn’t map to a verified email on that identity).
+- This does **not** invalidate the cryptographic signature. The authoritative check remains local: `make release-verify-tag` / `git tag -v v<VERSION>`.
+- Do **not** rewrite/retag already-published versions just to “make GitHub green”; fix the key visibility and let future tags verify in GitHub UI/API.
+
 ### Phase 5: Push to Remote (REQUIRES APPROVAL)
 
 **⚠️ IMPORTANT**: Get explicit approval from @3leapsdave before pushing to main.

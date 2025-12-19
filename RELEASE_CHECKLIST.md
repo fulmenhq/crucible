@@ -33,6 +33,7 @@
 
 - [ ] `VERSION` committed with version bump
 - [ ] Signed annotated git tag created (`make release-tag` or `git tag -s -a v<VERSION> -m "Release v<VERSION>"`)
+- [ ] Optional: GitHub tag shows “Verified” (may be `unknown_key` until the org signing key + tagger email are configured; local `git tag -v` is authoritative)
 - [ ] Tag pushed to origin
 - [ ] Go module publishes (proxy fetch succeeds)
 - [ ] npm package published (or prepared for release)
