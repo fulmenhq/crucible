@@ -31,8 +31,8 @@
 
 ## Tagging & Publication
 
-- [ ] `VERSION` committed with CalVer bump
-- [ ] Annotated git tag created (`git tag -a v<VERSION> -m "release: v<VERSION>"`)
+- [ ] `VERSION` committed with version bump
+- [ ] Signed annotated git tag created (`make release-tag` or `git tag -s -a v<VERSION> -m "Release v<VERSION>"`)
 - [ ] Tag pushed to origin
 - [ ] Go module publishes (proxy fetch succeeds)
 - [ ] npm package published (or prepared for release)

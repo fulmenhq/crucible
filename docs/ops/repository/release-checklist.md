@@ -53,13 +53,13 @@ git log --oneline
 
 #### 1.3 Update VERSION File
 
-**For calendar versioning (current strategy)**:
+**Semantic Versioning (current strategy)**:
 
 ```bash
-make version-set VERSION=2025.10.2
+make version-set VERSION=0.2.26
 ```
 
-**Or for semantic versioning (future)**:
+Or bump via Make targets:
 
 ```bash
 make version-bump-patch   # 1.0.0 → 1.0.1
@@ -72,6 +72,7 @@ make version-bump-major   # 1.1.0 → 2.0.0
 - [ ] VERSION file updated
 - [ ] Version follows project versioning standard
 - [ ] Version matches release notes (if created)
+- [ ] Versioning aligns with [ADR-0010](../../architecture/decisions/ADR-0010-semantic-versioning-adoption.md)
 
 #### 1.4 Update Release Notes (if applicable)
 
@@ -172,25 +173,47 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]"
 
 ### Phase 4: Create Tag
 
-#### 4.1 Create Annotated Tag
+#### 4.1 Create Signed Annotated Tag (Required)
+
+Ensure interactive GPG signing can prompt for passphrase (recommended):
 
 ```bash
-git tag -a v$(cat VERSION) -m "Release $(cat VERSION)
+export GPG_TTY="$(tty)"
+gpg-connect-agent updatestartuptty /bye
+```
 
-Crucible SSOT release $(cat VERSION).
+Optional: use a dedicated signing keyring (recommended for org-wide release keys):
 
-See release-notes/$(cat VERSION).md for details."
+```bash
+# Both env prefixes are accepted; prefer CRUCIBLE_ for Crucible-local workflows.
+export CRUCIBLE_GPG_HOMEDIR=/path/to/gnupg-fulmenhq
+export CRUCIBLE_PGP_KEY_ID="<key-id-or-email>" # optional; uses default git signing key if unset
+```
+
+Optional: enable minisign sidecar attestation (recommended when available):
+
+```bash
+# Both env prefixes are accepted; prefer CRUCIBLE_ for Crucible-local workflows.
+export CRUCIBLE_MINISIGN_KEY=/path/to/fulmenhq.minisign.key
+export CRUCIBLE_MINISIGN_PUB=/path/to/fulmenhq.minisign.pub
+```
+
+```bash
+make release-guard-tag-version
+make release-tag
 ```
 
 **Verify**:
 
 - [ ] Tag created successfully
-- [ ] Tag name follows `v<VERSION>` format
-- [ ] Run `git tag -n99 v$(cat VERSION)` to verify annotation
+- [ ] Tag name follows `v<VERSION>` format (must match `VERSION`)
+- [ ] Tag is signed and verifies locally (`make release-verify-tag`)
 
 #### 4.2 Verify Tag
 
 ```bash
+make release-verify-tag
+
 git tag -l "v*" | tail -5
 git show v$(cat VERSION) --stat
 ```
@@ -200,6 +223,12 @@ git show v$(cat VERSION) --stat
 - [ ] Tag points to correct commit
 - [ ] Tag message is correct
 - [ ] No unexpected files in tagged commit
+
+Optional: verify GitHub’s interpretation (CI-friendly; requires `gh` auth):
+
+```bash
+make release-verify-remote-tag
+```
 
 ### Phase 5: Push to Remote (REQUIRES APPROVAL)
 
@@ -298,7 +327,7 @@ git tag -l "v*" | tail -3
 3. Run quality gates: `make prepush`
 4. Verify sync: `git status`
 5. Commit version changes (if any)
-6. Create tag: `git tag -a v$(cat VERSION)`
+6. Create signed tag: `make release-tag`
 7. **Get approval from @3leapsdave**
 8. Push: `git push origin main && git push origin v$(cat VERSION)`
 9. Create GitHub release
@@ -357,7 +386,7 @@ git commit -m "chore: sync language wrappers for release"
 
 ```bash
 git tag -d v$(cat VERSION)
-git tag -a v$(cat VERSION) -m "..."
+make release-tag
 ```
 
 ### Push Rejected
@@ -377,21 +406,21 @@ git push origin main
 
 ## Release Types
 
-### Patch Release (2025.10.1 → 2025.10.2)
+### Patch Release (0.2.25 → 0.2.26)
 
 - Bug fixes
 - Documentation updates
 - No breaking changes
 - Standard quality gates
 
-### Minor Release (2025.10.x → 2025.11.0)
+### Minor Release (0.2.x → 0.3.0)
 
 - New features
 - Non-breaking schema additions
 - Enhanced functionality
 - Standard quality gates + integration tests
 
-### Major Release (2025.x.x → 2026.1.0)
+### Major Release (0.x.y → 1.0.0)
 
 - Breaking changes
 - Schema format changes

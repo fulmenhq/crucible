@@ -16,7 +16,9 @@ SFETCH_INSTALL_URL ?= https://github.com/3leaps/sfetch/releases/latest/download/
 .PHONY: all help bootstrap tools sync test build build-all clean version fmt fmt-check lint lint-fix typecheck
 .PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python test-rust build-python build-rust lint-python lint-rust fmt-rust
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
-.PHONY: release-check release-build release-prepare prepush precommit check-all
+.PHONY: release-check release-build release-prepare release-clean
+.PHONY: release-guard-tag-version release-tag release-verify-tag release-verify-remote-tag release-publish-assets
+.PHONY: prepush precommit check-all
 .PHONY: validate-schemas verify-codegen codegen-exit-codes codegen-fulpack codegen-fulpack-python codegen-fulencode codegen-all
 
 # Default target
@@ -188,9 +190,9 @@ codegen-all: codegen-exit-codes codegen-fulpack codegen-fulencode codegen-fulhas
 version: ## Print current repository version
 	@cat $(VERSION_FILE)
 
-version-set: | bootstrap ## Update VERSION and propagate to package.json (usage: make version-set VERSION=2025.11.0)
+version-set: | bootstrap ## Update VERSION and propagate to package.json (usage: make version-set VERSION=0.2.26)
 ifndef VERSION
-	$(error VERSION is required. Usage: make version-set VERSION=2025.11.0)
+	$(error VERSION is required. Usage: make version-set VERSION=0.2.26)
 endif
 	@$(GONEAT) version set $(VERSION)
 	@$(MAKE) version-propagate
@@ -201,17 +203,17 @@ version-propagate: | bootstrap ## Propagate VERSION to package managers (package
 	@bun run scripts/update-version.ts
 	@echo "✅ Version propagated to package managers and taxonomy"
 
-version-bump-major: | bootstrap ## Bump major version (CalVer year.month)
+version-bump-major: | bootstrap ## Bump major version (SemVer)
 	@$(GONEAT) version bump major
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (major) and propagated"
 
-version-bump-minor: | bootstrap ## Bump minor version (CalVer patch within month)
+version-bump-minor: | bootstrap ## Bump minor version (SemVer)
 	@$(GONEAT) version bump minor
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (minor) and propagated"
 
-version-bump-patch: | bootstrap ## Bump patch version (CalVer micro within day)
+version-bump-patch: | bootstrap ## Bump patch version (SemVer)
 	@$(GONEAT) version bump patch
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (patch) and propagated"
@@ -241,6 +243,27 @@ release-prepare: sync-to-lang test ## Prepare release (sync, test, ready for tag
 	@echo "Next steps:"
 	@echo "  1. Review changes: git diff"
 	@echo "  2. Commit: git add . && git commit -m 'chore: prepare release $$(cat $(VERSION_FILE))'"
-	@echo "  3. Build artifacts: make release:build"
-	@echo "  4. Tag (requires approval): git tag v$$(cat $(VERSION_FILE))"
-	@echo "  5. Push (requires approval): git push origin main --tags"
+	@echo "  3. Build artifacts: make release-build"
+	@echo "  4. Tag (requires approval): make release-tag"
+	@echo "  5. Verify tag: make release-verify-tag"
+	@echo "  6. Push (requires approval): git push origin main && git push origin v$$(cat $(VERSION_FILE))"
+
+release-clean: ## Remove local release artifacts (dist/release)
+	@echo "Cleaning release artifacts..."
+	@rm -rf dist/release
+	@echo "✅ Release artifacts removed"
+
+release-guard-tag-version: ## Guard: ensure tag matches VERSION (CI-friendly)
+	@./scripts/release-guard-tag-version.sh
+
+release-tag: ## Create and verify a signed git tag for VERSION (optional minisign attestation)
+	@./scripts/release-tag.sh
+
+release-verify-tag: ## Verify the signed git tag for VERSION (optional minisign attestation)
+	@./scripts/release-verify-tag.sh
+
+release-verify-remote-tag: ## Verify tag signature status via GitHub API (gh required)
+	@./scripts/release-verify-remote-tag.sh
+
+release-publish-assets: ## Publish GitHub Release assets (minisign attestations) for the current tag (gh required)
+	@./scripts/release-publish-assets.sh

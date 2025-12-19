@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Note**: Versions 0.1.0 through 0.1.4 were originally released with CalVer tags (v2025.10.1 through v2025.10.5). Retroactive SemVer tags have been added for migration continuity. See [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md) for details.
 
+## [Unreleased]
+
+## [0.2.26] - 2025-12-19
+
+### Added
+
+- **Signed release tagging workflow** for Crucible
+  - New Make targets: `release-tag`, `release-verify-tag`, `release-guard-tag-version`
+  - New scripts under `scripts/` to create/verify signed tags and (optionally) publish minisign tag attestations
+  - Optional GitHub API verification helper for tag “Verified” status (`release-verify-remote-tag`)
+
+### Changed
+
+- **Release process docs** now require signed annotated tags (GPG) and document optional minisign sidecar attestations
+
 ## [0.2.25] - 2025-12-19
 
 ### Changed
