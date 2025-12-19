@@ -1,5 +1,6 @@
+---
 name: Test TypeScript
-on:
+'on':
   push:
   pull_request:
 jobs:

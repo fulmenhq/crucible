@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Note**: Versions 0.1.0 through 0.1.4 were originally released with CalVer tags (v2025.10.1 through v2025.10.5). Retroactive SemVer tags have been added for migration continuity. See [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md) for details.
 
+## [0.2.25] - 2025-12-19
+
+### Changed
+
+- **README and CI badge corrections**
+  - Updated GitHub Actions badges to point at the current workflow files
+  - Refreshed examples/links for accuracy and usability
+
+- **Goneat hook + bootstrap hardening**
+  - Switched `.goneat/hooks.yaml` to `goneat assess` (avoids make-based hook loops)
+  - Standardized `make bootstrap` to install global `goneat` via `sfetch --install`
+  - Formatted codegen postprocess scripts (shfmt) and tightened Makefile hygiene
+
 ## [0.2.24] - 2025-12-18
 
 ### Changed

@@ -8,10 +8,10 @@
 
 _Single source of truth for schemas, standards, templates, and quality enforcement—foundational infoarch (level 0) in Fulmen's layer cake, powering libraries (level 1), templates (level 2), and apps/analytics (level 3+)._
 
-[![Go Tests](https://github.com/fulmenhq/crucible/workflows/Test%20Go/badge.svg)](https://github.com/fulmenhq/crucible/actions)
-[![TypeScript Tests](https://github.com/fulmenhq/crucible/workflows/Test%20TypeScript/badge.svg)](https://github.com/fulmenhq/crucible/actions)
-[![Python Tests](https://github.com/fulmenhq/crucible/workflows/Test%20Python/badge.svg)](https://github.com/fulmenhq/crucible/actions)
-[![Schema Validation](https://github.com/fulmenhq/crucible/workflows/Validate%20Schemas/badge.svg)](https://github.com/fulmenhq/crucible/actions)
+[![Test Go](https://github.com/fulmenhq/crucible/actions/workflows/test-go.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-go.yml)
+[![Test TypeScript](https://github.com/fulmenhq/crucible/actions/workflows/test-typescript.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-typescript.yml)
+[![Test Python](https://github.com/fulmenhq/crucible/actions/workflows/test-python.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-python.yml)
+[![Test Rust](https://github.com/fulmenhq/crucible/actions/workflows/test-rust.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-rust.yml)
 
 </div>
 
@@ -124,7 +124,12 @@ bun add @fulmenhq/crucible
 ```
 
 ```typescript
-import { schemas, loadTerminalCatalog, standards } from "@fulmenhq/crucible";
+import {
+  getTerminalConfig,
+  loadTerminalCatalog,
+  schemas,
+  standards,
+} from "@fulmenhq/crucible";
 
 // Access pathfinder schemas
 const schema = schemas.pathfinder().v1_0_0().findQuery();
@@ -137,19 +142,22 @@ const iterm = getTerminalConfig("iTerm2");
 const goStandards = standards.coding().go();
 ```
 
-### For Templates/Documentation
+### For Templates / Non-Library Consumers
 
-Use pull scripts to vendor assets:
+If you need to vendor Crucible assets (schemas/docs/config) into another repo (instead of consuming via helper libraries), use the pull tooling:
+
+- `scripts/pull/crucible-pull.ts`
+
+Example (from a repo that has Bun and a local Crucible checkout available):
 
 ```bash
-# Copy pull script
-cp ../crucible/scripts/pull/crucible-pull.ts scripts/
-
-# Pull schemas and docs
-bun run scripts/crucible-pull.ts --schemas --docs
+bun run ../crucible/scripts/pull/crucible-pull.ts --schemas --docs
 ```
 
-**Full Integration Guide**: See [docs/guides/integration-guide.md](docs/guides/integration-guide.md) (and for sync workflows, [Sync Consumers Guide](docs/guides/sync-consumers-guide.md)).
+Guides:
+
+- `docs/guides/integration-guide.md`
+- `docs/guides/consuming-crucible-assets.md`
 
 ## What's Available
 
@@ -187,6 +195,9 @@ Crucible provides JSON schemas for cross-language consistency:
 - **Observability** (`schemas/observability/`)
   - Logging schemas (`v1.0.0/`) - Logger configuration, log events, severity filters, middleware
   - Metrics schemas (`v1.0.0/`) - Metrics event structure
+
+- **Enact** (`schemas/enact/v1.0.0/`)
+  - Experimental schema suite for guided, imperative, idempotent deployments (taxonomy, recipe, inventory, runlog, health-report)
 
 - **Fulencode** (`schemas/library/fulencode/v1.0.0/`, `schemas/taxonomy/library/fulencode/`)
   - Data structure: `fulencode-config.schema.json` - Configuration schema
@@ -269,18 +280,12 @@ Shared standards across the FulmenHQ ecosystem:
 
 ### 📐 Templates - Project Patterns
 
-Proven templates for bootstrapping new projects:
+Crucible does not ship application templates directly. Instead, it provides the **template standards** and SSOT assets that Fulmen forge templates implement.
 
-- **go-cli-tool** - Command-line tool template
-- **go-library** - Library template with testing
-- **typescript-library** - TypeScript library template
+- Template standards: `docs/architecture/fulmen-template-cdrl-standard.md`
+- Forge standards: `docs/architecture/fulmen-forge-{workhorse,codex,microtool}-standard.md`
 
-**Benefits**:
-
-- Start with best practices
-- Avoid common pitfalls
-- Consistent structure
-- Battle-tested patterns
+Templates consume Crucible via helper libraries and/or pull tooling.
 
 ### 🌍 Language Support
 
@@ -336,20 +341,25 @@ const config = getTerminalConfig("iTerm2");
 console.log(`Emoji Width: ${config?.overrides.emoji_width}`);
 ```
 
-### Policy Configuration
+### Standards Access
 
 ```go
 // Go
-policy, err := crucible.LoadPolicyExample("strict")
-fmt.Printf("Policy version: %s\n", policy.Version)
+import "github.com/fulmenhq/crucible"
+
+goStd, err := crucible.StandardsRegistry.Coding().Go()
+if err != nil {
+    panic(err)
+}
+_ = goStd
 ```
 
 ```typescript
 // TypeScript
-import { loadPolicyExample } from "@fulmenhq/crucible";
+import { standards } from "@fulmenhq/crucible";
 
-const policy = loadPolicyExample("strict");
-console.log(`Policy version: ${policy.version}`);
+const goStd = standards.coding().go();
+void goStd;
 ```
 
 ### Schema Validation
@@ -372,25 +382,17 @@ const terminalSchema = getTerminalSchema();
 
 ```
 crucible/
-├── go.mod                # Go module at root (v0.1.4+)
-├── *.go                  # Go sources at root
+├── go.mod                # Go module at repo root
+├── *.go                  # Go sources at repo root
 ├── schemas/              # Version-controlled schemas (SSOT)
-│   ├── terminal/
-│   ├── policy/
-│   └── config/
 ├── docs/                 # Shared documentation (SSOT)
-│   ├── standards/
-│   ├── architecture/
-│   └── guides/
 ├── config/               # Configuration catalogs (SSOT)
-├── templates/            # Project templates
-│   ├── go-cli-tool/
-│   ├── go-library/
-│   └── typescript-library/
-├── lang/                 # Non-Go language wrappers
-│   ├── go/               # Breadcrumb README (see ADR-0009)
-│   ├── typescript/       # TypeScript package (synced)
-│   └── python/           # Python package (synced)
+├── examples/             # Example instance documents
+├── lang/                 # Language wrappers (synced copies)
+│   ├── typescript/
+│   ├── python/
+│   └── rust/
+├── release-notes/        # Per-release notes
 └── scripts/              # Utilities and sync tooling
 ```
 
@@ -476,51 +478,15 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-**Version**: 0.2.17 (SemVer: MAJOR.MINOR.PATCH)
-**Maturity**: Active Development - Production-Ready Core
-**Role**: Layer 0 infrastructure serving the FulmenHQ ecosystem
+**Maturity**: Active Development (production-ready core)
 
-### What is "Blueprints for Enterprise Scale"?
+**Versioning**: SemVer (`MAJOR.MINOR.PATCH`)
 
-Crucible is the **single source of truth** (SSOT) that enables the Fulmen layer cake to scale reliably. Rather than each tool, template, or library maintaining its own schemas, standards, and specifications, Crucible provides the canonical definitions that all layers consume.
+- Current version: see `VERSION`
+- Latest tagged release: `v0.2.24` (see `release-notes/v0.2.24.md`)
+- Full history: `CHANGELOG.md` and `release-notes/`
 
-**The SSOT Advantage**:
-
-- **One definition, many consumers** - Update a schema once, propagate everywhere
-- **Cross-language consistency** - Go, TypeScript, Python share identical contracts
-- **Version-controlled evolution** - Schemas evolve with backward compatibility guarantees
-- **Quality enforcement** - Standards are testable, not just documented
-- **Discovery through usage** - Users find Crucible through gofulmen, groningen, or apps—not standalone
-
-Crucible anchors the ecosystem. Apps and templates rely on helper libraries (gofulmen, tsfulmen, pyfulmen), which consume Crucible's schemas and standards. When you need to understand _why_ your library works a certain way, you'll find the answer here.
-
-### Current State
-
-**Stable & Production-Ready**:
-
-- ✅ JSON Schema contracts (versioned, backward-compatible)
-- ✅ Cross-language library integrations (Go, TypeScript, Python)
-- ✅ Helper library module specifications (Fulpack, Fulencode, Pathfinder, Signal Handling)
-- ✅ Code generation tooling with type safety guarantees
-- ✅ Quality enforcement via goneat integration
-
-**In Active Development**:
-
-- Library extension specifications (Pathfinder repository discovery, cloud storage)
-- DevSecOps schemas (L'Orage Central integration, secrets management)
-- Enterprise logging features (middleware, redaction, structured observability)
-
-### Recent Focus (v0.2.17)
-
-DevSecOps secrets schema enhancement:
-
-- Enhanced secrets schema with structured credential objects (type, metadata, rotation)
-- Added smart masking by credential type (api_key, password, token)
-- Implemented lifecycle tracking (created, expires, purpose, tags, owner)
-- Introduced rotation policies for enterprise credential management
-- Updated schema domain consistency (schemas.fulmenhq.dev)
-
-**See**: [Release Notes](release-notes/v0.2.17.md) | [Full Changelog](CHANGELOG.md)
+Crucible is the SSOT for Fulmen schemas, standards, and catalogs. Most consumers should access Crucible through the language helper libraries (`gofulmen`, `tsfulmen`, `pyfulmen`, `rsfulmen`) rather than vendoring assets manually.
 
 ### Ecosystem Adoption
 

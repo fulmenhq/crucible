@@ -60,8 +60,10 @@ function findSchemaFiles(dir: string): string[] {
 function metaValidateSchema(schemaPath: string): ValidationResult {
   const relativePath = path.relative(repoRoot, schemaPath);
 
+  const goneatBin = process.env["GONEAT"] ?? "goneat";
+
   try {
-    const output = execSync(`bin/goneat schema validate-schema "${schemaPath}"`, {
+    const output = execSync(`${goneatBin} schema validate-schema "${schemaPath}"`, {
       cwd: repoRoot,
       encoding: "utf8",
       timeout: 30000, // 30 second timeout per file (increased from 5s)

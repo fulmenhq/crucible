@@ -564,4 +564,4 @@ Error: Invalid app identity: /path/to/.fulmen/app.yaml
 
 **Maintainers**: Schema Cartographer, Crucible Team
 
-**Last Updated**: 2025-11-03
+**Last Updated**: 2025-12-18

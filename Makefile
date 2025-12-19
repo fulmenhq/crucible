@@ -2,10 +2,18 @@ BIN_DIR := $(CURDIR)/bin
 TOOLS_MANIFEST := .goneat/tools.yaml
 VERSION_FILE := VERSION
 
+# External tooling bootstrap
+# NOTE: `goneat` is expected to be installed globally (user-space) via `sfetch --install`.
+# If you need to use a repo-local build for development, invoke targets with:
+#   make <target> GONEAT=./bin/goneat
+GONEAT ?= goneat
+GONEAT_VERSION ?= v0.3.21
+SFETCH_INSTALL_URL ?= https://github.com/3leaps/sfetch/releases/latest/download/install-sfetch.sh
+
 # Crucible Makefile
 # Standards forge for the FulmenHQ ecosystem
 
-.PHONY: help bootstrap tools sync test build build-all clean version fmt fmt-check lint lint-fix typecheck
+.PHONY: all help bootstrap tools sync test build build-all clean version fmt fmt-check lint lint-fix typecheck
 .PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python test-rust build-python build-rust lint-python lint-rust fmt-rust
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare prepush precommit check-all
@@ -21,11 +29,18 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_:-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 	@echo ""
 
-bootstrap: ## Install required external tools declared in $(TOOLS_MANIFEST)
+bootstrap: ## Install required external tools (sfetch, goneat, and manifest tools)
+	@echo "Installing external tools..."
+	@mkdir -p "$(BIN_DIR)"
+	@if ! command -v sfetch >/dev/null 2>&1; then echo "→ Installing sfetch (trust anchor)..."; if command -v curl >/dev/null 2>&1; then curl -sSfL "$(SFETCH_INSTALL_URL)" | bash -s -- --yes; elif command -v wget >/dev/null 2>&1; then wget -qO- "$(SFETCH_INSTALL_URL)" | bash -s -- --yes; else echo "❌ curl or wget is required to bootstrap sfetch"; exit 1; fi; fi
+	@if ! command -v goneat >/dev/null 2>&1; then echo "→ Installing goneat ($(GONEAT_VERSION)) via sfetch..."; if [ "$(GONEAT_VERSION)" = "latest" ]; then sfetch --repo fulmenhq/goneat --latest --install; else sfetch --repo fulmenhq/goneat --tag "$(GONEAT_VERSION)" --install; fi; fi
 	@bun run scripts/bootstrap-tools.ts --install --manifest $(TOOLS_MANIFEST)
 
-tools: ## Verify external tooling is available (no-op if none declared)
+tools: ## Verify external tooling is available
+	@if ! command -v sfetch >/dev/null 2>&1; then echo "❌ sfetch not found. Run 'make bootstrap' first."; exit 1; fi
+	@if ! command -v goneat >/dev/null 2>&1; then echo "❌ goneat not found. Run 'make bootstrap' first."; exit 1; fi
 	@bun run scripts/bootstrap-tools.ts --verify --manifest $(TOOLS_MANIFEST)
+	@echo "✅ All tools verified"
 
 # Sync targets
 sync: sync-to-lang ## Alias for sync-to-lang (most common sync operation)
@@ -41,17 +56,10 @@ sync-to-lang: ## Sync schemas and docs to Go and TypeScript packages (includes s
 
 # Test targets
 test: ## Run all language wrapper tests (matches GitHub Actions)
-	@echo "Running Go tests..."
-	@go test ./...
-	@echo ""
-	@echo "Running TypeScript tests..."
-	@cd lang/typescript && bun run test
-	@echo ""
-	@echo "Running Python tests..."
-	@cd lang/python && uv run pytest
-	@echo ""
-	@echo "Running Rust tests..."
-	@cd lang/rust && cargo test
+	@$(MAKE) test-go
+	@$(MAKE) test-ts
+	@$(MAKE) test-python
+	@$(MAKE) test-rust
 
 test-go: ## Run Go wrapper tests (matches GitHub Actions)
 	@go test ./...
@@ -84,7 +92,7 @@ build-rust: ## Build Rust crate (matches GitHub Actions)
 # Format, Lint, Typecheck targets
 # Note: fmt depends on sync-to-lang having run (via build target order) to format synced files in lang/ directories
 fmt: | bootstrap ## Format code files (Go/markdown/YAML via goneat, TypeScript via biome, Python via ruff, Rust via rustfmt)
-	@$(BIN_DIR)/goneat format
+	@$(GONEAT) format
 	@cd lang/typescript && bun run format >/dev/null
 	@cd lang/python && uv run ruff format . >/dev/null 2>&1 || true
 	@cd lang/rust && cargo fmt >/dev/null 2>&1 || true
@@ -93,21 +101,14 @@ fmt-rust: ## Format Rust code (matches GitHub Actions)
 	@cd lang/rust && cargo fmt
 
 fmt-check: | bootstrap ## Check if files are formatted without modifying
-	@$(BIN_DIR)/goneat format --check --verbose
+	@$(GONEAT) format --check --verbose
 
 lint: | bootstrap ## Run linting (check only, no auto-fix - use 'make lint-fix' to auto-fix)
-	@echo "Linting TypeScript/JavaScript files..."
 	@cd lang/typescript && bun run lint
-	@echo ""
-	@echo "Linting Python files..."
 	@cd lang/python && uv run ruff check .
-	@echo ""
-	@echo "Linting Rust files..."
 	@cd lang/rust && cargo clippy -- -D warnings
-	@echo ""
-	@echo "Running goneat assessment (Go, YAML, schemas)..."
-	@$(BIN_DIR)/goneat assess --categories format,security --check --include "**/*.go"
-	@$(BIN_DIR)/goneat assess --categories format --check --exclude "lang/**" --exclude "**/*.go"
+	@$(GONEAT) assess --categories format,security --check --include "**/*.go"
+	@$(GONEAT) assess --categories format --check --exclude "lang/**" --exclude "**/*.go"
 
 lint-fix: | bootstrap ## Run linting with auto-fix (Python only - TypeScript uses biome via fmt)
 	@echo "Auto-fixing Python linting issues..."
@@ -191,27 +192,27 @@ version-set: | bootstrap ## Update VERSION and propagate to package.json (usage:
 ifndef VERSION
 	$(error VERSION is required. Usage: make version-set VERSION=2025.11.0)
 endif
-	@$(BIN_DIR)/goneat version set $(VERSION)
+	@$(GONEAT) version set $(VERSION)
 	@$(MAKE) version-propagate
 	@echo "✅ Version set to $(VERSION) and propagated"
 
 version-propagate: | bootstrap ## Propagate VERSION to package managers (package.json, etc.)
-	@$(BIN_DIR)/goneat version propagate
+	@$(GONEAT) version propagate
 	@bun run scripts/update-version.ts
 	@echo "✅ Version propagated to package managers and taxonomy"
 
 version-bump-major: | bootstrap ## Bump major version (CalVer year.month)
-	@$(BIN_DIR)/goneat version bump major
+	@$(GONEAT) version bump major
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (major) and propagated"
 
 version-bump-minor: | bootstrap ## Bump minor version (CalVer patch within month)
-	@$(BIN_DIR)/goneat version bump minor
+	@$(GONEAT) version bump minor
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (minor) and propagated"
 
 version-bump-patch: | bootstrap ## Bump patch version (CalVer micro within day)
-	@$(BIN_DIR)/goneat version bump patch
+	@$(GONEAT) version bump patch
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (patch) and propagated"
 

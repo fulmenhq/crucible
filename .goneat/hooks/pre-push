@@ -22,12 +22,6 @@ echo "🚀 Running goneat pre-push validation..."
 
 # Robust binary discovery (prefer repo build first, then PATH/common locations)
 find_goneat_bin() {
-  # Check repo-local bin/ first (for tools.local.yaml symlinks)
-  if [ -x "$REPO_ROOT/bin/goneat" ]; then
-    echo "$REPO_ROOT/bin/goneat"
-    return 0
-  fi
-  # Check dist/ for goneat repo itself
   if [ -x "$REPO_ROOT/dist/goneat" ]; then
     echo "$REPO_ROOT/dist/goneat"
     return 0
@@ -65,7 +59,7 @@ if [ -z "$GONEAT_BIN" ]; then
     echo "   - Go:   go install github.com/fulmenhq/goneat@latest   (ensure \$GOPATH/bin in \$PATH)"
     echo "   - Brew: brew install 3leaps/tap/goneat                (macOS, if tap available)"
     echo "   - Releases: https://github.com/fulmenhq/goneat/releases"
-    echo "🔎 Searched: $REPO_ROOT/bin, $REPO_ROOT/dist, $HOME/go/bin, /opt/homebrew/bin, /usr/local/bin, $HOME/.local/bin, $HOME/.goneat/bin"
+    echo "🔎 Searched: $REPO_ROOT/dist, $HOME/go/bin, /opt/homebrew/bin, /usr/local/bin, $HOME/.local/bin, $HOME/.goneat/bin"
     echo "💡 Tip: export PATH=\"$HOME/go/bin:$HOME/.local/bin:$PATH\""
     exit 1
   fi
@@ -124,7 +118,16 @@ fi
 
 echo "✅ Guardian approval satisfied"
 
-# Use goneat's orchestrated assessment (manifest-driven)
-"$GONEAT_BIN" assess --hook pre-push --hook-manifest "$REPO_ROOT/.goneat/hooks.yaml" --package-mode
+# Verify crucible sources are clean before pushing
+if [ -f "$REPO_ROOT/scripts/verify-crucible-clean.sh" ]; then
+  if ! "$REPO_ROOT/scripts/verify-crucible-clean.sh"; then
+    echo ""
+    echo "❌ Pre-push validation failed: Crucible sources are dirty"
+    exit 1
+  fi
+fi
 
-echo "✅ Pre-push validation passed!"}
+# Use goneat's orchestrated assessment (manifest-driven)
+"$GONEAT_BIN" assess --hook pre-push --hook-manifest "$REPO_ROOT/.goneat/hooks.yaml" --staged-only --package-mode --categories format,lint,security --fail-on high --exclude ".cache/**" --exclude ".gocache/**" --exclude ".plans/**" --exclude "dist/**" --exclude "bin/**"
+
+echo "✅ Pre-push validation passed!"
