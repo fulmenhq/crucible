@@ -9,18 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.2.26] - 2025-12-19
+## [0.2.26] - 2025-12-20
 
 ### Added
 
+- **Repository Taxonomy Expansion**: Two new repository categories for Fulmen ecosystem
+  - `spec-host`: Machine-first specification artifact hosting for automated consumption via HTTP/HTTPS
+  - `missive`: Single-page promotional or call-to-action sites (landing pages, campaign microsites)
+- **Spec Publishing Standard**: New publishing standards for spec-host repositories
+  - `docs/standards/publishing/spec-publishing.md` defining requirements
+  - `schemas/standards/publishing/v1.0.0/spec-catalog.schema.json` for optional index.json catalog
+  - Category-specific requirements in `docs/standards/repository-category/spec-host/` and `missive/`
 - **Signed release tagging workflow** for Crucible
   - New Make targets: `release-tag`, `release-verify-tag`, `release-guard-tag-version`
   - New scripts under `scripts/` to create/verify signed tags and (optionally) publish minisign tag attestations
-  - Optional GitHub API verification helper for tag “Verified” status (`release-verify-remote-tag`)
+  - Optional GitHub API verification helper for tag "Verified" status (`release-verify-remote-tag`)
+- **LIFECYCLE_PHASE file**: Crucible now declares its lifecycle phase (`alpha`) per repository-lifecycle standard
+- **README badges**: Added lifecycle, version, and license badges to README header
 
 ### Changed
 
+- **Codex Standard Clarification**: Reframed "Codex Registry" to "Codex Spec Browser" terminology; clarified spec-host (machine-first) vs codex (human-first) distinction
+- **Ecosystem Guide**: Updated to be version-scheme-agnostic (removed CalVer-specific language)
 - **Release process docs** now require signed annotated tags (GPG) and document optional minisign sidecar attestations
+- **Goneat hooks regenerated** with v0.3.22 improvements: `set -f` for glob expansion prevention, simplified manifest-driven assess command
 
 ## [0.2.25] - 2025-12-19
 
