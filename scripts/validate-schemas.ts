@@ -11,13 +11,15 @@ const LANGUAGE_KEYS = new Set(["go", "python", "typescript", "rust", "csharp"]);
 const LANGUAGE_STATUS = new Set(["active", "planned", "deprecated"]);
 const CATEGORY_KEYS = new Set([
   "cli",
-  "microtool",
-  "workhorse",
-  "service",
-  "library",
-  "pipeline",
   "codex",
+  "library",
+  "microtool",
+  "missive",
+  "pipeline",
   "sdk",
+  "service",
+  "spec-host",
+  "workhorse",
 ]);
 const MODULE_IDS = new Set([
   "config-path-api",
