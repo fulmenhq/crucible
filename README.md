@@ -8,6 +8,10 @@
 
 _Single source of truth for schemas, standards, templates, and quality enforcement—foundational infoarch (level 0) in Fulmen's layer cake, powering libraries (level 1), templates (level 2), and apps/analytics (level 3+)._
 
+[![Lifecycle: Alpha](https://img.shields.io/badge/lifecycle-alpha-yellow)](docs/standards/repository-lifecycle.md)
+[![Version](https://img.shields.io/badge/version-0.2.26-blue)](VERSION)
+[![License](https://img.shields.io/badge/license-Hybrid-green)](LICENSE)
+
 [![Test Go](https://github.com/fulmenhq/crucible/actions/workflows/test-go.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-go.yml)
 [![Test TypeScript](https://github.com/fulmenhq/crucible/actions/workflows/test-typescript.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-typescript.yml)
 [![Test Python](https://github.com/fulmenhq/crucible/actions/workflows/test-python.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-python.yml)
@@ -478,12 +482,12 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 
 ## Status
 
-**Maturity**: Active Development (production-ready core)
+**Lifecycle**: Alpha (see [`LIFECYCLE_PHASE`](LIFECYCLE_PHASE) and [Repository Lifecycle Standard](docs/standards/repository-lifecycle.md))
 
 **Versioning**: SemVer (`MAJOR.MINOR.PATCH`)
 
-- Current version: see `VERSION`
-- Latest tagged release: `v0.2.24` (see `release-notes/v0.2.24.md`)
+- Current version: see [`VERSION`](VERSION)
+- Latest tagged release: `v0.2.26` (see `release-notes/v0.2.26.md`)
 - Full history: `CHANGELOG.md` and `release-notes/`
 
 Crucible is the SSOT for Fulmen schemas, standards, and catalogs. Most consumers should access Crucible through the language helper libraries (`gofulmen`, `tsfulmen`, `pyfulmen`, `rsfulmen`) rather than vendoring assets manually.
