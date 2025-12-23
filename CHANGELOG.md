@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **App Identity Vendor Pattern**: Updated vendor field pattern from `^[a-z][a-z0-9]{0,62}[a-z0-9]$` to `^[a-z0-9]{2,64}$` to allow leading digits
+- **GitHub Workflow YAML Style**: Added missing `---` document start markers to all CI workflow files (test-go.yml, test-python.yml, test-rust.yml, test-typescript.yml) to satisfy yamllint document-start rule
   - **Problem**: Organizations with numeric prefixes (e.g., `3leaps`, `37signals`, `8x8`) could not use their names as vendor identifiers
   - **Impact**: Blocked `github.com/3leaps/gonimbus` and similar projects from passing app-identity validation
   - **Cross-Language Safety**: Change is safe because vendor is used for filesystem paths and config directories, not language-specific package identifiers
