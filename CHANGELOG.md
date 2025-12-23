@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.27] - 2025-12-23
+
+### Fixed
+
+- **App Identity Vendor Pattern**: Updated vendor field pattern from `^[a-z][a-z0-9]{0,62}[a-z0-9]$` to `^[a-z0-9]{2,64}$` to allow leading digits
+  - **Problem**: Organizations with numeric prefixes (e.g., `3leaps`, `37signals`, `8x8`) could not use their names as vendor identifiers
+  - **Impact**: Blocked `github.com/3leaps/gonimbus` and similar projects from passing app-identity validation
+  - **Cross-Language Safety**: Change is safe because vendor is used for filesystem paths and config directories, not language-specific package identifiers
+    - Go: Module paths accept leading digits (`github.com/3leaps/pkg` works)
+    - Python: Vendor not used as import name (use `metadata.python.package_name` for that)
+    - TypeScript: npm scopes accept leading digits (`@3leaps/pkg` valid)
+    - Rust: Cargo accepts numeric prefixes in crate names
+  - **Documentation**: Added "Vendor Pattern Cross-Language Safety" section to app-identity module standard
+
+### Changed
+
+- **App Identity Schema Description**: Enhanced vendor field description to document leading digit allowance with real-world examples (fulmenhq, 3leaps, 37signals)
+
 ## [0.2.26] - 2025-12-20
 
 ### Added
