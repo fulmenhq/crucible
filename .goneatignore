@@ -1,3 +1,7 @@
 lang/
 config/repository/app-identity/fixtures/invalid/
 config/library/foundry/fixtures/signals/invalid/
+
+# Vendored upstream content - validated in prepush via upstream-validate
+schemas/upstream/
+config/upstream/

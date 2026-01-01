@@ -13,7 +13,7 @@ SFETCH_INSTALL_URL ?= https://github.com/3leaps/sfetch/releases/latest/download/
 # Crucible Makefile
 # Standards forge for the FulmenHQ ecosystem
 
-.PHONY: all help bootstrap tools sync test build build-all clean version fmt fmt-check lint lint-fix typecheck
+.PHONY: all help bootstrap tools sync test build build-all clean version fmt fmt-check lint lint-fix lint-config upstream-validate typecheck
 .PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python test-rust build-python build-rust lint-python lint-rust fmt-rust
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare release-clean
@@ -122,6 +122,29 @@ lint-python: ## Lint Python code (matches GitHub Actions)
 lint-rust: ## Lint Rust code (matches GitHub Actions)
 	@cd lang/rust && cargo clippy -- -D warnings
 
+lint-config: ## Validate config data files against schemas (excludes upstream/)
+	@echo "Validating config data files..."
+	@if command -v $(GONEAT) >/dev/null 2>&1; then \
+		for f in config/agentic/roles/*.yaml; do \
+			[ -f "$$f" ] || continue; \
+			echo "  Validating $$f..."; \
+			$(GONEAT) validate data --schema-file schemas/upstream/3leaps/agentic/v0/role-prompt.schema.json --data "$$f" || exit 1; \
+		done; \
+		echo "✅ Config validation complete"; \
+	else \
+		echo "⚠️  goneat not found, skipping config validation"; \
+	fi
+
+upstream-validate: ## Validate vendored upstream files (bypasses .goneatignore)
+	@echo "Validating vendored upstream files..."
+	@if command -v $(GONEAT) >/dev/null 2>&1; then \
+		echo "  Validating vendored schemas against meta-schemas..."; \
+		$(GONEAT) validate --no-ignore --include "schemas/upstream/**/*.schema.json" || exit 1; \
+		echo "✅ Upstream validation complete"; \
+	else \
+		echo "⚠️  goneat not found, skipping upstream validation"; \
+	fi
+
 typecheck: ## Type-check TypeScript files
 	@echo "Type-checking TypeScript files..."
 	@bunx tsc --noEmit
@@ -134,7 +157,7 @@ prepush: precommit ## Run pre-push hooks (depends on precommit for completeness)
 precommit: check-all ## Run pre-commit hooks (check-all + build)
 	@echo "✅ Pre-commit checks passed"
 
-check-all: validate-schemas verify-codegen build lint test typecheck ## Run all checks (lint, test, typecheck) after ensuring build/sync
+check-all: validate-schemas lint-config verify-codegen build lint test typecheck ## Run all checks (lint, test, typecheck) after ensuring build/sync
 	@echo "✅ All checks passed"
 
 # Clean build artifacts
