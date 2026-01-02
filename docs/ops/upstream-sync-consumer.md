@@ -8,8 +8,8 @@ This repository vendors schemas, configs, and other assets from upstream sources
 
 ## Upstream Sources
 
-| Source | Local Path | Content |
-|--------|------------|---------|
+| Source                                                | Local Path                 | Content                            |
+| ----------------------------------------------------- | -------------------------- | ---------------------------------- |
 | [3leaps/crucible](https://github.com/3leaps/crucible) | `schemas/upstream/3leaps/` | Role prompt schema, AILink schemas |
 
 Future upstream sources will follow the same pattern.
@@ -40,6 +40,7 @@ fulmenhq/crucible/
 **Path**: `schemas/upstream/3leaps/`
 
 **Content**:
+
 - `agentic/v0/role-prompt.schema.json` - Schema for AI agent role prompts
 - `ailink/v0/prompt.schema.json` - AILink prompt schema
 - `ailink/v0/search-response.schema.json` - AILink response schema
@@ -121,6 +122,7 @@ From our AGENTS.md:
 > **DO NOT** edit files in `schemas/upstream/` – these are vendored from external repositories.
 
 Agents should:
+
 - Reference vendored schemas for validation
 - Never modify vendored content directly
 - Escalate to human maintainers if upstream needs changes

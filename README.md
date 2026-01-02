@@ -9,7 +9,7 @@
 _Single source of truth for schemas, standards, templates, and quality enforcement—foundational infoarch (level 0) in Fulmen's layer cake, powering libraries (level 1), templates (level 2), and apps/analytics (level 3+)._
 
 [![Lifecycle: Alpha](https://img.shields.io/badge/lifecycle-alpha-yellow)](docs/standards/repository-lifecycle.md)
-[![Version](https://img.shields.io/badge/version-0.2.26-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-0.3.0-blue)](VERSION)
 [![License](https://img.shields.io/badge/license-Hybrid-green)](LICENSE)
 
 [![Test Go](https://github.com/fulmenhq/crucible/actions/workflows/test-go.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-go.yml)
