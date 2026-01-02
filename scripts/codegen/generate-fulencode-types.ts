@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Fulencode Types Generator
  *
@@ -11,12 +12,10 @@
  *   bun run scripts/codegen/generate-fulencode-types.ts --all --format
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { load as loadYaml } from "js-yaml";
 import { execSync } from "node:child_process";
-import { Environment } from "nunjucks";
-import * as ejs from "ejs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { load as loadYaml } from "js-yaml";
 
 // Type definitions
 interface Metadata {
@@ -70,7 +69,7 @@ const flags = {
   verify: args.includes("--verify"),
 };
 
-if (!flags.all && !flags.lang) {
+if (!(flags.all || flags.lang)) {
   console.error("Error: Must specify --lang <language> or --all");
   console.error("\nUsage:");
   console.error("  bun run scripts/codegen/generate-fulencode-types.ts --lang python");
@@ -95,7 +94,7 @@ function toPascalCase(name: string): string {
 
 // Helper: Convert snake_case to CONSTANT_CASE
 function toConstantCase(name: string): string {
-  return name.toUpperCase().replace(/[.\-]/g, "_");
+  return name.toUpperCase().replace(/[.-]/g, "_");
 }
 
 // Helper: Singularize enum class names (for PEP 8 convention)
@@ -117,7 +116,7 @@ function singularizeEnumName(name: string): string {
 function toGoConstantCase(name: string): string {
   // Handle cases like "tar.gz" -> "TarGz", "utf-8" -> "Utf8"
   return name
-    .replace(/[.\-]/g, "_")
+    .replace(/[.-]/g, "_")
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join("");
@@ -208,7 +207,7 @@ function processTaxonomy(
 }
 
 // Helper: Prepare template data for a language
-function prepareTemplateData(lang: string) {
+function prepareTemplateData(_lang: string) {
   const taxonomyBasePath = metadata.taxonomy_base_path;
 
   // Process taxonomies
@@ -250,9 +249,7 @@ async function renderTemplate(lang: string, templateType: string, data: any): Pr
     const env = new nunjucks.Environment(null, { autoescape: false });
 
     // Add custom filter for JSON serialization
-    env.addFilter("pyjson", function (str: string) {
-      return JSON.stringify(str);
-    });
+    env.addFilter("pyjson", (str: string) => JSON.stringify(str));
 
     return env.renderString(templateContent, data);
   } else if (lang === "typescript" || lang === "go" || lang === "rust") {
@@ -321,7 +318,7 @@ async function generateLanguage(lang: string) {
         console.log(`  Formatting with: ${langConfig.postprocess}`);
         try {
           execSync(`${postprocessPath} ${outputPath}`, { stdio: "inherit" });
-        } catch (error) {
+        } catch (_error) {
           console.warn(`  Warning: Postprocessing failed (continuing anyway)`);
         }
       }

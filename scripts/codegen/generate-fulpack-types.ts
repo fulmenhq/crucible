@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Fulpack Types Generator
  *
@@ -11,12 +12,12 @@
  *   bun run scripts/codegen/generate-fulpack-types.ts --all --format
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { resolve, dirname, basename } from "node:path";
-import { load as loadYaml } from "js-yaml";
 import { execSync } from "node:child_process";
-import { Environment } from "nunjucks";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { basename, dirname, resolve } from "node:path";
 import * as ejs from "ejs";
+import { load as loadYaml } from "js-yaml";
+import { Environment } from "nunjucks";
 
 // Type definitions
 interface Metadata {
@@ -91,7 +92,7 @@ const flags = {
   verify: args.includes("--verify"),
 };
 
-if (!flags.all && !flags.lang) {
+if (!(flags.all || flags.lang)) {
   console.error("Error: Must specify --lang <language> or --all");
   console.error("\nUsage:");
   console.error("  bun run scripts/codegen/generate-fulpack-types.ts --lang python");
@@ -116,7 +117,7 @@ function toPascalCase(name: string): string {
 
 // Helper: Convert snake_case to CONSTANT_CASE
 function toConstantCase(name: string): string {
-  return name.toUpperCase().replace(/[.\-]/g, "_");
+  return name.toUpperCase().replace(/[.-]/g, "_");
 }
 
 // Helper: Singularize enum class names (for PEP 8 convention)
@@ -348,7 +349,7 @@ function toGoPascalCase(snakeCase: string): string {
 function toGoConstantCase(name: string): string {
   // Handle cases like "tar.gz" -> "TarGz"
   return name
-    .replace(/[.\-]/g, "_")
+    .replace(/[.-]/g, "_")
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join("");
@@ -577,9 +578,7 @@ async function renderTemplate(lang: string, templateType: string, data: any): Pr
     const env = new nunjucks.Environment(null, { autoescape: false });
 
     // Add custom filter for JSON serialization
-    env.addFilter("pyjson", function (str: string) {
-      return JSON.stringify(str);
-    });
+    env.addFilter("pyjson", (str: string) => JSON.stringify(str));
 
     return env.renderString(templateContent, data);
   } else if (lang === "typescript" || lang === "go" || lang === "rust") {

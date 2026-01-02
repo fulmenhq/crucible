@@ -18,10 +18,10 @@
  *   2: Critical failure (registry not found, schema invalid, etc.)
  */
 
-import { readFileSync, existsSync, readdirSync } from "fs";
-import { join, basename } from "path";
-import { load as parseYAML } from "js-yaml";
+import { existsSync, readdirSync, readFileSync } from "fs";
 import { glob } from "glob";
+import { load as parseYAML } from "js-yaml";
+import { basename, join } from "path";
 
 interface ModuleEntry {
   module_name: string;
@@ -122,7 +122,9 @@ function discoverModules(): EvidenceMap {
   // Scan schemas/* for module schemas
   // Note: Some schemas are nested (schemas/observability/logging/v1.0.0/)
   // We'll record the actual schema path for validation, not just top-level
-  const schemaDirs = glob.sync("schemas/**/v*/", { ignore: ["**/meta/**", "**/taxonomy/**", "**/node_modules/**"] });
+  const schemaDirs = glob.sync("schemas/**/v*/", {
+    ignore: ["**/meta/**", "**/taxonomy/**", "**/node_modules/**"],
+  });
   // Track unique schema paths for verification
   const schemaPathsFound = new Set(schemaDirs);
 
@@ -171,7 +173,7 @@ function loadRegistry(): ModuleRegistry {
     const content = readFileSync(PLATFORM_MODULES_PATH, "utf-8");
     const registry = parseYAML(content) as ModuleRegistry;
 
-    if (!registry.modules || !Array.isArray(registry.modules)) {
+    if (!(registry.modules && Array.isArray(registry.modules))) {
       error("Registry does not contain valid 'modules' array");
       process.exit(2);
     }
@@ -196,8 +198,10 @@ function checkOrphans(registry: ModuleRegistry, evidence: EvidenceMap) {
   let devsecopsModules = new Set<string>();
   if (existsSync(DEVSECOPS_MODULES_PATH)) {
     try {
-      const devsecopsRegistry = parseYAML(readFileSync(DEVSECOPS_MODULES_PATH, "utf8")) as ModuleRegistry;
-      devsecopsModules = new Set(devsecopsRegistry.modules.map(m => m.module_name));
+      const devsecopsRegistry = parseYAML(
+        readFileSync(DEVSECOPS_MODULES_PATH, "utf8"),
+      ) as ModuleRegistry;
+      devsecopsModules = new Set(devsecopsRegistry.modules.map((m) => m.module_name));
       info(`  Loaded DevSecOps modules registry with ${devsecopsModules.size} modules`);
     } catch (err) {
       warn(`Failed to load DevSecOps registry: ${err}`);
@@ -206,10 +210,10 @@ function checkOrphans(registry: ModuleRegistry, evidence: EvidenceMap) {
 
   // Known non-module artifacts that should not be in any module registry
   const knownNonModules = new Set([
-    "app-identity",   // Application identity config - used by appidentity module but not a module itself
+    "app-identity", // Application identity config - used by appidentity module but not a module itself
   ]);
 
-  const platformModules = new Set(registry.modules.map(m => m.module_name));
+  const platformModules = new Set(registry.modules.map((m) => m.module_name));
   let orphanCount = 0;
 
   for (const [moduleName, moduleEvidence] of Object.entries(evidence)) {
@@ -218,9 +222,11 @@ function checkOrphans(registry: ModuleRegistry, evidence: EvidenceMap) {
     const isInDevsecopsRegistry = devsecopsModules.has(moduleName);
     const isKnownNonModule = knownNonModules.has(moduleName);
 
-    if (!isInPlatformRegistry && !isInDevsecopsRegistry && !isKnownNonModule) {
+    if (!(isInPlatformRegistry || isInDevsecopsRegistry || isKnownNonModule)) {
       if (moduleEvidence.schemas.length > 0 || moduleEvidence.configs.length > 0) {
-        warn(`Orphaned artifacts for module '${moduleName}' - has ${moduleEvidence.schemas.length} schemas, ${moduleEvidence.configs.length} configs but no registry entry (checked platform-modules and devsecops registries)`);
+        warn(
+          `Orphaned artifacts for module '${moduleName}' - has ${moduleEvidence.schemas.length} schemas, ${moduleEvidence.configs.length} configs but no registry entry (checked platform-modules and devsecops registries)`,
+        );
         orphanCount++;
       }
     }
@@ -240,12 +246,11 @@ function checkOrphans(registry: ModuleRegistry, evidence: EvidenceMap) {
 function checkDeadEntries(registry: ModuleRegistry, evidence: EvidenceMap) {
   info("Check 2: Detecting dead registry entries...");
 
-  let deadCount = 0;
+  const deadCount = 0;
 
   for (const module of registry.modules) {
     // For code-only modules (no schema/config), skip this check
-    if (!module.evidence.has_schema && !module.evidence.has_config) {
-      continue;
+    if (!(module.evidence.has_schema || module.evidence.has_config)) {
     }
 
     // If module claims schema/config, evidence pointer validation (Check 3) handles it
@@ -270,7 +275,9 @@ function checkEvidencePointers(registry: ModuleRegistry) {
         error(`Module '${module.module_name}' has_schema=true but no schema_path`);
         pointerErrors++;
       } else if (!existsSync(module.evidence.schema_path)) {
-        error(`Module '${module.module_name}' claims schema at '${module.evidence.schema_path}' but path not found`);
+        error(
+          `Module '${module.module_name}' claims schema at '${module.evidence.schema_path}' but path not found`,
+        );
         pointerErrors++;
       }
     }
@@ -281,7 +288,9 @@ function checkEvidencePointers(registry: ModuleRegistry) {
         error(`Module '${module.module_name}' has_config=true but no config_path`);
         pointerErrors++;
       } else if (!existsSync(module.evidence.config_path)) {
-        error(`Module '${module.module_name}' claims config at '${module.evidence.config_path}' but path not found`);
+        error(
+          `Module '${module.module_name}' claims config at '${module.evidence.config_path}' but path not found`,
+        );
         pointerErrors++;
       }
     }
@@ -306,11 +315,15 @@ function checkCrossLanguageStatus(registry: ModuleRegistry) {
     for (const [lang, impl] of Object.entries(module.languages)) {
       if (impl.status === "available") {
         if (!impl.package) {
-          error(`Module '${module.module_name}' ${lang}: status=available but no package specified`);
+          error(
+            `Module '${module.module_name}' ${lang}: status=available but no package specified`,
+          );
           statusErrors++;
         }
         if (!impl.version) {
-          error(`Module '${module.module_name}' ${lang}: status=available but no version specified`);
+          error(
+            `Module '${module.module_name}' ${lang}: status=available but no version specified`,
+          );
           statusErrors++;
         }
       }
@@ -384,7 +397,9 @@ function checkTierOverrides(registry: ModuleRegistry) {
           overrideErrors++;
         }
         if (impl.status === "na") {
-          error(`Core module '${module.module_name}' has status=na in ${lang} (core must be universal)`);
+          error(
+            `Core module '${module.module_name}' has status=na in ${lang} (core must be universal)`,
+          );
           overrideErrors++;
         }
       }
@@ -412,13 +427,15 @@ function checkTierOverrides(registry: ModuleRegistry) {
 function checkCrossReferences(registry: ModuleRegistry) {
   info("Check 7: Validating cross-references...");
 
-  const moduleNames = new Set(registry.modules.map(m => m.module_name));
+  const moduleNames = new Set(registry.modules.map((m) => m.module_name));
   let refErrors = 0;
 
   for (const module of registry.modules) {
     for (const requiredModule of module.dependencies.required_modules) {
       if (!moduleNames.has(requiredModule)) {
-        error(`Module '${module.module_name}' requires '${requiredModule}' but it's not in registry`);
+        error(
+          `Module '${module.module_name}' requires '${requiredModule}' but it's not in registry`,
+        );
         refErrors++;
       }
     }

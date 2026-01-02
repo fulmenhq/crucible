@@ -11,10 +11,10 @@
  *   bun run scripts/sync-to-lang.ts --dry-run
  */
 
+import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, readdirSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
-import { spawnSync } from "node:child_process";
 
 interface SyncOptions {
   dryRun: boolean;

@@ -13,17 +13,17 @@
  *   1: Version mismatch or file read errors
  */
 
-import { readFile } from 'node:fs/promises';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import YAML from 'js-yaml';
+import { readFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import YAML from "js-yaml";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const repoRoot = path.resolve(__dirname, '..');
+const repoRoot = path.resolve(__dirname, "..");
 
-const VERSION_FILE = path.join(repoRoot, 'VERSION');
-const TAXONOMY_FILE = path.join(repoRoot, 'config/taxonomy/metrics.yaml');
+const VERSION_FILE = path.join(repoRoot, "VERSION");
+const TAXONOMY_FILE = path.join(repoRoot, "config/taxonomy/metrics.yaml");
 
 interface TaxonomySchema {
   version?: string;
@@ -31,12 +31,12 @@ interface TaxonomySchema {
 }
 
 async function readVersion(filePath: string): Promise<string> {
-  const content = await readFile(filePath, 'utf-8');
+  const content = await readFile(filePath, "utf-8");
   return content.trim();
 }
 
 async function readTaxonomyVersion(): Promise<string> {
-  const content = await readFile(TAXONOMY_FILE, 'utf-8');
+  const content = await readFile(TAXONOMY_FILE, "utf-8");
   const taxonomy = YAML.load(content) as TaxonomySchema;
 
   if (!taxonomy.version) {
@@ -55,18 +55,18 @@ async function main() {
     console.log(`Taxonomy version:   ${taxonomyVersion}`);
 
     if (repoVersion !== taxonomyVersion) {
-      console.error('\n❌ Version mismatch detected!');
+      console.error("\n❌ Version mismatch detected!");
       console.error(`   Repository: ${repoVersion}`);
       console.error(`   Taxonomy:   ${taxonomyVersion}`);
-      console.error('\nTaxonomy versions must match repository VERSION per ADR-0010.');
-      console.error('Run: bun run scripts/update-version.ts');
+      console.error("\nTaxonomy versions must match repository VERSION per ADR-0010.");
+      console.error("Run: bun run scripts/update-version.ts");
       process.exit(1);
     }
 
-    console.log('✅ Taxonomy version matches repository VERSION');
+    console.log("✅ Taxonomy version matches repository VERSION");
     process.exit(0);
   } catch (error) {
-    console.error('❌ Validation failed:', error instanceof Error ? error.message : String(error));
+    console.error("❌ Validation failed:", error instanceof Error ? error.message : String(error));
     process.exit(1);
   }
 }

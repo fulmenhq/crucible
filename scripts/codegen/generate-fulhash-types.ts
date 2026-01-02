@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Fulhash Types Generator
  *
@@ -10,10 +11,10 @@
  *   bun run scripts/codegen/generate-fulhash-types.ts --all --format
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { execSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { load as loadYaml } from "js-yaml";
-import { execSync } from "node:child_process";
 
 // Type definitions
 interface Metadata {
@@ -91,7 +92,7 @@ const flags = {
   verify: args.includes("--verify"),
 };
 
-if (!flags.all && !flags.lang) {
+if (!(flags.all || flags.lang)) {
   console.error("Error: Must specify --lang <language> or --all");
   process.exit(40);
 }
@@ -120,7 +121,7 @@ function toRustSnakeCase(name: string): string {
 
 // Helper: Convert snake_case to CONSTANT_CASE
 function toConstantCase(name: string): string {
-  return name.toUpperCase().replace(/[.\-]/g, "_");
+  return name.toUpperCase().replace(/[.-]/g, "_");
 }
 
 // Helper: Convert kebab-case to Go constant format

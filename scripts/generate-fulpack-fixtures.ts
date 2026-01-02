@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Generate Fulpack Test Fixtures
  *
@@ -15,11 +16,10 @@
  *   - pathological.tar.gz : Security test cases (<50KB)
  */
 
-import { mkdir, writeFile, rm } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import { execSync } from "node:child_process";
+import { existsSync, statSync } from "node:fs";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { statSync } from "node:fs";
 
 const FIXTURES_DIR = join(process.cwd(), "config/library/fulpack/fixtures");
 const TEMP_DIR = "/tmp/fulpack-fixtures";
@@ -53,7 +53,9 @@ function verifySize(path: string, maxSize: number, name: string): void {
   const stats = statSync(path);
   console.log(`  ✓ ${name}: ${formatBytes(stats.size)} (max: ${formatBytes(maxSize)})`);
   if (stats.size > maxSize) {
-    throw new Error(`${name} exceeds max size: ${formatBytes(stats.size)} > ${formatBytes(maxSize)}`);
+    throw new Error(
+      `${name} exceeds max size: ${formatBytes(stats.size)} > ${formatBytes(maxSize)}`,
+    );
   }
 }
 
@@ -131,10 +133,38 @@ Line 3 of sample data.
   // Create a small binary file (tiny PNG-like structure)
   // PNG signature + minimal IHDR chunk (not a valid PNG, just binary test data)
   const binaryData = new Uint8Array([
-    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, // PNG signature
-    0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52, // IHDR chunk start
-    0x00, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x10, // 16x16 dimensions
-    0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x91, 0x68, // bit depth, color, etc
+    0x89,
+    0x50,
+    0x4e,
+    0x47,
+    0x0d,
+    0x0a,
+    0x1a,
+    0x0a, // PNG signature
+    0x00,
+    0x00,
+    0x00,
+    0x0d,
+    0x49,
+    0x48,
+    0x44,
+    0x52, // IHDR chunk start
+    0x00,
+    0x00,
+    0x00,
+    0x10,
+    0x00,
+    0x00,
+    0x00,
+    0x10, // 16x16 dimensions
+    0x08,
+    0x02,
+    0x00,
+    0x00,
+    0x00,
+    0x90,
+    0x91,
+    0x68, // bit depth, color, etc
     0x36, // CRC
     // Add some padding to make it ~100 bytes
     ...new Array(64).fill(0x00),
@@ -228,7 +258,10 @@ Compressed tar archive for standard testing.
   await writeFile(join(contentDir, "file2.txt"), "Test file 2 content for compression testing.\n");
 
   await mkdir(join(contentDir, "subdir"), { recursive: true });
-  await writeFile(join(contentDir, "subdir", "file3.txt"), "Nested file 3 for directory testing.\n");
+  await writeFile(
+    join(contentDir, "subdir", "file3.txt"),
+    "Nested file 3 for directory testing.\n",
+  );
 
   // Create tar.gz archive
   const outputPath = join(FIXTURES_DIR, "basic.tar.gz");
@@ -277,7 +310,10 @@ async function generateNestedZip(): Promise<void> {
 
   await mkdir(join(contentDir, "level1", "level2", "level3"), { recursive: true });
   await writeFile(join(contentDir, "level1", "level2", "level3", "file3.txt"), "Level 3 file\n");
-  await writeFile(join(contentDir, "level1", "level2", "level3", "deep.txt"), "Deeply nested file\n");
+  await writeFile(
+    join(contentDir, "level1", "level2", "level3", "deep.txt"),
+    "Deeply nested file\n",
+  );
 
   // Create zip archive
   const outputPath = join(FIXTURES_DIR, "nested.zip");
@@ -349,13 +385,18 @@ All operations MUST validate paths before extraction.
 
   // Absolute path simulation (can't create actual absolute paths in tar from relative dir)
   await mkdir(join(contentDir, "safe-absolute"), { recursive: true });
-  await writeFile(join(contentDir, "safe-absolute", "root_ssh_simulation.txt"), "absolute path test\n");
+  await writeFile(
+    join(contentDir, "safe-absolute", "root_ssh_simulation.txt"),
+    "absolute path test\n",
+  );
 
   // Symlink tests
   await mkdir(join(contentDir, "safe-symlinks"), { recursive: true });
   await writeFile(join(contentDir, "safe-symlinks", "symlink-target.txt"), "symlink target\n");
   // Create symlink (will be preserved in tar)
-  execSync(`cd "${join(contentDir, "safe-symlinks")}" && ln -s symlink-target.txt symlink-test.txt`);
+  execSync(
+    `cd "${join(contentDir, "safe-symlinks")}" && ln -s symlink-target.txt symlink-test.txt`,
+  );
 
   // Create tar.gz archive
   // Note: Real pathological entries would need manual tar manipulation or specialized tools

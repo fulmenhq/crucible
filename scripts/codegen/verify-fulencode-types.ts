@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Fulencode Types Verification Script
  *
@@ -15,9 +16,9 @@
  *   1 - Verification failed (drift detected or compilation errors)
  */
 
-import { existsSync, mkdirSync, readFileSync, rmSync, readdirSync } from "node:fs";
-import { join, resolve, relative } from "node:path";
 import { execSync } from "node:child_process";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
+import { join, relative, resolve } from "node:path";
 
 interface Metadata {
   module: string;

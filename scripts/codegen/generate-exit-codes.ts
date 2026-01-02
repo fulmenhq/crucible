@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Exit Codes Generator
  *
@@ -12,10 +13,10 @@
  *   bun run scripts/codegen/generate-exit-codes.ts --all --format
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
-import { resolve, dirname } from "node:path";
-import { load as loadYaml } from "js-yaml";
 import { execSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { load as loadYaml } from "js-yaml";
 
 // Type definitions
 interface Metadata {
@@ -84,7 +85,7 @@ const flags = {
   out: args.includes("--out") ? args[args.indexOf("--out") + 1] : null,
 };
 
-if (!flags.all && !flags.lang) {
+if (!(flags.all || flags.lang)) {
   console.error("Error: Must specify --lang <language> or --all");
   console.error("\nUsage:");
   console.error("  bun run scripts/codegen/generate-exit-codes.ts --lang typescript");
@@ -195,9 +196,7 @@ async function renderTemplate(lang: string): Promise<string> {
     const env = new nunjucks.Environment(null, { autoescape: false });
 
     // Add custom filter for JSON serialization (properly escapes strings for Python)
-    env.addFilter("pyjson", function (str: string) {
-      return JSON.stringify(str);
-    });
+    env.addFilter("pyjson", (str: string) => JSON.stringify(str));
 
     return env.renderString(templateContent, data);
   }
@@ -237,7 +236,7 @@ async function generateLanguage(lang: string) {
       console.log(`  Formatting with: ${langConfig.postprocess}`);
       try {
         execSync(`${postprocessPath} ${outputPath}`, { stdio: "inherit" });
-      } catch (error) {
+      } catch (_error) {
         console.warn(`  Warning: Postprocessing failed (continuing anyway)`);
       }
     }
@@ -262,7 +261,7 @@ async function generateLanguage(lang: string) {
         execSync(`cd ${tsDir} && bun run tsc --noEmit`, { stdio: "pipe" });
       }
       console.log(`  ✓ Compilation verified`);
-    } catch (error) {
+    } catch (_error) {
       throw new Error(`Compilation verification failed for ${lang}`);
     }
   }

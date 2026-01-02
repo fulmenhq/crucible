@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * Exit Codes Verification Script
  *
@@ -15,10 +16,10 @@
  *   1 - Verification failed (drift detected, compilation errors, parity issues)
  */
 
+import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { dirname, extname, join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-import { execSync } from "node:child_process";
 import { load as loadYaml } from "js-yaml";
 
 interface Metadata {
@@ -632,7 +633,7 @@ function parseGoMetadata(content: string): Map<
 }
 
 function extractGoField(body: string, field: string, optional = false): string | undefined {
-  const regex = new RegExp(`${field}:\\s+"([^\"]*)"`);
+  const regex = new RegExp(`${field}:\\s+"([^"]*)"`);
   const match = body.match(regex);
   if (!match) {
     if (optional) {

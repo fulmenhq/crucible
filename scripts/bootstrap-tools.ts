@@ -8,7 +8,13 @@
  *   bun run scripts/bootstrap-tools.ts --verify [--manifest path]
  */
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync, symlinkSync, unlinkSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  symlinkSync,
+  unlinkSync,
+} from "node:fs";
 import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import { load as parseYaml } from "js-yaml";
