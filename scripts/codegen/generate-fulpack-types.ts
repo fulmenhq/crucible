@@ -14,10 +14,8 @@
 
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { basename, dirname, resolve } from "node:path";
-import * as ejs from "ejs";
+import { resolve } from "node:path";
 import { load as loadYaml } from "js-yaml";
-import { Environment } from "nunjucks";
 
 // Type definitions
 interface Metadata {
@@ -124,7 +122,7 @@ function toConstantCase(name: string): string {
 function singularizeEnumName(name: string): string {
   // Handle common plural patterns
   if (name.endsWith("ies")) {
-    return name.slice(0, -3) + "y"; // "Entries" -> "Entry"
+    return `${name.slice(0, -3)}y`; // "Entries" -> "Entry"
   }
   if (name.endsWith("ses")) {
     return name.slice(0, -2); // "Addresses" -> "Address"
@@ -136,7 +134,7 @@ function singularizeEnumName(name: string): string {
 }
 
 // Helper: Infer Python type from JSON Schema property
-function inferPythonType(property: JSONSchemaProperty, isOptional: boolean = false): string {
+function inferPythonType(property: JSONSchemaProperty, _isOptional: boolean = false): string {
   const { type, enum: enumValues, items, format } = property;
 
   // Handle enums
@@ -523,7 +521,7 @@ function processTaxonomy(
 }
 
 // Helper: Prepare template data for a language
-function prepareTemplateData(lang: string) {
+function prepareTemplateData(_lang: string) {
   const schemaBasePath = metadata.schema_base_path;
   const taxonomyBasePath = metadata.taxonomy_base_path;
 

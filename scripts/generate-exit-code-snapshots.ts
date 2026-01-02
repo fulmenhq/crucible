@@ -136,7 +136,7 @@ async function main(): Promise<void> {
   console.log("Generating exit codes snapshot...");
   const exitCodesSnapshot = generateExitCodesSnapshot(catalog);
   const exitCodesPath = path.resolve(repoRoot, "config/library/foundry/exit-codes.snapshot.json");
-  await writeFile(exitCodesPath, JSON.stringify(exitCodesSnapshot, null, 2) + "\n", "utf8");
+  await writeFile(exitCodesPath, `${JSON.stringify(exitCodesSnapshot, null, 2)}\n`, "utf8");
   console.log(`✅ Written: ${exitCodesPath}`);
 
   console.log("Generating simplified modes snapshot...");
@@ -147,7 +147,7 @@ async function main(): Promise<void> {
   );
   await writeFile(
     simplifiedModesPath,
-    JSON.stringify(simplifiedModesSnapshot, null, 2) + "\n",
+    `${JSON.stringify(simplifiedModesSnapshot, null, 2)}\n`,
     "utf8",
   );
   console.log(`✅ Written: ${simplifiedModesPath}`);

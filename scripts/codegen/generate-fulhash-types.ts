@@ -131,7 +131,7 @@ function toGoConstantCase(name: string): string {
 }
 
 // Helper: Infer Python type from JSON Schema property
-function inferPythonType(property: JSONSchemaProperty, isOptional: boolean = false): string {
+function inferPythonType(property: JSONSchemaProperty, _isOptional: boolean = false): string {
   const { type, enum: enumValues, items } = property;
 
   if (enumValues && enumValues.length > 0) {
@@ -254,7 +254,7 @@ function inferGoType(property: JSONSchemaProperty, isOptional: boolean = false):
   const { type, enum: enumValues, items } = property;
 
   // Special case for Algorithm enum property
-  if (property.description && property.description.includes("Algorithm identifier")) {
+  if (property.description?.includes("Algorithm identifier")) {
     return "Algorithm";
   }
 
@@ -384,7 +384,7 @@ function processTaxonomy(
   };
 }
 
-function prepareTemplateData(lang: string) {
+function prepareTemplateData(_lang: string) {
   // Prevent unused warning by using the lang parameter in a trivial way if needed,
   // or just leave it as is if the linter allows unused parameters.
   // In this case, we just need to fix the TS errors.

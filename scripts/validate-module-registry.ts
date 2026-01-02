@@ -18,10 +18,9 @@
  *   2: Critical failure (registry not found, schema invalid, etc.)
  */
 
-import { existsSync, readdirSync, readFileSync } from "fs";
+import { existsSync, readFileSync } from "node:fs";
 import { glob } from "glob";
 import { load as parseYAML } from "js-yaml";
-import { basename, join } from "path";
 
 interface ModuleEntry {
   module_name: string;
@@ -246,7 +245,7 @@ function checkOrphans(registry: ModuleRegistry, evidence: EvidenceMap) {
  * Check 2: Dead Entry Detection - Registry entries with no evidence
  * Note: Code-only modules (no schema/config) are valid, so we check evidence pointers instead
  */
-function checkDeadEntries(registry: ModuleRegistry, evidence: EvidenceMap) {
+function checkDeadEntries(registry: ModuleRegistry, _evidence: EvidenceMap) {
   info("Check 2: Detecting dead registry entries...");
 
   // TODO: Track dead entries when Check 2 is fully implemented
@@ -460,7 +459,7 @@ function main() {
   const registry = loadRegistry();
   const evidence = discoverModules();
 
-  console.log("\n" + "=".repeat(70));
+  console.log(`\n${"=".repeat(70)}`);
   checkOrphans(registry, evidence);
   console.log("=".repeat(70));
   checkDeadEntries(registry, evidence);

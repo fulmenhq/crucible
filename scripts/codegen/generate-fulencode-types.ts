@@ -101,7 +101,7 @@ function toConstantCase(name: string): string {
 function singularizeEnumName(name: string): string {
   // Handle common plural patterns
   if (name.endsWith("ies")) {
-    return name.slice(0, -3) + "y"; // "Entries" -> "Entry"
+    return `${name.slice(0, -3)}y`; // "Entries" -> "Entry"
   }
   if (name.endsWith("ses")) {
     return name.slice(0, -2); // "Addresses" -> "Address"
