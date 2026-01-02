@@ -494,7 +494,7 @@ function processTaxonomy(
   else if (taxonomy.operations) items = taxonomy.operations;
   else {
     // Fallback: look for first array in taxonomy
-    for (const [key, value] of Object.entries(taxonomy)) {
+    for (const [_key, value] of Object.entries(taxonomy)) {
       if (Array.isArray(value)) {
         items = value;
         break;
@@ -647,7 +647,7 @@ async function generateLanguage(lang: string) {
         console.log(`  Formatting with: ${langConfig.postprocess}`);
         try {
           execSync(`${postprocessPath} ${outputPath}`, { stdio: "inherit" });
-        } catch (error) {
+        } catch (_error) {
           console.warn(`  Warning: Postprocessing failed (continuing anyway)`);
         }
       }

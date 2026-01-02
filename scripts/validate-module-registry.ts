@@ -81,10 +81,12 @@ interface EvidenceMap {
 // Platform Modules Registry (code modules like config, logging, pathfinder, etc.)
 const PLATFORM_MODULES_PATH = "config/taxonomy/library/platform-modules/v1.0.0/modules.yaml";
 // Foundry Catalogs Registry (reference data catalogs like countries, http-statuses, etc.)
-const FOUNDRY_CATALOGS_PATH = "config/taxonomy/library/foundry-catalogs/v1.0.0/catalogs.yaml";
+// TODO v0.2.11: Add foundry-catalogs validation
+const _FOUNDRY_CATALOGS_PATH = "config/taxonomy/library/foundry-catalogs/v1.0.0/catalogs.yaml";
 // DevSecOps Modules Registry (DevSecOps schemas/configs, potential L'Orage implementations)
 const DEVSECOPS_MODULES_PATH = "config/taxonomy/devsecops/modules/v1.0.0/modules.yaml";
-const SCHEMA_PATH = "schemas/taxonomy/library/modules/v1.0.0/module-entry.schema.json";
+// TODO: Use this for schema validation
+const _SCHEMA_PATH = "schemas/taxonomy/library/modules/v1.0.0/module-entry.schema.json";
 
 // Note: This script currently validates platform-modules only.
 // TODO v0.2.11: Add foundry-catalogs validation (simpler checks: schema_path exists, config_path exists, format valid)
@@ -126,7 +128,8 @@ function discoverModules(): EvidenceMap {
     ignore: ["**/meta/**", "**/taxonomy/**", "**/node_modules/**"],
   });
   // Track unique schema paths for verification
-  const schemaPathsFound = new Set(schemaDirs);
+  // TODO: Use for cross-referencing schema evidence
+  const _schemaPathsFound = new Set(schemaDirs);
 
   // Scan config/* for module configs
   const configDirs = glob.sync("config/**/v*/", { ignore: ["**/taxonomy/**", "**/sync/**"] });
@@ -246,7 +249,8 @@ function checkOrphans(registry: ModuleRegistry, evidence: EvidenceMap) {
 function checkDeadEntries(registry: ModuleRegistry, evidence: EvidenceMap) {
   info("Check 2: Detecting dead registry entries...");
 
-  const deadCount = 0;
+  // TODO: Track dead entries when Check 2 is fully implemented
+  const _deadCount = 0;
 
   for (const module of registry.modules) {
     // For code-only modules (no schema/config), skip this check

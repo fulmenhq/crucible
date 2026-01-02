@@ -47,7 +47,7 @@ function findSchemaFiles(dir: string): string[] {
         results.push(fullPath);
       }
     }
-  } catch (err) {
+  } catch (_err) {
     // Skip directories we can't read
   }
 

@@ -980,7 +980,8 @@ function validateSignalCatalog(catalog: any, exitCodes: any): void {
   );
 
   if (signalsCategory) {
-    const signalsCodes = (signalsCategory as any).codes as JSONObject[];
+    // TODO: Use for additional signal codes validation
+    const _signalsCodes = (signalsCategory as any).codes as JSONObject[];
 
     // Verify signal exit codes match between catalogs
     for (const [signalName, expectedExitCode] of signalExitCodes.entries()) {

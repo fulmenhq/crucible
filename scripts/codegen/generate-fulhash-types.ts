@@ -476,7 +476,7 @@ async function generateLanguage(lang: string) {
       if (existsSync(postprocessPath)) {
         try {
           execSync(`${postprocessPath} ${outputPath}`, { stdio: "inherit" });
-        } catch (e) {}
+        } catch (_e) {}
       }
     }
   }
