@@ -4,6 +4,26 @@
 >
 > **For operational workflow**: See [`docs/ops/repository/release-checklist.md`](docs/ops/repository/release-checklist.md) for the detailed Crucible-specific release process including SSOT sync requirements.
 
+## Variables (Quick Reference)
+
+- `FULMENHQ_CRUCIBLE_RELEASE_TAG`: optional override tag (e.g., `v0.3.0`)
+- `FULMENHQ_CRUCIBLE_GPG_HOMEDIR`: dedicated signing keyring directory (recommended)
+- `FULMENHQ_CRUCIBLE_PGP_KEY_ID`: key id/email/fingerprint for signing
+- `FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN`: set to `1` to allow tagging from non-main branch
+
+Optional minisign sidecar attestation:
+
+- `FULMENHQ_CRUCIBLE_MINISIGN_KEY`: minisign secret key path
+- `FULMENHQ_CRUCIBLE_MINISIGN_PUB`: minisign public key path
+
+Legacy aliases (deprecated, will be removed):
+
+- `CRUCIBLE_RELEASE_TAG`, `CRUCIBLE_GPG_HOMEDIR`, `CRUCIBLE_PGP_KEY_ID`, `CRUCIBLE_ALLOW_NON_MAIN`
+
+> **Why `FULMENHQ_CRUCIBLE_`?** Multiple orgs in the 3 Leaps Galaxy have crucible repos (3leaps, enacthq, fulmenhq). The prefix disambiguates which crucible's release environment is being configured.
+
+Note: These are not secrets and typically aren't stored in encrypted env bundles.
+
 ## Metadata
 
 - Version: `<VERSION>`
@@ -29,16 +49,52 @@
 - [ ] Schema normalization helpers verified (`lang/go`, `lang/typescript`)
 - [ ] Pull script smoke test (optional) – `bun run scripts/crucible-pull.ts --validate`
 
-## Tagging & Publication
+## Tagging (Signed Tag Required)
 
-- [ ] `VERSION` committed with version bump
-- [ ] Signed annotated git tag created (`make release-tag` or `git tag -s -a v<VERSION> -m "Release v<VERSION>"`)
-- [ ] Optional: GitHub tag shows “Verified” (may be `unknown_key` until the org signing key + tagger email are configured; local `git tag -v` is authoritative)
-- [ ] Tag pushed to origin
-- [ ] Go module publishes (proxy fetch succeeds)
-- [ ] npm package published (or prepared for release)
-- [ ] Release notes file committed (`release-notes/<VERSION>.md`)
-- [ ] Release notes posted (GitHub release or docs update)
+### 1. Set up GPG environment
+
+```bash
+# Enable pinentry prompts
+export GPG_TTY="$(tty)"
+gpg-connect-agent updatestartuptty /bye
+
+# Point to dedicated signing keyring (recommended)
+export FULMENHQ_CRUCIBLE_GPG_HOMEDIR="/path/to/signing-keyring"
+export FULMENHQ_CRUCIBLE_PGP_KEY_ID="your-key-id"
+
+# Verify key is available
+GNUPGHOME="${FULMENHQ_CRUCIBLE_GPG_HOMEDIR}" gpg --list-secret-keys --keyid-format=long
+```
+
+### 2. Create the signed tag (with safety checks)
+
+```bash
+make release-tag
+```
+
+The script performs these safety checks before creating the tag:
+
+- Tag format validation (`vMAJOR.MINOR.PATCH`)
+- Clean working tree required
+- Must be on `main` branch (set `FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN=1` to override)
+- Tag must not already exist
+- GPG signing key availability verified
+- Automatic signature verification after creation
+
+### 3. Verify the signed tag (optional manual check)
+
+```bash
+make release-verify-tag
+# or:
+git tag -v v$(cat VERSION)
+```
+
+### 4. Push
+
+```bash
+git push origin main
+git push origin v$(cat VERSION)
+```
 
 ## Post-Release Validation
 
@@ -47,15 +103,85 @@
 - [ ] Downstream sync script succeeds against the tagged version
 - [ ] Monitoring/telemetry updated with release info
 
+### Verify tag signature (optional)
+
+**Local git** (most reliable):
+
+```bash
+git fetch --tags origin
+git tag -v v$(cat VERSION)
+```
+
+**GitHub API** (CI-friendly):
+
+```bash
+TAG_SHA=$(gh api repos/fulmenhq/crucible/git/ref/tags/v$(cat VERSION) --jq .object.sha)
+gh api repos/fulmenhq/crucible/git/tags/$TAG_SHA --jq .verification
+```
+
+**GitHub Web UI note**: A green "Verified" badge only appears if:
+
+1. The signing public key is uploaded to the GitHub account
+2. The tagger email matches a verified email on that account
+
+Otherwise GitHub may show "Unverified" even though `git tag -v` succeeds locally.
+
 ## Communication
 
 - [ ] Release announcement shared (internal + community channels)
 - [ ] Follow-up issues filed for deferred items
 
-## Rollback Plan
+## Rollback
 
-- [ ] Command documented to delete tag and revert `VERSION`
-- [ ] Communication plan ready if rollback triggered
+If issues are discovered after release:
+
+```bash
+# Delete remote tag
+git push origin --delete v<VERSION>
+
+# Delete local tag
+git tag -d v<VERSION>
+
+# If VERSION file needs revert
+git revert <commit-hash>
+```
+
+---
+
+## Release Tooling Reference
+
+### Make Targets
+
+| Target                           | Purpose                                       |
+| -------------------------------- | --------------------------------------------- |
+| `make release-tag`               | Create signed git tag with all safety checks  |
+| `make release-verify-tag`        | Verify an existing signed tag                 |
+| `make release-guard-tag-version` | Verify tag matches VERSION file (CI-friendly) |
+
+### Scripts
+
+All scripts are in `scripts/` and can be run directly if needed.
+
+**`scripts/release-tag.sh`** - The primary release script. Safety checks:
+
+1. Validates tag format (`vMAJOR.MINOR.PATCH`)
+2. Ensures working tree is clean (no uncommitted changes)
+3. Ensures on `main` branch (override with `FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN=1`)
+4. Ensures tag doesn't already exist
+5. Verifies GPG signing key is available
+6. Creates signed annotated tag
+7. Automatically verifies signature after creation
+
+**`scripts/release-guard-tag-version.sh`** - Version consistency check:
+
+- Compares current git tag (or `FULMENHQ_CRUCIBLE_RELEASE_TAG` env var) against `VERSION` file
+- Use in CI with `FULMENHQ_CRUCIBLE_REQUIRE_TAG=1` to enforce tag presence
+- Exits 0 if match, exits 1 if mismatch
+
+**`scripts/release-verify-tag.sh`** - Signature verification:
+
+- Verifies GPG signature on the tag for `VERSION` (or `FULMENHQ_CRUCIBLE_RELEASE_TAG`)
+- Respects `FULMENHQ_CRUCIBLE_GPG_HOMEDIR` for dedicated keyrings
 
 ---
 

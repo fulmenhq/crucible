@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Release guard script for fulmenhq/crucible
+# Ensures tag matches VERSION file (CI-friendly)
+#
+# Environment variables (FULMENHQ_CRUCIBLE_* preferred, CRUCIBLE_* legacy):
+#   FULMENHQ_CRUCIBLE_RELEASE_TAG - Override tag to check
+#   FULMENHQ_CRUCIBLE_REQUIRE_TAG - Set to 1 to enforce tag presence in CI
+#
+# Legacy aliases (will be removed in future release):
+#   CRUCIBLE_RELEASE_TAG, CRUCIBLE_REQUIRE_TAG
+
 repo_root() {
 	git rev-parse --show-toplevel
 }
@@ -27,16 +37,13 @@ normalize_tag() {
 }
 
 detect_tag() {
+	# FULMENHQ_CRUCIBLE_RELEASE_TAG > CRUCIBLE_RELEASE_TAG (legacy) > git describe
+	if [ -n "${FULMENHQ_CRUCIBLE_RELEASE_TAG:-}" ]; then
+		normalize_tag "${FULMENHQ_CRUCIBLE_RELEASE_TAG}"
+		return 0
+	fi
 	if [ -n "${CRUCIBLE_RELEASE_TAG:-}" ]; then
 		normalize_tag "${CRUCIBLE_RELEASE_TAG}"
-		return 0
-	fi
-	if [ -n "${FULMEN_CRUCIBLE_RELEASE_TAG:-}" ]; then
-		normalize_tag "${FULMEN_CRUCIBLE_RELEASE_TAG}"
-		return 0
-	fi
-	if [ -n "${RELEASE_TAG:-}" ]; then
-		normalize_tag "${RELEASE_TAG}"
 		return 0
 	fi
 	git describe --tags --exact-match 2>/dev/null || true
@@ -55,11 +62,12 @@ main() {
 	tag="$(detect_tag)"
 
 	if [ -z "$tag" ]; then
-		if [ "${CRUCIBLE_REQUIRE_TAG:-${FULMEN_CRUCIBLE_REQUIRE_TAG:-}}" = "1" ]; then
-			echo "error: no exact tag found for HEAD and no RELEASE_TAG/CRUCIBLE_RELEASE_TAG provided" >&2
+		# Require tag: FULMENHQ_CRUCIBLE_REQUIRE_TAG > CRUCIBLE_REQUIRE_TAG (legacy)
+		if [ "${FULMENHQ_CRUCIBLE_REQUIRE_TAG:-${CRUCIBLE_REQUIRE_TAG:-}}" = "1" ]; then
+			echo "error: no exact tag found for HEAD and no FULMENHQ_CRUCIBLE_RELEASE_TAG provided" >&2
 			exit 1
 		fi
-		echo "→ release guard: no tag detected (set CRUCIBLE_REQUIRE_TAG=1 to enforce in CI)"
+		echo "→ release guard: no tag detected (set FULMENHQ_CRUCIBLE_REQUIRE_TAG=1 to enforce in CI)"
 		exit 0
 	fi
 

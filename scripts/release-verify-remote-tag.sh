@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Verify tag signature via GitHub API for fulmenhq/crucible
+#
+# Environment variables (FULMENHQ_CRUCIBLE_* preferred, CRUCIBLE_* legacy):
+#   FULMENHQ_CRUCIBLE_RELEASE_TAG  - Override tag (default: v<VERSION>)
+#   FULMENHQ_CRUCIBLE_GITHUB_REPO  - Override repo (default: auto-detect from origin)
+#
+# Legacy aliases (will be removed in future release):
+#   CRUCIBLE_RELEASE_TAG, CRUCIBLE_GITHUB_REPO
+
 repo_root() {
 	git rev-parse --show-toplevel
 }
@@ -27,8 +36,9 @@ normalize_tag() {
 }
 
 detect_repo() {
-	if [ -n "${CRUCIBLE_GITHUB_REPO:-${FULMEN_CRUCIBLE_GITHUB_REPO:-}}" ]; then
-		printf '%s' "${CRUCIBLE_GITHUB_REPO:-${FULMEN_CRUCIBLE_GITHUB_REPO:-}}"
+	# FULMENHQ_CRUCIBLE_GITHUB_REPO > CRUCIBLE_GITHUB_REPO (legacy) > auto-detect
+	if [ -n "${FULMENHQ_CRUCIBLE_GITHUB_REPO:-${CRUCIBLE_GITHUB_REPO:-}}" ]; then
+		printf '%s' "${FULMENHQ_CRUCIBLE_GITHUB_REPO:-${CRUCIBLE_GITHUB_REPO:-}}"
 		return 0
 	fi
 
@@ -68,12 +78,13 @@ main() {
 	local version
 	version="$(read_version)"
 
+	# Tag: FULMENHQ_CRUCIBLE_RELEASE_TAG > CRUCIBLE_RELEASE_TAG (legacy) > v<VERSION>
 	local tag
-	tag="$(normalize_tag "${CRUCIBLE_RELEASE_TAG:-${FULMEN_CRUCIBLE_RELEASE_TAG:-${RELEASE_TAG:-v${version}}}}")"
+	tag="$(normalize_tag "${FULMENHQ_CRUCIBLE_RELEASE_TAG:-${CRUCIBLE_RELEASE_TAG:-v${version}}}")"
 
 	local repo
 	if ! repo="$(detect_repo)"; then
-		echo "error: could not detect GitHub repo (set CRUCIBLE_GITHUB_REPO=owner/repo)" >&2
+		echo "error: could not detect GitHub repo (set FULMENHQ_CRUCIBLE_GITHUB_REPO=owner/repo)" >&2
 		exit 1
 	fi
 

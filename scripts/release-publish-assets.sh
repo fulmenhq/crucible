@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Publish GitHub Release assets (minisign attestations) for fulmenhq/crucible
+#
+# Environment variables (FULMENHQ_CRUCIBLE_* preferred, CRUCIBLE_* legacy):
+#   FULMENHQ_CRUCIBLE_RELEASE_TAG - Override tag (default: v<VERSION>)
+#
+# Legacy aliases (will be removed in future release):
+#   CRUCIBLE_RELEASE_TAG
+
 repo_root() {
 	git rev-parse --show-toplevel
 }
@@ -38,8 +46,10 @@ main() {
 
 	local version
 	version="$(read_version)"
+
+	# Tag: FULMENHQ_CRUCIBLE_RELEASE_TAG > CRUCIBLE_RELEASE_TAG (legacy) > v<VERSION>
 	local tag
-	tag="$(normalize_tag "${CRUCIBLE_RELEASE_TAG:-${FULMEN_CRUCIBLE_RELEASE_TAG:-${RELEASE_TAG:-v${version}}}}")"
+	tag="$(normalize_tag "${FULMENHQ_CRUCIBLE_RELEASE_TAG:-${CRUCIBLE_RELEASE_TAG:-v${version}}}")"
 
 	local out_dir="dist/release"
 	local payload="${out_dir}/${tag}.tag.txt"
@@ -49,7 +59,7 @@ main() {
 		echo "error: minisign attestation not found; expected:" >&2
 		echo "  - ${payload}" >&2
 		echo "  - ${sig}" >&2
-		echo "hint: run make release-tag with CRUCIBLE_MINISIGN_KEY + CRUCIBLE_MINISIGN_PUB set" >&2
+		echo "hint: run make release-tag with FULMENHQ_CRUCIBLE_MINISIGN_KEY + FULMENHQ_CRUCIBLE_MINISIGN_PUB set" >&2
 		exit 1
 	fi
 

@@ -1,6 +1,20 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Release tag creation script for fulmenhq/crucible
+#
+# Environment variables (FULMENHQ_CRUCIBLE_* preferred, CRUCIBLE_* legacy):
+#   FULMENHQ_CRUCIBLE_RELEASE_TAG   - Override tag (default: v<VERSION>)
+#   FULMENHQ_CRUCIBLE_GPG_HOMEDIR   - Dedicated signing keyring directory
+#   FULMENHQ_CRUCIBLE_PGP_KEY_ID    - GPG key id/email/fingerprint for signing
+#   FULMENHQ_CRUCIBLE_MINISIGN_KEY  - Minisign secret key path (optional sidecar)
+#   FULMENHQ_CRUCIBLE_MINISIGN_PUB  - Minisign public key path (optional sidecar)
+#   FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN - Set to 1 to allow tagging from non-main branch
+#
+# Legacy aliases (will be removed in future release):
+#   CRUCIBLE_RELEASE_TAG, CRUCIBLE_GPG_HOMEDIR, CRUCIBLE_PGP_KEY_ID,
+#   CRUCIBLE_MINISIGN_KEY, CRUCIBLE_MINISIGN_PUB, CRUCIBLE_ALLOW_NON_MAIN
+
 repo_root() {
 	git rev-parse --show-toplevel
 }
@@ -30,7 +44,7 @@ setup_gpg_tty() {
 	if [ ! -t 0 ] || [ ! -t 1 ]; then
 		echo "error: no TTY available for interactive gpg signing" >&2
 		echo "hint: run make release-tag in an interactive terminal" >&2
-		echo "hint: export GPG_TTY=\"$(tty)\" && gpg-connect-agent updatestartuptty /bye" >&2
+		echo "hint: export GPG_TTY=\"\$(tty)\" && gpg-connect-agent updatestartuptty /bye" >&2
 		exit 1
 	fi
 
@@ -52,8 +66,9 @@ main() {
 	local version
 	version="$(read_version)"
 
+	# Tag: FULMENHQ_CRUCIBLE_RELEASE_TAG > CRUCIBLE_RELEASE_TAG (legacy) > v<VERSION>
 	local tag
-	tag="$(normalize_tag "${CRUCIBLE_RELEASE_TAG:-${FULMEN_CRUCIBLE_RELEASE_TAG:-${RELEASE_TAG:-v${version}}}}")"
+	tag="$(normalize_tag "${FULMENHQ_CRUCIBLE_RELEASE_TAG:-${CRUCIBLE_RELEASE_TAG:-v${version}}}")"
 
 	if [ "$tag" != "v${version}" ]; then
 		echo "error: release tag/version mismatch" >&2
@@ -75,8 +90,9 @@ main() {
 
 	local branch
 	branch="$(git branch --show-current 2>/dev/null || true)"
-	if [ "$branch" != "main" ] && [ "${CRUCIBLE_ALLOW_NON_MAIN:-${FULMEN_CRUCIBLE_ALLOW_NON_MAIN:-}}" != "1" ]; then
-		echo "error: refusing to tag from branch '$branch' (set CRUCIBLE_ALLOW_NON_MAIN=1 to override)" >&2
+	# Allow non-main: FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN > CRUCIBLE_ALLOW_NON_MAIN (legacy)
+	if [ "$branch" != "main" ] && [ "${FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN:-${CRUCIBLE_ALLOW_NON_MAIN:-}}" != "1" ]; then
+		echo "error: refusing to tag from branch '$branch' (set FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN=1 to override)" >&2
 		exit 1
 	fi
 
@@ -85,22 +101,21 @@ main() {
 		exit 1
 	fi
 
-	local gpg_homedir="${CRUCIBLE_GPG_HOMEDIR:-${FULMEN_CRUCIBLE_GPG_HOMEDIR:-${CRUCIBLE_GPG_HOME:-${FULMEN_CRUCIBLE_GPG_HOME:-}}}}"
-	if [ -n "${CRUCIBLE_GPG_HOME:-${FULMEN_CRUCIBLE_GPG_HOME:-}}" ] && [ -z "${CRUCIBLE_GPG_HOMEDIR:-${FULMEN_CRUCIBLE_GPG_HOMEDIR:-}}" ]; then
-		echo "warning: *_GPG_HOME is deprecated; use *_GPG_HOMEDIR" >&2
-	fi
+	# GPG homedir: FULMENHQ_CRUCIBLE_GPG_HOMEDIR > CRUCIBLE_GPG_HOMEDIR (legacy)
+	local gpg_homedir="${FULMENHQ_CRUCIBLE_GPG_HOMEDIR:-${CRUCIBLE_GPG_HOMEDIR:-}}"
 
 	if [ -n "${gpg_homedir}" ]; then
 		if [ ! -d "${gpg_homedir}" ]; then
-			echo "error: CRUCIBLE_GPG_HOMEDIR=${gpg_homedir} is not a directory" >&2
+			echo "error: FULMENHQ_CRUCIBLE_GPG_HOMEDIR=${gpg_homedir} is not a directory" >&2
 			exit 1
 		fi
 		export GNUPGHOME="${gpg_homedir}"
 	fi
 
-	local pgp_key_id="${CRUCIBLE_PGP_KEY_ID:-${FULMEN_CRUCIBLE_PGP_KEY_ID:-}}"
+	# PGP key ID: FULMENHQ_CRUCIBLE_PGP_KEY_ID > CRUCIBLE_PGP_KEY_ID (legacy)
+	local pgp_key_id="${FULMENHQ_CRUCIBLE_PGP_KEY_ID:-${CRUCIBLE_PGP_KEY_ID:-}}"
 	if [ -n "${pgp_key_id}" ] && [ -z "${gpg_homedir}" ]; then
-		echo "error: CRUCIBLE_PGP_KEY_ID is set but CRUCIBLE_GPG_HOMEDIR is not; set a dedicated signing homedir" >&2
+		echo "error: FULMENHQ_CRUCIBLE_PGP_KEY_ID is set but FULMENHQ_CRUCIBLE_GPG_HOMEDIR is not; set a dedicated signing homedir" >&2
 		exit 1
 	fi
 
@@ -119,8 +134,9 @@ main() {
 
 	echo "✅ Created and verified signed tag: $tag"
 
-	local minisign_key="${CRUCIBLE_MINISIGN_KEY:-${FULMEN_CRUCIBLE_MINISIGN_KEY:-}}"
-	local minisign_pub="${CRUCIBLE_MINISIGN_PUB:-${FULMEN_CRUCIBLE_MINISIGN_PUB:-}}"
+	# Minisign: FULMENHQ_CRUCIBLE_MINISIGN_* > CRUCIBLE_MINISIGN_* (legacy)
+	local minisign_key="${FULMENHQ_CRUCIBLE_MINISIGN_KEY:-${CRUCIBLE_MINISIGN_KEY:-}}"
+	local minisign_pub="${FULMENHQ_CRUCIBLE_MINISIGN_PUB:-${CRUCIBLE_MINISIGN_PUB:-}}"
 
 	if [ -n "${minisign_key}" ] || [ -n "${minisign_pub}" ]; then
 		if ! command -v minisign >/dev/null 2>&1; then
@@ -128,7 +144,7 @@ main() {
 			exit 1
 		fi
 		if [ -z "${minisign_key}" ] || [ -z "${minisign_pub}" ]; then
-			echo "error: minisign requires both CRUCIBLE_MINISIGN_KEY and CRUCIBLE_MINISIGN_PUB" >&2
+			echo "error: minisign requires both FULMENHQ_CRUCIBLE_MINISIGN_KEY and FULMENHQ_CRUCIBLE_MINISIGN_PUB" >&2
 			exit 1
 		fi
 

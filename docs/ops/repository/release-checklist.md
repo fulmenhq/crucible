@@ -185,17 +185,15 @@ gpg-connect-agent updatestartuptty /bye
 Optional: use a dedicated signing keyring (recommended for org-wide release keys):
 
 ```bash
-# Both env prefixes are accepted; prefer CRUCIBLE_ for Crucible-local workflows.
-export CRUCIBLE_GPG_HOMEDIR=/path/to/gnupg-fulmenhq
-export CRUCIBLE_PGP_KEY_ID="<key-id-or-email>" # optional; uses default git signing key if unset
+export FULMENHQ_CRUCIBLE_GPG_HOMEDIR=/path/to/gnupg-fulmenhq
+export FULMENHQ_CRUCIBLE_PGP_KEY_ID="<key-id-or-email>" # optional; uses default git signing key if unset
 ```
 
 Optional: enable minisign sidecar attestation (recommended when available):
 
 ```bash
-# Both env prefixes are accepted; prefer CRUCIBLE_ for Crucible-local workflows.
-export CRUCIBLE_MINISIGN_KEY=/path/to/fulmenhq.minisign.key
-export CRUCIBLE_MINISIGN_PUB=/path/to/fulmenhq.minisign.pub
+export FULMENHQ_CRUCIBLE_MINISIGN_KEY=/path/to/fulmenhq.minisign.key
+export FULMENHQ_CRUCIBLE_MINISIGN_PUB=/path/to/fulmenhq.minisign.pub
 ```
 
 ```bash

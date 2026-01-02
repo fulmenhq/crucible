@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Release tag verification script for fulmenhq/crucible
+#
+# Environment variables (FULMENHQ_CRUCIBLE_* preferred, CRUCIBLE_* legacy):
+#   FULMENHQ_CRUCIBLE_RELEASE_TAG  - Override tag (default: v<VERSION>)
+#   FULMENHQ_CRUCIBLE_GPG_HOMEDIR  - Dedicated signing keyring directory
+#   FULMENHQ_CRUCIBLE_MINISIGN_PUB - Minisign public key path (verifies sidecar)
+#
+# Legacy aliases (will be removed in future release):
+#   CRUCIBLE_RELEASE_TAG, CRUCIBLE_GPG_HOMEDIR, CRUCIBLE_MINISIGN_PUB
+
 repo_root() {
 	git rev-parse --show-toplevel
 }
@@ -34,17 +44,16 @@ main() {
 	local version
 	version="$(read_version)"
 
+	# Tag: FULMENHQ_CRUCIBLE_RELEASE_TAG > CRUCIBLE_RELEASE_TAG (legacy) > v<VERSION>
 	local tag
-	tag="$(normalize_tag "${CRUCIBLE_RELEASE_TAG:-${FULMEN_CRUCIBLE_RELEASE_TAG:-${RELEASE_TAG:-v${version}}}}")"
+	tag="$(normalize_tag "${FULMENHQ_CRUCIBLE_RELEASE_TAG:-${CRUCIBLE_RELEASE_TAG:-v${version}}}")"
 
-	local gpg_homedir="${CRUCIBLE_GPG_HOMEDIR:-${FULMEN_CRUCIBLE_GPG_HOMEDIR:-${CRUCIBLE_GPG_HOME:-${FULMEN_CRUCIBLE_GPG_HOME:-}}}}"
-	if [ -n "${CRUCIBLE_GPG_HOME:-${FULMEN_CRUCIBLE_GPG_HOME:-}}" ] && [ -z "${CRUCIBLE_GPG_HOMEDIR:-${FULMEN_CRUCIBLE_GPG_HOMEDIR:-}}" ]; then
-		echo "warning: *_GPG_HOME is deprecated; use *_GPG_HOMEDIR" >&2
-	fi
+	# GPG homedir: FULMENHQ_CRUCIBLE_GPG_HOMEDIR > CRUCIBLE_GPG_HOMEDIR (legacy)
+	local gpg_homedir="${FULMENHQ_CRUCIBLE_GPG_HOMEDIR:-${CRUCIBLE_GPG_HOMEDIR:-}}"
 
 	if [ -n "${gpg_homedir}" ]; then
 		if [ ! -d "${gpg_homedir}" ]; then
-			echo "error: CRUCIBLE_GPG_HOMEDIR=${gpg_homedir} is not a directory" >&2
+			echo "error: FULMENHQ_CRUCIBLE_GPG_HOMEDIR=${gpg_homedir} is not a directory" >&2
 			exit 1
 		fi
 		export GNUPGHOME="${gpg_homedir}"
@@ -54,10 +63,11 @@ main() {
 	git verify-tag "$tag" >/dev/null
 	echo "✅ Tag verified: $tag"
 
-	local minisign_pub="${CRUCIBLE_MINISIGN_PUB:-${FULMEN_CRUCIBLE_MINISIGN_PUB:-}}"
+	# Minisign pub: FULMENHQ_CRUCIBLE_MINISIGN_PUB > CRUCIBLE_MINISIGN_PUB (legacy)
+	local minisign_pub="${FULMENHQ_CRUCIBLE_MINISIGN_PUB:-${CRUCIBLE_MINISIGN_PUB:-}}"
 	if [ -n "${minisign_pub}" ]; then
 		if ! command -v minisign >/dev/null 2>&1; then
-			echo "error: CRUCIBLE_MINISIGN_PUB is set but minisign is not found in PATH" >&2
+			echo "error: FULMENHQ_CRUCIBLE_MINISIGN_PUB is set but minisign is not found in PATH" >&2
 			exit 1
 		fi
 
