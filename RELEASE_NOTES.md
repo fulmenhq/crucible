@@ -5,6 +5,30 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.3.1 - Patterns Catalog Fixes
+
+Patch release fixing invalid examples in the Foundry patterns catalog.
+
+### Highlights
+
+- **JWT Example**: Replaced placeholder ellipsis with valid JWT compact serialization
+- **UUID-v4 Example**: Fixed example from v1 format to valid v4 format (version nibble = 4)
+- **ADR-0012**: Schema reference resolution ADR marked as implemented
+- **CI Cleanup**: Removed duplicate YAML document start markers
+
+### Fixed
+
+- `jwt` pattern example: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` → valid 3-segment JWT
+- `uuid-v4` pattern example: `123e4567-e89b-12d3-...` → `123e4567-e89b-42d3-...`
+
+### Impact
+
+Helper libraries (gofulmen, pyfulmen, tsfulmen, rsfulmen) consuming patterns.yaml can now validate all examples against their regex patterns without skipping entries.
+
+See [release-notes/v0.3.1.md](release-notes/v0.3.1.md) for details.
+
+---
+
 ## v0.3.0 - Agentic Interface Overhaul
 
 Major overhaul of Crucible's agentic interface with schema-validated role prompts, formal attribution baseline, and upstream vendoring patterns.
@@ -44,24 +68,3 @@ Schema fix allowing leading digits in vendor names.
 Vendor names like `3leaps`, `37signals`, and `8x8` now pass validation.
 
 See [release-notes/v0.2.27.md](release-notes/v0.2.27.md) for details.
-
----
-
-## v0.2.26 - Repository Taxonomy Expansion
-
-New repository categories and signed release workflow.
-
-### Highlights
-
-- **New Categories**: `spec-host` (machine-first specs) and `missive` (landing pages)
-- **Spec Publishing Standard**: Requirements for spec-host repositories
-- **Signed Releases**: GPG-signed annotated tags with optional minisign attestation
-- **Lifecycle Phase**: Added `LIFECYCLE_PHASE` file declaring alpha status
-
-### Changed
-
-- Codex terminology clarified (Spec Browser vs Registry)
-- Ecosystem guide updated for version-scheme-agnostic language
-- Goneat hooks regenerated with v0.3.22 improvements
-
-See [release-notes/v0.2.26.md](release-notes/v0.2.26.md) for details.

@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-01-03
+
+### Fixed
+
+- **Patterns Catalog Examples**: Corrected invalid examples in `config/library/foundry/patterns.yaml`
+  - `jwt`: Replaced placeholder ellipsis (`...`) with valid JWT compact serialization
+  - `uuid-v4`: Fixed example from v1 format (`12d3`) to valid v4 format (`42d3` with version nibble = 4)
+  - Issue discovered during rsfulmen patterns module audit
+
+### Changed
+
+- **ADR-0012 Status**: Updated schema reference resolution ADR status from "proposed" to "implemented"
+- **CI Workflow YAML**: Removed duplicate document start markers from workflow files (yamllint compliance)
+
 ## [0.3.0] - 2026-01-01
 
 ### Added
