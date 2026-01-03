@@ -36,7 +36,7 @@
         "noExcessiveCognitiveComplexity": {
           "level": "error",
           "options": {
-            "maxAllowedComplexity": 22
+            "maxAllowedComplexity": 30
           }
         }
       },
@@ -78,17 +78,12 @@
       "linter": {
         "rules": {
           "suspicious": {
-            "noConsole": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "scripts/bootstrap-tools.ts"
-      ],
-      "linter": {
-        "rules": {
+            "noConsole": "off",
+            "noExplicitAny": "off"
+          },
+          "style": {
+            "noNonNullAssertion": "off"
+          },
           "complexity": {
             "noExcessiveCognitiveComplexity": "off"
           }

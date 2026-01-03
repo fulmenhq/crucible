@@ -480,14 +480,15 @@ function parseRustConstants(content: string): Map<number, string> {
   const regex = /^\s*([A-Za-z0-9]+)\s*=\s*(\d+),/gm;
   const map = new Map<number, string>();
 
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(content)) !== null) {
+  let match = regex.exec(content);
+  while (match !== null) {
     const pascalName = match[1]!;
     const code = Number(match[2]);
     const constName = pascalToConstName(pascalName); // Reusing pascalToConstName from generated utils
     if (!map.has(code)) {
       map.set(code, constName);
     }
+    match = regex.exec(content);
   }
 
   return map;
@@ -566,14 +567,15 @@ function parseGoConstants(content: string): Map<number, string> {
   const regex = /^\s*Exit([A-Za-z0-9]+)\s*=\s*(\d+)/gm;
   const map = new Map<number, string>();
 
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(content)) !== null) {
+  let match = regex.exec(content);
+  while (match !== null) {
     const pascalName = match[1]!;
     const code = Number(match[2]);
     const constName = pascalToConstName(pascalName);
     if (!map.has(code)) {
       map.set(code, constName);
     }
+    match = regex.exec(content);
   }
 
   return map;
@@ -605,8 +607,8 @@ function parseGoMetadata(content: string): Map<
     }
   >();
 
-  let match: RegExpExecArray | null;
-  while ((match = regex.exec(content)) !== null) {
+  let match = regex.exec(content);
+  while (match !== null) {
     const code = Number(match[1]);
     const body = match[2]!;
 
@@ -627,6 +629,7 @@ function parseGoMetadata(content: string): Map<
       bsd_equivalent: bsdEquivalent,
       python_note: pythonNote,
     });
+    match = regex.exec(content);
   }
 
   return map;
