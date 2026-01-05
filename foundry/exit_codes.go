@@ -87,6 +87,13 @@ const (
 	ExitTestNoTestsCollected    = 95
 	ExitCoverageThresholdNotMet = 96
 
+	// Shell & Process Control (124-127)
+	// Exit codes from shell conventions and process control utilities (timeout, exec)
+	ExitTimeout         = 124
+	ExitTimeoutInternal = 125
+	ExitCannotExecute   = 126
+	ExitNotFound        = 127
+
 	// Signal-Induced Exits (128-165)
 	// Process terminated by Unix signals (128+N pattern per POSIX). Signal codes follow Linux numbering; macOS/FreeBSD differ for SIGUSR1/SIGUSR2. For full signal semantics, see config/library/foundry/signals.yaml. For signal handling patterns, see docs/standards/library/modules/signal-handling.md.
 	ExitSignalHup  = 129
@@ -437,6 +444,36 @@ var exitCodeMetadata = map[int]ExitCodeInfo{
 		Description: "Test coverage below required threshold",
 		Context:     "Code coverage validation, quality gate failure",
 		Category:    "testing",
+	},
+	124: {
+		Code:        124,
+		Name:        "EXIT_TIMEOUT",
+		Description: "Command timed out before completion",
+		Context:     "GNU timeout or similar utility terminated command after deadline",
+		Category:    "shell",
+	},
+	125: {
+		Code:        125,
+		Name:        "EXIT_TIMEOUT_INTERNAL",
+		Description: "Timeout utility itself failed",
+		Context:     "Error in timeout tool before or during command execution (not command failure)",
+		Category:    "shell",
+	},
+	126: {
+		Code:          126,
+		Name:          "EXIT_CANNOT_EXECUTE",
+		Description:   "Command found but could not be executed",
+		Context:       "Permission denied, not executable, exec format error",
+		Category:      "shell",
+		BSDEquivalent: "EX_NOPERM (partial)",
+	},
+	127: {
+		Code:          127,
+		Name:          "EXIT_NOT_FOUND",
+		Description:   "Command not found",
+		Context:       "Executable not found in PATH or specified path does not exist",
+		Category:      "shell",
+		BSDEquivalent: "EX_UNAVAILABLE (partial)",
 	},
 	129: {
 		Code:          129,

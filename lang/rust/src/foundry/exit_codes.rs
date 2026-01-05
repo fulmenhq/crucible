@@ -220,6 +220,25 @@ pub enum ExitCode {
     /// Context: Code coverage validation, quality gate failure
     CoverageThresholdNotMet = 96,
 
+    // Shell & Process Control (124-127)
+    // Exit codes from shell conventions and process control utilities (timeout, exec)
+    /// Command timed out before completion
+    ///
+    /// Context: GNU timeout or similar utility terminated command after deadline
+    Timeout = 124,
+    /// Timeout utility itself failed
+    ///
+    /// Context: Error in timeout tool before or during command execution (not command failure)
+    TimeoutInternal = 125,
+    /// Command found but could not be executed
+    ///
+    /// Context: Permission denied, not executable, exec format error
+    CannotExecute = 126,
+    /// Command not found
+    ///
+    /// Context: Executable not found in PATH or specified path does not exist
+    NotFound = 127,
+
     // Signal-Induced Exits (128-165)
     // Process terminated by Unix signals (128+N pattern per POSIX). Signal codes follow Linux numbering; macOS/FreeBSD differ for SIGUSR1/SIGUSR2. For full signal semantics, see config/library/foundry/signals.yaml. For signal handling patterns, see docs/standards/library/modules/signal-handling.md.
     /// Hangup signal (SIGHUP) - config reload via restart
@@ -316,6 +335,10 @@ impl ExitCode {
             Self::TestUsageError => "testing",
             Self::TestNoTestsCollected => "testing",
             Self::CoverageThresholdNotMet => "testing",
+            Self::Timeout => "shell",
+            Self::TimeoutInternal => "shell",
+            Self::CannotExecute => "shell",
+            Self::NotFound => "shell",
             Self::SignalHup => "signals",
             Self::SignalInt => "signals",
             Self::SignalQuit => "signals",
@@ -393,6 +416,10 @@ impl std::fmt::Display for ExitCode {
             Self::TestUsageError => write!(f, "Test command usage error"),
             Self::TestNoTestsCollected => write!(f, "No tests found or all tests skipped"),
             Self::CoverageThresholdNotMet => write!(f, "Test coverage below required threshold"),
+            Self::Timeout => write!(f, "Command timed out before completion"),
+            Self::TimeoutInternal => write!(f, "Timeout utility itself failed"),
+            Self::CannotExecute => write!(f, "Command found but could not be executed"),
+            Self::NotFound => write!(f, "Command not found"),
             Self::SignalHup => write!(f, "Hangup signal (SIGHUP) - config reload via restart"),
             Self::SignalInt => write!(
                 f,
