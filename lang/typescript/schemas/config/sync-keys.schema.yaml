@@ -34,4 +34,8 @@ $defs:
         type: array
         items:
           type: string
+      metadata:
+        type: object
+        description: Optional metadata for sync tooling (sourceRepo, notes, etc.)
+        additionalProperties: true
     additionalProperties: false
