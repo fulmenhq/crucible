@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-01-05
+
+### Added
+
+- **SIGKILL Signal Entry**: Added SIGKILL as first-class signal in `config/library/foundry/signals.yaml`
+  - Full signal metadata: id `kill`, unix_number 9, default_behavior `immediate_exit`, exit_code 137
+  - Platform support entry (native on Unix, mapped to TerminateProcess on Windows)
+  - Exit code mapping in signals.yaml `exit_codes` section
+  - Usage notes documenting last-resort semantics and Windows equivalents
+- **Shell Exit Codes (124-127)**: New `shell` category in `config/library/foundry/exit-codes.yaml`
+  - `EXIT_TIMEOUT` (124): Command timed out (GNU timeout)
+  - `EXIT_TIMEOUT_INTERNAL` (125): Timeout utility itself failed
+  - `EXIT_CANNOT_EXECUTE` (126): Command found but not executable
+  - `EXIT_NOT_FOUND` (127): Command not found in PATH
+  - Updated `simplified_modes` mappings to include new codes
+
+### Fixed
+
+- **Sync Keys Schema Drift**: Added optional `metadata` property to `schemas/config/sync-keys.schema.yaml`
+  - Schema had `additionalProperties: false` but data contained `metadata` objects
+  - Documented reserved keys: `sourceRepo`, `sourcePathBase`, `notes`
+  - Preserves extensibility with `additionalProperties: true` on metadata object
+  - Unblocks offline schema validation in rsfulmen and other consumers
+
 ## [0.3.1] - 2026-01-03
 
 ### Fixed

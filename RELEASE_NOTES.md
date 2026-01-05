@@ -5,6 +5,34 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.3.2 - Signal Handling & Schema Fixes
+
+Adds SIGKILL as first-class signal, GNU timeout exit codes (124-127), and fixes sync-keys schema drift.
+
+### Highlights
+
+- **SIGKILL Signal**: Full metadata entry for process supervision tools (sysprims, rsfulmen)
+- **Shell Exit Codes**: GNU timeout/shell conventions (124-127) for process control
+- **Schema Fix**: Sync-keys schema now allows metadata objects
+
+### Added
+
+- SIGKILL in `signals.yaml`: id `kill`, unix_number 9, exit_code 137, platform support
+- Shell category in `exit-codes.yaml`: EXIT_TIMEOUT (124), EXIT_TIMEOUT_INTERNAL (125), EXIT_CANNOT_EXECUTE (126), EXIT_NOT_FOUND (127)
+
+### Fixed
+
+- `sync-keys.schema.yaml`: Added optional `metadata` property with reserved keys (`sourceRepo`, `sourcePathBase`, `notes`)
+
+### Impact
+
+- rsfulmen can now consume signals and exit codes catalogs for sysprims foundation stage
+- Offline schema validation works for sync-keys.yaml consumers
+
+See [release-notes/v0.3.2.md](release-notes/v0.3.2.md) for details.
+
+---
+
 ## v0.3.1 - Patterns Catalog Fixes
 
 Patch release fixing invalid examples in the Foundry patterns catalog.
@@ -50,21 +78,3 @@ Major overhaul of Crucible's agentic interface with schema-validated role prompt
 - CI workflow YAML cleanup
 
 See [release-notes/v0.3.0.md](release-notes/v0.3.0.md) for details.
-
----
-
-## v0.2.27 - Vendor Pattern Fix
-
-Schema fix allowing leading digits in vendor names.
-
-### Highlights
-
-- **Vendor Pattern**: Updated `app-identity.schema.json` pattern from `^[a-z][a-z0-9]{0,62}[a-z0-9]$` to `^[a-z0-9]{2,64}$`
-- **Cross-Language Safety**: Documented safety analysis for Go, Python, TypeScript, Rust
-- **Style Fix**: Added YAML document start markers to workflow files
-
-### Impact
-
-Vendor names like `3leaps`, `37signals`, and `8x8` now pass validation.
-
-See [release-notes/v0.2.27.md](release-notes/v0.2.27.md) for details.
