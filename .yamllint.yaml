@@ -1,0 +1,15 @@
+# yamllint configuration for Crucible
+# Aligns with goneat's YAML formatting behavior
+extends: default
+rules:
+  # goneat format doesn't add document-start markers to single-document files
+  # This is valid YAML and GitHub Actions doesn't require it
+  document-start: disable
+  # Allow longer lines for readability (matches goneat defaults)
+  line-length:
+    max: 120
+    level: warning
+  # Truthy values configuration (allow common patterns)
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no', 'on', 'off']
+    check-keys: false
