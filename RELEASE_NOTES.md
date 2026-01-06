@@ -5,6 +5,38 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.4.0 - Module Registry Weight Classification
+
+Introduces weight classification and feature gate support for helper library modules, enabling consistent feature gating across all language implementations.
+
+### Highlights
+
+- **Weight Classification**: Binary `light`/`heavy` classification for dependency footprint
+- **Feature Gate Defaults**: `default_inclusion` field for opt-in vs opt-out modules
+- **Similarity Promotion**: Moved from foundry-catalogs to standalone platform module
+- **Product Marketing Role**: New `prodmktg` agentic role for messaging and branding
+
+### Added
+
+- Module registry v1.1.0 schemas with `weight`, `default_inclusion`, `notes` fields
+- Foundry catalog registry v1.1.0 with `feature_group` for library feature mapping
+- `docs/standards/fulmen/module-registry.md` documenting weight classification semantics
+- `prodmktg` role with new `marketing` category in role-prompt schema
+
+### Fixed
+
+- Schema `$id` host corrected from `fulmenhq.dev` to `schemas.fulmenhq.dev`
+
+### Impact
+
+- Helper libraries (rsfulmen, gofulmen, pyfulmen, tsfulmen) can implement feature gates using registry metadata
+- Foundry catalogs reduced from 7 to 6 entries (similarity promoted)
+- Platform modules increased from 18 to 19 entries (similarity added)
+
+See [release-notes/v0.4.0.md](release-notes/v0.4.0.md) for details.
+
+---
+
 ## v0.3.2 - Signal Handling & Schema Fixes
 
 Adds SIGKILL as first-class signal, GNU timeout exit codes (124-127), and fixes sync-keys schema drift.
@@ -54,27 +86,3 @@ Patch release fixing invalid examples in the Foundry patterns catalog.
 Helper libraries (gofulmen, pyfulmen, tsfulmen, rsfulmen) consuming patterns.yaml can now validate all examples against their regex patterns without skipping entries.
 
 See [release-notes/v0.3.1.md](release-notes/v0.3.1.md) for details.
-
----
-
-## v0.3.0 - Agentic Interface Overhaul
-
-Major overhaul of Crucible's agentic interface with schema-validated role prompts, formal attribution baseline, and upstream vendoring patterns.
-
-### Highlights
-
-- **Role Prompt Migration**: 7 agent roles migrated from inline markdown to `config/agentic/roles/*.yaml`
-- **Git Commit Attribution Baseline**: Canonical format for AI-assisted commits in `docs/catalog/agentic/attribution/git-commit.md`
-- **Upstream Vendoring**: New `schemas/upstream/` pattern for cross-repository schema sharing
-- **Release Phase Schema**: Extended with `release` (ga synonym) and `hotfix` values
-- **Adoption Guide**: New `docs/guides/agentic-interface-adoption.md` for ecosystem maintainers
-
-### Changed
-
-- `AGENTS.md` now references YAML role configurations
-- `MAINTAINERS.md` simplified structure
-- Phase schema consolidation (goneat uses repository lifecycle-phase)
-- Repository lifecycle standard clarifies lifecycle vs release phase
-- CI workflow YAML cleanup
-
-See [release-notes/v0.3.0.md](release-notes/v0.3.0.md) for details.

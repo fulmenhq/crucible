@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-01-05
+
+### Added
+
+- **Module Registry v1.1.0**: Weight classification and feature gate support for helper library modules
+  - `weight` field (light/heavy) for dependency footprint classification
+  - `default_inclusion` field for feature gate defaults
+  - Per-language `notes` field for build-specific guidance
+  - Optional Rust language support in module schema
+  - New schemas at `schemas/taxonomy/library/modules/v1.1.0/module-entry.schema.json`
+- **Foundry Catalog Registry v1.1.0**: Feature gate mapping for reference data catalogs
+  - `weight`, `default_inclusion`, `feature_group` fields
+  - New schema at `schemas/taxonomy/library/foundry-catalogs/v1.1.0/catalog-entry.schema.json`
+- **Similarity Module**: Promoted from foundry-catalogs to standalone platform module
+  - Now in `config/taxonomy/library/platform-modules/v1.1.0/modules.yaml`
+  - Removed from foundry-catalogs (reduces catalog surface to 6 entries)
+- **Module Registry Standard**: New documentation for weight classification semantics
+  - `docs/standards/fulmen/module-registry.md`
+  - Serde-class exemption lists per language
+  - Heavy trigger dependency lists per language
+  - Library feature gate mapping patterns (Cargo, extras, entry points)
+- **Product Marketing Role**: New `prodmktg` agentic role for messaging, personas, and branding
+  - `config/agentic/roles/prodmktg.yaml`
+  - New `marketing` category in role-prompt schema
+
+### Fixed
+
+- **Schema $id Host**: Corrected `$id` from `fulmenhq.dev` to `schemas.fulmenhq.dev`
+  - Aligns with rsfulmen's offline schema resolver expectations
+  - Affects both v1.1.0 module and catalog schemas
+
 ## [0.3.2] - 2026-01-05
 
 ### Added
