@@ -21,7 +21,6 @@ catalogs:
     feature_group: foundry-core
     status: active
     added_version: "0.2.0"
-
   - catalog_name: http-statuses
     description: HTTP status codes with standard descriptions
     schema_path: schemas/library/foundry/v2.0.0/http-status.schema.json
@@ -32,7 +31,6 @@ catalogs:
     feature_group: foundry-core
     status: active
     added_version: "0.2.0"
-
   - catalog_name: mime-types
     description: MIME type registry with file extensions
     schema_path: schemas/library/foundry/v2.0.0/mime-type.schema.json
@@ -43,7 +41,6 @@ catalogs:
     feature_group: foundry-mime
     status: active
     added_version: "0.2.0"
-
   - catalog_name: exit-codes
     description: Standard exit codes for Fulmen applications
     schema_path: schemas/library/foundry/v1.0.0/exit-code.schema.json
@@ -54,7 +51,6 @@ catalogs:
     feature_group: foundry-core
     status: active
     added_version: "0.1.0"
-
   - catalog_name: signals
     description: POSIX signal catalog with cross-platform handling
     schema_path: schemas/library/foundry/v1.0.0/signal.schema.json
@@ -65,7 +61,6 @@ catalogs:
     feature_group: foundry-core
     status: active
     added_version: "0.2.5"
-
   - catalog_name: patterns
     description: Validation pattern catalog (regex, glob patterns)
     schema_path: schemas/library/foundry/v2.0.0/pattern.schema.json

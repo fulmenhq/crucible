@@ -49,7 +49,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.1.0"
-
   - module_name: logging
     tier: core
     weight: light
@@ -85,7 +84,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.1.0"
-
   - module_name: schema
     tier: core
     weight: heavy
@@ -130,7 +128,6 @@ modules:
         rust: [jsonschema, url]
     status: active
     added_version: "0.1.0"
-
   - module_name: crucible-shim
     tier: core
     weight: light
@@ -164,7 +161,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.1.0"
-
   - module_name: errors
     tier: core
     weight: light
@@ -199,7 +195,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.1.0"
-
   - module_name: appidentity
     tier: core
     weight: light
@@ -233,7 +228,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.1.0"
-
   - module_name: platform
     tier: core
     weight: light
@@ -267,7 +261,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.2.6"
-
   # ============================================================================
   # COMMON TIER - Default install, lightweight
   # ============================================================================
@@ -307,7 +300,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.1.0"
-
   - module_name: ascii
     tier: common
     weight: light
@@ -342,7 +334,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.1.0"
-
   - module_name: foundry
     tier: common
     weight: light
@@ -385,7 +376,6 @@ modules:
         rust: []
     status: active
     added_version: "0.2.0"
-
   - module_name: similarity
     tier: common
     weight: heavy
@@ -433,7 +423,6 @@ modules:
         rust: [strsim, unicode-normalization, unicode-segmentation]
     status: active
     added_version: "0.4.0"
-
   - module_name: fulhash
     tier: common
     weight: heavy
@@ -472,7 +461,6 @@ modules:
         typescript: [hash-wasm]
     status: active
     added_version: "0.2.2"
-
   - module_name: signals
     tier: common
     weight: light
@@ -514,7 +502,6 @@ modules:
         rust: []
     status: active
     added_version: "0.2.5"
-
   - module_name: telemetry
     tier: common
     weight: heavy
@@ -553,7 +540,6 @@ modules:
         typescript: [prom-client]
     status: active
     added_version: "0.2.0"
-
   - module_name: docscribe
     tier: common
     weight: light
@@ -587,7 +573,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.2.0"
-
   - module_name: ssot-sync
     tier: common
     weight: light
@@ -621,7 +606,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.2.0"
-
   - module_name: metrics
     tier: common
     weight: light
@@ -656,7 +640,6 @@ modules:
         typescript: []
     status: active
     added_version: "0.2.7"
-
   - module_name: fulpack
     tier: common
     weight: heavy
@@ -696,7 +679,6 @@ modules:
         typescript: [archiver, tar-stream, unzipper]
     status: active
     added_version: "0.2.10"
-
   # ============================================================================
   # SPECIALIZED TIER - Opt-in via extras/optional installs
   # ============================================================================

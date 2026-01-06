@@ -15,9 +15,9 @@ This document defines the semantics for module weight classification, default in
 
 The module registry provides SSOT metadata for helper library modules, enabling consistent feature gate implementation across all languages. Two registries exist:
 
-| Registry | Purpose | Location |
-|----------|---------|----------|
-| Platform Modules | Code modules (config, logging, schema, etc.) | `config/taxonomy/library/platform-modules/v1.1.0/modules.yaml` |
+| Registry         | Purpose                                            | Location                                                        |
+| ---------------- | -------------------------------------------------- | --------------------------------------------------------------- |
+| Platform Modules | Code modules (config, logging, schema, etc.)       | `config/taxonomy/library/platform-modules/v1.1.0/modules.yaml`  |
 | Foundry Catalogs | Reference data catalogs (countries, signals, etc.) | `config/taxonomy/library/foundry-catalogs/v1.1.0/catalogs.yaml` |
 
 ## Key Fields
@@ -26,41 +26,41 @@ The module registry provides SSOT metadata for helper library modules, enabling 
 
 Indicates universality and expected usage across the ecosystem.
 
-| Value | Meaning |
-|-------|---------|
-| `core` | Required by all applications; foundational capability |
-| `common` | Default install; widely useful |
-| `specialized` | Opt-in; niche use cases or heavy dependencies |
+| Value         | Meaning                                               |
+| ------------- | ----------------------------------------------------- |
+| `core`        | Required by all applications; foundational capability |
+| `common`      | Default install; widely useful                        |
+| `specialized` | Opt-in; niche use cases or heavy dependencies         |
 
-**Note**: Tier is about *universality*, not dependency footprint. A `core` module can be `heavy` (e.g., schema validation).
+**Note**: Tier is about _universality_, not dependency footprint. A `core` module can be `heavy` (e.g., schema validation).
 
 ### Weight
 
 Classifies dependency footprint for feature gate decisions.
 
-| Value | Meaning |
-|-------|---------|
-| `light` | Stdlib or serde-class dependencies only |
+| Value   | Meaning                                        |
+| ------- | ---------------------------------------------- |
+| `light` | Stdlib or serde-class dependencies only        |
 | `heavy` | Significant dependency tree beyond serde-class |
 
 ### Default Inclusion
 
 Whether the module is included in default/standard builds.
 
-| Value | Meaning |
-|-------|---------|
-| `true` | Included unless explicitly excluded |
+| Value   | Meaning                                      |
+| ------- | -------------------------------------------- |
+| `true`  | Included unless explicitly excluded          |
 | `false` | Excluded unless explicitly included (opt-in) |
 
 ### Feature Group (Foundry Catalogs Only)
 
 Maps catalogs to library feature gates.
 
-| Value | Catalogs | Typical Cargo Feature |
-|-------|----------|----------------------|
-| `foundry-core` | signals, exit-codes, countries, http-statuses | `foundry-core` |
-| `foundry-patterns` | patterns | `foundry-patterns` |
-| `foundry-mime` | mime-types | `foundry-mime-types` |
+| Value              | Catalogs                                      | Typical Cargo Feature |
+| ------------------ | --------------------------------------------- | --------------------- |
+| `foundry-core`     | signals, exit-codes, countries, http-statuses | `foundry-core`        |
+| `foundry-patterns` | patterns                                      | `foundry-patterns`    |
+| `foundry-mime`     | mime-types                                    | `foundry-mime-types`  |
 
 ## Weight Classification Criteria
 
@@ -68,27 +68,28 @@ Maps catalogs to library feature gates.
 
 These dependencies don't count toward "heavy" classification:
 
-| Language | Exempt Dependencies |
-|----------|---------------------|
-| Rust | `serde`, `serde_json`, `serde_yaml`, `once_cell`, `thiserror`, `anyhow` |
-| Python | `pydantic`, `pyyaml`, stdlib |
-| TypeScript | `yaml`, native JSON |
-| Go | stdlib |
+| Language   | Exempt Dependencies                                                     |
+| ---------- | ----------------------------------------------------------------------- |
+| Rust       | `serde`, `serde_json`, `serde_yaml`, `once_cell`, `thiserror`, `anyhow` |
+| Python     | `pydantic`, `pyyaml`, stdlib                                            |
+| TypeScript | `yaml`, native JSON                                                     |
+| Go         | stdlib                                                                  |
 
 ### Heavy Trigger Dependencies
 
 These dependencies trigger "heavy" classification:
 
-| Language | Heavy Dependencies |
-|----------|-------------------|
-| Rust | `jsonschema`, `regex`, `glob`, `strsim`, `unicode-normalization`, `unicode-segmentation`, `icu-*` |
-| Python | `jsonschema`, `xxhash`, `google-crc32c`, `rapidfuzz`, `prometheus_client` |
-| TypeScript | `ajv`, `ajv-formats`, `hash-wasm`, `archiver`, `tar-stream`, `@3leaps/string-metrics-wasm` |
-| Go | Typically light due to stdlib-first approach |
+| Language   | Heavy Dependencies                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------- |
+| Rust       | `jsonschema`, `regex`, `glob`, `strsim`, `unicode-normalization`, `unicode-segmentation`, `icu-*` |
+| Python     | `jsonschema`, `xxhash`, `google-crc32c`, `rapidfuzz`, `prometheus_client`                         |
+| TypeScript | `ajv`, `ajv-formats`, `hash-wasm`, `archiver`, `tar-stream`, `@3leaps/string-metrics-wasm`        |
+| Go         | Typically light due to stdlib-first approach                                                      |
 
 ### Native Extension Consideration
 
 In Python and TypeScript, native extensions (C/Rust code) often correlate with "heavy" due to:
+
 - Installation complexity (build tools, platform-specific binaries)
 - Increased package size
 - CI/CD complications
@@ -122,6 +123,7 @@ full = ["pyfulmen[schema,similarity,hashing,telemetry]"]
 ```
 
 **Naming Convention**:
+
 - Use module name as extra name where 1:1 (`schema`, `similarity`, `telemetry`)
 - Use `full` for everything
 - Serde-class deps (`pydantic`, `pyyaml`) remain in base install
@@ -130,15 +132,16 @@ full = ["pyfulmen[schema,similarity,hashing,telemetry]"]
 
 ```typescript
 // Heavy modules have dedicated entry points
-import { validateSchema } from "@fulmenhq/tsfulmen/schema";      // heavy
-import { similarity } from "@fulmenhq/tsfulmen/similarity";       // heavy
-import { getConfigDir } from "@fulmenhq/tsfulmen/config";         // light
+import { validateSchema } from "@fulmenhq/tsfulmen/schema"; // heavy
+import { similarity } from "@fulmenhq/tsfulmen/similarity"; // heavy
+import { getConfigDir } from "@fulmenhq/tsfulmen/config"; // light
 
 // Light modules can be in main barrel (but heavy should NOT be)
-import { signals, exitCodes } from "@fulmenhq/tsfulmen/foundry";  // light
+import { signals, exitCodes } from "@fulmenhq/tsfulmen/foundry"; // light
 ```
 
 **Pattern**: Separate entry points superior to `peerDependencies` for core functionality because:
+
 - Tree-shaking works at module boundary
 - No runtime feature detection needed
 - Clear import paths signal dependency cost
@@ -146,6 +149,7 @@ import { signals, exitCodes } from "@fulmenhq/tsfulmen/foundry";  // light
 ### Go (Build Tags or Separate Packages)
 
 Go typically has all-light modules. If heavy modules are needed:
+
 - Separate packages: `gofulmen/schema/lite`
 - Build tags: `//go:build !lite`
 
@@ -180,6 +184,7 @@ languages:
 ```
 
 Use notes for:
+
 - Dependency tree warnings
 - Feature gate requirements
 - Installation considerations
@@ -187,10 +192,10 @@ Use notes for:
 
 ## Schema Versions
 
-| Schema | Version | Path |
-|--------|---------|------|
-| Module Entry | v1.1.0 | `schemas/taxonomy/library/modules/v1.1.0/module-entry.schema.json` |
-| Catalog Entry | v1.1.0 | `schemas/taxonomy/library/foundry-catalogs/v1.1.0/catalog-entry.schema.json` |
+| Schema        | Version | Path                                                                         |
+| ------------- | ------- | ---------------------------------------------------------------------------- |
+| Module Entry  | v1.1.0  | `schemas/taxonomy/library/modules/v1.1.0/module-entry.schema.json`           |
+| Catalog Entry | v1.1.0  | `schemas/taxonomy/library/foundry-catalogs/v1.1.0/catalog-entry.schema.json` |
 
 ## References
 
