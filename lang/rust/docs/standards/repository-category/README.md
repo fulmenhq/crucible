@@ -3,9 +3,9 @@ title: "Repository Category Standards"
 description: "Category-specific standards for Fulmen repository types"
 author: "Schema Cartographer"
 date: "2025-11-03"
-last_updated: "2025-12-20"
+last_updated: "2026-01-06"
 status: "active"
-tags: ["standards", "repository-category", "organization", "v0.2.26"]
+tags: ["standards", "repository-category", "organization", "v0.4.1"]
 ---
 
 # Repository Category Standards
@@ -18,7 +18,7 @@ This directory contains standards, configuration schemas, and documentation spec
 
 Repository categories are defined in the taxonomy: `schemas/taxonomy/repository-category/v1.0.0/category-key.schema.json`
 
-Current categories: `cli`, `codex`, `library`, `microtool`, `missive`, `pipeline`, `sdk`, `service`, `spec-host`, `workhorse`
+Current categories: `cli`, `codex`, `doc-host`, `library`, `microtool`, `missive`, `pipeline`, `sdk`, `service`, `spec-host`, `workhorse`
 
 ## Structure
 
@@ -26,6 +26,8 @@ Current categories: `cli`, `codex`, `library`, `microtool`, `missive`, `pipeline
 repository-category/
 ├── codex/
 │   └── config-standard.md          # Codex configuration schema standard
+├── doc-host/
+│   └── README.md                   # Doc-host category requirements
 ├── missive/
 │   └── README.md                   # Missive category requirements
 ├── spec-host/
@@ -81,26 +83,48 @@ This creates symmetry between schemas and documentation:
 - Forge Codex Pulsar (active)
 - Future codex templates (Aurora, Nebula, etc.)
 
-**Note**: Codex sites may layer browsable UI over a spec-host corpus.
+**Note**: Codex sites may layer browsable UI over a spec-host or doc-host corpus.
 
 ### Spec-Host
 
-**Category**: `spec-host` (machine-first specification artifact hosting)
+**Category**: `spec-host` (machine-first self-describing specification hosting)
 
-**Summary**: Static hosting for versioned specification artifacts (JSON Schema, OpenAPI, AsyncAPI) with canonical URL resolution as the primary invariant.
+**Summary**: Static hosting for self-describing specification artifacts (JSON Schema, OpenAPI, AsyncAPI) where assets contain embedded canonical IDs that must resolve over HTTPS.
 
 **Standards**:
 
 - [Spec-Host Category Standards](spec-host/README.md) - Category requirements
 - [Spec Publishing Standard](../publishing/spec-publishing.md) - Publishing workflow contract
 
-**Key Invariant**: Every `$id` (JSON Schema) or `x-fulmen-id` (OpenAPI/AsyncAPI) MUST resolve over HTTPS.
+**Key Invariant**: Every `$id` (JSON Schema) or `x-fulmen-id` (OpenAPI/AsyncAPI) MUST resolve over HTTPS. Assets are validated against industry-standard meta-schemas.
 
 **Applies To**:
 
 - Crucible schema publishing (planned)
-- Enact spec hosting (planned)
 - Future `forge-spec-host-*` templates
+
+**Note**: For path-addressed assets without embedded IDs, see doc-host.
+
+### Doc-Host
+
+**Category**: `doc-host` (machine-first path-addressed asset hosting)
+
+**Summary**: Static hosting for documentation, configuration, and reference assets where canonical URLs are derived from file paths, not embedded identifiers. No meta-validation against industry-standard specifications is required.
+
+**Standards**:
+
+- [Doc-Host Category Standards](doc-host/README.md) - Category requirements
+- [Canonical URI Resolution Standard](../publishing/canonical-uri-resolution.md) - URI structure and resolver contract
+
+**Key Invariant**: Published file paths directly determine canonical URLs. No embedded identifiers required.
+
+**Applies To**:
+
+- Crucible documentation publishing (planned: `docs.fulmenhq.dev`)
+- Crucible configuration publishing (planned: `config.fulmenhq.dev`)
+- Future `forge-doc-host-*` templates
+
+**Note**: Doc-host and spec-host are complementary. A Codex site may layer browsable UI over either.
 
 ### Missive
 
@@ -199,6 +223,6 @@ Use category-specific standards when:
 
 ---
 
-**Status**: Active (v0.2.26+)
+**Status**: Active (v0.4.1+)
 
 **Maintainers**: Crucible Team

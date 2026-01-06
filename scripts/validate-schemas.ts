@@ -12,6 +12,7 @@ const LANGUAGE_STATUS = new Set(["active", "planned", "deprecated"]);
 const CATEGORY_KEYS = new Set([
   "cli",
   "codex",
+  "doc-host",
   "library",
   "microtool",
   "missive",
