@@ -32,13 +32,12 @@ func TestConfigEmbedding(t *testing.T) {
 			t.Error("expected foundry configs to be present")
 		}
 
-		// Verify expected files exist
+		// Verify expected files exist (similarity moved to library/similarity in v0.4.1)
 		expectedFiles := []string{
 			"patterns.yaml",
 			"country-codes.yaml",
 			"http-statuses.yaml",
 			"mime-types.yaml",
-			"similarity-fixtures.yaml",
 		}
 		for _, expected := range expectedFiles {
 			found := false
@@ -100,7 +99,8 @@ func TestConfigRegistryFoundry(t *testing.T) {
 		}
 	})
 
-	t.Run("Foundry SimilarityFixtures", func(t *testing.T) {
+	t.Run("Foundry SimilarityFixtures (deprecated)", func(t *testing.T) {
+		// Tests backward compatibility - now points to library/similarity/fixtures.yaml
 		data, err := ConfigRegistry.Library().Foundry().SimilarityFixtures()
 		if err != nil {
 			t.Fatalf("failed to read similarity fixtures: %v", err)
@@ -157,6 +157,20 @@ func TestConfigRegistryLibrary(t *testing.T) {
 		}
 		if len(data) == 0 {
 			t.Error("expected non-empty fulhash fixtures data")
+		}
+	})
+
+	t.Run("Similarity Fixtures", func(t *testing.T) {
+		data, err := ConfigRegistry.Library().Similarity().Fixtures()
+		if err != nil {
+			t.Fatalf("failed to read similarity fixtures: %v", err)
+		}
+		if len(data) == 0 {
+			t.Error("expected non-empty similarity fixtures data")
+		}
+		// Should contain test cases for text similarity
+		if !strings.Contains(string(data), "test_cases:") {
+			t.Error("similarity fixtures should contain test_cases")
 		}
 	})
 }

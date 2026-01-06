@@ -48,6 +48,11 @@ func (l *LibraryConfig) FulHash() *FulHashConfig {
 	return &FulHashConfig{}
 }
 
+// Similarity returns accessors for Similarity module configurations
+func (l *LibraryConfig) Similarity() *SimilarityConfig {
+	return &SimilarityConfig{}
+}
+
 // Manifest returns the library module manifest
 func (l *LibraryConfig) Manifest() ([]byte, error) {
 	return configFS.ReadFile("config/library/v1.0.0/module-manifest.yaml")
@@ -77,8 +82,9 @@ func (f *FoundryConfig) MIMETypes() ([]byte, error) {
 }
 
 // SimilarityFixtures returns the text similarity test fixtures
+// Deprecated: Use ConfigRegistry.Library().Similarity().Fixtures() instead
 func (f *FoundryConfig) SimilarityFixtures() ([]byte, error) {
-	return configFS.ReadFile("config/library/foundry/similarity-fixtures.yaml")
+	return configFS.ReadFile("config/library/similarity/fixtures.yaml")
 }
 
 // ExitCodes returns the exit codes catalog
@@ -97,6 +103,14 @@ type FulHashConfig struct{}
 // Fixtures returns the FulHash test fixtures
 func (f *FulHashConfig) Fixtures() ([]byte, error) {
 	return configFS.ReadFile("config/library/fulhash/fixtures.yaml")
+}
+
+// SimilarityConfig provides access to Similarity module configurations
+type SimilarityConfig struct{}
+
+// Fixtures returns the text similarity test fixtures
+func (s *SimilarityConfig) Fixtures() ([]byte, error) {
+	return configFS.ReadFile("config/library/similarity/fixtures.yaml")
 }
 
 // TaxonomyConfig provides access to taxonomy configurations

@@ -384,9 +384,9 @@ modules:
     rationale: Promoted from foundry-catalogs v1.1.0; heavy deps in all languages (strsim, unicode-*, WASM)
     evidence:
       has_schema: true
-      schema_path: schemas/library/foundry/v2.0.0/
+      schema_path: schemas/library/similarity/v2.0.0/
       has_config: true
-      config_path: config/library/foundry/similarity-fixtures.yaml
+      config_path: config/library/similarity/fixtures.yaml
     languages:
       go:
         status: available

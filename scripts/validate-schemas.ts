@@ -441,8 +441,8 @@ async function validateHttpExamples(): Promise<void> {
 async function validateSimilarityFixtures(): Promise<void> {
   const { execSync } = await import("node:child_process");
   const goneatBin = process.env["GONEAT"] ?? "goneat";
-  const schemaPath = "schemas/library/foundry/v2.0.0/similarity.schema.json";
-  const dataPath = "config/library/foundry/similarity-fixtures.yaml";
+  const schemaPath = "schemas/library/similarity/v2.0.0/similarity.schema.json";
+  const dataPath = "config/library/similarity/fixtures.yaml";
 
   try {
     execSync(`${goneatBin} validate data --schema-file ${schemaPath} --data ${dataPath}`, {
