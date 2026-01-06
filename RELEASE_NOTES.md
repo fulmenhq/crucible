@@ -5,6 +5,33 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.4.1 - Similarity Module File Relocation
+
+Completes the v0.4.0 similarity promotion by relocating files from `library/foundry/` to `library/similarity/`.
+
+### Highlights
+
+- **File Relocation**: Similarity fixtures, schemas, and docs moved to standalone paths
+- **Go API Update**: New `ConfigRegistry.Library().Similarity().Fixtures()` accessor
+- **Backward Compatibility**: `Foundry().SimilarityFixtures()` still works (deprecated)
+
+### Changed
+
+- `config/library/foundry/similarity-fixtures.yaml` → `config/library/similarity/fixtures.yaml`
+- `schemas/library/foundry/v{1,2}.0.0/similarity.schema.json` → `schemas/library/similarity/`
+- `docs/standards/library/foundry/similarity.md` → `docs/standards/library/similarity/`
+- Schema `$id` namespace updated from `foundry` to `similarity`
+- Module registry evidence paths updated
+
+### Impact
+
+- gofulmen embed paths now point to `config/library/similarity/`
+- Helper libraries should update imports before v0.5.0 (deprecation removal)
+
+See [release-notes/v0.4.1.md](release-notes/v0.4.1.md) for details.
+
+---
+
 ## v0.4.0 - Module Registry Weight Classification
 
 Introduces weight classification and feature gate support for helper library modules, enabling consistent feature gating across all language implementations.
@@ -62,27 +89,3 @@ Adds SIGKILL as first-class signal, GNU timeout exit codes (124-127), and fixes 
 - Offline schema validation works for sync-keys.yaml consumers
 
 See [release-notes/v0.3.2.md](release-notes/v0.3.2.md) for details.
-
----
-
-## v0.3.1 - Patterns Catalog Fixes
-
-Patch release fixing invalid examples in the Foundry patterns catalog.
-
-### Highlights
-
-- **JWT Example**: Replaced placeholder ellipsis with valid JWT compact serialization
-- **UUID-v4 Example**: Fixed example from v1 format to valid v4 format (version nibble = 4)
-- **ADR-0012**: Schema reference resolution ADR marked as implemented
-- **CI Cleanup**: Removed duplicate YAML document start markers
-
-### Fixed
-
-- `jwt` pattern example: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` → valid 3-segment JWT
-- `uuid-v4` pattern example: `123e4567-e89b-12d3-...` → `123e4567-e89b-42d3-...`
-
-### Impact
-
-Helper libraries (gofulmen, pyfulmen, tsfulmen, rsfulmen) consuming patterns.yaml can now validate all examples against their regex patterns without skipping entries.
-
-See [release-notes/v0.3.1.md](release-notes/v0.3.1.md) for details.

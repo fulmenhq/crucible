@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-01-06
+
+### Changed
+
+- **Similarity Module Relocation**: Moved similarity files from `library/foundry/` to `library/similarity/`
+  - `config/library/foundry/similarity-fixtures.yaml` → `config/library/similarity/fixtures.yaml`
+  - `schemas/library/foundry/v{1,2}.0.0/similarity.schema.json` → `schemas/library/similarity/`
+  - `docs/standards/library/foundry/similarity.md` → `docs/standards/library/similarity/`
+  - Schema `$id` updated from `foundry` to `similarity` namespace
+- **Go Config API**: Added `ConfigRegistry.Library().Similarity().Fixtures()`
+  - `Foundry().SimilarityFixtures()` deprecated but still works (points to new location)
+- **Module Registry**: Updated evidence paths in `platform-modules/v1.1.0/modules.yaml`
+
 ## [0.4.0] - 2026-01-05
 
 ### Added

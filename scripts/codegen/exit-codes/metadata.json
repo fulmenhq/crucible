@@ -12,7 +12,7 @@
     },
     "python": {
       "template": "template.jinja",
-      "output_path": "lang/python/src/pyfulmen/foundry/exit_codes.py",
+      "output_path": "lang/python/src/crucible/foundry/exit_codes.py",
       "postprocess": "postprocess.sh"
     },
     "typescript": {
