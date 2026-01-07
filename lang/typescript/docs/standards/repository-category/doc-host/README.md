@@ -26,19 +26,19 @@ This document defines the requirements and standards for `doc-host` category rep
 
 The key distinction is **how canonical identity is established**:
 
-| Aspect | spec-host | doc-host |
-|--------|-----------|----------|
-| **Identity source** | Embedded in asset (`$id`, `x-fulmen-id`) | Derived from file path |
-| **Meta-validation** | Required (JSON Schema, OpenAPI, AsyncAPI specs) | Not required |
-| **Asset types** | Self-describing specifications | Any static file |
-| **Publishing complexity** | Higher (extract ID, validate, map to path) | Lower (path = URL) |
-| **Example assets** | `.schema.json`, `.openapi.json`, `.asyncapi.json` | `.md`, `.yaml`, `.json` (config) |
+| Aspect                    | spec-host                                         | doc-host                         |
+| ------------------------- | ------------------------------------------------- | -------------------------------- |
+| **Identity source**       | Embedded in asset (`$id`, `x-fulmen-id`)          | Derived from file path           |
+| **Meta-validation**       | Required (JSON Schema, OpenAPI, AsyncAPI specs)   | Not required                     |
+| **Asset types**           | Self-describing specifications                    | Any static file                  |
+| **Publishing complexity** | Higher (extract ID, validate, map to path)        | Lower (path = URL)               |
+| **Example assets**        | `.schema.json`, `.openapi.json`, `.asyncapi.json` | `.md`, `.yaml`, `.json` (config) |
 
 ### Conceptual Framing
 
-**spec-host**: Hosts *self-describing specifications* — assets that contain their own canonical identity and can be validated against industry-standard meta-schemas.
+**spec-host**: Hosts _self-describing specifications_ — assets that contain their own canonical identity and can be validated against industry-standard meta-schemas.
 
-**doc-host**: Hosts *path-addressed assets* — files whose identity is determined by their location, not by embedded metadata. No assumption of meta-validation capability.
+**doc-host**: Hosts _path-addressed assets_ — files whose identity is determined by their location, not by embedded metadata. No assumption of meta-validation capability.
 
 ### Why Two Categories?
 
@@ -81,14 +81,15 @@ https://docs.fulmenhq.dev/<module>/<path>
 https://config.fulmenhq.dev/<module>/<path>
 ```
 
-| Segment | Required | Description | Examples |
-|---------|----------|-------------|----------|
-| `module` | **Yes** | Repository/project namespace | `crucible`, `gofulmen` |
-| `path` | **Yes** | File path with extension | `standards/observability/logging.md` |
+| Segment  | Required | Description                  | Examples                             |
+| -------- | -------- | ---------------------------- | ------------------------------------ |
+| `module` | **Yes**  | Repository/project namespace | `crucible`, `gofulmen`               |
+| `path`   | **Yes**  | File path with extension     | `standards/observability/logging.md` |
 
 ### Example URLs
 
 **Documentation (docs.fulmenhq.dev)**:
+
 ```
 https://docs.fulmenhq.dev/crucible/standards/observability/logging.md
 https://docs.fulmenhq.dev/crucible/guides/bootstrap-goneat.md
@@ -96,6 +97,7 @@ https://docs.fulmenhq.dev/crucible/architecture/fulmen-ecosystem-guide.md
 ```
 
 **Configuration (config.fulmenhq.dev)**:
+
 ```
 https://config.fulmenhq.dev/crucible/taxonomy/library/modules.yaml
 https://config.fulmenhq.dev/crucible/terminal/v1.0.0/defaults.yaml
@@ -140,11 +142,13 @@ Doc-host publishing is simpler than spec-host:
 ### No Meta-Validation Required
 
 Unlike spec-host, doc-host does NOT require:
+
 - Extracting embedded canonical IDs
 - Validating assets against meta-schemas
 - Verifying ID-to-path consistency
 
 This makes doc-host suitable for:
+
 - Markdown documentation
 - YAML/JSON configuration files
 - Reference data files
@@ -164,16 +168,17 @@ The [Canonical URI Resolution Standard](../../publishing/canonical-uri-resolutio
 
 ## Differentiation from Other Categories
 
-| Aspect | doc-host | spec-host | codex |
-|--------|----------|-----------|-------|
-| Primary consumer | Machines (shims, tools) | Machines (validators, IDEs) | Humans (browsers) |
-| Content | Docs, config, reference | Specifications (JSON Schema, OpenAPI) | Rich documentation |
-| Build | None or minimal | Publisher with ID validation | Full SSG (Astro/Starlight) |
-| UI | Optional index page | Optional index page | Required navigation/search |
-| Meta-validation | Not required | Required | N/A |
-| Core invariant | Path = URL | Embedded ID = URL | Human-readable presentation |
+| Aspect           | doc-host                | spec-host                             | codex                       |
+| ---------------- | ----------------------- | ------------------------------------- | --------------------------- |
+| Primary consumer | Machines (shims, tools) | Machines (validators, IDEs)           | Humans (browsers)           |
+| Content          | Docs, config, reference | Specifications (JSON Schema, OpenAPI) | Rich documentation          |
+| Build            | None or minimal         | Publisher with ID validation          | Full SSG (Astro/Starlight)  |
+| UI               | Optional index page     | Optional index page                   | Required navigation/search  |
+| Meta-validation  | Not required            | Required                              | N/A                         |
+| Core invariant   | Path = URL              | Embedded ID = URL                     | Human-readable presentation |
 
 **Relationship**:
+
 - A **codex** site MAY layer browsable UI over a **doc-host** corpus
 - A **spec-host** MAY coexist with **doc-host** at different subdomains
 - Both **spec-host** and **doc-host** serve the [Crucible Shim](../../library/modules/crucible-shim.md) resolution contract

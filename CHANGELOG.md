@@ -9,6 +9,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-01-07
+
+### Added
+
+- **Fixture Standard**: New repository category and standard for test infrastructure
+  - `docs/architecture/fulmen-fixture-standard.md` - Full specification
+  - `config/taxonomy/fixture-catalog.yaml` - Registry for fixture names and variants
+  - `schemas/taxonomy/fixture/v1.0.0/fixture-catalog.schema.json` - Catalog validation
+  - `docs/standards/repository-category/fixture/README.md` - Category requirements
+  - Naming pattern: `fixture-<mode>-<category>-<name>-<variant>`
+  - Modes: `server`, `client`, `datastore` (v0.4.2), `identity` (planned v0.4.3)
+  - Categories: `proving`, `utility`, `chaos`
+  - Required `INTEGRATION.md` template for external dependencies
+  - i18n support for fixture metadata (`default_lang`, `*_i18n` fields)
+- **Doc-Host Category**: New repository category for path-addressed documentation hosting
+  - `docs/standards/repository-category/doc-host/README.md`
+  - Complements spec-host (self-describing specs) with path-addressed assets
+
+### Changed
+
+- **Canonical URI Resolution Standard** (BREAKING): Schema `$id` values now include module prefix
+  - Pattern: `https://schemas.fulmenhq.dev/crucible/<topic>/<version>/<filename>`
+  - ~63 schemas updated to include `crucible/` module prefix
+  - Enables multi-repo schema hosting without namespace collisions
+  - See `docs/standards/publishing/canonical-uri-resolution.md`
+- **Repository Categories Taxonomy**: Version bumped to `2026.01.1`
+  - Added `fixture` category with modes, behavioral categories, naming constraints
+  - Added `doc-host` category
+
+### Removed
+
+- **Enact Schemas**: Moved to enacthq organization (11 files)
+- **Goneat Schemas**: Moved to goneat repository (6 files)
+
+### Fixed
+
+- **Python Exit Codes Path Alignment**: Fixed codegen output path for Python exit codes
+  - Changed from `lang/python/src/pyfulmen/foundry/` to `lang/python/src/crucible/foundry/`
+  - Aligns with pattern used by other Python modules (`fulencode`, `fulhash`, `fulpack`)
+  - Updated `scripts/codegen/exit-codes/metadata.json` Python output path
+  - Created `lang/python/src/crucible/foundry/` module with `__init__.py`
+  - Removed legacy `lang/python/src/pyfulmen/` directory tree
+
 ## [0.4.1] - 2026-01-06
 
 ### Changed

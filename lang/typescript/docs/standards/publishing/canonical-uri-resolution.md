@@ -5,7 +5,15 @@ author: "Fulmen Enterprise Architect (@fulmen-ea-steward)"
 date: "2026-01-06"
 last_updated: "2026-01-06"
 status: "draft"
-tags: ["standards", "publishing", "resolution", "schemas", "offline-access", "v0.4.1"]
+tags:
+  [
+    "standards",
+    "publishing",
+    "resolution",
+    "schemas",
+    "offline-access",
+    "v0.4.1",
+  ]
 ---
 
 # Canonical URI Resolution Standard
@@ -43,14 +51,14 @@ It defines requirements for:
 
 ## Definitions
 
-| Term | Definition |
-|------|------------|
-| **Canonical URI** | The authoritative HTTPS URL identity embedded in an asset (`$id`, `x-fulmen-id`) |
-| **Module** | The repository/project namespace in a canonical URI (e.g., `crucible`, `gofulmen`, `goneat`) |
-| **Topic** | The subject-area path segment(s) after module (e.g., `observability/logging`, `pathfinder`) |
-| **Resolver** | A library component that maps canonical URIs to local file paths |
-| **Spechost** | The static host serving specification assets at canonical URIs |
-| **Dochost** | The static host serving documentation assets at canonical URIs |
+| Term              | Definition                                                                                   |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| **Canonical URI** | The authoritative HTTPS URL identity embedded in an asset (`$id`, `x-fulmen-id`)             |
+| **Module**        | The repository/project namespace in a canonical URI (e.g., `crucible`, `gofulmen`, `goneat`) |
+| **Topic**         | The subject-area path segment(s) after module (e.g., `observability/logging`, `pathfinder`)  |
+| **Resolver**      | A library component that maps canonical URIs to local file paths                             |
+| **Spechost**      | The static host serving specification assets at canonical URIs                               |
+| **Dochost**       | The static host serving documentation assets at canonical URIs                               |
 
 ## Canonical URI Structure
 
@@ -60,12 +68,12 @@ It defines requirements for:
 https://schemas.fulmenhq.dev/<module>/<topic>/<version>/<filename>
 ```
 
-| Segment | Required | Description | Examples |
-|---------|----------|-------------|----------|
-| `module` | **Yes** | Repository/project namespace | `crucible`, `gofulmen`, `rsfulmen`, `goneat`, `groningen` |
-| `topic` | **Yes** | Subject-area path (may be nested) | `observability/logging`, `pathfinder`, `library/foundry` |
-| `version` | **Yes** | SemVer version directory | `v1.0.0`, `v2.0.0` |
-| `filename` | **Yes** | Schema filename with extension | `logger-config.schema.json`, `recipe.schema.json` |
+| Segment    | Required | Description                       | Examples                                                  |
+| ---------- | -------- | --------------------------------- | --------------------------------------------------------- |
+| `module`   | **Yes**  | Repository/project namespace      | `crucible`, `gofulmen`, `rsfulmen`, `goneat`, `groningen` |
+| `topic`    | **Yes**  | Subject-area path (may be nested) | `observability/logging`, `pathfinder`, `library/foundry`  |
+| `version`  | **Yes**  | SemVer version directory          | `v1.0.0`, `v2.0.0`                                        |
+| `filename` | **Yes**  | Schema filename with extension    | `logger-config.schema.json`, `recipe.schema.json`         |
 
 **Examples**:
 
@@ -89,10 +97,10 @@ https://schemas.fulmenhq.dev/goneat/config/v1.0.0/release-phase.schema.json
 https://docs.fulmenhq.dev/<module>/<path>
 ```
 
-| Segment | Required | Description | Examples |
-|---------|----------|-------------|----------|
-| `module` | **Yes** | Repository/project namespace | `crucible`, `gofulmen` |
-| `path` | **Yes** | Document path with extension | `standards/observability/logging.md` |
+| Segment  | Required | Description                  | Examples                             |
+| -------- | -------- | ---------------------------- | ------------------------------------ |
+| `module` | **Yes**  | Repository/project namespace | `crucible`, `gofulmen`               |
+| `path`   | **Yes**  | Document path with extension | `standards/observability/logging.md` |
 
 ### Configuration URIs (config.fulmenhq.dev) - Future
 
@@ -106,13 +114,13 @@ https://config.fulmenhq.dev/<module>/<category>/<version>/<filename>
 
 The `module` segment MUST be the repository name where the asset is **authored and maintained**.
 
-| Repository | Module | Assets |
-|------------|--------|--------|
-| `fulmenhq/crucible` | `crucible` | SSOT schemas, standards, catalogs |
-| `fulmenhq/gofulmen` | `gofulmen` | Go-specific schemas (if any) |
-| `fulmenhq/rsfulmen` | `rsfulmen` | Rust-specific schemas (if any) |
-| `fulmenhq/goneat` | `goneat` | Goneat config schemas |
-| `fulmenhq/groningen` | `groningen` | Template-specific schemas |
+| Repository           | Module      | Assets                            |
+| -------------------- | ----------- | --------------------------------- |
+| `fulmenhq/crucible`  | `crucible`  | SSOT schemas, standards, catalogs |
+| `fulmenhq/gofulmen`  | `gofulmen`  | Go-specific schemas (if any)      |
+| `fulmenhq/rsfulmen`  | `rsfulmen`  | Rust-specific schemas (if any)    |
+| `fulmenhq/goneat`    | `goneat`    | Goneat config schemas             |
+| `fulmenhq/groningen` | `groningen` | Template-specific schemas         |
 
 **Rationale**: This enables libraries to distinguish between assets they embed from Crucible vs. assets they define locally.
 
@@ -152,10 +160,10 @@ A **Resolver** is a library component that maps canonical URIs to local file pat
 
 ### Required Capabilities
 
-| Capability | Description |
-|------------|-------------|
-| `ResolveSchema(uri)` | Maps schema URI to local path and returns content |
-| `CanResolve(uri)` | Returns true if URI can be resolved locally |
+| Capability                | Description                                         |
+| ------------------------- | --------------------------------------------------- |
+| `ResolveSchema(uri)`      | Maps schema URI to local path and returns content   |
+| `CanResolve(uri)`         | Returns true if URI can be resolved locally         |
 | `ListResolvableModules()` | Returns list of module namespaces available locally |
 
 ### Resolution Algorithm
@@ -214,12 +222,12 @@ All schemas in the Crucible repository MUST use the `crucible` module:
 
 ### Filename Conventions
 
-| Asset Type | Suffix | Example |
-|------------|--------|---------|
-| JSON Schema | `.schema.json` | `logger-config.schema.json` |
-| OpenAPI | `.openapi.json` | `api.openapi.json` |
-| AsyncAPI | `.asyncapi.json` | `events.asyncapi.json` |
-| Taxonomy | `.schema.json` | `language-key.schema.json` |
+| Asset Type  | Suffix           | Example                     |
+| ----------- | ---------------- | --------------------------- |
+| JSON Schema | `.schema.json`   | `logger-config.schema.json` |
+| OpenAPI     | `.openapi.json`  | `api.openapi.json`          |
+| AsyncAPI    | `.asyncapi.json` | `events.asyncapi.json`      |
+| Taxonomy    | `.schema.json`   | `language-key.schema.json`  |
 
 ### Version in Path vs. Filename
 
@@ -248,6 +256,7 @@ crucible/
 ```
 
 Maps to URI:
+
 ```
 https://schemas.fulmenhq.dev/crucible/<topic>/<version>/<filename>
 ```
@@ -268,6 +277,7 @@ https://schemas.fulmenhq.dev/crucible/<topic>/<version>/<filename>
 ```
 
 Maps to URIs:
+
 ```
 # Crucible assets
 https://schemas.fulmenhq.dev/crucible/<topic>/<version>/<filename>
@@ -284,14 +294,15 @@ https://schemas.fulmenhq.dev/<lang>fulmen/<topic>/<version>/<filename>
 
 Existing schemas with non-conforming `$id` values SHOULD be migrated:
 
-| Current Pattern | Correct Pattern |
-|-----------------|-----------------|
-| `https://schemas.fulmenhq.dev/enact/v1.0.0/...` | `https://schemas.fulmenhq.dev/crucible/enact/v1.0.0/...` |
-| `https://schemas.fulmenhq.dev/gofulmen/pathfinder/...` | `https://schemas.fulmenhq.dev/crucible/pathfinder/...` |
-| `https://schemas.3leaps.net/goneat/...` | `https://schemas.fulmenhq.dev/goneat/...` |
-| `https://github.com/fulmenhq/...` | `https://schemas.fulmenhq.dev/crucible/...` |
+| Current Pattern                                        | Correct Pattern                                          |
+| ------------------------------------------------------ | -------------------------------------------------------- |
+| `https://schemas.fulmenhq.dev/enact/v1.0.0/...`        | `https://schemas.fulmenhq.dev/crucible/enact/v1.0.0/...` |
+| `https://schemas.fulmenhq.dev/gofulmen/pathfinder/...` | `https://schemas.fulmenhq.dev/crucible/pathfinder/...`   |
+| `https://schemas.3leaps.net/goneat/...`                | `https://schemas.fulmenhq.dev/goneat/...`                |
+| `https://github.com/fulmenhq/...`                      | `https://schemas.fulmenhq.dev/crucible/...`              |
 
 Migration should occur during:
+
 - Major version bumps (breaking change acceptable)
 - New schema versions (preserve old URIs in deprecated versions)
 
@@ -323,6 +334,7 @@ Spec publishing tools MUST validate:
 ### Resolver Implementation (Conceptual)
 
 **Go**:
+
 ```go
 func (r *Resolver) ResolveSchema(uri string) (*Schema, error) {
     parsed, err := ParseSchemaURI(uri)
@@ -341,6 +353,7 @@ func (r *Resolver) ResolveSchema(uri string) (*Schema, error) {
 ```
 
 **Python**:
+
 ```python
 def resolve_schema(self, uri: str) -> Schema:
     parsed = parse_schema_uri(uri)

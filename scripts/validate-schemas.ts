@@ -13,6 +13,7 @@ const CATEGORY_KEYS = new Set([
   "cli",
   "codex",
   "doc-host",
+  "fixture",
   "library",
   "microtool",
   "missive",

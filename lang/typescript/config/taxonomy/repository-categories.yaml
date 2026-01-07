@@ -1,5 +1,5 @@
 # Fulmen repository category taxonomy (machine-readable source)
-version: "2025.10.2"
+version: "2026.01.1"
 categories:
   - key: cli
     summary: "Command-line utilities without long-lived servers"
@@ -198,3 +198,59 @@ categories:
     references:
       - "docs/standards/publishing/canonical-uri-resolution.md"
       - "docs/standards/repository-category/doc-host/README.md"
+  - key: fixture
+    summary: "Test infrastructure providing real-but-test-purpose servers, clients, or datastores"
+    primaryEntryPoints:
+      - "docker compose up"
+      - "Container image"
+    typicalConsumers:
+      - "Integration test suites"
+      - "CI/CD pipelines"
+      - "Local development environments"
+    constraints:
+      - "MUST NOT contain PII (use synthetic/anonymized data only)"
+      - "MUST NOT contain NPI/MNPI (regulatory/legal exposure)"
+      - "MUST NOT provide tooling for non-public interfaces in public repos"
+      - "MUST be container-first (docker compose up as primary entry)"
+      - "SHOULD use helper library (gofulmen, tsfulmen, pyfulmen) for observability"
+      - "MUST use scenario-driven configuration (YAML/JSON, not code changes)"
+      - "MUST be stateless by default (clean slate on restart)"
+      - "SHOULD expose structured logs for test assertions"
+      - "SHOULD self-document available endpoints/behaviors"
+    modes:
+      - key: server
+        summary: "Backend APIs (REST, gRPC, GraphQL)"
+        example: "fixture-server-proving-gauntlet-001"
+      - key: client
+        summary: "Clients for server/API testing"
+        example: "fixture-client-proving-probe-001"
+      - key: datastore
+        summary: "Databases, caches, or message queues"
+        example: "fixture-datastore-utility-bucket-001"
+      - key: identity
+        summary: "IdP/authentication services (OIDC, SAML)"
+        example: "fixture-identity-proving-warden-001"
+        status: "planned-v0.4.3"
+    behavioralCategories:
+      - key: proving
+        summary: "Real execution, test-purpose data, validates caller"
+        namingTheme: "Challenge/trial names (gauntlet, sentinel, bastion)"
+      - key: utility
+        summary: "Real execution, trivial but reliable service"
+        namingTheme: "Functional/descriptive (echo, static, relay)"
+      - key: chaos
+        summary: "Real execution, deliberately unreliable/hostile"
+        namingTheme: "Mischief names (gremlin, jinx, havoc)"
+    notes: >
+      Fixtures are real implementations with test-purpose configuration, NOT mocks (simulated responses). They execute real logic with synthetic data. Security constraints are inviolate to prevent data exposure in test artifacts. All fixture names must be registered in config/taxonomy/fixture-catalog.yaml.
+
+    naming:
+      pattern: "fixture-{mode}-{category}-{name}-{variant}"
+      categoryConstraint: "^(proving|utility|chaos)$"
+      nameConstraint: "^[a-z][a-z0-9]{1,20}$"
+      variantConstraint: "^[0-9]{3}$"
+      note: "Names registered in fixture-catalog.yaml. Variant 001 = reference implementation. Category in name for discoverability at scale."
+    registry: "config/taxonomy/fixture-catalog.yaml"
+    references:
+      - "docs/architecture/fulmen-fixture-standard.md"
+      - "docs/standards/repository-category/fixture/README.md"

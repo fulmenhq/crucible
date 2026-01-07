@@ -5,7 +5,7 @@ author: "Schema Cartographer"
 date: "2025-11-03"
 last_updated: "2026-01-06"
 status: "active"
-tags: ["standards", "repository-category", "organization", "v0.4.1"]
+tags: ["standards", "repository-category", "organization", "v0.4.2"]
 ---
 
 # Repository Category Standards
@@ -18,7 +18,7 @@ This directory contains standards, configuration schemas, and documentation spec
 
 Repository categories are defined in the taxonomy: `schemas/taxonomy/repository-category/v1.0.0/category-key.schema.json`
 
-Current categories: `cli`, `codex`, `doc-host`, `library`, `microtool`, `missive`, `pipeline`, `sdk`, `service`, `spec-host`, `workhorse`
+Current categories: `cli`, `codex`, `doc-host`, `fixture`, `library`, `microtool`, `missive`, `pipeline`, `sdk`, `service`, `spec-host`, `workhorse`
 
 ## Structure
 
@@ -28,6 +28,8 @@ repository-category/
 │   └── config-standard.md          # Codex configuration schema standard
 ├── doc-host/
 │   └── README.md                   # Doc-host category requirements
+├── fixture/
+│   └── README.md                   # Fixture category requirements
 ├── missive/
 │   └── README.md                   # Missive category requirements
 ├── spec-host/
@@ -126,6 +128,54 @@ This creates symmetry between schemas and documentation:
 
 **Note**: Doc-host and spec-host are complementary. A Codex site may layer browsable UI over either.
 
+### Fixture
+
+**Category**: `fixture` (test infrastructure with real-but-test-purpose implementations)
+
+**Summary**: Controlled test infrastructure providing real servers, clients, or datastores with synthetic data. Distinct from mocks (simulated responses) - fixtures execute real code paths.
+
+**Standards**:
+
+- [Fixture Category Standards](fixture/README.md) - Category requirements
+- [Fulmen Fixture Standard](../../architecture/fulmen-fixture-standard.md) - Full specification
+
+**Schemas**:
+
+- `schemas/taxonomy/fixture/v1.0.0/fixture-catalog.schema.json` - Fixture registry validation
+
+**Registry**:
+
+- `config/taxonomy/fixture-catalog.yaml` - All fixture names must be registered here
+
+**Key Constraints** (Inviolate):
+
+- No PII (synthetic data only)
+- No NPI/MNPI (regulatory exposure)
+- No non-public interface tooling in public repos
+- Container-first (`docker compose up`)
+- Scenario-driven configuration (YAML/JSON)
+
+**Naming Pattern**: `fixture-<mode>-<category>-<name>-<variant>` (e.g., `fixture-server-proving-gauntlet-001`)
+
+**Modes**:
+
+- `server` - Backend APIs (REST, gRPC, GraphQL)
+- `client` - Clients for server testing
+- `datastore` - Databases, caches, message queues
+- `identity` - IdP/authentication (planned v0.4.3)
+
+**Behavioral Categories** (in name for discoverability):
+
+- `proving` - Validates caller (gauntlet, sentinel)
+- `utility` - Trivial but reliable (echo, static)
+- `chaos` - Deliberately unreliable (gremlin, jinx)
+
+**Applies To**:
+
+- Integration test suites
+- CI/CD pipelines
+- Local development environments
+
 ### Missive
 
 **Category**: `missive` (single-page promotional/CTA sites)
@@ -223,6 +273,6 @@ Use category-specific standards when:
 
 ---
 
-**Status**: Active (v0.4.1+)
+**Status**: Active (v0.4.2+)
 
 **Maintainers**: Crucible Team

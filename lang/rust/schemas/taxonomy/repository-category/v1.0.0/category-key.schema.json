@@ -8,6 +8,7 @@
     "cli",
     "codex",
     "doc-host",
+    "fixture",
     "library",
     "microtool",
     "missive",
@@ -19,6 +20,7 @@
   ],
   "examples": [
     "workhorse",
+    "fixture",
     "spec-host",
     "doc-host",
     "missive"

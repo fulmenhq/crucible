@@ -5,6 +5,58 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.4.2 - Canonical URI Resolution & Fixture Standard
+
+Establishes canonical URI resolution for schema identifiers and introduces the fixture standard for test infrastructure repositories.
+
+### Highlights
+
+- **Canonical URI Resolution** (BREAKING): All schema `$id` values now include `crucible/` module prefix
+- **Fixture Standard**: New repository category for test infrastructure (servers, clients, datastores)
+- **Doc-Host Category**: New category for path-addressed documentation hosting
+- **Python Path Fix**: Exit codes codegen aligned with other Python modules
+
+### Breaking Changes
+
+Schema `$id` values changed from:
+```
+https://schemas.fulmenhq.dev/<topic>/<version>/<file>
+```
+To:
+```
+https://schemas.fulmenhq.dev/crucible/<topic>/<version>/<file>
+```
+
+Helper libraries with offline `$ref` resolution must strip `crucible/` from URL path when mapping to embedded schemas.
+
+### Added
+
+- `docs/architecture/fulmen-fixture-standard.md` - Fixture specification
+- `config/taxonomy/fixture-catalog.yaml` - Fixture name registry
+- `schemas/taxonomy/fixture/v1.0.0/fixture-catalog.schema.json` - Catalog validation
+- `docs/standards/publishing/canonical-uri-resolution.md` - URI resolution standard
+- `docs/standards/repository-category/doc-host/README.md` - Doc-host category
+
+### Changed
+
+- ~63 schemas updated with `crucible/` module prefix in `$id`
+- Repository categories taxonomy version `2026.01.1`
+
+### Removed
+
+- Enact schemas (moved to enacthq)
+- Goneat schemas (moved to goneat repository)
+
+### Impact
+
+- **All helper libraries**: Must sync v0.4.2 to get updated `$id` values
+- **Libraries with schema validators**: Update resolver to handle `crucible/` prefix
+- **pyfulmen**: Update imports from `pyfulmen.foundry` to `crucible.foundry`
+
+See [release-notes/v0.4.2.md](release-notes/v0.4.2.md) for details.
+
+---
+
 ## v0.4.1 - Similarity Module File Relocation
 
 Completes the v0.4.0 similarity promotion by relocating files from `library/foundry/` to `library/similarity/`.
@@ -61,31 +113,3 @@ Introduces weight classification and feature gate support for helper library mod
 - Platform modules increased from 18 to 19 entries (similarity added)
 
 See [release-notes/v0.4.0.md](release-notes/v0.4.0.md) for details.
-
----
-
-## v0.3.2 - Signal Handling & Schema Fixes
-
-Adds SIGKILL as first-class signal, GNU timeout exit codes (124-127), and fixes sync-keys schema drift.
-
-### Highlights
-
-- **SIGKILL Signal**: Full metadata entry for process supervision tools (sysprims, rsfulmen)
-- **Shell Exit Codes**: GNU timeout/shell conventions (124-127) for process control
-- **Schema Fix**: Sync-keys schema now allows metadata objects
-
-### Added
-
-- SIGKILL in `signals.yaml`: id `kill`, unix_number 9, exit_code 137, platform support
-- Shell category in `exit-codes.yaml`: EXIT_TIMEOUT (124), EXIT_TIMEOUT_INTERNAL (125), EXIT_CANNOT_EXECUTE (126), EXIT_NOT_FOUND (127)
-
-### Fixed
-
-- `sync-keys.schema.yaml`: Added optional `metadata` property with reserved keys (`sourceRepo`, `sourcePathBase`, `notes`)
-
-### Impact
-
-- rsfulmen can now consume signals and exit codes catalogs for sysprims foundation stage
-- Offline schema validation works for sync-keys.yaml consumers
-
-See [release-notes/v0.3.2.md](release-notes/v0.3.2.md) for details.
