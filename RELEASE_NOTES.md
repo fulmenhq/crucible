@@ -5,6 +5,55 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.4.4 - Signal Resolution Standard
+
+Standardizes ergonomic signal name resolution across all Fulmen helper libraries.
+
+### Highlights
+
+- **Signal Resolution API**: New `resolveSignal()`, `listSignalNames()`, `matchSignalNames()` interfaces
+- **Cross-Language Fixtures**: 41 test vectors for consistent behavior across Go, Python, TypeScript, Rust
+- **Numeric Support**: `kill -15` pattern supported (`"15"` → SIGTERM)
+- **Signals Documentation**: Comprehensive section added to Foundry README
+
+### Added
+
+- **Signal Resolution Interfaces** (`docs/standards/library/foundry/interfaces.md`)
+  - `resolveSignal(name)` - 7-step resolution: trim → empty check → exact → numeric → uppercase → ID fallback → null
+  - `listSignalNames()` - CLI completion support
+  - `matchSignalNames(pattern)` - glob matching with `*` and `?`
+  - Language-idiomatic signatures for Go, Python, TypeScript, Rust
+
+- **Test Fixtures** (`config/library/foundry/signal-resolution-fixtures.yaml`)
+  - 41 test cases covering exact match, numeric, case variants, whitespace, ID fallback, negative numbers
+  - Glob pattern test cases with expect_contains, expect_not_contains, expect_empty
+  - Schema validation at `schemas/library/foundry/v1.0.0/signal-resolution-fixtures.schema.json`
+
+- **Signals Section** (`docs/standards/library/foundry/README.md`)
+  - Catalog overview with signal table
+  - Behavior definitions (graceful_shutdown, reload_via_restart, etc.)
+  - Platform support matrix
+  - Helper library integration requirements
+  - Resolution algorithm specification
+  - Windows fallback documentation
+
+### Changed
+
+- **Resolution Algorithm**: Numeric lookup at step 4 (after trim, before case normalization)
+  - Supports common `kill -15` CLI pattern
+  - Negative numbers explicitly return null (`"-15"` → null)
+  - `signalsByNumber` index recommended for efficient lookup
+
+### Impact
+
+- **All helper libraries**: Implement new resolution interfaces
+- **rsfulmen**: Reference implementation, aligned with v0.1.2 feature brief
+- **gofulmen**: Add `signalsByNumber` index to `foundry/signals/catalog.go`
+
+See [release-notes/v0.4.4.md](release-notes/v0.4.4.md) for details.
+
+---
+
 ## v0.4.3 - Fixture Standard Refinement + Python Fix
 
 Minor release refining fixture naming conventions and fixing Python module exports.
@@ -100,30 +149,3 @@ Helper libraries with offline `$ref` resolution must strip `crucible/` from URL 
 - **pyfulmen**: Update imports from `pyfulmen.foundry` to `crucible.foundry`
 
 See [release-notes/v0.4.2.md](release-notes/v0.4.2.md) for details.
-
----
-
-## v0.4.1 - Similarity Module File Relocation
-
-Completes the v0.4.0 similarity promotion by relocating files from `library/foundry/` to `library/similarity/`.
-
-### Highlights
-
-- **File Relocation**: Similarity fixtures, schemas, and docs moved to standalone paths
-- **Go API Update**: New `ConfigRegistry.Library().Similarity().Fixtures()` accessor
-- **Backward Compatibility**: `Foundry().SimilarityFixtures()` still works (deprecated)
-
-### Changed
-
-- `config/library/foundry/similarity-fixtures.yaml` → `config/library/similarity/fixtures.yaml`
-- `schemas/library/foundry/v{1,2}.0.0/similarity.schema.json` → `schemas/library/similarity/`
-- `docs/standards/library/foundry/similarity.md` → `docs/standards/library/similarity/`
-- Schema `$id` namespace updated from `foundry` to `similarity`
-- Module registry evidence paths updated
-
-### Impact
-
-- gofulmen embed paths now point to `config/library/similarity/`
-- Helper libraries should update imports before v0.5.0 (deprecation removal)
-
-See [release-notes/v0.4.1.md](release-notes/v0.4.1.md) for details.

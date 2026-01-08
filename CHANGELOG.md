@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.4] - 2026-01-08
+
+### Added
+
+- **Signal Resolution Standard**: Ergonomic signal name resolution interfaces for helper libraries
+  - `resolveSignal(name)` - normalize and lookup (exact, numeric, case-insensitive, ID fallback)
+  - `listSignalNames()` - enumerate for CLI completion
+  - `matchSignalNames(pattern)` - glob matching with `*` and `?` wildcards
+  - `docs/standards/library/foundry/interfaces.md` - Signal Resolution section
+  - `config/library/foundry/signal-resolution-fixtures.yaml` - 41 cross-language test vectors
+  - `schemas/library/foundry/v1.0.0/signal-resolution-fixtures.schema.json` - Fixture validation
+  - Origin: rsfulmen memo 2026-01-08, standardized for ecosystem-wide adoption
+
+- **Signals Documentation**: Comprehensive signals section in Foundry README
+  - `docs/standards/library/foundry/README.md` - Full Signals section
+  - Catalog overview, behaviors, platform support, helper library integration
+  - Resolution algorithm, glob matching, Windows fallbacks
+  - Testing requirements for signal fixtures
+
+### Changed
+
+- **Resolution Algorithm**: 7-step resolution order with numeric support
+  - Step 4: Numeric lookup by `unix_number` (e.g., `"15"` → SIGTERM)
+  - Negative numbers explicitly not supported (`"-15"` → null)
+  - Whitespace trimming before numeric detection
+
 ## [0.4.3] - 2026-01-07
 
 ### Added
