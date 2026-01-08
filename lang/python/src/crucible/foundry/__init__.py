@@ -1,17 +1,25 @@
 """Foundry module - exit codes and catalog data."""
 
 from crucible.foundry.exit_codes import (
-    EXIT_CODES,
-    EXIT_CODES_BY_NAME,
+    EXIT_CODE_METADATA,
+    EXIT_CODES_VERSION,
     ExitCode,
-    get_exit_code,
-    get_exit_code_by_name,
+    ExitCodeInfo,
+    SimplifiedMode,
+    get_detailed_codes,
+    get_exit_code_info,
+    get_exit_codes_version,
+    map_to_simplified,
 )
 
 __all__ = [
-    "EXIT_CODES",
-    "EXIT_CODES_BY_NAME",
+    "EXIT_CODE_METADATA",
+    "EXIT_CODES_VERSION",
     "ExitCode",
-    "get_exit_code",
-    "get_exit_code_by_name",
+    "ExitCodeInfo",
+    "SimplifiedMode",
+    "get_detailed_codes",
+    "get_exit_code_info",
+    "get_exit_codes_version",
+    "map_to_simplified",
 ]

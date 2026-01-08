@@ -5,6 +5,49 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.4.3 - Fixture Standard Refinement + Python Fix
+
+Minor release refining fixture naming conventions and fixing Python module exports.
+
+### Highlights
+
+- **Fixture Naming**: Explicit variant codes now required (no implicit `-001`)
+- **New Fixture**: Registered `rampart` for HTTP protocol testing
+- **Bug Fix**: Corrected `foundry/__init__.py` to export actual `exit_codes.py` API
+
+### Added
+
+- **Ecosystem Brand Summary**: `config/branding/ecosystem.yaml`
+  - Accessible via `crucible.GetBrandSummary()` in helper libraries
+  - Tools display via `version --extended` or `about` command/endpoint
+  - Answers "what is this?" without cluttering repo/binary names
+
+- **`rampart` fixture**: HTTP protocol testing server for client validation
+  - `fixture-server-proving-rampart-001`: Core HTTP/1.1 scenarios
+  - Future variants planned for HTTP/2 and performance testing
+
+### Changed
+
+- **Fixture naming convention**: Variant codes are explicitly required
+  - `fixture-server-proving-rampart-001` (correct)
+  - `fixture-server-proving-rampart` (no longer valid)
+  - Prevents breaking changes when adding variants
+
+### Fixed
+
+- **Python Foundry Module**: `__init__.py` exported non-existent symbols
+  - Now exports correct API: `EXIT_CODE_METADATA`, `ExitCodeInfo`, `SimplifiedMode`, etc.
+  - Affected v0.4.1 and v0.4.2
+
+### Impact
+
+- **Fixture creators**: Use explicit variant codes from day one
+- **pyfulmen**: Remove workarounds after syncing v0.4.3
+
+See [release-notes/v0.4.3.md](release-notes/v0.4.3.md) for details.
+
+---
+
 ## v0.4.2 - Canonical URI Resolution & Fixture Standard
 
 Establishes canonical URI resolution for schema identifiers and introduces the fixture standard for test infrastructure repositories.
@@ -19,10 +62,13 @@ Establishes canonical URI resolution for schema identifiers and introduces the f
 ### Breaking Changes
 
 Schema `$id` values changed from:
+
 ```
 https://schemas.fulmenhq.dev/<topic>/<version>/<file>
 ```
+
 To:
+
 ```
 https://schemas.fulmenhq.dev/crucible/<topic>/<version>/<file>
 ```
@@ -81,35 +127,3 @@ Completes the v0.4.0 similarity promotion by relocating files from `library/foun
 - Helper libraries should update imports before v0.5.0 (deprecation removal)
 
 See [release-notes/v0.4.1.md](release-notes/v0.4.1.md) for details.
-
----
-
-## v0.4.0 - Module Registry Weight Classification
-
-Introduces weight classification and feature gate support for helper library modules, enabling consistent feature gating across all language implementations.
-
-### Highlights
-
-- **Weight Classification**: Binary `light`/`heavy` classification for dependency footprint
-- **Feature Gate Defaults**: `default_inclusion` field for opt-in vs opt-out modules
-- **Similarity Promotion**: Moved from foundry-catalogs to standalone platform module
-- **Product Marketing Role**: New `prodmktg` agentic role for messaging and branding
-
-### Added
-
-- Module registry v1.1.0 schemas with `weight`, `default_inclusion`, `notes` fields
-- Foundry catalog registry v1.1.0 with `feature_group` for library feature mapping
-- `docs/standards/fulmen/module-registry.md` documenting weight classification semantics
-- `prodmktg` role with new `marketing` category in role-prompt schema
-
-### Fixed
-
-- Schema `$id` host corrected from `fulmenhq.dev` to `schemas.fulmenhq.dev`
-
-### Impact
-
-- Helper libraries (rsfulmen, gofulmen, pyfulmen, tsfulmen) can implement feature gates using registry metadata
-- Foundry catalogs reduced from 7 to 6 entries (similarity promoted)
-- Platform modules increased from 18 to 19 entries (similarity added)
-
-See [release-notes/v0.4.0.md](release-notes/v0.4.0.md) for details.

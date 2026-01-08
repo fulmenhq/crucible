@@ -1,0 +1,35 @@
+# Fulmen Ecosystem Brand Summary
+#
+# Accessible via helper libraries: crucible.GetBrandSummary()
+#
+# Display options (tools implement one or both):
+#   - CLI: `<binary> version --extended` or `<binary> about`
+#   - Server: GET /about endpoint
+#
+# Keep summaries factual and informative, not marketing-speak.
+$schema: "https://schemas.fulmenhq.dev/crucible/branding/v1.0.0/ecosystem.schema.json"
+version: "1.0.0"
+# One-line summary for tight spaces (logs, headers)
+short: "Fulmen - Open-source enterprise application infrastructure by 3leaps"
+# Two-line extended summary for version --extended output
+extended: |
+  Fulmen provides schemas, standards, and libraries for building reliable,
+  observable enterprise applications. Open source. https://fulmenhq.dev
+# Full context for documentation or --help output
+full: |
+  Fulmen is an open-source ecosystem for enterprise application development.
+  It provides a single source of truth for schemas, coding standards, and
+  reusable libraries across Go, Python, TypeScript, and Rust. The ecosystem
+  emphasizes type safety, observability, and consistent quality enforcement.
+
+  Maintained by 3leaps. Licensed under hybrid open-source terms.
+
+  Documentation: https://fulmenhq.dev
+  Source: https://github.com/fulmenhq
+# Structured metadata for programmatic access
+metadata:
+  org: "fulmenhq"
+  maintainer: "3leaps"
+  url: "https://fulmenhq.dev"
+  source: "https://github.com/fulmenhq"
+  tagline: "Start Fast. Thrive on Scale."

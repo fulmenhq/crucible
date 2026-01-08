@@ -9,6 +9,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-01-07
+
+### Added
+
+- **Ecosystem Brand Summary**: Added `config/branding/ecosystem.yaml` for consistent brand context
+  - Accessible via helper libraries: `crucible.GetBrandSummary()`
+  - Displayed by `<binary> version --extended`
+  - Includes short, extended, and full summaries plus structured metadata
+
+- **Fixture Catalog**: Registered `rampart` proving fixture for HTTP protocol testing
+  - `fixture-server-proving-rampart-001`: Core HTTP/1.1 scenarios
+  - `fixture-server-proving-rampart-002`: HTTP/2 extended (planned)
+  - `fixture-server-proving-rampart-003`: Performance/throughput (planned)
+
+### Changed
+
+- **Fixture Naming Convention**: Variant codes are now explicitly required
+  - No implicit `-001` default - all fixture names must include the 3-digit variant suffix
+  - Prevents breaking changes when adding variants (no retroactive renames)
+  - Catalog entry required before repository creation
+  - Binary naming: Use `<name>` only (e.g., `rampart`), variant is metadata not identity
+
+### Fixed
+
+- **Python Foundry Module Export Mismatch**: Fixed `lang/python/src/crucible/foundry/__init__.py` to export correct API
+  - `__init__.py` was exporting non-existent symbols (`EXIT_CODES`, `EXIT_CODES_BY_NAME`, `get_exit_code`, `get_exit_code_by_name`)
+  - Caused `ImportError: cannot import name 'EXIT_CODES' from 'crucible.foundry.exit_codes'`
+  - Now exports actual `exit_codes.py` API: `EXIT_CODE_METADATA`, `EXIT_CODES_VERSION`, `ExitCode`, `ExitCodeInfo`, `SimplifiedMode`, `get_detailed_codes`, `get_exit_code_info`, `get_exit_codes_version`, `map_to_simplified`
+  - Affected versions: v0.4.1, v0.4.2
+  - Reported by pyfulmen team
+
 ## [0.4.2] - 2026-01-07
 
 ### Added
