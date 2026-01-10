@@ -1,0 +1,9 @@
+# Invalid: Missing required 'breakpoints' field
+$schema: https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/layout.schema.json
+version: "1.0.0"
+# breakpoints is missing - should fail validation
+
+spacing:
+  md:
+    cols: 2
+    rows: 1

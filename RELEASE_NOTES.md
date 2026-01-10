@@ -5,6 +5,91 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.4.5 - TUI Design System + Standards Discoverability
+
+Introduces a layered design system architecture for terminal UIs and establishes guides as compliance routing documents.
+
+### Highlights
+
+- **TUI Design System**: 9 schemas enabling terminal theming with capability-based fallbacks
+- **Core/Implementation Split**: Shared semantic vocabulary (core) + terminal-specific patterns (tui)
+- **Reference Themes**: Dark and high-contrast themes with WCAG compliance
+- **Compliance Routing**: Guides now explicitly list "read these standards first" with checklists
+- **Work-Type Routing**: AGENTS.md maps work types to required reading
+
+### Added
+
+- **TUI Design System Schemas** (`schemas/design/`)
+  - Core vocabulary (`core/v1.0.0/`): semantic-colors, spacing-scale, typography-roles, component-states
+  - TUI implementation (`tui/v1.0.0/`): theme (root), color-palette, typography, layout, component
+  - Terminal color fallbacks: truecolor → 256-color → 16-color → basic
+  - Character set degradation: unicode-full → unicode-basic → extended-ascii → ascii
+  - WCAG contrast ratios on color definitions for accessibility validation
+  - Nerd Font glyph support with unicode/ascii fallbacks
+  - CJK width handling for internationalization
+  - Responsive breakpoints adapted for terminal dimensions (columns/rows)
+
+- **Reference Themes** (`examples/design/tui/v1.0.0/themes/`)
+  - `dark.yaml` - Tokyo Night-inspired, 256-color minimum, WCAG AA compliant
+  - `light.yaml` - Balanced light mode for daytime use, WCAG AA compliant
+  - `high-contrast.yaml` - WCAG AAA compliant, 16-color minimum, ASCII-safe
+
+- **Schema Fixtures** (`examples/design/tui/v1.0.0/{valid,invalid}/`)
+  - Minimal valid examples for theme, color-palette, layout
+  - Invalid examples for validation testing (missing fields, bad patterns)
+
+- **Testing Guides Family** (`docs/guides/testing/`)
+  - `README.md` - Testing guides index explaining standards vs guides distinction
+  - `http-server-patterns.md` - Server/fixture patterns with compliance requirements
+  - `http-client-patterns.md` - Client testing with rampart/gauntlet fixture usage
+
+- **AGENTS.md Work-Type Routing** - New section mapping work types to required reading
+  - HTTP server → http-server-patterns.md → http-rest-standards, coding/{lang}
+  - HTTP client → http-client-patterns.md → http-rest-standards, coding/{lang}
+  - CLI → language-testing-patterns.md → portable-testing-practices
+  - Fixture → fixture-standard.md → http-server-patterns
+  - Schema → schema-normalization.md → frontmatter-standard
+  - Release → release-checklist.md → repository-versioning
+
+- **Go HTTP Handler Anti-Patterns** (in http-server-patterns.md)
+  - `json.Encoder.Encode()` error handling after `WriteHeader()`
+  - Response body close with per-file test helpers (`closeBody`)
+  - Context-aware delay handlers (no bare `time.Sleep()`)
+  - Body limits with `io.LimitReader` for DoS prevention
+  - Derived from 25+ lint fixes in rampart/gauntlet
+
+- **Cross-Linking Updates**
+  - `docs/standards/testing/README.md` → testing guides
+  - `docs/standards/coding/go.md` §8 → http-server-patterns
+  - `docs/architecture/fulmen-fixture-standard.md` → both testing guides
+  - `docs/standards/protocol/http-rest-standards.md` → both testing guides
+  - `docs/guides/README.md` → new Testing section
+
+- **UX Developer Role** (`config/agentic/roles/uxdev.yaml`)
+  - New agentic role for frontend development (TUI and web)
+  - TUI frameworks: tview (Go), textual (Python), ink/opentui (Node), ratatui (Rust)
+  - Web frameworks: React, Vue, Svelte, HTMX
+  - Accessibility-first with WCAG 2.1 AA compliance focus
+  - Checklists for components, TUI-specific, and web-specific concerns
+  - Patterns: Model-View-Update, component composition, focus management
+
+### Changed
+
+- **Document Taxonomy Clarified**: Three document types formalized
+  - Standards: Normative (MUST/SHOULD)
+  - Guides: Compliance routing + practical examples
+  - Architecture: System structure and rationale
+
+### Impact
+
+- **All developers (human + AI)**: Use work-type routing in AGENTS.md to find applicable standards
+- **devrev role**: Use Pre-Review Checklists in guides for systematic compliance validation
+- **Fixture authors**: Follow Fixture Author Conformance Checklist in http-server-patterns
+
+See [release-notes/v0.4.5.md](release-notes/v0.4.5.md) for details (created at release time).
+
+---
+
 ## v0.4.4 - Signal Resolution Standard
 
 Standardizes ergonomic signal name resolution across all Fulmen helper libraries.
@@ -94,58 +179,3 @@ Minor release refining fixture naming conventions and fixing Python module expor
 - **pyfulmen**: Remove workarounds after syncing v0.4.3
 
 See [release-notes/v0.4.3.md](release-notes/v0.4.3.md) for details.
-
----
-
-## v0.4.2 - Canonical URI Resolution & Fixture Standard
-
-Establishes canonical URI resolution for schema identifiers and introduces the fixture standard for test infrastructure repositories.
-
-### Highlights
-
-- **Canonical URI Resolution** (BREAKING): All schema `$id` values now include `crucible/` module prefix
-- **Fixture Standard**: New repository category for test infrastructure (servers, clients, datastores)
-- **Doc-Host Category**: New category for path-addressed documentation hosting
-- **Python Path Fix**: Exit codes codegen aligned with other Python modules
-
-### Breaking Changes
-
-Schema `$id` values changed from:
-
-```
-https://schemas.fulmenhq.dev/<topic>/<version>/<file>
-```
-
-To:
-
-```
-https://schemas.fulmenhq.dev/crucible/<topic>/<version>/<file>
-```
-
-Helper libraries with offline `$ref` resolution must strip `crucible/` from URL path when mapping to embedded schemas.
-
-### Added
-
-- `docs/architecture/fulmen-fixture-standard.md` - Fixture specification
-- `config/taxonomy/fixture-catalog.yaml` - Fixture name registry
-- `schemas/taxonomy/fixture/v1.0.0/fixture-catalog.schema.json` - Catalog validation
-- `docs/standards/publishing/canonical-uri-resolution.md` - URI resolution standard
-- `docs/standards/repository-category/doc-host/README.md` - Doc-host category
-
-### Changed
-
-- ~63 schemas updated with `crucible/` module prefix in `$id`
-- Repository categories taxonomy version `2026.01.1`
-
-### Removed
-
-- Enact schemas (moved to enacthq)
-- Goneat schemas (moved to goneat repository)
-
-### Impact
-
-- **All helper libraries**: Must sync v0.4.2 to get updated `$id` values
-- **Libraries with schema validators**: Update resolver to handle `crucible/` prefix
-- **pyfulmen**: Update imports from `pyfulmen.foundry` to `crucible.foundry`
-
-See [release-notes/v0.4.2.md](release-notes/v0.4.2.md) for details.

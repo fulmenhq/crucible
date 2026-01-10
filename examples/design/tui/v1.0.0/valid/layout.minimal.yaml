@@ -1,0 +1,14 @@
+# Minimal valid layout configuration
+$schema: https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/layout.schema.json
+version: "1.0.0"
+breakpoints:
+  - name: "default"
+    min_cols: 80
+    tier: "default"
+spacing:
+  none:
+    cols: 0
+    rows: 0
+  md:
+    cols: 2
+    rows: 1

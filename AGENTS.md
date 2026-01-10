@@ -124,6 +124,28 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
 3. Use proper attribution with `Role:` trailer
 4. Include `Committer-of-Record` trailer
 
+## Work-Type Standards Routing
+
+Before starting implementation work, identify your work type and read the applicable guides/standards. Guides serve as **compliance routing documents** - they direct you to normative standards and provide practical checklists.
+
+| Work Type                  | Required Reading                                                                 | Key Standards Applied                                |
+| -------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| HTTP server implementation | [HTTP Server Patterns](docs/guides/testing/http-server-patterns.md)              | http-rest-standards, coding/{lang}, fixture-standard |
+| HTTP client implementation | [HTTP Client Patterns](docs/guides/testing/http-client-patterns.md)              | http-rest-standards, coding/{lang}                   |
+| CLI command implementation | [Language Testing Patterns](docs/standards/testing/language-testing-patterns.md) | coding/{lang}, portable-testing-practices            |
+| Fixture development        | [Fixture Standard](docs/architecture/fulmen-fixture-standard.md)                 | fixture-standard, http-server-patterns               |
+| Schema changes             | [Schema Normalization](docs/standards/schema-normalization.md)                   | schema-normalization, frontmatter-standard           |
+| Release preparation        | [Release Checklist](docs/ops/repository/release-checklist.md)                    | release-checklist-standard, repository-versioning    |
+
+### How to Use This Table
+
+1. **Before implementation**: Identify work type → read the guide → read linked standards
+2. **During implementation**: Reference anti-patterns and checklists in guides
+3. **Before commit**: Verify compliance checklist items in the guide
+4. **During review (devrev)**: Validate against the same checklist
+
+This routing ensures standards are discoverable at the moment they're needed, not after implementation is complete.
+
 ## DO / DO NOT
 
 ### DO

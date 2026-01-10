@@ -762,6 +762,8 @@ Each scenario should document:
 - [Fulmen Ecosystem Guide](./fulmen-ecosystem-guide.md)
 - [Fulmen Forge Workhorse Standard](./fulmen-forge-workhorse-standard.md) - Layer 2 peer
 - [Fulmen Forge Microtool Standard](./fulmen-forge-microtool-standard.md) - Similar constraints model
+- [HTTP Server Patterns Guide](../guides/testing/http-server-patterns.md) - Implementation patterns and compliance checklists for fixture authors
+- [HTTP Client Patterns Guide](../guides/testing/http-client-patterns.md) - Testing patterns for fixture consumers
 
 ---
 

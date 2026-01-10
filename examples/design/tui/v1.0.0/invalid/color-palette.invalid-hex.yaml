@@ -1,0 +1,18 @@
+# Invalid: Hex color doesn't match pattern (missing #, wrong length)
+$schema: https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/color-palette.schema.json
+version: "1.0.0"
+name: "invalid-palette"
+semantic_colors:
+  primary:
+    role: "primary"
+    foreground:
+      truecolor: "7AA2F7" # Missing # prefix - should fail
+      ansi16: "bright-blue"
+surface_colors:
+  background:
+    truecolor: "#1A1" # Too short - should fail
+    ansi16: "black"
+text_colors:
+  primary:
+    truecolor: "#GGGGGG" # Invalid hex chars - should fail
+    ansi16: "white"

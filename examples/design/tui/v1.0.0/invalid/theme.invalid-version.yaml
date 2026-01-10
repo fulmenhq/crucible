@@ -1,0 +1,24 @@
+# Invalid: Version doesn't match SemVer pattern
+$schema: https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/theme.schema.json
+version: "invalid-version-string" # Should fail pattern validation
+schema_version: "1.0.0"
+metadata:
+  name: "Test Theme"
+  id: "test"
+colors:
+  version: "1.0.0"
+  name: "test-palette"
+  semantic_colors:
+    primary:
+      role: "primary"
+      foreground:
+        truecolor: "#0000FF"
+        ansi16: "blue"
+  surface_colors:
+    background:
+      truecolor: "#000000"
+      ansi16: "black"
+  text_colors:
+    primary:
+      truecolor: "#FFFFFF"
+      ansi16: "white"

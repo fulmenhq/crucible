@@ -1,0 +1,408 @@
+# yaml-language-server: $schema=https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/theme.schema.json
+# Fulmen Light Theme - Light mode TUI theme for Fulmen applications
+$schema: https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/theme.schema.json
+version: "1.0.0"
+schema_version: "1.0.0"
+metadata:
+  name: "Fulmen Light"
+  id: "fulmen-light"
+  description: "Light mode theme for Fulmen TUI applications. Optimized for well-lit environments and daytime use."
+  author: "FulmenHQ"
+  license: "MIT"
+  tags:
+    - light
+    - fulmen
+    - daytime
+  dark_mode: false
+  high_contrast: false
+requirements:
+  min_color_capability: "256"
+  min_charset: "unicode-basic"
+  nerd_font_recommended: true
+  min_cols: 80
+  min_rows: 24
+colors:
+  version: "1.0.0"
+  name: "fulmen-light-palette"
+  description: "Light palette with balanced contrast for daytime use"
+  min_capability: "256"
+  semantic_colors:
+    primary:
+      role: "primary"
+      foreground:
+        truecolor: "#2E5CB8"
+        ansi256: 26
+        ansi16: "blue"
+      wcag_contrast_ratio: 7.5
+    secondary:
+      role: "secondary"
+      foreground:
+        truecolor: "#7C3AED"
+        ansi256: 93
+        ansi16: "magenta"
+      wcag_contrast_ratio: 6.2
+    accent:
+      role: "accent"
+      foreground:
+        truecolor: "#B45309"
+        ansi256: 130
+        ansi16: "yellow"
+      wcag_contrast_ratio: 5.8
+    success:
+      role: "success"
+      foreground:
+        truecolor: "#15803D"
+        ansi256: 28
+        ansi16: "green"
+      wcag_contrast_ratio: 5.4
+    warning:
+      role: "warning"
+      foreground:
+        truecolor: "#A16207"
+        ansi256: 136
+        ansi16: "yellow"
+      wcag_contrast_ratio: 4.9
+    error:
+      role: "error"
+      foreground:
+        truecolor: "#B91C1C"
+        ansi256: 124
+        ansi16: "red"
+      wcag_contrast_ratio: 6.1
+    info:
+      role: "info"
+      foreground:
+        truecolor: "#0369A1"
+        ansi256: 24
+        ansi16: "cyan"
+      wcag_contrast_ratio: 5.6
+    muted:
+      role: "muted"
+      foreground:
+        truecolor: "#6B7280"
+        ansi256: 245
+        ansi16: "bright-black"
+      wcag_contrast_ratio: 4.6
+  surface_colors:
+    background:
+      truecolor: "#FFFFFF"
+      ansi256: 231
+      ansi16: "bright-white"
+    surface:
+      truecolor: "#F9FAFB"
+      ansi256: 255
+      ansi16: "white"
+    surface_elevated:
+      truecolor: "#FFFFFF"
+      ansi256: 231
+      ansi16: "bright-white"
+    surface_sunken:
+      truecolor: "#F3F4F6"
+      ansi256: 254
+      ansi16: "white"
+    overlay:
+      truecolor: "#FFFFFF"
+      ansi256: 231
+      ansi16: "bright-white"
+  text_colors:
+    primary:
+      truecolor: "#111827"
+      ansi256: 233
+      ansi16: "black"
+    secondary:
+      truecolor: "#374151"
+      ansi256: 237
+      ansi16: "black"
+    muted:
+      truecolor: "#6B7280"
+      ansi256: 245
+      ansi16: "bright-black"
+    inverse:
+      truecolor: "#FFFFFF"
+      ansi256: 231
+      ansi16: "bright-white"
+    link:
+      truecolor: "#2563EB"
+      ansi256: 27
+      ansi16: "blue"
+  border_colors:
+    default:
+      truecolor: "#D1D5DB"
+      ansi256: 252
+      ansi16: "white"
+    subtle:
+      truecolor: "#E5E7EB"
+      ansi256: 254
+      ansi16: "white"
+    strong:
+      truecolor: "#9CA3AF"
+      ansi256: 248
+      ansi16: "bright-black"
+    focus:
+      truecolor: "#2563EB"
+      ansi256: 27
+      ansi16: "blue"
+typography:
+  version: "1.0.0"
+  charset_level: "unicode-basic"
+  box_drawing:
+    preferred_set: "rounded"
+    fallback_set: "single"
+  text_roles:
+    headline:
+      role: "headline"
+      emphasis:
+        - bold
+    body:
+      role: "body"
+      emphasis:
+        - normal
+    caption:
+      role: "caption"
+      emphasis:
+        - dim
+    code:
+      role: "code"
+      emphasis:
+        - normal
+  glyphs:
+    nerd_font_enabled: true
+    definitions:
+      - name: "check"
+        category: "status"
+        nerd_font: ""
+        unicode: "✓"
+        ascii: "[x]"
+      - name: "cross"
+        category: "status"
+        nerd_font: ""
+        unicode: "✗"
+        ascii: "[!]"
+      - name: "warning"
+        category: "status"
+        nerd_font: ""
+        unicode: "⚠"
+        ascii: "[!]"
+      - name: "info"
+        category: "status"
+        nerd_font: ""
+        unicode: "ℹ"
+        ascii: "[i]"
+      - name: "arrow-right"
+        category: "navigation"
+        nerd_font: ""
+        unicode: "→"
+        ascii: "->"
+      - name: "arrow-down"
+        category: "navigation"
+        nerd_font: ""
+        unicode: "↓"
+        ascii: "v"
+      - name: "folder"
+        category: "file-type"
+        nerd_font: ""
+        unicode: "📁"
+        ascii: "[D]"
+      - name: "file"
+        category: "file-type"
+        nerd_font: ""
+        unicode: "📄"
+        ascii: "[F]"
+  cjk_handling:
+    width_mode: "ambiguous-narrow"
+    emoji_width: 2
+    ambiguous_width: 1
+  spinners:
+    dots:
+      frames: ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+      interval_ms: 80
+    line:
+      frames: ["-", "\\", "|", "/"]
+      interval_ms: 100
+  progress_chars:
+    filled: "█"
+    empty: "░"
+    head: "▓"
+    left_bracket: "["
+    right_bracket: "]"
+layout:
+  version: "1.0.0"
+  breakpoints:
+    - name: "compact"
+      min_cols: 40
+      tier: "compact"
+      description: "Minimal terminal (mobile, split pane)"
+    - name: "default"
+      min_cols: 80
+      tier: "default"
+      description: "Standard terminal"
+    - name: "comfortable"
+      min_cols: 120
+      tier: "comfortable"
+      description: "Wide terminal"
+    - name: "spacious"
+      min_cols: 160
+      tier: "spacious"
+      description: "Ultra-wide terminal"
+  spacing:
+    none:
+      cols: 0
+      rows: 0
+    xs:
+      cols: 1
+      rows: 0
+    sm:
+      cols: 1
+      rows: 0
+    md:
+      cols: 2
+      rows: 1
+    lg:
+      cols: 3
+      rows: 1
+    xl:
+      cols: 4
+      rows: 2
+  constraints:
+    min_content_cols: 40
+    min_content_rows: 10
+    max_content_cols: 120
+    padding:
+      cols: 1
+      rows: 0
+    gap:
+      cols: 2
+      rows: 1
+  responsive_behavior:
+    collapse_sidebars_below: 80
+    hide_chrome_below: 60
+    stack_panels_below: 100
+components:
+  version: "1.0.0"
+  components:
+    button:
+      id: "button"
+      min_width: 8
+      padding_horizontal: 2
+      states:
+        default:
+          foreground: "text-primary"
+          background: "surface"
+          border: "border-default"
+        hover:
+          foreground: "text-primary"
+          background: "surface-sunken"
+          border: "border-strong"
+        focus:
+          foreground: "text-primary"
+          background: "surface"
+          border: "border-focus"
+          emphasis:
+            - bold
+        active:
+          foreground: "text-inverse"
+          background: "primary"
+          border: "primary"
+        disabled:
+          foreground: "text-muted"
+          background: "surface"
+          border: "border-subtle"
+          emphasis:
+            - dim
+    input:
+      id: "input"
+      cursor_char: "▏"
+      states:
+        default:
+          foreground: "text-primary"
+          background: "surface"
+          border: "border-default"
+        focus:
+          foreground: "text-primary"
+          background: "surface"
+          border: "border-focus"
+        error:
+          foreground: "text-primary"
+          background: "surface"
+          border: "error"
+        disabled:
+          foreground: "text-muted"
+          background: "surface-sunken"
+          border: "border-subtle"
+      placeholder_style:
+        foreground: "text-muted"
+        emphasis:
+          - italic
+    list:
+      id: "list"
+      item_prefix: "  "
+      selected_prefix: "> "
+      scrollbar:
+        track_char: "│"
+        thumb_char: "█"
+        position: "right"
+      states:
+        default:
+          foreground: "text-primary"
+        hover:
+          foreground: "text-primary"
+          background: "surface-sunken"
+        selected:
+          foreground: "primary"
+          emphasis:
+            - bold
+        focus:
+          border: "border-focus"
+    table:
+      id: "table"
+      cell_padding: 1
+      border_style: "single"
+      row_alternate: true
+      states:
+        default:
+          foreground: "text-primary"
+        selected:
+          foreground: "text-inverse"
+          background: "primary"
+      header_style:
+        foreground: "text-secondary"
+        emphasis:
+          - bold
+      row_alternate_style:
+        background: "surface-sunken"
+  focus_ring:
+    style: "bracket"
+    color: "primary"
+    char_left: "["
+    char_right: "]"
+  icons:
+    checkbox_unchecked:
+      nerd_font: "\U000F0131"
+      unicode: "☐"
+      ascii: "[ ]"
+    checkbox_checked:
+      nerd_font: "\U000F0135"
+      unicode: "☑"
+      ascii: "[x]"
+    radio_unchecked:
+      nerd_font: "\U000F0131"
+      unicode: "○"
+      ascii: "( )"
+    radio_checked:
+      nerd_font: "\U000F0135"
+      unicode: "●"
+      ascii: "(*)"
+    toggle_off:
+      nerd_font: "\U000F0521"
+      unicode: "○──"
+      ascii: "[ ]"
+    toggle_on:
+      nerd_font: "\U000F0522"
+      unicode: "──●"
+      ascii: "[=]"
+accessibility:
+  wcag_level: "AA"
+  min_contrast_ratio: 4.5
+  focus_visible_required: true
+  motion_reduced: false
+  color_blind_safe: false

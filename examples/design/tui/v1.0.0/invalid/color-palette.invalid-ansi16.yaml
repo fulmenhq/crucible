@@ -1,0 +1,18 @@
+# Invalid: ANSI 16 color name not in allowed enum
+$schema: https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/color-palette.schema.json
+version: "1.0.0"
+name: "invalid-palette"
+semantic_colors:
+  primary:
+    role: "primary"
+    foreground:
+      truecolor: "#7AA2F7"
+      ansi16: "neon-purple" # Not a valid ANSI 16 color name - should fail
+surface_colors:
+  background:
+    truecolor: "#000000"
+    ansi16: "black"
+text_colors:
+  primary:
+    truecolor: "#FFFFFF"
+    ansi16: "white"

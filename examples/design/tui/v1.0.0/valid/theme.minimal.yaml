@@ -1,0 +1,24 @@
+# Minimal valid TUI theme - contains only required fields
+$schema: https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/theme.schema.json
+version: "1.0.0"
+schema_version: "1.0.0"
+metadata:
+  name: "Minimal Theme"
+  id: "minimal"
+colors:
+  version: "1.0.0"
+  name: "minimal-palette"
+  semantic_colors:
+    primary:
+      role: "primary"
+      foreground:
+        truecolor: "#0000FF"
+        ansi16: "blue"
+  surface_colors:
+    background:
+      truecolor: "#000000"
+      ansi16: "black"
+  text_colors:
+    primary:
+      truecolor: "#FFFFFF"
+      ansi16: "white"

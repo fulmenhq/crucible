@@ -1,0 +1,18 @@
+# Minimal valid color palette
+$schema: https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/color-palette.schema.json
+version: "1.0.0"
+name: "test-palette"
+semantic_colors:
+  primary:
+    role: "primary"
+    foreground:
+      truecolor: "#7AA2F7"
+      ansi16: "bright-blue"
+surface_colors:
+  background:
+    truecolor: "#1A1B26"
+    ansi16: "black"
+text_colors:
+  primary:
+    truecolor: "#C0CAF5"
+    ansi16: "white"

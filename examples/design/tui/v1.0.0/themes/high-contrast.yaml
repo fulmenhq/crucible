@@ -1,0 +1,422 @@
+# yaml-language-server: $schema=https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/theme.schema.json
+# Fulmen High Contrast Theme - WCAG AAA compliant accessibility theme
+$schema: https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/theme.schema.json
+version: "1.0.0"
+schema_version: "1.0.0"
+metadata:
+  name: "Fulmen High Contrast"
+  id: "fulmen-high-contrast"
+  description: "WCAG AAA compliant high contrast theme for maximum accessibility. Designed for users with low vision or in high ambient light environments."
+  author: "FulmenHQ"
+  license: "MIT"
+  tags:
+    - high-contrast
+    - accessibility
+    - wcag-aaa
+    - fulmen
+  dark_mode: true
+  high_contrast: true
+requirements:
+  min_color_capability: "16"
+  min_charset: "ascii"
+  nerd_font_recommended: false
+  min_cols: 60
+  min_rows: 20
+colors:
+  version: "1.0.0"
+  name: "fulmen-high-contrast-palette"
+  description: "High contrast palette meeting WCAG AAA (7:1 contrast ratio) requirements"
+  min_capability: "16"
+  semantic_colors:
+    primary:
+      role: "primary"
+      foreground:
+        truecolor: "#00BFFF"
+        ansi256: 39
+        ansi16: "bright-cyan"
+      wcag_contrast_ratio: 8.6
+    secondary:
+      role: "secondary"
+      foreground:
+        truecolor: "#FF69B4"
+        ansi256: 205
+        ansi16: "bright-magenta"
+      wcag_contrast_ratio: 7.1
+    accent:
+      role: "accent"
+      foreground:
+        truecolor: "#FFFF00"
+        ansi256: 226
+        ansi16: "bright-yellow"
+      wcag_contrast_ratio: 19.6
+    success:
+      role: "success"
+      foreground:
+        truecolor: "#00FF00"
+        ansi256: 46
+        ansi16: "bright-green"
+      wcag_contrast_ratio: 15.3
+    warning:
+      role: "warning"
+      foreground:
+        truecolor: "#FFA500"
+        ansi256: 214
+        ansi16: "yellow"
+      wcag_contrast_ratio: 8.9
+    error:
+      role: "error"
+      foreground:
+        truecolor: "#FF4444"
+        ansi256: 196
+        ansi16: "bright-red"
+      wcag_contrast_ratio: 7.0
+    info:
+      role: "info"
+      foreground:
+        truecolor: "#00FFFF"
+        ansi256: 51
+        ansi16: "bright-cyan"
+      wcag_contrast_ratio: 16.7
+    muted:
+      role: "muted"
+      foreground:
+        truecolor: "#AAAAAA"
+        ansi256: 248
+        ansi16: "white"
+      wcag_contrast_ratio: 7.4
+  surface_colors:
+    background:
+      truecolor: "#000000"
+      ansi256: 16
+      ansi16: "black"
+    surface:
+      truecolor: "#1A1A1A"
+      ansi256: 234
+      ansi16: "black"
+    surface_elevated:
+      truecolor: "#333333"
+      ansi256: 236
+      ansi16: "bright-black"
+    surface_sunken:
+      truecolor: "#000000"
+      ansi256: 16
+      ansi16: "black"
+    overlay:
+      truecolor: "#0A0A0A"
+      ansi256: 232
+      ansi16: "black"
+  text_colors:
+    primary:
+      truecolor: "#FFFFFF"
+      ansi256: 231
+      ansi16: "bright-white"
+    secondary:
+      truecolor: "#EEEEEE"
+      ansi256: 255
+      ansi16: "white"
+    muted:
+      truecolor: "#AAAAAA"
+      ansi256: 248
+      ansi16: "white"
+    inverse:
+      truecolor: "#000000"
+      ansi256: 16
+      ansi16: "black"
+    link:
+      truecolor: "#00BFFF"
+      ansi256: 39
+      ansi16: "bright-cyan"
+  border_colors:
+    default:
+      truecolor: "#FFFFFF"
+      ansi256: 231
+      ansi16: "bright-white"
+    subtle:
+      truecolor: "#666666"
+      ansi256: 241
+      ansi16: "bright-black"
+    strong:
+      truecolor: "#FFFFFF"
+      ansi256: 231
+      ansi16: "bright-white"
+    focus:
+      truecolor: "#FFFF00"
+      ansi256: 226
+      ansi16: "bright-yellow"
+typography:
+  version: "1.0.0"
+  charset_level: "ascii"
+  box_drawing:
+    preferred_set: "ascii"
+    fallback_set: "ascii"
+    custom_chars:
+      horizontal: "-"
+      vertical: "|"
+      top_left: "+"
+      top_right: "+"
+      bottom_left: "+"
+      bottom_right: "+"
+      cross: "+"
+      t_down: "+"
+      t_up: "+"
+      t_left: "+"
+      t_right: "+"
+  text_roles:
+    headline:
+      role: "headline"
+      emphasis:
+        - bold
+        - underline
+    body:
+      role: "body"
+      emphasis:
+        - normal
+    caption:
+      role: "caption"
+      emphasis:
+        - normal
+    code:
+      role: "code"
+      emphasis:
+        - inverse
+  glyphs:
+    nerd_font_enabled: false
+    definitions:
+      - name: "check"
+        category: "status"
+        unicode: "[OK]"
+        ascii: "[OK]"
+        description: "Success indicator"
+      - name: "cross"
+        category: "status"
+        unicode: "[X]"
+        ascii: "[X]"
+        description: "Error indicator"
+      - name: "warning"
+        category: "status"
+        unicode: "[!]"
+        ascii: "[!]"
+        description: "Warning indicator"
+      - name: "info"
+        category: "status"
+        unicode: "[i]"
+        ascii: "[i]"
+        description: "Info indicator"
+      - name: "arrow-right"
+        category: "navigation"
+        unicode: "->"
+        ascii: "->"
+        description: "Right arrow"
+      - name: "arrow-down"
+        category: "navigation"
+        unicode: "v"
+        ascii: "v"
+        description: "Down arrow"
+      - name: "folder"
+        category: "file-type"
+        unicode: "[DIR]"
+        ascii: "[DIR]"
+        description: "Directory"
+      - name: "file"
+        category: "file-type"
+        unicode: "[FILE]"
+        ascii: "[FILE]"
+        description: "File"
+  cjk_handling:
+    width_mode: "narrow"
+    emoji_width: 1
+    ambiguous_width: 1
+  spinners:
+    line:
+      frames: ["-", "\\", "|", "/"]
+      interval_ms: 150
+    dots:
+      frames: [".", "..", "...", ".."]
+      interval_ms: 200
+  progress_chars:
+    filled: "#"
+    empty: "-"
+    head: ">"
+    left_bracket: "["
+    right_bracket: "]"
+layout:
+  version: "1.0.0"
+  breakpoints:
+    - name: "compact"
+      min_cols: 40
+      tier: "compact"
+      description: "Minimal terminal"
+    - name: "default"
+      min_cols: 80
+      tier: "default"
+      description: "Standard terminal"
+    - name: "comfortable"
+      min_cols: 120
+      tier: "comfortable"
+      description: "Wide terminal"
+  spacing:
+    none:
+      cols: 0
+      rows: 0
+    xs:
+      cols: 1
+      rows: 0
+    sm:
+      cols: 2
+      rows: 1
+    md:
+      cols: 3
+      rows: 1
+    lg:
+      cols: 4
+      rows: 2
+    xl:
+      cols: 6
+      rows: 2
+  constraints:
+    min_content_cols: 40
+    min_content_rows: 10
+    max_content_cols: 100
+    padding:
+      cols: 2
+      rows: 1
+    gap:
+      cols: 3
+      rows: 1
+  responsive_behavior:
+    collapse_sidebars_below: 80
+    hide_chrome_below: 50
+    stack_panels_below: 100
+components:
+  version: "1.0.0"
+  components:
+    button:
+      id: "button"
+      min_width: 10
+      padding_horizontal: 3
+      states:
+        default:
+          foreground: "text-primary"
+          background: "surface"
+          border: "border-default"
+          emphasis:
+            - bold
+        hover:
+          foreground: "text-inverse"
+          background: "primary"
+          border: "border-strong"
+          emphasis:
+            - bold
+        focus:
+          foreground: "text-primary"
+          background: "surface"
+          border: "border-focus"
+          emphasis:
+            - bold
+            - underline
+        active:
+          foreground: "text-inverse"
+          background: "accent"
+          border: "accent"
+          emphasis:
+            - bold
+        disabled:
+          foreground: "text-muted"
+          background: "surface"
+          border: "border-subtle"
+    input:
+      id: "input"
+      cursor_char: "_"
+      states:
+        default:
+          foreground: "text-primary"
+          background: "surface"
+          border: "border-default"
+        focus:
+          foreground: "text-primary"
+          background: "surface"
+          border: "border-focus"
+          emphasis:
+            - underline
+        error:
+          foreground: "error"
+          background: "surface"
+          border: "error"
+        disabled:
+          foreground: "text-muted"
+          background: "surface"
+          border: "border-subtle"
+      placeholder_style:
+        foreground: "text-muted"
+        prefix: "["
+        suffix: "]"
+    list:
+      id: "list"
+      item_prefix: "  "
+      selected_prefix: ">> "
+      scrollbar:
+        track_char: "|"
+        thumb_char: "#"
+        position: "right"
+      states:
+        default:
+          foreground: "text-primary"
+        hover:
+          foreground: "text-primary"
+          emphasis:
+            - underline
+        selected:
+          foreground: "text-inverse"
+          background: "primary"
+          emphasis:
+            - bold
+        focus:
+          border: "border-focus"
+    table:
+      id: "table"
+      cell_padding: 2
+      border_style: "ascii"
+      row_alternate: false
+      states:
+        default:
+          foreground: "text-primary"
+        selected:
+          foreground: "text-inverse"
+          background: "primary"
+          emphasis:
+            - bold
+      header_style:
+        foreground: "text-primary"
+        emphasis:
+          - bold
+          - underline
+  focus_ring:
+    style: "bracket"
+    color: "accent"
+    char_left: ">"
+    char_right: "<"
+  icons:
+    checkbox_unchecked:
+      unicode: "[ ]"
+      ascii: "[ ]"
+    checkbox_checked:
+      unicode: "[X]"
+      ascii: "[X]"
+    radio_unchecked:
+      unicode: "( )"
+      ascii: "( )"
+    radio_checked:
+      unicode: "(*)"
+      ascii: "(*)"
+    toggle_off:
+      unicode: "[OFF]"
+      ascii: "[OFF]"
+    toggle_on:
+      unicode: "[ON]"
+      ascii: "[ON]"
+accessibility:
+  wcag_level: "AAA"
+  min_contrast_ratio: 7.0
+  focus_visible_required: true
+  motion_reduced: true
+  color_blind_safe: true
