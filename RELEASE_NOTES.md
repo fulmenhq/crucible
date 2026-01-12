@@ -5,6 +5,57 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.4.6 - OpenAPI Spec Coverage Standard
+
+Establishes ecosystem-wide standards for OpenAPI specification verification, preventing spec drift across fixtures and workhorses.
+
+### Highlights
+
+- **ADR-0014**: New decision record for OpenAPI spec coverage testing
+- **Tiered Requirements**: Fixtures MUST, Workhorses SHOULD, DX tools MAY
+- **Coverage Testing**: Automated verification that specs cover all registered routes
+- **Cross-Standard Integration**: Updates to fixture, workhorse, codex, and HTTP standards
+
+### Added
+
+- **ADR-0014: OpenAPI Spec Coverage Tests** (`docs/architecture/decisions/ADR-0014-openapi-spec-coverage.md`)
+  - Problem: Spec drift when endpoints added without OpenAPI annotations
+  - Solution: Automated coverage test comparing router to spec
+  - Tiered requirements by repository category
+  - Intentional exclusions for experimental/internal endpoints
+  - CI workflow: `make openapi` before `make test`
+  - Swagger 2 and OpenAPI 3 compatibility
+  - Release asset guidance for `dist/release/` inclusion
+  - Provenance via `info.x-*` extensions (tooling-safe)
+
+- **OpenAPI Publication Section** (`docs/architecture/fulmen-fixture-standard.md`)
+  - MUST: generation, serving at `/openapi.yaml`, coverage test, CI workflow
+  - Build patterns: `dist/openapi.yaml` (gauntlet) or embedded (rampart)
+  - Both patterns acceptable with deterministic serving
+
+- **OpenAPI Verification Section** (`docs/guides/testing/http-server-patterns.md`)
+  - Spec drift problem explanation
+  - Coverage test Go implementation pattern
+  - CI integration example
+  - Exclusion list guidance
+
+### Changed
+
+- **HTTP REST Standard**: Added OpenAPI Documentation section
+- **Workhorse Standard**: Added `/openapi.yaml` endpoint reference
+- **Codex Standard**: Cross-link for upstream spec quality (Pillar III)
+- **Fixture Author Checklist**: Added OpenAPI coverage items
+
+### Impact
+
+- **Fixture maintainers**: Implement coverage tests per ADR-0014
+- **Workhorse maintainers**: Consider OpenAPI publication for HTTP APIs
+- **gauntlet/rampart**: Local ADR-0001 now superseded by Crucible ADR-0014
+
+See [release-notes/v0.4.6.md](release-notes/v0.4.6.md) for details.
+
+---
+
 ## v0.4.5 - TUI Design System + Standards Discoverability
 
 Introduces a layered design system architecture for terminal UIs and establishes guides as compliance routing documents.
@@ -44,41 +95,18 @@ Introduces a layered design system architecture for terminal UIs and establishes
   - `http-client-patterns.md` - Client testing with rampart/gauntlet fixture usage
 
 - **AGENTS.md Work-Type Routing** - New section mapping work types to required reading
-  - HTTP server → http-server-patterns.md → http-rest-standards, coding/{lang}
-  - HTTP client → http-client-patterns.md → http-rest-standards, coding/{lang}
-  - CLI → language-testing-patterns.md → portable-testing-practices
-  - Fixture → fixture-standard.md → http-server-patterns
-  - Schema → schema-normalization.md → frontmatter-standard
-  - Release → release-checklist.md → repository-versioning
 
 - **Go HTTP Handler Anti-Patterns** (in http-server-patterns.md)
   - `json.Encoder.Encode()` error handling after `WriteHeader()`
   - Response body close with per-file test helpers (`closeBody`)
   - Context-aware delay handlers (no bare `time.Sleep()`)
   - Body limits with `io.LimitReader` for DoS prevention
-  - Derived from 25+ lint fixes in rampart/gauntlet
-
-- **Cross-Linking Updates**
-  - `docs/standards/testing/README.md` → testing guides
-  - `docs/standards/coding/go.md` §8 → http-server-patterns
-  - `docs/architecture/fulmen-fixture-standard.md` → both testing guides
-  - `docs/standards/protocol/http-rest-standards.md` → both testing guides
-  - `docs/guides/README.md` → new Testing section
 
 - **UX Developer Role** (`config/agentic/roles/uxdev.yaml`)
-  - New agentic role for frontend development (TUI and web)
-  - TUI frameworks: tview (Go), textual (Python), ink/opentui (Node), ratatui (Rust)
-  - Web frameworks: React, Vue, Svelte, HTMX
-  - Accessibility-first with WCAG 2.1 AA compliance focus
-  - Checklists for components, TUI-specific, and web-specific concerns
-  - Patterns: Model-View-Update, component composition, focus management
 
 ### Changed
 
 - **Document Taxonomy Clarified**: Three document types formalized
-  - Standards: Normative (MUST/SHOULD)
-  - Guides: Compliance routing + practical examples
-  - Architecture: System structure and rationale
 
 ### Impact
 
@@ -86,7 +114,7 @@ Introduces a layered design system architecture for terminal UIs and establishes
 - **devrev role**: Use Pre-Review Checklists in guides for systematic compliance validation
 - **Fixture authors**: Follow Fixture Author Conformance Checklist in http-server-patterns
 
-See [release-notes/v0.4.5.md](release-notes/v0.4.5.md) for details (created at release time).
+See [release-notes/v0.4.5.md](release-notes/v0.4.5.md) for details.
 
 ---
 
@@ -136,46 +164,3 @@ Standardizes ergonomic signal name resolution across all Fulmen helper libraries
 - **gofulmen**: Add `signalsByNumber` index to `foundry/signals/catalog.go`
 
 See [release-notes/v0.4.4.md](release-notes/v0.4.4.md) for details.
-
----
-
-## v0.4.3 - Fixture Standard Refinement + Python Fix
-
-Minor release refining fixture naming conventions and fixing Python module exports.
-
-### Highlights
-
-- **Fixture Naming**: Explicit variant codes now required (no implicit `-001`)
-- **New Fixture**: Registered `rampart` for HTTP protocol testing
-- **Bug Fix**: Corrected `foundry/__init__.py` to export actual `exit_codes.py` API
-
-### Added
-
-- **Ecosystem Brand Summary**: `config/branding/ecosystem.yaml`
-  - Accessible via `crucible.GetBrandSummary()` in helper libraries
-  - Tools display via `version --extended` or `about` command/endpoint
-  - Answers "what is this?" without cluttering repo/binary names
-
-- **`rampart` fixture**: HTTP protocol testing server for client validation
-  - `fixture-server-proving-rampart-001`: Core HTTP/1.1 scenarios
-  - Future variants planned for HTTP/2 and performance testing
-
-### Changed
-
-- **Fixture naming convention**: Variant codes are explicitly required
-  - `fixture-server-proving-rampart-001` (correct)
-  - `fixture-server-proving-rampart` (no longer valid)
-  - Prevents breaking changes when adding variants
-
-### Fixed
-
-- **Python Foundry Module**: `__init__.py` exported non-existent symbols
-  - Now exports correct API: `EXIT_CODE_METADATA`, `ExitCodeInfo`, `SimplifiedMode`, etc.
-  - Affected v0.4.1 and v0.4.2
-
-### Impact
-
-- **Fixture creators**: Use explicit variant codes from day one
-- **pyfulmen**: Remove workarounds after syncing v0.4.3
-
-See [release-notes/v0.4.3.md](release-notes/v0.4.3.md) for details.

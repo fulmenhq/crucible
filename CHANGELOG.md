@@ -11,6 +11,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-01-12
+
+### Added
+
+- **OpenAPI Spec Coverage Standard**: Ecosystem-wide standard for OpenAPI documentation verification
+  - `docs/architecture/decisions/ADR-0014-openapi-spec-coverage.md` - Decision record
+  - Tiered requirements: Fixtures MUST, Workhorses SHOULD, DX tools MAY
+  - Coverage test pattern comparing router registrations to spec paths
+  - Intentional exclusions for experimental, internal, and self-referential endpoints
+  - CI workflow integration guidance (`make openapi` before `make test`)
+  - Swagger 2 and OpenAPI 3 compatibility
+  - Release asset guidance for `dist/release/` inclusion
+  - Provenance metadata via `info.x-*` extensions
+
+- **OpenAPI Publication Section**: Added to Fixture Standard (`fulmen-fixture-standard.md`)
+  - MUST requirements: generation, serving, coverage test, CI workflow
+  - Build artifact patterns: `dist/` (gauntlet) and embedded (rampart) both acceptable
+  - Coverage test implementation guidance
+  - Cross-links to ADR-0014 and HTTP Server Patterns
+
+- **OpenAPI Verification Section**: Added to HTTP Server Patterns guide
+  - Spec drift problem statement
+  - Coverage test implementation pattern with Go example
+  - CI integration snippet
+  - Intentional exclusions guidance
+
+### Changed
+
+- **HTTP REST Standard**: Added OpenAPI Documentation section
+  - SHOULD publish spec for HTTP APIs
+  - Generator and serving recommendations
+  - Coverage testing reference
+
+- **Workhorse Standard**: Added `/openapi.yaml` endpoint and ADR-0014 reference
+  - SHOULD for workhorses exposing HTTP APIs
+
+- **Codex Standard**: Added cross-link in Pillar III
+  - Upstream spec quality expectation for ingested OpenAPI specs
+
+- **Fixture Author Conformance Checklist**: Added OpenAPI items
+  - OpenAPI spec generated and served
+  - Coverage test passes
+
 ## [0.4.5] - 2026-01-10
 
 ### Added
@@ -266,71 +309,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **ADR-0012 Status**: Updated schema reference resolution ADR status from "proposed" to "implemented"
 - **CI Workflow YAML**: Removed duplicate document start markers from workflow files (yamllint compliance)
 
-## [0.3.0] - 2026-01-01
-
-### Added
-
-- **Agentic Role Catalog**: Migrated agent role prompts to schema-validated YAML configuration files
-  - 7 roles: `devlead`, `devrev`, `infoarch`, `entarch`, `cicd`, `secrev`, `dataeng`
-  - Located in `config/agentic/roles/*.yaml` with README documentation
-  - Schema validation via vendored `role-prompt.schema.json`
-  - Enables programmatic consumption by agentic interfaces
-- **Git Commit Attribution Baseline**: Canonical attribution format for AI-assisted commits
-  - New `docs/catalog/agentic/attribution/git-commit.md` defining supervised and autonomous templates
-  - Model name, interface, role, and committer-of-record requirements
-  - Four-eyes review attribution with `Reviewed-By` trailer
-  - Trailer ordering specification
-- **Upstream Vendoring Pattern**: Schema sharing across repositories
-  - New `schemas/upstream/` directory for vendored schemas
-  - `PROVENANCE.md` for tracking source repositories and versions
-  - `make sync-from-upstream` target for pulling latest schemas
-  - Vendored `role-prompt.schema.json` from 3leaps/crucible
-- **Upstream Sync Consumer Guide**: Documentation for consuming vendored schemas
-  - `docs/ops/upstream-sync-consumer.md` with workflow and validation guidance
-  - `docs/upstream/README.md` stub for upstream documentation links
-- **Makefile Targets**: New targets for upstream schema management
-  - `lint-config`: Validate YAML configurations against schemas
-  - `upstream-validate`: Validate vendored schemas
-- **Release Phase Schema**: Extended `release-phase.json` with new values
-  - Added `release` as semantic equivalent to `ga` (tooling normalizes for comparison)
-  - Added `hotfix` for urgent production fix state
-  - Full enum: `dev`, `rc`, `ga`, `release`, `hotfix`
-- **Agentic Interface Adoption Guide**: New guide for FulmenHQ ecosystem maintainers
-  - `docs/guides/agentic-interface-adoption.md` with step-by-step migration instructions
-  - Role selection guidance by repository type
-  - Attribution format adoption checklist
-
-### Changed
-
-- **Phase Schema Consolidation**: Removed duplicate `lifecycle-phase.json` from goneat config
-  - Goneat now references `schemas/config/repository/v1.0.0/lifecycle-phase.json`
-  - Release phase remains goneat-specific at `schemas/config/goneat/v1.0.0/release-phase.json`
-- **Repository Lifecycle Standard**: Clarified lifecycle vs release phase distinction
-  - Added comparison table explaining different purposes
-  - Updated migration guidance for `RELEASE_PHASE` files
-- **AGENTS.md**: Updated to reference YAML role configurations
-  - Role table now links to individual YAML files
-  - Added attribution quick reference table
-  - Clarified interface adapter configurations
-- **Agentic Attribution Standard**: Major refactor of `docs/standards/agentic-attribution.md`
-  - Streamlined specification focus
-  - Moved detailed examples to catalog
-  - Added cross-references to role catalog
-- **AI Agents Standard**: Enhanced `docs/standards/ai-agents.md`
-  - Expanded identity scheme documentation
-  - Added operating mode definitions (supervised, autonomous, hybrid)
-  - Role catalog integration
-- **MAINTAINERS.md**: Simplified structure and governance documentation
-- **README.md**: Updated version badge to 0.3.0
-
-### Fixed
-
-- **CI Workflow YAML**: Removed extraneous document start markers from workflow files
-  - `.github/workflows/test-go.yml`
-  - `.github/workflows/test-python.yml`
-  - `.github/workflows/test-rust.yml`
-  - `.github/workflows/test-typescript.yml`
-
 ---
 
-**Older Releases**: For versions prior to 0.3.0, see individual release notes in `release-notes/v*.md`.
+**Older Releases**: For versions prior to 0.3.1, see individual release notes in `release-notes/v*.md`.
