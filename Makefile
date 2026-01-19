@@ -154,7 +154,7 @@ typecheck: ## Type-check TypeScript files
 prepush: precommit ## Run pre-push hooks (depends on precommit for completeness)
 	@echo "✅ Pre-push checks passed"
 
-precommit: check-all ## Run pre-commit hooks (check-all + build)
+precommit: sync-to-lang check-all ## Run pre-commit hooks (sync + check-all)
 	@echo "✅ Pre-commit checks passed"
 
 check-all: validate-schemas lint-config verify-codegen build lint test typecheck ## Run all checks (lint, test, typecheck) after ensuring build/sync

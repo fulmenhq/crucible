@@ -4,6 +4,8 @@
 >
 > **For operational workflow**: See [`docs/ops/repository/release-checklist.md`](docs/ops/repository/release-checklist.md) for the detailed Crucible-specific release process including SSOT sync requirements.
 
+**IMPORTANT**: Always run `make prepush` before tagging. This ensures `sync-to-lang` runs and all `lang/*/config/` directories contain current SSOT assets. Skipping this can result in tags missing synced content (see v0.4.7 → v0.4.8 for example).
+
 ## Variables (Quick Reference)
 
 - `FULMENHQ_CRUCIBLE_RELEASE_TAG`: optional override tag (e.g., `v0.3.0`)

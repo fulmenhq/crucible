@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.8] - 2026-01-19
+
+### Fixed
+
+- **Biome Schema Version**: Updated `biome.json` schema from 2.3.2 to 2.3.10 to match CLI
+- **Lang Sync Process**: Added explicit `sync-to-lang` dependency to `precommit` target
+  - Ensures synced assets in `lang/*/config/` are current before commits
+  - Fixes gap where v0.4.7 tag was missing `qa.yaml` in lang directories
+
 ## [0.4.7] - 2026-01-19
 
 ### Added

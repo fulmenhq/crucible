@@ -5,6 +5,21 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.4.8 - Process Fix
+
+Fixes sync process gap from v0.4.7 release.
+
+### Fixed
+
+- **Biome Schema**: Updated to 2.3.10 (was 2.3.2)
+- **Precommit Sync**: Added `sync-to-lang` as explicit dependency of `precommit` target
+  - v0.4.7 tag was missing `qa.yaml` in `lang/*/config/` due to sync running after tagging
+  - Now ensures lang directories are current before any commit
+
+See [release-notes/v0.4.8.md](release-notes/v0.4.8.md) for details.
+
+---
+
 ## v0.4.7 - Quality Assurance Role
 
 Adds a new `qa` agentic role for testing, validation, and quality gate enforcement across the Fulmen layer cake.
@@ -85,65 +100,3 @@ Establishes ecosystem-wide standards for OpenAPI specification verification, pre
 - **gauntlet/rampart**: Local ADR-0001 now superseded by Crucible ADR-0014
 
 See [release-notes/v0.4.6.md](release-notes/v0.4.6.md) for details.
-
----
-
-## v0.4.5 - TUI Design System + Standards Discoverability
-
-Introduces a layered design system architecture for terminal UIs and establishes guides as compliance routing documents.
-
-### Highlights
-
-- **TUI Design System**: 9 schemas enabling terminal theming with capability-based fallbacks
-- **Core/Implementation Split**: Shared semantic vocabulary (core) + terminal-specific patterns (tui)
-- **Reference Themes**: Dark and high-contrast themes with WCAG compliance
-- **Compliance Routing**: Guides now explicitly list "read these standards first" with checklists
-- **Work-Type Routing**: AGENTS.md maps work types to required reading
-
-### Added
-
-- **TUI Design System Schemas** (`schemas/design/`)
-  - Core vocabulary (`core/v1.0.0/`): semantic-colors, spacing-scale, typography-roles, component-states
-  - TUI implementation (`tui/v1.0.0/`): theme (root), color-palette, typography, layout, component
-  - Terminal color fallbacks: truecolor → 256-color → 16-color → basic
-  - Character set degradation: unicode-full → unicode-basic → extended-ascii → ascii
-  - WCAG contrast ratios on color definitions for accessibility validation
-  - Nerd Font glyph support with unicode/ascii fallbacks
-  - CJK width handling for internationalization
-  - Responsive breakpoints adapted for terminal dimensions (columns/rows)
-
-- **Reference Themes** (`examples/design/tui/v1.0.0/themes/`)
-  - `dark.yaml` - Tokyo Night-inspired, 256-color minimum, WCAG AA compliant
-  - `light.yaml` - Balanced light mode for daytime use, WCAG AA compliant
-  - `high-contrast.yaml` - WCAG AAA compliant, 16-color minimum, ASCII-safe
-
-- **Schema Fixtures** (`examples/design/tui/v1.0.0/{valid,invalid}/`)
-  - Minimal valid examples for theme, color-palette, layout
-  - Invalid examples for validation testing (missing fields, bad patterns)
-
-- **Testing Guides Family** (`docs/guides/testing/`)
-  - `README.md` - Testing guides index explaining standards vs guides distinction
-  - `http-server-patterns.md` - Server/fixture patterns with compliance requirements
-  - `http-client-patterns.md` - Client testing with rampart/gauntlet fixture usage
-
-- **AGENTS.md Work-Type Routing** - New section mapping work types to required reading
-
-- **Go HTTP Handler Anti-Patterns** (in http-server-patterns.md)
-  - `json.Encoder.Encode()` error handling after `WriteHeader()`
-  - Response body close with per-file test helpers (`closeBody`)
-  - Context-aware delay handlers (no bare `time.Sleep()`)
-  - Body limits with `io.LimitReader` for DoS prevention
-
-- **UX Developer Role** (`config/agentic/roles/uxdev.yaml`)
-
-### Changed
-
-- **Document Taxonomy Clarified**: Three document types formalized
-
-### Impact
-
-- **All developers (human + AI)**: Use work-type routing in AGENTS.md to find applicable standards
-- **devrev role**: Use Pre-Review Checklists in guides for systematic compliance validation
-- **Fixture authors**: Follow Fixture Author Conformance Checklist in http-server-patterns
-
-See [release-notes/v0.4.5.md](release-notes/v0.4.5.md) for details.
