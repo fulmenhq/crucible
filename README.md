@@ -49,7 +49,9 @@ Layer 1: Helper Libraries (*fulmen)
 
 ├── pyfulmen - Python foundations
 
-└── {rsfulmen, csfulmen} - Future languages
+├── rsfulmen - Rust foundations
+
+└── {csfulmen} - Future languages
 
 Layer 2: Templates (Fulmens)
 
@@ -65,7 +67,7 @@ Layer 3: DX/Dev Tools
 
 ├── fulward - Protection & approvals
 
-└── pathfinder - Safe discovery
+└── fulminar - HTTP client testing
 
 Layer 4: Apps/Services
 
@@ -307,7 +309,10 @@ Crucible provides native libraries for multiple languages with an **asymmetric r
 - **Python** (`lang/python/`): `from crucible import ...`
   - Standard Python package structure with synced assets
 
-- **Future**: Rust (`rsfulmen`) and C# (`csfulmen`) as ecosystem needs evolve
+- **Rust** (`lang/rust/`): Rust crate with synced assets
+  - Standard Cargo package structure
+
+- **Future**: C# (`csfulmen`) as ecosystem needs evolve
 
 **Features**:
 
@@ -498,7 +503,7 @@ Anchoring production systems:
 
 - **goneat** - Format/lint enforcement
 - **fulward** - Infrastructure protection
-- **gofulmen, tsfulmen, pyfulmen** - Multi-language helper libraries
+- **gofulmen, tsfulmen, pyfulmen, rsfulmen** - Multi-language helper libraries
 - **groningen, percheron** - Forge template implementations
 - **brooklyn-mcp, sumpter** - Production applications
 

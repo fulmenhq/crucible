@@ -5,6 +5,38 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.4.7 - Quality Assurance Role
+
+Adds a new `qa` agentic role for testing, validation, and quality gate enforcement across the Fulmen layer cake.
+
+### Highlights
+
+- **Layer-Cake Validation**: Schema conformance, cross-language parity, CRDL workflow testing
+- **Coverage Targets**: Go ≥95%, TypeScript ≥85%, Python ≥90%
+- **Fixture-First Testing**: Real execution over mocks, container-based fixtures
+- **Dogfooding Workflows**: Acceptance testing patterns with detailed findings templates
+
+### Added
+
+- **Quality Assurance Role** (`config/agentic/roles/qa.yaml`)
+  - Scope: test design, edge cases, quality gates, regression testing
+  - Layer cake validation: SSOT conformance, library parity, template CRDL
+  - Enterprise validation: API contracts, AAA, observability
+  - Operational QA: dogfooding, performance baselines, fixture management
+  - Mindset: "What could go wrong?", "Would this test catch a regression?"
+  - Quality bars with language-specific coverage targets
+  - Example findings templates for dogfooding and parity testing
+
+### Impact
+
+- **Helper library teams**: QA role validates cross-language parity
+- **Fixture maintainers**: QA validates scenario coverage
+- **Release process**: QA escalates quality gate failures blocking release
+
+See [release-notes/v0.4.7.md](release-notes/v0.4.7.md) for details.
+
+---
+
 ## v0.4.6 - OpenAPI Spec Coverage Standard
 
 Establishes ecosystem-wide standards for OpenAPI specification verification, preventing spec drift across fixtures and workhorses.
@@ -115,52 +147,3 @@ Introduces a layered design system architecture for terminal UIs and establishes
 - **Fixture authors**: Follow Fixture Author Conformance Checklist in http-server-patterns
 
 See [release-notes/v0.4.5.md](release-notes/v0.4.5.md) for details.
-
----
-
-## v0.4.4 - Signal Resolution Standard
-
-Standardizes ergonomic signal name resolution across all Fulmen helper libraries.
-
-### Highlights
-
-- **Signal Resolution API**: New `resolveSignal()`, `listSignalNames()`, `matchSignalNames()` interfaces
-- **Cross-Language Fixtures**: 41 test vectors for consistent behavior across Go, Python, TypeScript, Rust
-- **Numeric Support**: `kill -15` pattern supported (`"15"` → SIGTERM)
-- **Signals Documentation**: Comprehensive section added to Foundry README
-
-### Added
-
-- **Signal Resolution Interfaces** (`docs/standards/library/foundry/interfaces.md`)
-  - `resolveSignal(name)` - 7-step resolution: trim → empty check → exact → numeric → uppercase → ID fallback → null
-  - `listSignalNames()` - CLI completion support
-  - `matchSignalNames(pattern)` - glob matching with `*` and `?`
-  - Language-idiomatic signatures for Go, Python, TypeScript, Rust
-
-- **Test Fixtures** (`config/library/foundry/signal-resolution-fixtures.yaml`)
-  - 41 test cases covering exact match, numeric, case variants, whitespace, ID fallback, negative numbers
-  - Glob pattern test cases with expect_contains, expect_not_contains, expect_empty
-  - Schema validation at `schemas/library/foundry/v1.0.0/signal-resolution-fixtures.schema.json`
-
-- **Signals Section** (`docs/standards/library/foundry/README.md`)
-  - Catalog overview with signal table
-  - Behavior definitions (graceful_shutdown, reload_via_restart, etc.)
-  - Platform support matrix
-  - Helper library integration requirements
-  - Resolution algorithm specification
-  - Windows fallback documentation
-
-### Changed
-
-- **Resolution Algorithm**: Numeric lookup at step 4 (after trim, before case normalization)
-  - Supports common `kill -15` CLI pattern
-  - Negative numbers explicitly return null (`"-15"` → null)
-  - `signalsByNumber` index recommended for efficient lookup
-
-### Impact
-
-- **All helper libraries**: Implement new resolution interfaces
-- **rsfulmen**: Reference implementation, aligned with v0.1.2 feature brief
-- **gofulmen**: Add `signalsByNumber` index to `foundry/signals/catalog.go`
-
-See [release-notes/v0.4.4.md](release-notes/v0.4.4.md) for details.

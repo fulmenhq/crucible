@@ -7,7 +7,7 @@ VERSION_FILE := VERSION
 # If you need to use a repo-local build for development, invoke targets with:
 #   make <target> GONEAT=./bin/goneat
 GONEAT ?= goneat
-GONEAT_VERSION ?= v0.3.21
+GONEAT_VERSION ?= v0.5.1
 SFETCH_INSTALL_URL ?= https://github.com/3leaps/sfetch/releases/latest/download/install-sfetch.sh
 
 # Crucible Makefile

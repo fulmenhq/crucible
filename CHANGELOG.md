@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.7] - 2026-01-19
+
+### Added
+
+- **Quality Assurance Role**: New `qa` agentic role for testing and validation
+  - `config/agentic/roles/qa.yaml` - Full role definition
+  - Layer-cake validation across Crucible SSOT, helper libraries, and templates
+  - Coverage targets by language: Go ≥95%, TypeScript ≥85%, Python ≥90%
+  - Fixture-based integration testing emphasis (real execution over mocks)
+  - Dogfooding workflows and acceptance testing patterns
+  - Quality gate enforcement via goneat/fulward
+  - Escalation paths to devlead, secrev, entarch, and human maintainers
+
 ## [0.4.6] - 2026-01-12
 
 ### Added
@@ -294,20 +307,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Documented reserved keys: `sourceRepo`, `sourcePathBase`, `notes`
   - Preserves extensibility with `additionalProperties: true` on metadata object
   - Unblocks offline schema validation in rsfulmen and other consumers
-
-## [0.3.1] - 2026-01-03
-
-### Fixed
-
-- **Patterns Catalog Examples**: Corrected invalid examples in `config/library/foundry/patterns.yaml`
-  - `jwt`: Replaced placeholder ellipsis (`...`) with valid JWT compact serialization
-  - `uuid-v4`: Fixed example from v1 format (`12d3`) to valid v4 format (`42d3` with version nibble = 4)
-  - Issue discovered during rsfulmen patterns module audit
-
-### Changed
-
-- **ADR-0012 Status**: Updated schema reference resolution ADR status from "proposed" to "implemented"
-- **CI Workflow YAML**: Removed duplicate document start markers from workflow files (yamllint compliance)
 
 ---
 
