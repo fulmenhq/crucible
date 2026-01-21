@@ -13,7 +13,7 @@ var schemasFS embed.FS
 //go:embed docs
 var docsFS embed.FS
 
-const Version = "0.4.8"
+const Version = "0.4.9"
 
 type Schemas struct{}
 
