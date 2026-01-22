@@ -12,10 +12,10 @@
  *   bun run scripts/3leaps-crucible-upstream-pull.ts --source=/path/to/3leaps/crucible
  */
 
-import { parseArgs } from "util";
-import { existsSync, mkdirSync, cpSync, rmSync, readdirSync, statSync } from "fs";
-import { join, dirname, resolve } from "path";
-import { execSync } from "child_process";
+import { execSync } from "node:child_process";
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { parseArgs } from "node:util";
 
 // =============================================================================
 // SYNC CONFIGURATION - Edit these constants to change what gets synced
@@ -40,14 +40,38 @@ const SYNC_PATHS = [
   { source: "config/classifiers", dest: "config/classifiers" },
 
   // Docs - classifier standards
-  { source: "docs/standards/data-sensitivity-classification.md", dest: "docs/standards/data-sensitivity-classification.md" },
-  { source: "docs/standards/volatility-classification.md", dest: "docs/standards/volatility-classification.md" },
-  { source: "docs/standards/access-tier-classification.md", dest: "docs/standards/access-tier-classification.md" },
-  { source: "docs/standards/retention-lifecycle-classification.md", dest: "docs/standards/retention-lifecycle-classification.md" },
-  { source: "docs/standards/schema-stability-classification.md", dest: "docs/standards/schema-stability-classification.md" },
-  { source: "docs/standards/volume-tier-classification.md", dest: "docs/standards/volume-tier-classification.md" },
-  { source: "docs/standards/velocity-mode-classification.md", dest: "docs/standards/velocity-mode-classification.md" },
-  { source: "docs/standards/classifiers-framework.md", dest: "docs/standards/classifiers-framework.md" },
+  {
+    source: "docs/standards/data-sensitivity-classification.md",
+    dest: "docs/standards/data-sensitivity-classification.md",
+  },
+  {
+    source: "docs/standards/volatility-classification.md",
+    dest: "docs/standards/volatility-classification.md",
+  },
+  {
+    source: "docs/standards/access-tier-classification.md",
+    dest: "docs/standards/access-tier-classification.md",
+  },
+  {
+    source: "docs/standards/retention-lifecycle-classification.md",
+    dest: "docs/standards/retention-lifecycle-classification.md",
+  },
+  {
+    source: "docs/standards/schema-stability-classification.md",
+    dest: "docs/standards/schema-stability-classification.md",
+  },
+  {
+    source: "docs/standards/volume-tier-classification.md",
+    dest: "docs/standards/volume-tier-classification.md",
+  },
+  {
+    source: "docs/standards/velocity-mode-classification.md",
+    dest: "docs/standards/velocity-mode-classification.md",
+  },
+  {
+    source: "docs/standards/classifiers-framework.md",
+    dest: "docs/standards/classifiers-framework.md",
+  },
 
   // Docs - classifier catalog
   { source: "docs/catalog/classifiers", dest: "docs/catalog/classifiers" },
@@ -150,11 +174,16 @@ EXCLUDED (manual sync):
 
 function getGitInfo(repoPath: string): { commit: string; tag: string | null; date: string } {
   const commit = execSync("git rev-parse HEAD", { cwd: repoPath, encoding: "utf-8" }).trim();
-  const date = execSync("git log -1 --format=%ci", { cwd: repoPath, encoding: "utf-8" }).trim().split(" ")[0];
+  const date = execSync("git log -1 --format=%ci", { cwd: repoPath, encoding: "utf-8" })
+    .trim()
+    .split(" ")[0];
 
   let tag: string | null = null;
   try {
-    tag = execSync("git describe --tags --exact-match 2>/dev/null", { cwd: repoPath, encoding: "utf-8" }).trim();
+    tag = execSync("git describe --tags --exact-match 2>/dev/null", {
+      cwd: repoPath,
+      encoding: "utf-8",
+    }).trim();
   } catch {
     // Not on a tag
   }
@@ -202,7 +231,7 @@ function copyPath(source: string, dest: string, dryRun: boolean, verbose: boolea
 
 function generateProvenance(
   gitInfo: { commit: string; tag: string | null; date: string },
-  fileCount: number
+  fileCount: number,
 ): string {
   const tagLine = gitInfo.tag ? gitInfo.tag : "(untagged)";
 
