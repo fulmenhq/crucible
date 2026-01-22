@@ -128,7 +128,7 @@ lint-config: ## Validate config data files against schemas (excludes upstream/)
 		for f in config/agentic/roles/*.yaml; do \
 			[ -f "$$f" ] || continue; \
 			echo "  Validating $$f..."; \
-			$(GONEAT) validate data --schema-file schemas/upstream/3leaps/agentic/v0/role-prompt.schema.json --data "$$f" || exit 1; \
+			$(GONEAT) validate data --schema-file schemas/upstream/3leaps/crucible/schemas/agentic/v0/role-prompt.schema.json --data "$$f" || exit 1; \
 		done; \
 		echo "✅ Config validation complete"; \
 	else \

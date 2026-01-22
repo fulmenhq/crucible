@@ -8,44 +8,54 @@ This repository vendors schemas, configs, and other assets from upstream sources
 
 ## Upstream Sources
 
-| Source                                                | Local Path                 | Content                            |
-| ----------------------------------------------------- | -------------------------- | ---------------------------------- |
-| [3leaps/crucible](https://github.com/3leaps/crucible) | `schemas/upstream/3leaps/` | Role prompt schema, AILink schemas |
+| Source                                                | Local Path                          | Content                                          |
+| ----------------------------------------------------- | ----------------------------------- | ------------------------------------------------ |
+| [3leaps/crucible](https://github.com/3leaps/crucible) | `schemas/upstream/3leaps/crucible/` | Classifiers, foundation schemas, AILink, agentic |
 
-Future upstream sources will follow the same pattern.
+Future upstream sources will follow the `<org>/<repo>/` pattern.
 
 ## Directory Structure
 
 ```
 fulmenhq/crucible/
 ├── schemas/
-│   ├── upstream/                    # Vendored schemas (DO NOT EDIT)
-│   │   ├── README.md                # Upstream manifest
-│   │   └── 3leaps/
-│   │       ├── PROVENANCE.md        # Source tracking
-│   │       └── agentic/v0/
-│   │           └── role-prompt.schema.json
-│   └── ...                          # Our own schemas
-├── config/
-│   └── upstream/                    # Future: vendored configs
-├── docs/
-│   └── upstream/                    # Future: vendored docs
-└── .goneatignore                    # Excludes upstream from lint/format
+│   ├── upstream/                         # Vendored content (DO NOT EDIT)
+│   │   └── 3leaps/crucible/              # org/repo structure
+│   │       ├── PROVENANCE.md             # Source tracking
+│   │       ├── schemas/
+│   │       │   ├── agentic/v0/           # Role prompt (MANUAL)
+│   │       │   ├── ailink/v0/            # Prompt/response schemas
+│   │       │   ├── classifiers/v0/       # Dimension meta-schemas
+│   │       │   └── foundation/v0/        # Type primitives
+│   │       ├── config/
+│   │       │   └── classifiers/          # Dimension definitions
+│   │       └── docs/
+│   │           ├── standards/            # Classification standards
+│   │           └── catalog/              # Classifier catalog
+│   └── ...                               # Our own schemas
+└── .goneatignore                         # Excludes upstream from lint/format
 ```
 
 ## Current Vendored Content
 
 ### 3leaps/crucible
 
-**Path**: `schemas/upstream/3leaps/`
+**Path**: `schemas/upstream/3leaps/crucible/`
 
-**Content**:
+**Content** (auto-synced):
 
-- `agentic/v0/role-prompt.schema.json` - Schema for AI agent role prompts
-- `ailink/v0/prompt.schema.json` - AILink prompt schema
-- `ailink/v0/search-response.schema.json` - AILink response schema
+- `schemas/classifiers/v0/` - Dimension meta-schemas
+- `schemas/foundation/v0/` - Type primitives, error response
+- `schemas/ailink/v0/` - AILink prompt/response schemas
+- `config/classifiers/dimensions/` - 7 dimension definitions
+- `docs/standards/` - 8 classification standards
+- `docs/catalog/classifiers/` - Classifier catalog
 
-**Provenance**: See `schemas/upstream/3leaps/PROVENANCE.md`
+**Content** (manual):
+
+- `schemas/agentic/v0/role-prompt.schema.json` - Role prompt schema (manually synced)
+
+**Provenance**: See `schemas/upstream/3leaps/crucible/PROVENANCE.md`
 
 ## Sync Workflow
 
@@ -58,35 +68,41 @@ git fetch origin
 git log origin/main --oneline -5
 
 # Compare with our vendored commit (from PROVENANCE.md)
-git diff <our-commit>..origin/main -- schemas/
+git diff <our-commit>..origin/main -- schemas/ config/ docs/
 ```
 
-### Updating Vendored Content
+### Updating Vendored Content (Automated)
 
 ```bash
-# 1. Pull upstream
+# Ensure 3leaps/crucible is at desired version/tag
 cd ~/dev/3leaps/crucible
-git pull origin main
+git checkout v0.1.4  # or main, or specific tag
 
-# 2. Get commit hash
-UPSTREAM_COMMIT=$(git rev-parse HEAD)
-echo "Upstream commit: $UPSTREAM_COMMIT"
-
-# 3. Copy updated files
+# Run sync script (assumes repos are siblings: ../3leaps/crucible)
 cd ~/dev/fulmenhq/crucible
-cp ~/dev/3leaps/crucible/schemas/agentic/v0/role-prompt.schema.json \
-   schemas/upstream/3leaps/agentic/v0/
+bun run scripts/3leaps-crucible-upstream-pull.ts
 
-# 4. Update PROVENANCE.md
-# Edit schemas/upstream/3leaps/PROVENANCE.md with new commit hash
+# Or preview first with dry-run
+bun run scripts/3leaps-crucible-upstream-pull.ts --dry-run
 
-# 5. Validate
+# Validate
 make upstream-validate
 make lint-config
 
-# 6. Commit
-git add schemas/upstream/
-git commit -m "chore(upstream): sync 3leaps schemas to $UPSTREAM_COMMIT"
+# Commit
+git add schemas/upstream/3leaps/crucible/
+git commit -m "chore(upstream): sync 3leaps/crucible to v0.1.4"
+```
+
+### Updating Manual Content (agentic schema)
+
+```bash
+# Manual sync for role-prompt schema (requires review)
+cp ~/dev/3leaps/crucible/schemas/agentic/v0/role-prompt.schema.json \
+   schemas/upstream/3leaps/crucible/schemas/agentic/v0/
+
+# Update PROVENANCE.md manually if needed
+# Validate and commit
 ```
 
 ## Validation
@@ -101,7 +117,7 @@ git commit -m "chore(upstream): sync 3leaps schemas to $UPSTREAM_COMMIT"
 ```bash
 # Validate a specific config against vendored schema
 goneat validate data \
-  --schema-file schemas/upstream/3leaps/agentic/v0/role-prompt.schema.json \
+  --schema-file schemas/upstream/3leaps/crucible/schemas/agentic/v0/role-prompt.schema.json \
   --data config/agentic/roles/devlead.yaml
 ```
 
@@ -133,7 +149,7 @@ Agents should:
 
 When upstream updates a schema with new required fields:
 
-1. Check what changed: `diff schemas/upstream/3leaps/... ~/dev/3leaps/crucible/schemas/...`
+1. Check what changed: `diff schemas/upstream/3leaps/crucible/schemas/... ~/dev/3leaps/crucible/schemas/...`
 2. Update local configs to satisfy new requirements
 3. Run `make lint-config` to verify
 
@@ -157,5 +173,6 @@ When we need to vendor documentation from upstream (e.g., standards that should 
 ## References
 
 - [Upstream Sync Guide (3leaps)](https://github.com/3leaps/crucible/blob/main/docs/operations/upstream-sync-guide.md) - Producer-side guide
+- [3leaps-crucible-upstream-pull.ts](../../scripts/3leaps-crucible-upstream-pull.ts) - Sync script
 - [schemas/upstream/README.md](../../schemas/upstream/README.md) - Upstream manifest
-- [schemas/upstream/3leaps/PROVENANCE.md](../../schemas/upstream/3leaps/PROVENANCE.md) - 3leaps provenance
+- [schemas/upstream/3leaps/crucible/PROVENANCE.md](../../schemas/upstream/3leaps/crucible/PROVENANCE.md) - 3leaps provenance
