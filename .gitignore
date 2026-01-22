@@ -3,6 +3,7 @@ bin/
 dist/
 lang/*/dist/
 node_modules/
+sbom/
 
 # Go
 *.test
