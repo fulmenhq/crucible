@@ -13,7 +13,7 @@ SFETCH_INSTALL_URL ?= https://github.com/3leaps/sfetch/releases/latest/download/
 # Crucible Makefile
 # Standards forge for the FulmenHQ ecosystem
 
-.PHONY: all help bootstrap tools sync test build build-all clean version fmt fmt-check lint lint-fix lint-config upstream-validate typecheck
+.PHONY: all help bootstrap tools sync test build build-all clean version fmt fmt-check lint lint-fix lint-config upstream-validate upstream-sync-3leaps upstream-check typecheck
 .PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python test-rust build-python build-rust lint-python lint-rust fmt-rust
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare release-clean
@@ -143,6 +143,24 @@ upstream-validate: ## Validate vendored upstream files (bypasses .goneatignore)
 		echo "✅ Upstream validation complete"; \
 	else \
 		echo "⚠️  goneat not found, skipping upstream validation"; \
+	fi
+
+upstream-sync-3leaps: ## Sync from 3leaps/crucible and check for issues
+	@echo "Syncing from 3leaps/crucible..."
+	@bun run scripts/3leaps-crucible-upstream-pull.ts
+	@echo "Checking upstream content for format/lint issues..."
+	@$(MAKE) upstream-check
+	@echo "✅ Upstream sync complete - review changes with: git diff schemas/upstream/"
+
+upstream-check: ## Check upstream content for format/lint issues (no auto-fix)
+	@echo "Checking upstream content (format + lint)..."
+	@if command -v $(GONEAT) >/dev/null 2>&1; then \
+		$(GONEAT) assess schemas/upstream/ --check --categories format,lint \
+			--force-include "schemas/upstream/**" || \
+		(echo "❌ Upstream content has format/lint issues - fix at source"; exit 1); \
+		echo "✅ Upstream content passes format/lint checks"; \
+	else \
+		echo "⚠️  goneat not found, skipping upstream check"; \
 	fi
 
 typecheck: ## Type-check TypeScript files
