@@ -23,6 +23,7 @@ schema signatures (e.g., `draft-04`, `draft-06`, `draft-07`, `draft-2019-09`, `d
 - `draft-2019-09/` – canonical Draft 2019-09 meta-schema plus offline helpers.
   - `schema.json` – raw meta-schema with `$ref` to modular vocabularies.
   - `offline.schema.json` – reduced subset for offline validation (no external refs).
+  - `meta/` – modular vocabularies (`core.json`, `validation.json`, `applicator.json`, etc.).
   - Uses `$recursiveAnchor`/`$recursiveRef` (replaced by `$dynamicAnchor` in 2020-12).
   - Introduced `$vocabulary`, `$anchor`, `unevaluatedProperties`, `unevaluatedItems`.
 
@@ -52,3 +53,7 @@ Meta-schemas are treated as curated assets. Refresh them from upstream when netw
 ## Offline Subset
 
 `draft-2020-12/offline.schema.json` is a minimal schema that covers the portions of the spec needed for validation. It avoids `$ref` chains to `meta/*` so the validator can operate without network access. Keep it in sync with upstream changes as needed.
+
+## Fixtures
+
+`fixtures/` contains minimal sample schemas for each draft. These are intended for cross-language parity tests and for validating that the embedded meta-schemas load correctly.
