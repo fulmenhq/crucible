@@ -37,5 +37,5 @@ Role prompts have moved from Markdown to schema-validated YAML.
 ## References
 
 - [Role Catalog README](../../../../config/agentic/roles/README.md) - Current role definitions
-- [Role-Prompt Schema](../../../schemas/upstream/3leaps/agentic/v0/role-prompt.schema.json) - Validation schema
+- [Role-Prompt Schema](../../../schemas/upstream/3leaps/crucible/schemas/agentic/v0/role-prompt.schema.json) - Validation schema
 - [Git Commit Attribution](../attribution/git-commit.md) - Commit format (unchanged)

@@ -174,9 +174,10 @@ EXCLUDED (manual sync):
 
 function getGitInfo(repoPath: string): { commit: string; tag: string | null; date: string } {
   const commit = execSync("git rev-parse HEAD", { cwd: repoPath, encoding: "utf-8" }).trim();
-  const date = execSync("git log -1 --format=%ci", { cwd: repoPath, encoding: "utf-8" })
-    .trim()
-    .split(" ")[0];
+  const date =
+    execSync("git log -1 --format=%ci", { cwd: repoPath, encoding: "utf-8" })
+      .trim()
+      .split(" ")[0] ?? "";
 
   let tag: string | null = null;
   try {
