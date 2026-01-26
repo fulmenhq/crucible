@@ -35,13 +35,13 @@ schema signatures (e.g., `draft-04`, `draft-06`, `draft-07`, `draft-2019-09`, `d
 
 ## Draft Selection Guidance
 
-| Draft | When to Use |
-|-------|-------------|
-| Draft-04 | Legacy schema compatibility (SchemaStore, older tools) |
-| Draft-06 | Transitional schemas needing `const` but not `if`/`then`/`else` |
-| Draft-07 | Stable choice with conditional keywords, wide tool support |
-| Draft 2019-09 | Advanced features without 2020-12's dynamic refs |
-| Draft 2020-12 | **Recommended** for new schemas, latest features |
+| Draft         | When to Use                                                     |
+| ------------- | --------------------------------------------------------------- |
+| Draft-04      | Legacy schema compatibility (SchemaStore, older tools)          |
+| Draft-06      | Transitional schemas needing `const` but not `if`/`then`/`else` |
+| Draft-07      | Stable choice with conditional keywords, wide tool support      |
+| Draft 2019-09 | Advanced features without 2020-12's dynamic refs                |
+| Draft 2020-12 | **Recommended** for new schemas, latest features                |
 
 ## Refresh Workflow
 
