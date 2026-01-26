@@ -95,6 +95,9 @@ pub enum NormalizationProfile {
     /// Cross-platform file names
     #[serde(rename = "filename_safe")]
     FilenameSafe,
+    /// Log-safe and UI-safe text display (prevent spoofing and hidden content)
+    #[serde(rename = "text_safe")]
+    TextSafe,
     /// Legacy system integration (limited Unicode support)
     #[serde(rename = "legacy_compatible")]
     LegacyCompatible,
@@ -110,6 +113,7 @@ impl std::fmt::Display for NormalizationProfile {
             Self::SafeIdentifiers => write!(f, "safe_identifiers"),
             Self::SearchOptimized => write!(f, "search_optimized"),
             Self::FilenameSafe => write!(f, "filename_safe"),
+            Self::TextSafe => write!(f, "text_safe"),
             Self::LegacyCompatible => write!(f, "legacy_compatible"),
         }
     }

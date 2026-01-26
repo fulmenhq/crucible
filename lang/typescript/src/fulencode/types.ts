@@ -65,6 +65,8 @@ export enum NormalizationProfile {
   SEARCH_OPTIMIZED = "search_optimized",
   /** Cross-platform file names */
   FILENAME_SAFE = "filename_safe",
+  /** Log-safe and UI-safe text display (prevent spoofing and hidden content) */
+  TEXT_SAFE = "text_safe",
   /** Legacy system integration (limited Unicode support) */
   LEGACY_COMPATIBLE = "legacy_compatible",
 }

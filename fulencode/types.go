@@ -70,6 +70,7 @@ const (
 	NormalizationProfileSafeIdentifiers  NormalizationProfile = "safe_identifiers"
 	NormalizationProfileSearchOptimized  NormalizationProfile = "search_optimized"
 	NormalizationProfileFilenameSafe     NormalizationProfile = "filename_safe"
+	NormalizationProfileTextSafe         NormalizationProfile = "text_safe"
 	NormalizationProfileLegacyCompatible NormalizationProfile = "legacy_compatible"
 )
 
@@ -83,6 +84,7 @@ func ValidateNormalizationProfile(value NormalizationProfile) error {
 	case NormalizationProfileSafeIdentifiers:
 	case NormalizationProfileSearchOptimized:
 	case NormalizationProfileFilenameSafe:
+	case NormalizationProfileTextSafe:
 	case NormalizationProfileLegacyCompatible:
 	default:
 		return fmt.Errorf("invalid normalizationprofile: %s", value)
