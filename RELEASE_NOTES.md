@@ -5,6 +5,50 @@ For complete release history, see the individual files in `release-notes/`.
 
 ---
 
+## v0.4.9 - JSON Schema Meta-Schema Expansion & Fulencode Contracts
+
+Two major additions: complete offline JSON Schema validation coverage (Draft-04 through Draft-2020-12) and implementable contracts for the Fulencode encoding/normalization module.
+
+### Why This Matters
+
+**For schema validation**: Helper libraries need to validate schemas during development and CI without reaching out to json-schema.org. With this release, FulmenHQ tools can validate Draft-04 through Draft-2020-12 schemas entirely offline—supporting legacy SchemaStore compatibility, modern tooling, and everything in between.
+
+**For encoding operations**: The Fulencode module now has complete SSOT contracts—option schemas, result schemas, error envelopes, and parity test fixtures. Helper library teams can implement with confidence that cross-language behavior will be consistent.
+
+### Highlights
+
+- **Full JSON Schema Draft Coverage**: Draft-04, Draft-06, Draft-07, Draft 2019-09, Draft 2020-12
+- **MetaSchemaRegistry API**: Helper libraries can implement consistent meta-schema discovery
+- **Fulencode Method Contracts**: 11 schemas defining encode/decode/detect/normalize operations
+- **Cross-Language Parity Fixtures**: Test vectors for both meta-schema detection and encoding operations
+- **text_safe Profile**: Security-focused normalization preventing bidi/zero-width attacks
+
+### Added - Meta-Schemas
+
+- `schemas/meta/draft-04/schema.json` - Draft-04 (uses `id` instead of `$id`)
+- `schemas/meta/draft-06/schema.json` - Draft-06 (introduced `$id`, `const`)
+- `schemas/meta/draft-2019-09/schema.json` - Full meta-schema with vocabulary refs
+- `schemas/meta/draft-2019-09/offline.schema.json` - Offline subset
+- `schemas/meta/draft-2019-09/meta/` - Modular vocabularies (core, applicator, validation, etc.)
+- `schemas/meta/fixtures/` - Test fixtures for all five drafts
+- `schemas/meta/README.md` - Draft selection guidance table
+
+### Added - Fulencode
+
+- **Method schemas** (`schemas/library/fulencode/v1.0.0/`): encode-options, decode-options, detect-options, normalize-options
+- **Result schemas**: encoding-result, decoding-result, detection-result, normalization-result, bom-result
+- **Error envelope**: fulencode-error.schema.json
+- **Parity fixtures** (`config/library/fulencode/fixtures/`): base64, bom, detection, normalization, telemetry
+- **text_safe profile** (`docs/standards/library/modules/fulencode-text-safe.md`): Security-focused normalization
+
+### Coming Next
+
+- **Data Classification Sync**: Classifier dimensions from 3leaps/crucible v0.1.4
+
+See [release-notes/v0.4.9.md](release-notes/v0.4.9.md) for details.
+
+---
+
 ## v0.4.8 - Process Fix
 
 Fixes sync process gap from v0.4.7 release.
@@ -49,54 +93,3 @@ Adds a new `qa` agentic role for testing, validation, and quality gate enforceme
 - **Release process**: QA escalates quality gate failures blocking release
 
 See [release-notes/v0.4.7.md](release-notes/v0.4.7.md) for details.
-
----
-
-## v0.4.6 - OpenAPI Spec Coverage Standard
-
-Establishes ecosystem-wide standards for OpenAPI specification verification, preventing spec drift across fixtures and workhorses.
-
-### Highlights
-
-- **ADR-0014**: New decision record for OpenAPI spec coverage testing
-- **Tiered Requirements**: Fixtures MUST, Workhorses SHOULD, DX tools MAY
-- **Coverage Testing**: Automated verification that specs cover all registered routes
-- **Cross-Standard Integration**: Updates to fixture, workhorse, codex, and HTTP standards
-
-### Added
-
-- **ADR-0014: OpenAPI Spec Coverage Tests** (`docs/architecture/decisions/ADR-0014-openapi-spec-coverage.md`)
-  - Problem: Spec drift when endpoints added without OpenAPI annotations
-  - Solution: Automated coverage test comparing router to spec
-  - Tiered requirements by repository category
-  - Intentional exclusions for experimental/internal endpoints
-  - CI workflow: `make openapi` before `make test`
-  - Swagger 2 and OpenAPI 3 compatibility
-  - Release asset guidance for `dist/release/` inclusion
-  - Provenance via `info.x-*` extensions (tooling-safe)
-
-- **OpenAPI Publication Section** (`docs/architecture/fulmen-fixture-standard.md`)
-  - MUST: generation, serving at `/openapi.yaml`, coverage test, CI workflow
-  - Build patterns: `dist/openapi.yaml` (gauntlet) or embedded (rampart)
-  - Both patterns acceptable with deterministic serving
-
-- **OpenAPI Verification Section** (`docs/guides/testing/http-server-patterns.md`)
-  - Spec drift problem explanation
-  - Coverage test Go implementation pattern
-  - CI integration example
-  - Exclusion list guidance
-
-### Changed
-
-- **HTTP REST Standard**: Added OpenAPI Documentation section
-- **Workhorse Standard**: Added `/openapi.yaml` endpoint reference
-- **Codex Standard**: Cross-link for upstream spec quality (Pillar III)
-- **Fixture Author Checklist**: Added OpenAPI coverage items
-
-### Impact
-
-- **Fixture maintainers**: Implement coverage tests per ADR-0014
-- **Workhorse maintainers**: Consider OpenAPI publication for HTTP APIs
-- **gauntlet/rampart**: Local ADR-0001 now superseded by Crucible ADR-0014
-
-See [release-notes/v0.4.6.md](release-notes/v0.4.6.md) for details.

@@ -11,6 +11,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **3leaps/crucible Upstream Sync Infrastructure**: Automated sync tooling for galaxy-level standards
+  - `scripts/3leaps-crucible-upstream-pull.ts` - Bun/TypeScript sync script with dry-run support
+  - `make upstream-sync-3leaps` - Sync and validate in one command
+  - `make upstream-check` - Check upstream content for format/lint issues (no auto-fix)
+  - New directory structure: `schemas/upstream/<org>/<repo>/` for clear provenance
+  - Synced content mirrors source structure: `schemas/`, `config/`, `docs/` subdirectories
+  - PROVENANCE.md tracks source tag, commit, and date for audit trail
+
+- **Data Classification Framework** (from 3leaps/crucible v0.1.4): Enterprise-grade classification dimensions
+  - **7 classifier dimension definitions** (`config/classifiers/dimensions/`)
+    - `sensitivity` - Data sensitivity levels (UNKNOWN through 6-eyes-only)
+    - `volatility` - Update cadence (static → streaming)
+    - `access-tier` - Distribution control (public → eyes-only)
+    - `retention-lifecycle` - Retention policy (transient → legal-hold)
+    - `schema-stability` - Schema evolution stage (experimental → deprecated)
+    - `volume-tier` - Data scale planning (tiny → massive)
+    - `velocity-mode` - Processing pattern (batch/streaming/hybrid)
+  - **Classification meta-schemas** (`schemas/classifiers/v0/`)
+    - `dimension-definition.schema.json` - Meta-schema for classifier dimensions
+    - `sensitivity-level.schema.json` - Sensitivity enum schema
+  - **8 classification standards** (`docs/standards/`)
+    - Decision trees, handling matrices, and operational guidance per dimension
+  - **Classifiers catalog** (`docs/catalog/classifiers/`)
+  - Policy stance: Missing classification is an error; explicit `unknown` required
+
+- **Foundation Schemas** (from 3leaps/crucible v0.1.4): Universal type primitives
+  - `types.schema.json` - 25 portable types (slug, semver, timestamp, URL, paths, etc.)
+  - `error-response.schema.json` - Standard error structure for APIs and CLIs
+  - `lifecycle-phases.schema.json` - Project maturity phases
+  - `release-phase.schema.json` - Release cadence (dev, rc, ga, hotfix)
+
+### Changed
+
+- **Upstream Content Location**: Restructured from flat to hierarchical
+  - Old: `schemas/upstream/3leaps/{ailink,agentic}/`
+  - New: `schemas/upstream/3leaps/crucible/{schemas,config,docs}/`
+  - Enables future multi-repo upstream support with clear provenance
+  - Updated all path references in Makefile and documentation
+
+## [0.4.9] - 2026-01-22
+
+### Added
+
+- **JSON Schema Meta-Schema Expansion**: Full draft coverage for offline schema validation
+  - `schemas/meta/draft-04/schema.json` - Draft-04 meta-schema (single-file, uses `id`)
+  - `schemas/meta/draft-06/schema.json` - Draft-06 meta-schema (single-file, introduced `$id`, `const`)
+  - `schemas/meta/draft-2019-09/schema.json` - Draft 2019-09 with modular vocabulary refs
+  - `schemas/meta/draft-2019-09/offline.schema.json` - Subset for offline validation (no external refs)
+  - `schemas/meta/draft-2019-09/meta/` - Modular vocabularies (core, applicator, validation, meta-data, format, content)
+  - `schemas/meta/fixtures/` - Test fixtures for all five drafts (draft-04 through draft-2020-12)
+  - Aligns with goneat v0.5.2 meta-schema expansion
+  - Enables helper libraries to implement MetaSchemaRegistry API
+  - Supports SchemaStore and legacy tooling validation without network access
+  - Updated `schemas/meta/README.md` with draft selection guidance table
+  - Synced to Python, TypeScript, and Rust wrappers
+
+- **Fulencode Module Contracts**: SSOT schemas for encoding/decoding/normalization operations
+  - **Method option schemas** (`schemas/library/fulencode/v1.0.0/`):
+    - `encode-options.schema.json`, `decode-options.schema.json`
+    - `detect-options.schema.json`, `normalize-options.schema.json`
+  - **Result schemas**:
+    - `encoding-result.schema.json`, `decoding-result.schema.json`
+    - `detection-result.schema.json`, `normalization-result.schema.json`
+    - `bom-result.schema.json`
+  - **Error envelope**: `fulencode-error.schema.json`
+  - **Parity test fixtures** (`config/library/fulencode/fixtures/`):
+    - `valid-encodings/base64.yaml`, `invalid-encodings/base64.yaml`
+    - `bom/bom.yaml`, `detection/detection.yaml`
+    - `normalization/text-safe.yaml`, `telemetry/telemetry-test-cases.yaml`
+  - **text_safe normalization profile** (`docs/standards/library/modules/fulencode-text-safe.md`):
+    - Security-focused profile for log-safe and UI-safe text
+    - Prevents bidi injection, zero-width hiding, control character attacks
+    - Deterministic algorithm: NFC → reject disallowed → combining mark cap
+
 ## [0.4.8] - 2026-01-19
 
 ### Fixed
