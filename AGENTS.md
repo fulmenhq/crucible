@@ -39,12 +39,29 @@ See [Role Catalog](config/agentic/roles/README.md) for full role definitions and
 
 **Quality Focus**: As part of the FulmenHQ ecosystem, designed for extremely high-scale enterprise-class applications, all actions must emphasize code quality, process compliance, and system reliability. Always verify outputs, run comprehensive checks, and seek human oversight for critical changes.
 
+## Repository Relationship: fulmenhq/crucible vs 3leaps/crucible
+
+This repository (fulmenhq/crucible) has a **bidirectional relationship** with upstream:
+
+- **UPSTREAM SOURCE (3leaps/crucible)**: Foundation schemas, classifiers, AILink, agentic role schemas
+  - Synced TO: `schemas/upstream/3leaps/crucible/`
+  - Command: `make upstream-sync-3leaps`
+  - Guide: [Upstream Sync Consumer Guide](docs/ops/upstream-sync-consumer.md)
+
+- **DOWNSTREAM DISTRIBUTION (fulmenhq/crucible → consumers)**: This repo serves as SSOT for FulmenHQ ecosystem
+  - Synced TO: gofulmen, tsfulmen, pyfulmen, forge templates
+  - Command: `make sync` (internal lang wrappers)
+  - Guide: [Sync Model Architecture](docs/architecture/sync-model.md)
+
+**Key Rule**: Never edit `schemas/upstream/3leaps/` directly - these are vendored read-only copies.
+
 ## Quick Reference
 
 | Task                           | Command                      | Documentation                                                      |
 | ------------------------------ | ---------------------------- | ------------------------------------------------------------------ |
 | Pre-commit workflow            | `make precommit`             | [Commit Checklist](docs/ops/repository/commit-checklist.md)        |
 | Pre-release workflow           | `make prepush`               | [Release Checklist](docs/ops/repository/release-checklist.md)      |
+| Sync from upstream 3leaps      | `make upstream-sync-3leaps`  | [Upstream Sync Consumer Guide](docs/ops/upstream-sync-consumer.md) |
 | Sync SSOT to language wrappers | `make sync`                  | [Makefile](Makefile)                                               |
 | Format code                    | `make fmt`                   | [Makefile Standard](docs/standards/makefile-standard.md)           |
 | Run tests                      | `make test`                  | [Makefile](Makefile)                                               |
@@ -160,7 +177,7 @@ This routing ensures standards are discoverable at the moment they're needed, no
 ### DO NOT
 
 - **Edit Synced Files**: Never edit `lang/*/docs/`, `lang/*/schemas/`, `lang/*/config/` directly
-- **Edit Upstream Schemas**: Never edit `schemas/upstream/` – these are vendored from external repos (see [PROVENANCE.md](schemas/upstream/3leaps/PROVENANCE.md))
+- **Edit Upstream Schemas**: Never edit `schemas/upstream/3leaps/` – these are vendored from 3leaps/crucible (the upstream SSOT). To update: use `make upstream-sync-3leaps` then review changes. See [Upstream Sync Consumer Guide](docs/ops/upstream-sync-consumer.md)
 - **Commit Planning Files**: `.plans/` is gitignored
 - **Direct Releases**: Tagging/publishing requires approval from @3leapsdave
 - **Store Secrets**: Never commit API keys, tokens, or credentials

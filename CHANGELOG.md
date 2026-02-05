@@ -9,9 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
-## [Unreleased]
+## [0.4.10] - 2026-02-04
 
 ### Added
+
+- **Documentation Improvements for Upstream Sync**: Enhanced agent-facing documentation to clarify bidirectional repository relationship
+  - Added "Repository Relationship" section to AGENTS.md explaining fulmenhq/crucible vs 3leaps/crucible
+  - Updated Quick Reference table in AGENTS.md with `make upstream-sync-3leaps` entry
+  - Enhanced DO/DO NOT section with explicit upstream sync guidance and link to consumer guide
+  - Added bidirectional relationship context to `docs/architecture/sync-model.md`
+  - Added upstream sync to high-risk operations table in `docs/sop/repository-operations-sop.md`
+  - Added clarifying comments to Makefile `upstream-sync-3leaps` target
+  - Prevents confusion between two crucible repositories (3leaps vs fulmenhq)
 
 - **3leaps/crucible Upstream Sync Infrastructure**: Automated sync tooling for galaxy-level standards
   - `scripts/3leaps-crucible-upstream-pull.ts` - Bun/TypeScript sync script with dry-run support
@@ -21,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Synced content mirrors source structure: `schemas/`, `config/`, `docs/` subdirectories
   - PROVENANCE.md tracks source tag, commit, and date for audit trail
 
-- **Data Classification Framework** (from 3leaps/crucible v0.1.4): Enterprise-grade classification dimensions
+- **Data Classification Framework** (from 3leaps/crucible v0.1.6): Enterprise-grade classification dimensions
   - **7 classifier dimension definitions** (`config/classifiers/dimensions/`)
     - `sensitivity` - Data sensitivity levels (UNKNOWN through 6-eyes-only)
     - `volatility` - Update cadence (static → streaming)
@@ -38,19 +47,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Classifiers catalog** (`docs/catalog/classifiers/`)
   - Policy stance: Missing classification is an error; explicit `unknown` required
 
-- **Foundation Schemas** (from 3leaps/crucible v0.1.4): Universal type primitives
+- **Foundation Schemas** (from 3leaps/crucible v0.1.6): Universal type primitives
   - `types.schema.json` - 25 portable types (slug, semver, timestamp, URL, paths, etc.)
   - `error-response.schema.json` - Standard error structure for APIs and CLIs
   - `lifecycle-phases.schema.json` - Project maturity phases
   - `release-phase.schema.json` - Release cadence (dev, rc, ga, hotfix)
 
+- **Release Engineering Role**: New `releng` agentic role for release coordination with CI/CD validation
+  - `config/agentic/roles/releng.yaml` - Full role definition
+  - Version management and semantic versioning enforcement
+  - Changelog and release notes maintenance
+  - CI/CD workflow validation before push (actionlint, shellcheck)
+  - Platform matrix enforcement and runner availability verification
+  - Cross-repository release coordination
+  - Key distinction: releng orchestrates releases while cicd handles mechanical execution
+
 ### Changed
+
+- **Updated 3leaps/crucible to v0.1.6**: Synced latest upstream schemas and role definitions
+  - Updated role-prompt.schema.json with new role categories: `analytics`, `consulting`, `marketing`
+  - Added README.md to agentic schemas documentation
+  - Updated PROVENANCE.md to track v0.1.6 (commit e2812cd)
 
 - **Upstream Content Location**: Restructured from flat to hierarchical
   - Old: `schemas/upstream/3leaps/{ailink,agentic}/`
   - New: `schemas/upstream/3leaps/crucible/{schemas,config,docs}/`
   - Enables future multi-repo upstream support with clear provenance
   - Updated all path references in Makefile and documentation
+
+### Removed
+
+- **Legacy Role-Prompt Schema**: `schemas/upstream/3leaps/crucible/schemas/agentic/v0/role-prompt.schema.json`
+  - Role definitions now sourced from 3leaps/crucible upstream
+  - Local vendored schema no longer needed
 
 ## [0.4.9] - 2026-01-22
 

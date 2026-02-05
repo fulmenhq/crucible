@@ -147,6 +147,8 @@ upstream-validate: ## Validate vendored upstream files (bypasses .goneatignore)
 
 upstream-sync-3leaps: ## Sync from 3leaps/crucible and check for issues
 	@echo "Syncing from 3leaps/crucible..."
+	@echo "NOTE: This syncs FROM the upstream 3leaps/crucible repo (not this repo)"
+	@echo "      Vendored content will be placed in schemas/upstream/3leaps/crucible/"
 	@bun run scripts/3leaps-crucible-upstream-pull.ts
 	@echo "Checking upstream content for format/lint issues..."
 	@$(MAKE) upstream-check

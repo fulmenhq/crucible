@@ -35,6 +35,8 @@ const SYNC_PATHS = [
   { source: "schemas/foundation", dest: "schemas/foundation" },
   // Schemas - ailink (prompt/response)
   { source: "schemas/ailink", dest: "schemas/ailink" },
+  // Schemas - agentic role prompts
+  { source: "schemas/agentic", dest: "schemas/agentic" },
 
   // Config - classifier dimensions
   { source: "config/classifiers", dest: "config/classifiers" },
@@ -82,8 +84,7 @@ const SYNC_PATHS = [
  * These are synced manually or not needed in fulmenhq.
  */
 const EXCLUDE_PATHS = [
-  // Agentic roles are synced manually per policy
-  "schemas/agentic",
+  // Role definitions are managed locally (not synced from upstream)
   "config/agentic",
   "docs/catalog/roles",
 ];
@@ -153,22 +154,22 @@ EXAMPLES:
   # Custom source path
   bun run scripts/3leaps-crucible-upstream-pull.ts --source=/path/to/3leaps/crucible
 
-OUTPUT:
-  schemas/upstream/3leaps/crucible/
-  ├── schemas/
-  │   ├── classifiers/v0/
-  │   ├── foundation/v0/
-  │   └── ailink/v0/
-  ├── config/
-  │   └── classifiers/dimensions/
-  ├── docs/
-  │   ├── standards/
-  │   └── catalog/classifiers/
-  └── PROVENANCE.md
+ OUTPUT:
+   schemas/upstream/3leaps/crucible/
+   ├── schemas/
+   │   ├── classifiers/v0/
+   │   ├── foundation/v0/
+   │   ├── ailink/v0/
+   │   └── agentic/v0/
+   ├── config/
+   │   └── classifiers/dimensions/
+   ├── docs/
+   │   ├── standards/
+   │   └── catalog/classifiers/
+   └── PROVENANCE.md
 
 EXCLUDED (manual sync):
-  - schemas/agentic/ (role prompts)
-  - config/agentic/ (role definitions)
+   - config/agentic/ (role definitions)
 `);
 }
 
@@ -254,16 +255,17 @@ function generateProvenance(
 
 \`\`\`
 schemas/upstream/3leaps/crucible/
-├── schemas/
-│   ├── classifiers/v0/   # Dimension meta-schemas
-│   ├── foundation/v0/    # Type primitives, error response
-│   └── ailink/v0/        # Prompt/response schemas
-├── config/
-│   └── classifiers/      # Dimension definitions
-├── docs/
-│   ├── standards/        # Classification standards
-│   └── catalog/          # Classifier catalog
-└── PROVENANCE.md
+ ├── schemas/
+ │   ├── classifiers/v0/   # Dimension meta-schemas
+ │   ├── foundation/v0/    # Type primitives, error response
+ │   ├── ailink/v0/        # Prompt/response schemas
+ │   └── agentic/v0/       # Role prompt schemas
+ ├── config/
+ │   └── classifiers/      # Dimension definitions
+ ├── docs/
+ │   ├── standards/        # Classification standards
+ │   └── catalog/          # Classifier catalog
+ └── PROVENANCE.md
 \`\`\`
 
 ## Files Synced
@@ -277,12 +279,12 @@ These schemas are canonically hosted at:
 - \`https://schemas.3leaps.dev/classifiers/v0/*.json\`
 - \`https://schemas.3leaps.dev/foundation/v0/*.json\`
 - \`https://schemas.3leaps.dev/ailink/v0/*.json\`
+- \`https://schemas.3leaps.dev/agentic/v0/*.json\`
 
 ## Excluded (Manual Sync)
 
 The following are NOT synced by this script:
 
-- \`schemas/agentic/\` - Role prompt schemas
 - \`config/agentic/\` - Role definitions
 
 These are synced manually as they require review for fulmenhq-specific customization.
