@@ -5,3 +5,7 @@ config/library/foundry/fixtures/signals/invalid/
 # Vendored upstream content - validated in prepush via upstream-validate
 schemas/upstream/
 config/upstream/
+
+# JSON Schema meta-schemas - goneat doesn't support validating Draft 2019-09
+# These are authoritative files from json-schema.org that require different tooling
+schemas/meta/draft-2019-09/
