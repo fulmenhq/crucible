@@ -1,5 +1,5 @@
 name: Test Rust
-'on':
+"on":
   push:
   pull_request:
 jobs:
@@ -10,7 +10,7 @@ jobs:
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@master
         with:
-          toolchain: '1.70'
+          toolchain: "1.89"
           components: rustfmt, clippy
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
