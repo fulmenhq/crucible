@@ -16,6 +16,9 @@ jobs:
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: lang/rust
+          # Cache key includes toolchain version to auto-bust on upgrades
+          # Increment manually if you need to force cache invalidation
+          key: v1-toolchain-1.89
       - name: Check formatting
         working-directory: ./lang/rust
         run: cargo fmt --check
