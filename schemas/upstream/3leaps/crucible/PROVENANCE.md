@@ -7,8 +7,8 @@
 | Field      | Value                                      |
 | ---------- | ------------------------------------------ |
 | Repository | https://github.com/3leaps/crucible         |
-| Tag        | v0.1.9                                   |
-| Commit     | 67b166daf81784e9e1260a54b6f28e1c0c3e10de |
+| Tag        | v0.1.10                                  |
+| Commit     | c52fc1bf3ecb2f6e97c001cd840962860a6af58d |
 | Date       | 2026-02-09                               |
 | Synced By  | devlead (Claude Opus 4.5 via Claude Code)  |
 

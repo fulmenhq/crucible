@@ -280,11 +280,11 @@ pub struct CreateOptions {
     #[serde(rename = "compression_level")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub compression_level: Option<i64>,
-    /// Glob patterns for files to include (e.g., ['**/*.py', '**/*.md'])
+    /// Glob patterns for files to include (e.g., `["**/*.py", "**/*.md"]`)
     #[serde(rename = "include_patterns")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub include_patterns: Option<Vec<String>>,
-    /// Glob patterns for files to exclude (e.g., ['**/__pycache__', '**/.git'])
+    /// Glob patterns for files to exclude (e.g., `["**/__pycache__", "**/.git"]`)
     #[serde(rename = "exclude_patterns")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub exclude_patterns: Option<Vec<String>>,
@@ -318,7 +318,7 @@ pub struct ExtractOptions {
     #[serde(rename = "preserve_permissions")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub preserve_permissions: Option<bool>,
-    /// Glob patterns for entries to extract (e.g., ['**/*.csv'])
+    /// Glob patterns for entries to extract (e.g., `["**/*.csv"]`)
     #[serde(rename = "include_patterns")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub include_patterns: Option<Vec<String>>,
