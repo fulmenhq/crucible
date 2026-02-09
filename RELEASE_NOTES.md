@@ -5,15 +5,15 @@ For complete release history, see individual files in `release-notes/`.
 
 ---
 
-## v0.4.11 - Role Schema Compliance & Upstream v0.1.8
+## v0.4.11 - Role Schema Compliance & Upstream v0.1.9
 
-**Updated all 11 agentic roles with `domains` property for business-process organization, synced latest 3leaps/crucible v0.1.8 with formatted schemas and governance role enhancements.**
+**Updated all 11 agentic roles with `domains` property for business-process organization, synced latest 3leaps/crucible v0.1.9 with formatted schemas and governance role enhancements.**
 
 ### Why This Matters
 
 **For role catalog consistency**: Every agentic role now complies with the enhanced role-prompt schema, enabling business-process organization across the FulmenHQ ecosystem. The `domains` property (1-3 values per role) allows selection by timeline and process phase rather than just technical function.
 
-**For upstream alignment**: Synced v0.1.8 from 3leaps/crucible brings formatted schemas (resolving downstream formatting drift), new governance role definitions (deliverylead for project coordination, cxotech for strategic decisions), and the three-tier governance model. Minimum goneat v0.5.3 now required for JSON Schema 2019-09 support.
+**For upstream alignment**: Synced v0.1.9 from 3leaps/crucible brings formatted schemas (resolving downstream formatting drift), new governance role definitions (deliverylead for project coordination, cxotech for strategic decisions), and the three-tier governance model. Minimum goneat v0.5.3 now required for JSON Schema 2019-09 support.
 
 ### Highlights
 
@@ -30,7 +30,7 @@ For complete release history, see individual files in `release-notes/`.
   - secrev: development, security
   - uxdev: development, implementation
 
-- **Upstream v0.1.8 Sync**: 28 files from 3leaps/crucible
+- **Upstream v0.1.9 Sync**: 28 files from 3leaps/crucible
   - Formatted JSON schemas (enum arrays expanded)
   - Updated role-prompt schema with required `domains` property
   - New governance roles tracked: deliverylead (sprint-quarter), cxotech (strategic)
@@ -42,8 +42,8 @@ For complete release history, see individual files in `release-notes/`.
 | Area     | Change                                                       |
 | -------- | ------------------------------------------------------------ |
 | Roles    | Add `domains` property to all 11 agentic roles               |
-| Schema   | Sync role-prompt.schema.json v0.1.8 with domains requirement |
-| Upstream | Bump provenance from v0.1.6 to v0.1.8 (commit 01e9048)       |
+| Schema   | Sync role-prompt.schema.json v0.1.9 with domains requirement |
+| Upstream | Bump provenance from v0.1.6 to v0.1.9 (commit 67b166daf817)  |
 
 **Full release notes**: [release-notes/v0.4.11.md](release-notes/v0.4.11.md)
 
