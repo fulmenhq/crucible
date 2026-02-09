@@ -39,9 +39,9 @@ For complete release history, see individual files in `release-notes/`.
 
 ### Changes
 
-| Area     | Change                                                       |
-| -------- | ------------------------------------------------------------ |
-| Roles    | Add `domains` property to all 11 agentic roles               |
+| Area     | Change                                                        |
+| -------- | ------------------------------------------------------------- |
+| Roles    | Add `domains` property to all 11 agentic roles                |
 | Schema   | Sync role-prompt.schema.json v0.1.10 with domains requirement |
 | Upstream | Bump provenance from v0.1.6 to v0.1.10 (commit c52fc1bf3ecb)  |
 
