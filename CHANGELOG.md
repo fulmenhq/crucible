@@ -9,6 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
+## [0.4.11] - 2026-02-09
+
+### Added
+
+- **Role catalog schema compliance**: All 11 agentic roles updated with `domains` property
+  - Required by updated role-prompt.schema.json from 3leaps/crucible v0.1.7
+  - Added `domains` to: cicd, dataeng, devlead, devrev, entarch, infoarch, prodmktg, qa, releng, secrev, uxdev
+  - Domain assignments reflect business process organization (development, delivery, governance, etc.)
+  - 15 process domains now defined: analytics, architecture, automation, consulting, coordination, delivery, development, documentation, governance, implementation, marketing, product, quality, security, strategy
+  - Enables timeline-based and process-based role selection
+
+- **3leaps/crucible v0.1.7 upstream sync**: Latest galaxy-level standards
+  - Formatted JSON schemas (enum arrays expanded for goneat consistency)
+  - Updated role-prompt schema with `domains` property (required, 1-3 items)
+  - New governance roles tracked (not synced to local roles/): deliverylead, cxotech
+  - Three-tier governance model: dispatch (minutes-days) → deliverylead (sprint-quarter) → cxotech (strategic 6-18mo)
+  - Synced 28 files: schemas, config/classifiers, docs/standards
+  - Updated PROVENANCE.md to track v0.1.7 (commit b7deb0b)
+
+### Changed
+
+- **Schema validation**: All role files now validate against updated schema with domains requirement
+- **Upstream provenance**: Bumped from v0.1.6 to v0.1.7
+
 ## [0.4.10] - 2026-02-04
 
 ### Added
