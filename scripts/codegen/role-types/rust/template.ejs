@@ -1,0 +1,206 @@
+//! Agentic role catalog for the FulmenHQ ecosystem.
+//!
+//! This file is AUTO-GENERATED from `config/agentic/roles/*.yaml`.
+//! Do not edit directly — modify the source YAML and run `make codegen-roles`.
+//!
+//! # Usage
+//!
+//! ```rust
+//! use crucible_codegen::agentic::Role;
+//!
+//! // Look up a role by slug
+//! let role = Role::from_slug("devlead").unwrap();
+//! assert_eq!(role.slug(), "devlead");
+//!
+//! // Iterate all roles
+//! for role in Role::all() {
+//!     println!("{}: {}", role.slug(), role.metadata().name);
+//! }
+//! ```
+
+/// A role in the FulmenHQ agentic role catalog.
+///
+/// Each variant corresponds to a YAML file under `config/agentic/roles/`.
+/// Use [`Role::metadata`] to retrieve static metadata, [`Role::from_slug`]
+/// to parse from a string, and [`Role::all`] to iterate over the full catalog.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "kebab-case")]
+#[non_exhaustive]
+pub enum Role {
+<% for (const role of roles) { -%>
+    /// <%- rustDoc(role.name) %>: <%- rustDoc(role.description) %>
+    <%- role.variantName %>,
+<% } -%>
+}
+
+/// Static metadata for an agentic role.
+///
+/// All string slices are `'static` — zero heap allocation at runtime.
+#[derive(Debug)]
+pub struct RoleMetadata {
+    /// Role slug identifier (e.g. `"devlead"`)
+    pub slug: &'static str,
+    /// Human-readable display name
+    pub name: &'static str,
+    /// Short description of the role's purpose
+    pub description: &'static str,
+    /// Schema version of this role definition
+    pub version: &'static str,
+    /// Lifecycle status (e.g. `"approved"`)
+    pub status: &'static str,
+    /// Author role that defined this entry, if specified
+    pub author: Option<&'static str>,
+    /// Extended context, with newlines preserved as `\n`
+    pub context: Option<&'static str>,
+    /// Scope items this role is responsible for
+    pub scope: &'static [&'static str],
+    /// Key responsibilities for this role
+    pub responsibilities: &'static [&'static str],
+    /// Explicit out-of-scope constraints
+    pub does_not: &'static [&'static str],
+    /// Mindset focus questions
+    pub mindset_focus: &'static [&'static str],
+    /// Core operating principles
+    pub mindset_principles: &'static [&'static str],
+}
+
+// =============================================================================
+// Static metadata instances (one per role, alphabetical by slug)
+// =============================================================================
+<% for (const role of roles) { %>
+static <%- role.constName %>: RoleMetadata = RoleMetadata {
+    slug: <%- rustStr(role.slug) %>,
+    name: <%- rustStr(role.name) %>,
+    description: <%- rustStr(role.description) %>,
+    version: <%- rustStr(role.version) %>,
+    status: <%- rustStr(role.status) %>,
+    author: <% if (role.author) { %>Some(<%- rustStr(role.author) %>)<% } else { %>None<% } %>,
+    context: <% if (role.context) { %>Some(<%- rustStr(role.context) %>)<% } else { %>None<% } %>,
+    scope: &[
+<%   for (const item of role.scope) { -%>
+        <%- rustStr(item) %>,
+<%   } -%>
+    ],
+    responsibilities: &[
+<%   for (const item of role.responsibilities) { -%>
+        <%- rustStr(item) %>,
+<%   } -%>
+    ],
+    does_not: &[
+<%   for (const item of role.does_not) { -%>
+        <%- rustStr(item) %>,
+<%   } -%>
+    ],
+    mindset_focus: &[
+<%   for (const item of role.mindset_focus) { -%>
+        <%- rustStr(item) %>,
+<%   } -%>
+    ],
+    mindset_principles: &[
+<%   for (const item of role.mindset_principles) { -%>
+        <%- rustStr(item) %>,
+<%   } -%>
+    ],
+};
+<% } %>
+/// All roles in the catalog, sorted alphabetically by slug.
+static ALL_ROLES: &[Role] = &[
+<% for (const role of roles) { -%>
+    Role::<%- role.variantName %>,
+<% } -%>
+];
+
+impl Role {
+    /// Returns static metadata for this role.
+    #[must_use]
+    pub fn metadata(self) -> &'static RoleMetadata {
+        match self {
+<% for (const role of roles) { -%>
+            Self::<%- role.variantName %> => &<%- role.constName %>,
+<% } -%>
+        }
+    }
+
+    /// The role's slug identifier (e.g. `"devlead"`).
+    #[must_use]
+    pub fn slug(self) -> &'static str {
+        self.metadata().slug
+    }
+
+    /// Parse a role from its slug string.
+    ///
+    /// Returns `None` for unrecognised slugs.
+    #[must_use]
+    pub fn from_slug(s: &str) -> Option<Self> {
+        match s {
+<% for (const role of roles) { -%>
+            <%- rustStr(role.slug) %> => Some(Self::<%- role.variantName %>),
+<% } -%>
+            _ => None,
+        }
+    }
+
+    /// All roles in the catalog, sorted alphabetically by slug.
+    #[must_use]
+    pub fn all() -> &'static [Self] {
+        ALL_ROLES
+    }
+}
+
+impl std::fmt::Display for Role {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.slug())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn from_slug_round_trips_all_roles() {
+        for &role in Role::all() {
+            let slug = role.slug();
+            assert_eq!(
+                Role::from_slug(slug),
+                Some(role),
+                "from_slug({slug:?}) failed round-trip"
+            );
+        }
+    }
+
+    #[test]
+    fn all_roles_have_non_empty_metadata() {
+        for &role in Role::all() {
+            let m = role.metadata();
+            assert!(!m.slug.is_empty(), "{role} has empty slug");
+            assert!(!m.name.is_empty(), "{role} has empty name");
+            assert!(!m.description.is_empty(), "{role} has empty description");
+            assert!(!m.responsibilities.is_empty(), "{role} has no responsibilities");
+            assert!(!m.scope.is_empty(), "{role} has empty scope");
+            assert!(!m.does_not.is_empty(), "{role} has empty does_not");
+        }
+    }
+
+    #[test]
+    fn from_slug_unknown_returns_none() {
+        assert_eq!(Role::from_slug("nonexistent"), None);
+        assert_eq!(Role::from_slug(""), None);
+        assert_eq!(Role::from_slug("../escape"), None);
+    }
+
+    #[test]
+    fn display_matches_slug() {
+        for &role in Role::all() {
+            assert_eq!(role.to_string(), role.slug());
+        }
+    }
+
+    #[test]
+    fn catalog_has_expected_roles() {
+        let slugs: Vec<&str> = Role::all().iter().map(|r| r.slug()).collect();
+        for expected in &["devlead", "devrev", "secrev", "cicd", "infoarch"] {
+            assert!(slugs.contains(expected), "catalog missing role {expected:?}");
+        }
+    }
+}
