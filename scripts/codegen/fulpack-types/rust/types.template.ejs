@@ -37,11 +37,11 @@ impl std::fmt::Display for <%- taxonomy.className %> {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct <%- schema.className %> {
-<% schema.required_properties.forEach(prop => { %>    /// <%- prop.description %>
+<% schema.required_properties.forEach(prop => { %>    /// <%- rustDoc(prop.description) %>
     #[serde(rename = "<%- prop.name %>")]
     pub <%- prop.name_rust %>: <%- prop.rust_type %>,
 <% }); %>
-<% schema.optional_properties.forEach(prop => { %>    /// <%- prop.description %>
+<% schema.optional_properties.forEach(prop => { %>    /// <%- rustDoc(prop.description) %>
     #[serde(rename = "<%- prop.name %>")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub <%- prop.name_rust %>: <%- prop.rust_type %>,
@@ -57,7 +57,7 @@ pub struct <%- schema.className %> {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct <%- schema.className %> {
-<% schema.properties.forEach(prop => { %>    /// <%- prop.description %>
+<% schema.properties.forEach(prop => { %>    /// <%- rustDoc(prop.description) %>
     #[serde(rename = "<%- prop.name %>")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub <%- prop.name_rust %>: <%- prop.rust_type %>,

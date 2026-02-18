@@ -165,7 +165,7 @@ pub struct ArchiveEntry {
     #[serde(rename = "checksum")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub checksum: Option<String>,
-    /// Unix file permissions (octal string, e.g., '0644')
+    /// Unix file permissions (octal string, e.g., `'0644'`)
     #[serde(rename = "mode")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub mode: Option<String>,
