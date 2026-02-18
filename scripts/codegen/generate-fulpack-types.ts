@@ -582,7 +582,10 @@ async function renderTemplate(lang: string, templateType: string, data: any): Pr
   } else if (lang === "typescript" || lang === "go" || lang === "rust") {
     // Use EJS for TypeScript, Go, and Rust
     const ejs = await import("ejs");
-    return ejs.render(templateContent, { ...data, JSON });
+    // rustDoc wraps single-quoted strings in backticks to silence clippy::doc_link_with_quotes
+    const rustDoc = (desc: unknown) =>
+      typeof desc === "string" ? desc.replace(/'([^']+)'/g, "`'$1'`") : "";
+    return ejs.render(templateContent, { ...data, JSON, rustDoc });
   }
 
   throw new Error(`Unsupported language: ${lang}`);
