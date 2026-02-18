@@ -1,3 +1,4 @@
+export * from "./agentic.js";
 export * from "./schema-utils.js";
 export * from "./schemas.js";
 export * from "./terminal.js";

@@ -30,6 +30,11 @@ func (c *Config) Terminal() *TerminalConfigRegistry {
 	return &TerminalConfigRegistry{}
 }
 
+// Agentic returns accessors for agentic role configurations
+func (c *Config) Agentic() *AgenticConfig {
+	return &AgenticConfig{}
+}
+
 // Sync returns accessors for sync configurations
 func (c *Config) Sync() *SyncConfig {
 	return &SyncConfig{}
@@ -137,6 +142,17 @@ type TerminalConfigRegistry struct{}
 // OverridesDefaults returns the terminal overrides defaults configuration
 func (t *TerminalConfigRegistry) OverridesDefaults() ([]byte, error) {
 	return configFS.ReadFile("config/terminal/v1.0.0/terminal-overrides-defaults.yaml")
+}
+
+// AgenticConfig provides access to agentic role configurations
+type AgenticConfig struct{}
+
+// Role returns the raw YAML for a role by slug.
+func (a *AgenticConfig) Role(slug string) ([]byte, error) {
+	if err := validateRoleSlug(slug); err != nil {
+		return nil, err
+	}
+	return configFS.ReadFile(fmt.Sprintf("config/agentic/roles/%s.yaml", slug))
 }
 
 // SyncConfig provides access to sync configurations
