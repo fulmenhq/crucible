@@ -19,7 +19,7 @@ SFETCH_INSTALL_URL ?= https://github.com/3leaps/sfetch/releases/latest/download/
 .PHONY: release-check release-build release-prepare release-clean
 .PHONY: release-guard-tag-version release-tag release-verify-tag release-verify-remote-tag release-publish-assets
 .PHONY: prepush precommit check-all
-.PHONY: validate-schemas verify-codegen codegen-exit-codes codegen-fulpack codegen-fulpack-python codegen-fulencode codegen-all
+.PHONY: validate-schemas verify-codegen codegen-exit-codes codegen-fulpack codegen-fulpack-python codegen-fulencode codegen-roles codegen-all
 
 # Default target
 all: sync-schemas
@@ -199,6 +199,7 @@ verify-codegen: ## Verify generated code is up-to-date with catalog
 	@bun run scripts/codegen/verify-exit-codes.ts
 	@bun run scripts/codegen/verify-fulpack-types.ts
 	@bun run scripts/codegen/verify-fulencode-types.ts
+	@bun run scripts/codegen/verify-role-types.ts
 
 # Code generation targets
 codegen-exit-codes: ## Generate exit codes for all languages
@@ -226,7 +227,12 @@ codegen-fulhash: ## Generate fulhash types for all languages
 	@bun run scripts/codegen/generate-fulhash-types.ts --all --format
 	@echo "✅ Fulhash types generated"
 
-codegen-all: codegen-exit-codes codegen-fulpack codegen-fulencode codegen-fulhash ## Regenerate all generated code
+codegen-roles: ## Generate Rust role catalog types from config/agentic/roles/*.yaml
+	@echo "Generating role types..."
+	@bun run scripts/codegen/generate-role-types.ts --format
+	@echo "✅ Role types generated"
+
+codegen-all: codegen-exit-codes codegen-fulpack codegen-fulencode codegen-fulhash codegen-roles ## Regenerate all generated code
 	@echo "✅ All code generation complete"
 
 # Version management

@@ -45,6 +45,8 @@
 #![allow(clippy::match_same_arms)] // category() method groups by category
 #![allow(clippy::doc_markdown)] // FulmenHQ, ExitCode in docs (see .clippy.toml)
 
+/// Agentic role catalog types and metadata
+pub mod agentic;
 pub mod foundry;
 /// Fulencode encoding formats and types
 pub mod fulencode;
