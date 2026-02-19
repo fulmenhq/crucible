@@ -17,7 +17,7 @@
  */
 
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 
 const checkedInPath = resolve("lang/rust/src/agentic.rs");
