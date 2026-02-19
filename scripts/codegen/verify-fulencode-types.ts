@@ -432,8 +432,7 @@ function runCompilationChecks(metadata: Metadata): boolean {
       throw new Error("TypeScript configuration not found");
     }
 
-    const outputDir = resolve(ROOT, typescriptConfig.output_dir);
-    execSync(`bunx tsc --noEmit ${join(outputDir, "types.ts")}`, {
+    execSync(`cd ${ROOT}/lang/typescript && bun x tsc -p tsconfig.json --noEmit`, {
       cwd: ROOT,
       stdio: "pipe",
     });

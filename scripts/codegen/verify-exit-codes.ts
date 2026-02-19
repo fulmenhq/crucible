@@ -348,7 +348,7 @@ function runCompilationChecks(): boolean {
   }
 
   try {
-    execSync(`cd ${ROOT}/lang/typescript && bun x tsc --noEmit src/foundry/exitCodes.ts`, {
+    execSync(`cd ${ROOT}/lang/typescript && bun x tsc -p tsconfig.json --noEmit`, {
       cwd: ROOT,
       stdio: "pipe",
     });
