@@ -25,6 +25,11 @@ func TestListRoleSlugs(t *testing.T) {
 	if slices.Contains(slugs, "README") {
 		t.Error("README.md should not appear as a slug")
 	}
+
+	// Deterministic ordering
+	if !slices.IsSorted(slugs) {
+		t.Error("expected slugs to be sorted")
+	}
 }
 
 func TestLoadRole(t *testing.T) {
@@ -91,9 +96,31 @@ func TestLoadRole(t *testing.T) {
 	})
 
 	t.Run("nonexistent slug", func(t *testing.T) {
-		_, err := LoadRole("nonexistent-role")
+		_, err := LoadRole("nonexistentrole")
 		if err == nil {
 			t.Error("expected error for nonexistent role slug")
+		}
+	})
+
+	t.Run("releng includes new fields", func(t *testing.T) {
+		role, err := LoadRole("releng")
+		if err != nil {
+			t.Fatalf("LoadRole(\"releng\") failed: %v", err)
+		}
+		if len(role.PrePushChecklist) == 0 {
+			t.Error("expected releng to have non-empty PrePushChecklist")
+		}
+		if role.RequiredReading == nil {
+			t.Fatal("expected releng.RequiredReading to be populated")
+		}
+		if role.RequiredReading.Description == "" {
+			t.Error("expected releng.RequiredReading.Description to be non-empty")
+		}
+		if len(role.RequiredReading.Files) == 0 {
+			t.Error("expected releng.RequiredReading.Files to be non-empty")
+		}
+		if role.CrossRoleNote == "" {
+			t.Error("expected releng.CrossRoleNote to be non-empty")
 		}
 	})
 }

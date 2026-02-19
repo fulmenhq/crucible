@@ -2,19 +2,19 @@ package crucible
 
 import (
 	"fmt"
+	"regexp"
+	"slices"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
 
+// roleSlugRE matches the slug pattern defined in role-prompt.schema.json:
+// lowercase letters and digits only, must start with a letter.
+var roleSlugRE = regexp.MustCompile(`^[a-z][a-z0-9]*$`)
+
 func validateRoleSlug(slug string) error {
-	if slug == "" {
-		return fmt.Errorf("invalid role slug")
-	}
-	for _, r := range slug {
-		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' || r == '_' {
-			continue
-		}
+	if !roleSlugRE.MatchString(slug) {
 		return fmt.Errorf("invalid role slug: %q", slug)
 	}
 	return nil
@@ -23,24 +23,27 @@ func validateRoleSlug(slug string) error {
 // RolePrompt represents a parsed role definition from the agentic role catalog.
 // Fields match the role-prompt.schema.json specification.
 type RolePrompt struct {
-	Slug             string              `yaml:"slug"             json:"slug"`
-	Name             string              `yaml:"name"             json:"name"`
-	Description      string              `yaml:"description"      json:"description"`
-	Version          string              `yaml:"version"          json:"version"`
-	Author           string              `yaml:"author,omitempty" json:"author,omitempty"`
-	Status           string              `yaml:"status"           json:"status"`
-	Category         string              `yaml:"category,omitempty" json:"category,omitempty"`
-	Extends          string              `yaml:"extends,omitempty" json:"extends,omitempty"`
-	Domains          []string            `yaml:"domains,omitempty" json:"domains,omitempty"`
-	Tags             []string            `yaml:"tags,omitempty"   json:"tags,omitempty"`
-	Context          string              `yaml:"context,omitempty" json:"context,omitempty"`
-	Scope            []string            `yaml:"scope"            json:"scope"`
-	Mindset          *RoleMindset        `yaml:"mindset,omitempty" json:"mindset,omitempty"`
-	Responsibilities []string            `yaml:"responsibilities" json:"responsibilities"`
-	EscalatesTo      []RoleEscalation    `yaml:"escalates_to"     json:"escalates_to"`
-	DoesNot          []string            `yaml:"does_not"         json:"does_not"`
-	Examples         []RoleExample       `yaml:"examples,omitempty" json:"examples,omitempty"`
-	Checklists       map[string][]string `yaml:"checklists,omitempty" json:"checklists,omitempty"`
+	Slug             string               `yaml:"slug"             json:"slug"`
+	Name             string               `yaml:"name"             json:"name"`
+	Description      string               `yaml:"description"      json:"description"`
+	Version          string               `yaml:"version"          json:"version"`
+	Author           string               `yaml:"author,omitempty" json:"author,omitempty"`
+	Status           string               `yaml:"status"           json:"status"`
+	Category         string               `yaml:"category,omitempty" json:"category,omitempty"`
+	Extends          string               `yaml:"extends,omitempty" json:"extends,omitempty"`
+	Domains          []string             `yaml:"domains,omitempty" json:"domains,omitempty"`
+	Tags             []string             `yaml:"tags,omitempty"   json:"tags,omitempty"`
+	Context          string               `yaml:"context,omitempty" json:"context,omitempty"`
+	Scope            []string             `yaml:"scope"            json:"scope"`
+	Mindset          *RoleMindset         `yaml:"mindset,omitempty" json:"mindset,omitempty"`
+	Responsibilities []string             `yaml:"responsibilities" json:"responsibilities"`
+	EscalatesTo      []RoleEscalation     `yaml:"escalates_to"     json:"escalates_to"`
+	DoesNot          []string             `yaml:"does_not"         json:"does_not"`
+	Examples         []RoleExample        `yaml:"examples,omitempty"          json:"examples,omitempty"`
+	Checklists       map[string][]string  `yaml:"checklists,omitempty"        json:"checklists,omitempty"`
+	PrePushChecklist []string             `yaml:"pre_push_checklist,omitempty" json:"pre_push_checklist,omitempty"`
+	RequiredReading  *RoleRequiredReading `yaml:"required_reading,omitempty"  json:"required_reading,omitempty"`
+	CrossRoleNote    string               `yaml:"cross_role_note,omitempty"   json:"cross_role_note,omitempty"`
 }
 
 // RoleMindset holds the focus and principles sections of a role definition.
@@ -60,6 +63,21 @@ type RoleExample struct {
 	Type    string `yaml:"type"    json:"type"`
 	Title   string `yaml:"title"   json:"title"`
 	Content string `yaml:"content" json:"content"`
+}
+
+// RoleRequiredReading captures the required_reading section of a role prompt.
+// The schema defines description/pattern; the role YAML may include additional
+// keys (e.g. releng uses files[]), so we type the known shape.
+type RoleRequiredReading struct {
+	Description string                    `yaml:"description,omitempty" json:"description,omitempty"`
+	Pattern     string                    `yaml:"pattern,omitempty"     json:"pattern,omitempty"`
+	Files       []RoleRequiredReadingFile `yaml:"files,omitempty"       json:"files,omitempty"`
+}
+
+// RoleRequiredReadingFile is one file entry under required_reading.files.
+type RoleRequiredReadingFile struct {
+	Path   string `yaml:"path,omitempty"   json:"path,omitempty"`
+	Reason string `yaml:"reason,omitempty" json:"reason,omitempty"`
 }
 
 // LoadRole loads and parses a single role by slug.
@@ -119,5 +137,6 @@ func ListRoleSlugs() ([]string, error) {
 		}
 		slugs = append(slugs, strings.TrimSuffix(filename, ".yaml"))
 	}
+	slices.Sort(slugs)
 	return slugs, nil
 }

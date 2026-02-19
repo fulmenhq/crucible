@@ -33,7 +33,16 @@ pub enum Role {
 <% } -%>
 }
 
-/// Static metadata for an agentic role.
+/// Static metadata for an agentic role — a **navigation catalog**, not a full data layer.
+///
+/// `RoleMetadata` provides the fields needed for role selection and display (slug, name,
+/// description, status, scope, responsibilities). It intentionally omits schema fields
+/// that require richer types or are rarely needed for dispatch: `category`, `tags`,
+/// `extends`, `escalates_to`, `examples`, `checklists`, `domains`, `pre_push_checklist`,
+/// `required_reading`, `cross_role_note`.
+///
+/// For full `RolePrompt` data access, use a runtime YAML loader. rsfulmen implements
+/// this via `src/crucible/roles.rs` following the foundry catalog pattern.
 ///
 /// All string slices are `'static` — zero heap allocation at runtime.
 #[derive(Debug)]

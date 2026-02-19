@@ -7,7 +7,9 @@ import yaml
 _PACKAGE_ROOT = Path(__file__).parent
 _ROLES_DIR = _PACKAGE_ROOT.parent.parent / "config" / "agentic" / "roles"
 
-_ROLE_SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
+# Matches the slug pattern defined in role-prompt.schema.json:
+# lowercase letters and digits only, must start with a letter.
+_ROLE_SLUG_RE = re.compile(r"^[a-z][a-z0-9]*$")
 
 
 @dataclass
@@ -27,6 +29,19 @@ class RoleExample:
     type: str = ""
     title: str = ""
     content: str = ""
+
+
+@dataclass
+class RoleRequiredReadingFile:
+    path: str = ""
+    reason: str = ""
+
+
+@dataclass
+class RoleRequiredReading:
+    description: str | None = None
+    pattern: str | None = None
+    files: list[RoleRequiredReadingFile] = field(default_factory=list)
 
 
 @dataclass
@@ -51,6 +66,9 @@ class RolePrompt:
     mindset: RoleMindset | None = None
     examples: list[RoleExample] = field(default_factory=list)
     checklists: dict[str, list[str]] = field(default_factory=dict)
+    pre_push_checklist: list[str] = field(default_factory=list)
+    required_reading: RoleRequiredReading | None = None
+    cross_role_note: str | None = None
 
 
 def _parse_role(data: dict) -> RolePrompt:
@@ -75,6 +93,20 @@ def _parse_role(data: dict) -> RolePrompt:
         for e in (data.get("examples") or [])
     ]
 
+    required_reading = None
+    rr = data.get("required_reading")
+    if isinstance(rr, dict) and rr:
+        files = [
+            RoleRequiredReadingFile(path=f.get("path", ""), reason=f.get("reason", ""))
+            for f in (rr.get("files") or [])
+            if isinstance(f, dict)
+        ]
+        required_reading = RoleRequiredReading(
+            description=rr.get("description"),
+            pattern=rr.get("pattern"),
+            files=files,
+        )
+
     return RolePrompt(
         slug=data.get("slug", ""),
         name=data.get("name", ""),
@@ -94,6 +126,9 @@ def _parse_role(data: dict) -> RolePrompt:
         does_not=data.get("does_not") or [],
         examples=examples,
         checklists=data.get("checklists") or {},
+        pre_push_checklist=data.get("pre_push_checklist") or [],
+        required_reading=required_reading,
+        cross_role_note=data.get("cross_role_note"),
     )
 
 

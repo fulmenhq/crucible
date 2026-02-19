@@ -43,8 +43,18 @@ describe("agentic role catalog", () => {
     }
   });
 
+  test("loadRole parses releng required_reading + checklist fields", () => {
+    const role = loadRole("releng");
+    expect(role).toBeDefined();
+    expect(role?.pre_push_checklist?.length ?? 0).toBeGreaterThan(0);
+    expect(role?.required_reading).toBeDefined();
+    expect(role?.required_reading?.description).toBeTruthy();
+    expect(role?.required_reading?.files?.length ?? 0).toBeGreaterThan(0);
+    expect(role?.cross_role_note).toBeTruthy();
+  });
+
   test("loadRole returns undefined for nonexistent slug", () => {
-    const role = loadRole("nonexistent-role");
+    const role = loadRole("nonexistentrole");
     expect(role).toBeUndefined();
   });
 

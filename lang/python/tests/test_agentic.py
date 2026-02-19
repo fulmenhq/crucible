@@ -42,9 +42,18 @@ def test_load_role_escalations():
         assert escalation.when
 
 
+def test_load_role_releng_new_fields():
+    role = load_role("releng")
+    assert len(role.pre_push_checklist) > 0
+    assert role.required_reading is not None
+    assert role.required_reading.description
+    assert len(role.required_reading.files) > 0
+    assert role.cross_role_note
+
+
 def test_load_role_nonexistent_raises():
     with pytest.raises(ValueError, match="Role not found"):
-        load_role("nonexistent-role")
+        load_role("nonexistentrole")
 
 
 def test_load_role_catalog():

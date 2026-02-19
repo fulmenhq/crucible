@@ -8,7 +8,9 @@ const __dirname = dirname(__filename);
 
 const ROLES_DIR = join(__dirname, "../config/agentic/roles");
 
-const ROLE_SLUG_RE = /^[a-z0-9][a-z0-9_-]*$/;
+// Matches the slug pattern defined in role-prompt.schema.json:
+// lowercase letters and digits only, must start with a letter.
+const ROLE_SLUG_RE = /^[a-z][a-z0-9]*$/;
 
 export interface RoleMindset {
   focus: string[];
@@ -24,6 +26,17 @@ export interface RoleExample {
   type: string;
   title: string;
   content: string;
+}
+
+export interface RoleRequiredReadingFile {
+  path: string;
+  reason: string;
+}
+
+export interface RoleRequiredReading {
+  description?: string;
+  pattern?: string;
+  files?: RoleRequiredReadingFile[];
 }
 
 /** Typed representation of a role definition from the agentic role catalog. */
@@ -46,6 +59,9 @@ export interface RolePrompt {
   does_not: string[];
   examples?: RoleExample[];
   checklists?: Record<string, string[]>;
+  pre_push_checklist?: string[];
+  required_reading?: RoleRequiredReading;
+  cross_role_note?: string;
 }
 
 /**
