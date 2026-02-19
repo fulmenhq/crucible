@@ -9,7 +9,7 @@
 _Single source of truth for schemas, standards, templates, and quality enforcement—foundational infoarch (level 0) in Fulmen's layer cake, powering libraries (level 1), templates (level 2), and apps/analytics (level 3+)._
 
 [![Lifecycle: Alpha](https://img.shields.io/badge/lifecycle-alpha-yellow)](docs/standards/repository-lifecycle.md)
-[![Version](https://img.shields.io/badge/version-0.3.0-blue)](VERSION)
+[![Version](https://img.shields.io/badge/version-0.4.12-blue)](VERSION)
 [![License](https://img.shields.io/badge/license-Hybrid-green)](LICENSE)
 
 [![Test Go](https://github.com/fulmenhq/crucible/actions/workflows/test-go.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-go.yml)
@@ -112,6 +112,14 @@ go get github.com/fulmenhq/crucible@latest
 ```go
 import "github.com/fulmenhq/crucible"
 
+// Load a typed role definition
+role, _ := crucible.LoadRole("devlead")
+fmt.Println(role.Name, role.Responsibilities)
+
+// Load all roles or list slugs
+catalog, _ := crucible.LoadRoleCatalog()   // map[string]*RolePrompt
+slugs, _   := crucible.ListRoleSlugs()     // sorted []string
+
 // Access pathfinder schemas
 schema, _ := crucible.SchemaRegistry.Pathfinder().V1_0_0().FindQuery()
 
@@ -131,17 +139,25 @@ bun add @fulmenhq/crucible
 
 ```typescript
 import {
+  loadRole,
+  loadRoleCatalog,
+  listRoleSlugs,
   getTerminalConfig,
   loadTerminalCatalog,
   schemas,
   standards,
 } from "@fulmenhq/crucible";
 
+// Load a typed role definition
+const role = loadRole("devlead"); // RolePrompt | undefined
+const catalog = loadRoleCatalog(); // Map<string, RolePrompt>
+const slugs = listRoleSlugs(); // string[]
+
 // Access pathfinder schemas
 const schema = schemas.pathfinder().v1_0_0().findQuery();
 
 // Load terminal catalog
-const catalog = loadTerminalCatalog();
+const terminalCatalog = loadTerminalCatalog();
 const iterm = getTerminalConfig("iTerm2");
 
 // Access coding standards
@@ -444,6 +460,8 @@ See [ADR-0009](docs/architecture/decisions/ADR-0009-go-module-root-relocation.md
 
 - **[pyfulmen](https://github.com/fulmenhq/pyfulmen)** - Shared Python libraries
 
+- **[rsfulmen](https://github.com/fulmenhq/rsfulmen)** - Shared Rust libraries
+
 ## Contributing
 
 ### Adding Terminal Configurations
@@ -492,7 +510,7 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 **Versioning**: SemVer (`MAJOR.MINOR.PATCH`)
 
 - Current version: see [`VERSION`](VERSION)
-- Latest tagged release: `v0.2.26` (see `release-notes/v0.2.26.md`)
+- Latest tagged release: `v0.4.12` (see `release-notes/v0.4.12.md`)
 - Full history: `CHANGELOG.md` and `release-notes/`
 
 Crucible is the SSOT for Fulmen schemas, standards, and catalogs. Most consumers should access Crucible through the language helper libraries (`gofulmen`, `tsfulmen`, `pyfulmen`, `rsfulmen`) rather than vendoring assets manually.
