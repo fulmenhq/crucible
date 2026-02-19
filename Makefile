@@ -139,7 +139,7 @@ upstream-validate: ## Validate vendored upstream files (bypasses .goneatignore)
 	@echo "Validating vendored upstream files..."
 	@if command -v $(GONEAT) >/dev/null 2>&1; then \
 		echo "  Validating vendored schemas against meta-schemas..."; \
-		$(GONEAT) validate --no-ignore --include "schemas/upstream/**/*.schema.json" || exit 1; \
+		$(GONEAT) validate schemas/upstream/ --force-include "schemas/upstream/**/*.schema.json" || exit 1; \
 		echo "✅ Upstream validation complete"; \
 	else \
 		echo "⚠️  goneat not found, skipping upstream validation"; \
