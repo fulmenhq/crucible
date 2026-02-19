@@ -9,6 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
+## [0.4.12] - 2026-02-19
+
+### Added
+
+- **Typed role catalog API** across all four language implementations
+  - Go: `LoadRole(slug)`, `LoadRoleCatalog()`, `ListRoleSlugs()` + `RolePrompt` struct
+  - TypeScript: `loadRole`, `loadRoleCatalog`, `listRoleSlugs` + `RolePrompt` interface
+  - Python: `load_role`, `load_role_catalog`, `list_role_slugs` + `RolePrompt` dataclass
+  - Rust: `Role` enum + `RoleMetadata` struct via codegen (`lang/rust/src/agentic.rs`)
+  - Full schema field coverage: all `role-prompt.schema.json` fields represented
+  - `RoleRequiredReading` / `RoleRequiredReadingFile` typed structs for structured `required_reading`
+
+- **Three new agentic roles** (`status: draft`):
+  - `cxotech` — Chief Experience Technology Officer (strategic governance, 6-18mo timeline)
+  - `deliverylead` — Delivery Lead (project coordination, sprint-quarter timeline)
+  - `infraeng` — Infrastructure Engineer (cloud infrastructure, platform reliability)
+  - Catalog grows from 11 approved roles to 14 total (11 approved + 3 draft)
+
+- **Rust role codegen infrastructure**:
+  - `scripts/codegen/generate-role-types.ts` — Bun/TypeScript script rendering EJS → Rust source
+  - `scripts/codegen/verify-role-types.ts` — drift detection for CI (`verify-codegen` target)
+  - `scripts/codegen/role-types/rust/template.ejs` — EJS template for Role enum + RoleMetadata
+  - `scripts/codegen/role-types/rust/postprocess.sh` — rustfmt post-processor
+  - `make codegen-roles` — generation target; `make codegen-all` now includes roles
+
+- **3leaps/crucible v0.1.12 upstream sync**: Provenance bump, no schema content changes
+
+### Fixed
+
+- **Slug regex alignment**: All implementations now use schema-canonical `^[a-z][a-z0-9]*$`
+  (was: `^[a-z0-9][a-z0-9_-]*$` — allowed hyphens/underscores/leading digits not in schema)
+- **Missing `RolePrompt` fields**: `pre_push_checklist`, `required_reading`, `cross_role_note`
+  added to Go struct, Python dataclass, and TypeScript interface; previously silently discarded
+  during YAML unmarshalling
+- **`make upstream-validate`**: Fixed goneat invocation (`--include` glob treated as literal path
+  vs. directory + `--force-include` pattern); now correctly validates all 125+ upstream schemas
+
 ## [0.4.11] - 2026-02-09
 
 ### Added
