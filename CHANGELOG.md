@@ -36,6 +36,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **3leaps/crucible v0.1.12 upstream sync**: Provenance bump, no schema content changes
 
+### Changed
+
+- **Dependencies**: Updated runtime and dev dependencies
+  - `glob`: 11.0.3 → 11.1.0
+  - `js-yaml`: 4.1.0 → 4.1.1
+  - `@biomejs/biome`: 2.3.2 → 2.4.2 (root and lang/typescript)
+  - `@types/bun`: 1.2.23 → 1.3.9
+  - Updated `biome.json` schema version to 2.4.2
+
 ### Fixed
 
 - **Slug regex alignment**: All implementations now use schema-canonical `^[a-z][a-z0-9]*$`

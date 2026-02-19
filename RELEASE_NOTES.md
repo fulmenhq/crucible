@@ -38,6 +38,7 @@ For complete release history, see individual files in `release-notes/`.
 | Bug fix    | Slug regex aligned to `^[a-z][a-z0-9]*$` in all impls                           |
 | Bug fix    | Add missing fields: `pre_push_checklist`, `required_reading`, `cross_role_note` |
 | Upstream   | Bump 3leaps/crucible from v0.1.10 to v0.1.12 (commit 96a17853ee48)              |
+| Deps       | glob 11.1.0, js-yaml 4.1.1, @biomejs/biome 2.4.2, @types/bun 1.3.9              |
 
 **Full release notes**: [release-notes/v0.4.12.md](release-notes/v0.4.12.md)
 

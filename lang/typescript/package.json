@@ -1,11 +1,11 @@
 {
   "author": "FulmenHQ",
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.1"
   },
   "description": "Crucible - Where Scale is Forged. Standards and schemas for the FulmenHQ ecosystem.",
   "devDependencies": {
-    "@biomejs/biome": "^2.2.5",
+    "@biomejs/biome": "^2.4.2",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.0.0",
     "@vitest/coverage-v8": "^1.6.0",
@@ -34,7 +34,7 @@
     "build": "tsc",
     "format": "bunx biome format --write .",
     "lint": "bunx biome check .",
-    "prepublishOnly": "bun run build \u0026\u0026 bun run test",
+    "prepublishOnly": "bun run build && bun run test",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"
