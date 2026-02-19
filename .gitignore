@@ -1,6 +1,7 @@
 # Build artifacts
 bin/
 dist/
+.tmp/
 lang/*/dist/
 node_modules/
 sbom/

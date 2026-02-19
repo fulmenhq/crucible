@@ -132,7 +132,7 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
    - Run `make bootstrap` if tools are missing
 
 3. **Plan**
-   - Outline steps in `.plans/` (gitignored) before modifying files
+   - Outline steps in `.plans/` before modifying files — `.plans/` is always gitignored, never commit from it
 
 ### Before Committing
 
@@ -178,7 +178,7 @@ This routing ensures standards are discoverable at the moment they're needed, no
 
 - **Edit Synced Files**: Never edit `lang/*/docs/`, `lang/*/schemas/`, `lang/*/config/` directly
 - **Edit Upstream Schemas**: Never edit `schemas/upstream/3leaps/` – these are vendored from 3leaps/crucible (the upstream SSOT). To update: use `make upstream-sync-3leaps` then review changes. See [Upstream Sync Consumer Guide](docs/ops/upstream-sync-consumer.md)
-- **Commit Planning Files**: `.plans/` is gitignored
+- **Commit Planning Files**: `.plans/` is always gitignored — never stage or commit any file under `.plans/`, regardless of content
 - **Direct Releases**: Tagging/publishing requires approval from @3leapsdave
 - **Store Secrets**: Never commit API keys, tokens, or credentials
 - **Skip Quality Gates**: Never commit without running `make precommit`
