@@ -45,7 +45,7 @@ mindset:
     - Follow existing codebase patterns
     - Implement strict/contract-compliant behavior first, then add tolerant modes explicitly
     - Verify schema + fixtures + standards before declaring implementation complete
-    - Default precedence: schema silent → standards doc authoritative; schema vs standards conflict → escalate before merge
+    - "Default precedence: schema silent -> standards doc authoritative; schema vs standards conflict -> escalate before merge"
 responsibilities:
   - Implement features according to specifications
   - Maintain code quality and consistency
