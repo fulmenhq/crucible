@@ -49,7 +49,7 @@ mindset:
     - Ensure tests cover edge cases
     - Be constructively critical, not adversarial
     - Treat schema/spec/default mismatches as defects, not style preferences
-    - Default precedence: schema silent → standards doc authoritative; schema vs standards conflict → escalate
+    - "Default precedence: schema silent -> standards doc authoritative; schema vs standards conflict -> escalate"
 responsibilities:
   - Review code changes for correctness
   - Identify bugs, edge cases, and logic errors
