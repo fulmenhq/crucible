@@ -31,6 +31,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Role YAML syntax** in `devlead.yaml` and `devrev.yaml`, corrected after the v1.0.1 contract-parity edits.
+- **Python enums** (`fulencode`, `fulpack`) modernized `(str, Enum)` → `StrEnum` (ruff UP042); Python floor is already 3.12. Behavior validated by the test suite.
+
+### Dependencies
+
+Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob/ejs/thiserror majors deferred):
+
+- **@biomejs/biome** 2.4.2 → 2.4.16 (root + lang/typescript), with `biome.json` `$schema` aligned to the installed CLI (2.4.16). (Note: goneat v0.5.12 bundles biome 2.4.6 internally, so `goneat assess` may still flag the `$schema` until goneat's bundled biome catches up — this does not affect the repo's biome or CI.)
+- **js-yaml** 4.1.1 → 4.2.0 (root + lang/typescript).
+- **@types/bun** 1.3.9 → 1.3.14; **@types/node** held on the v20 line (→ 20.19.41).
+- **pytest-cov** 7.0.0 → 7.1.0; **ruff** 0.14.0 → 0.15.15 (lang/python).
+- **CI**: `setup-bun` `bun-version` 1.2.1 → 1.3.9 (aligns with local).
+
+(Rust crate deps float within unchanged `Cargo.toml` caps; `lang/rust/Cargo.lock` is not committed, so there is no lockfile change here.)
 
 ## [0.4.12] - 2026-02-19
 
