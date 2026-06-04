@@ -18,6 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `devrev`: added contract-conformance review against synced schemas, fixtures, and standards; new schema/fixture parity review checklist; guards against approving on green CI alone when parity checks are missing.
   - `qa`: added schema/standard and fixture parity validation to the acceptance checklist; guards against green-CI-only sign-off.
   - Propagated to all language wrappers (`lang/{python,rust,typescript}/config/agentic/roles/`); Rust navigation catalog (`lang/rust/src/agentic.rs`) regenerated.
+- **Tooling**: pinned goneat `v0.5.3` → `v0.5.12` (Makefile) and reformatted repository YAML to its conventions, so assets synced into downstream libraries (tsfulmen, pyfulmen, rsfulmen) arrive already-formatted and stop format churn at the consumer.
+
+### Added
+
+- **Root `.yamllint` and `.yamlfmt`** (2-space convention), aligned across the Fulmen galaxy (`tsfulmen`, `goneat`) to stabilize `actionlint`/`yamllint` behavior in CI and end the recurring spacing disagreements.
+
+### Removed
+
+- **Guardian git-hook browser-approval gate** removed from `.goneat/hooks/{pre-commit,pre-push}`, moving to the standard commit/push/PR flow (repo/merge-policy controls instead of local interception).
 
 ### Fixed
 
