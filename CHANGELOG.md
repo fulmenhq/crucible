@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
+## [0.4.13] - 2026-06-04
+
+### Changed
+
+- **Agentic role catalog — contract-parity focus** (`devlead`, `devrev`, `qa` → role version 1.0.1):
+  - `devlead`: added contract/schema/fixture parity to mindset principles, responsibilities, and a new `implementation` checklist (contract / defaults / error-path / deferred-scope / fixture / cross-language parity + quality gates); scope narrows as code-review/PR oversight moves to `devrev`/`qa`; quality-gate guidance updated `make precommit` → `make check-all`; `qa` added to the "distinct from" context.
+  - `devrev`: added contract-conformance review against synced schemas, fixtures, and standards; new schema/fixture parity review checklist; guards against approving on green CI alone when parity checks are missing.
+  - `qa`: added schema/standard and fixture parity validation to the acceptance checklist; guards against green-CI-only sign-off.
+  - Propagated to all language wrappers (`lang/{python,rust,typescript}/config/agentic/roles/`); Rust navigation catalog (`lang/rust/src/agentic.rs`) regenerated.
+
+### Fixed
+
+- **Role YAML syntax** in `devlead.yaml` and `devrev.yaml`, corrected after the v1.0.1 contract-parity edits.
+
 ## [0.4.12] - 2026-02-19
 
 ### Added
