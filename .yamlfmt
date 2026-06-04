@@ -1,0 +1,20 @@
+# yamlfmt configuration for crucible
+# Matches Fulmen galaxy YAML formatting preferences (2-space indent).
+# Kept in lockstep with ../tsfulmen, ../goneat, and the other galaxy repos to
+# stop actionlint/yamllint from disagreeing on spacing across CI.
+
+formatter:
+  type: basic
+  indent: 2
+  line_ending: lf
+  # eof_newline: false - goneat's finalizer handles EOF normalization (single trailing newline)
+  # so we don't need yamlfmt to add one (which would cause instability with multiline scalars)
+  # retain_line_breaks_single: false - causes #magic___^_^___line markers in output, yamlfmt bug
+
+# Exclude patterns
+exclude:
+  - "**/node_modules/**"
+  - vendor/**
+  - .git/**
+  - dist/**
+  - bin/**

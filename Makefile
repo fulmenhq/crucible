@@ -7,7 +7,7 @@ VERSION_FILE := VERSION
 # If you need to use a repo-local build for development, invoke targets with:
 #   make <target> GONEAT=./bin/goneat
 GONEAT ?= goneat
-GONEAT_VERSION ?= v0.5.3
+GONEAT_VERSION ?= v0.5.12
 SFETCH_INSTALL_URL ?= https://github.com/3leaps/sfetch/releases/latest/download/install-sfetch.sh
 
 # Crucible Makefile
@@ -18,6 +18,7 @@ SFETCH_INSTALL_URL ?= https://github.com/3leaps/sfetch/releases/latest/download/
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare release-clean
 .PHONY: release-guard-tag-version release-tag release-verify-tag release-verify-remote-tag release-publish-assets
+.PHONY: lint-check pr-final pr-final-drift-check
 .PHONY: prepush precommit check-all
 .PHONY: validate-schemas verify-codegen codegen-exit-codes codegen-fulpack codegen-fulpack-python codegen-fulencode codegen-roles codegen-all
 
@@ -112,6 +113,9 @@ lint: | bootstrap ## Run linting (check only, no auto-fix - use 'make lint-fix' 
 	@$(GONEAT) assess --categories format,security --check --include "**/*.go"
 	@$(GONEAT) assess --categories format --check --exclude "lang/**" --exclude "**/*.go"
 
+lint-check: | bootstrap ## Non-mutating format+lint check via goneat for CI prep (no auto-fix, no mutation)
+	@$(GONEAT) assess --categories format,lint --check
+
 lint-fix: | bootstrap ## Run linting with auto-fix (Python only - TypeScript uses biome via fmt)
 	@echo "Auto-fixing Python linting issues..."
 	@cd lang/python && uv run ruff check --fix .
@@ -173,6 +177,23 @@ typecheck: ## Type-check TypeScript files
 # Hook stubs
 prepush: precommit ## Run pre-push hooks (depends on precommit for completeness)
 	@echo "✅ Pre-push checks passed"
+
+# PR-flow successor to prepush. Runs a non-mutating goneat check first, then the
+# full prep, then a drift guard that fails if prep left any tracked-file changes
+# uncommitted. (prepush/precommit predate the PR model — built for the microteam
+# direct-commit era.) Note: uses lint-check (goneat assess --check) rather than
+# fmt-check (goneat format --check), which currently false-positives on a couple
+# of YAML files even when `goneat format` is idempotent on them.
+pr-final: lint-check prepush pr-final-drift-check ## Final PR validation (non-mutating check + full prep + drift guard)
+	@echo "✅ PR final validation passed!"
+
+pr-final-drift-check: ## Verify PR-final validation left tracked files unchanged (catches uncommitted formatting/sync drift)
+	@if ! git diff --quiet || ! git diff --cached --quiet; then \
+		echo "❌ Tracked-file drift after validation. Run 'make fmt' and commit (or commit synced files) before pr-final:"; \
+		git diff --name-only; git diff --cached --name-only; \
+		exit 1; \
+	fi
+	@echo "✅ No tracked-file drift"
 
 precommit: sync-to-lang check-all ## Run pre-commit hooks (sync + check-all)
 	@echo "✅ Pre-commit checks passed"
