@@ -6,13 +6,13 @@ semantic_colors:
   primary:
     role: "primary"
     foreground:
-      truecolor: "7AA2F7" # Missing # prefix - should fail
+      truecolor: "7AA2F7"  # Missing # prefix - should fail
       ansi16: "bright-blue"
 surface_colors:
   background:
-    truecolor: "#1A1" # Too short - should fail
+    truecolor: "#1A1"  # Too short - should fail
     ansi16: "black"
 text_colors:
   primary:
-    truecolor: "#GGGGGG" # Invalid hex chars - should fail
+    truecolor: "#GGGGGG"  # Invalid hex chars - should fail
     ansi16: "white"

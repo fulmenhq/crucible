@@ -1,6 +1,6 @@
 # Invalid: Version doesn't match SemVer pattern
 $schema: https://schemas.fulmenhq.dev/crucible/design/tui/v1.0.0/theme.schema.json
-version: "invalid-version-string" # Should fail pattern validation
+version: "invalid-version-string"  # Should fail pattern validation
 schema_version: "1.0.0"
 metadata:
   name: "Test Theme"

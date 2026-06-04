@@ -5,8 +5,8 @@
 # It specifies only required fields with no optional sections.
 schema_version: "1.0.0"
 metadata:
-  name: my-deployment # Required: deployment identifier (slug format)
+  name: my-deployment  # Required: deployment identifier (slug format)
 deployment:
-  variant: minimal # Required: system variant (minimal|standard|ha)
-  provider: digitalocean # Required: compute provider slug
-  base_domain: example.com # Required: base domain for services
+  variant: minimal  # Required: system variant (minimal|standard|ha)
+  provider: digitalocean  # Required: compute provider slug
+  base_domain: example.com  # Required: base domain for services
