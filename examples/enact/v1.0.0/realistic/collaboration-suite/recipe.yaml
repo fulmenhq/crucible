@@ -19,7 +19,7 @@ deployment:
   base_domain: home.example.family
 infrastructure:
   compute:
-    size: cx21 # 2 vCPU, 4GB RAM
+    size: cx21  # 2 vCPU, 4GB RAM
     image: ubuntu-24.04
     count: 1
     ssh_keys:

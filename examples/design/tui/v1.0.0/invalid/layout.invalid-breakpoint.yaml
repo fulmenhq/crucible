@@ -4,7 +4,7 @@ version: "1.0.0"
 breakpoints:
   - name: "default"
     min_cols: 80
-    tier: "extra-large" # Not a valid tier - should fail
+    tier: "extra-large"  # Not a valid tier - should fail
 spacing:
   md:
     cols: 2

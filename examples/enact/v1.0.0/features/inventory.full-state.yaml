@@ -91,7 +91,7 @@ dns:
       type: A
       value: "167.99.100.50"
       ttl: 300
-      proxied: false # Not proxied for OAuth callbacks
+      proxied: false  # Not proxied for OAuth callbacks
       record_id: "cf:dns:rec003"
 # All running services
 services:

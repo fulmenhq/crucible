@@ -11,7 +11,7 @@ metadata:
     - multi-node
     - feature-demo
 deployment:
-  variant: ha # System-wide variant
+  variant: ha  # System-wide variant
   provider: digitalocean
   region: nyc3
   base_domain: ha.example.com
@@ -19,7 +19,7 @@ infrastructure:
   compute:
     size: s-4vcpu-8gb
     image: ubuntu-24-04-x64
-    count: 2 # Multiple nodes for HA
+    count: 2  # Multiple nodes for HA
     tags:
       - ha
       - production
@@ -27,10 +27,10 @@ infrastructure:
     engine: pg
     version: "16"
     size: db-s-2vcpu-4gb
-    nodes: 2 # Primary + standby
+    nodes: 2  # Primary + standby
     ha_enabled: true
   load_balancer:
-    enabled: true # Required for HA variant
+    enabled: true  # Required for HA variant
     algorithm: round_robin
     health_check:
       protocol: https
@@ -53,4 +53,4 @@ components:
     enabled: true
     implementation: redis
     config:
-      cluster_mode: true # Redis cluster for HA
+      cluster_mode: true  # Redis cluster for HA
