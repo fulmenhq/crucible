@@ -80,6 +80,7 @@ The App Identity module solves this by providing a canonical metadata file that 
 | `telemetry_namespace` | string | Namespace for metrics/logging (defaults to binary_name)                               |
 | `registry_id`         | UUID   | Optional UUIDv7 for future registry (experimental)                                    |
 | `python`              | object | Python-specific packaging metadata (distribution_name, package_name, console_scripts) |
+| `typescript`          | object | TypeScript/npm packaging metadata (package_name, console_scripts → package.json `bin`) |
 | _(custom)_            | any    | Additional properties allowed for extensibility                                       |
 
 **Full schema**: See `schemas/config/repository/app-identity/v1.0.0/app-identity.schema.json`
@@ -445,6 +446,31 @@ metadata:
         entry_point: pyfulmen.cli:main
 ```
 
+### With TypeScript/npm Packaging
+
+```yaml
+app:
+  binary_name: tsfulmen
+  vendor: fulmenhq
+  env_prefix: TSFULMEN_
+  config_name: tsfulmen
+  description: TypeScript Fulmen SDK with developer CLIs
+
+metadata:
+  license: MIT
+  repository_category: sdk
+  typescript:
+    # npm package name (scoped or unscoped)
+    package_name: "@fulmenhq/tsfulmen"
+    # Executable bin entries — map to package.json `bin`
+    # (entry_point is the path to the built executable, not a module:function)
+    console_scripts:
+      - name: tsfulmen-schema
+        entry_point: ./dist/bin/schema-cli.js
+      - name: tsfulmen-signals
+        entry_point: ./dist/bin/signals-cli.js
+```
+
 ## Error Handling
 
 ### Common Errors
@@ -528,7 +554,7 @@ The `vendor` field is **NOT** used for:
 
 - Go package names (use `binary_name` or module path)
 - Python import identifiers (use `metadata.python.package_name`)
-- TypeScript/npm package names (use separate package.json configuration)
+- TypeScript/npm package names (use `metadata.typescript.package_name`, or package.json)
 
 ### Language-Specific Analysis
 
