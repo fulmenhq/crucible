@@ -10,11 +10,11 @@ Source: schemas/taxonomy/library/fulencode/
 See: https://github.com/fulmenhq/crucible/blob/main/docs/standards/library/modules/fulencode.md
 """
 
-from enum import Enum
+from enum import StrEnum
 
 {% for taxonomy in taxonomies %}
 
-class {{ taxonomy.className }}(str, Enum):
+class {{ taxonomy.className }}(StrEnum):
     """{{ taxonomy.description }}
 
     Generated from: schemas/taxonomy/library/fulencode/{{ taxonomy.path }}
