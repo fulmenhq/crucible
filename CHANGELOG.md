@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
+## [0.4.14] - 2026-06-16
+
+### Added
+
+- **app-identity: `metadata.typescript` packaging section** — adds an optional `metadata.typescript` object to the app-identity `v1.0.0` schema, mirroring `metadata.python` (`package_name` + `console_scripts: [{name, entry_point}]` → package.json `bin`). Lets TypeScript/npm packages declare their npm package name and bin entries first-class instead of via a custom metadata field. Additive and backward-compatible (`metadata.additionalProperties` was already `true`), so the schema stays `v1.0.0`; metadata parsing is pass-through, so no Go/Python/TS parser changes are required. Includes the standard doc (table row + example + vendor-vs-package-name pointer), example YAML, a new `typescript-package` fixture, and the parity-snapshot case; propagated to all language wrappers.
+
+### Fixed
+
+- **codegen: Python enum templates emit `StrEnum`** — the fulpack and fulencode Python enum codegen templates emitted `class X(str, Enum)`, which ruff `UP042` flags (lang/python targets py312) and which regressed the committed `StrEnum` enums on every `make sync`/`make precommit` (leaving local precommit effectively unrunnable). Both templates now emit `from enum import StrEnum` + `class X(StrEnum)`, matching the fulhash template; regeneration is now idempotent and ruff-clean.
+
+### Changed
+
+- **CI: GitHub Actions off the Node 20 runtime** — `actions/checkout` v4→v5, `actions/setup-go` v5→v6, `oven-sh/setup-bun` v1→v2, `astral-sh/setup-uv` v3→v7 (each verified node24 via `action.yml`). `Swatinem/rust-cache@v2` is already node24; `dtolnay/rust-toolchain` pinned `@master → @v1` (composite; stable tag honoring `toolchain: "1.89"`).
+- **goneat pin** `v0.5.12 → v0.5.13` (Makefile), matching the current release and local toolchain.
+
 ## [0.4.13] - 2026-06-04
 
 ### Changed

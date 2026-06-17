@@ -71,17 +71,17 @@ The App Identity module solves this by providing a canonical metadata file that 
 
 **Optional Fields** (`metadata` object):
 
-| Field                 | Type   | Description                                                                           |
-| --------------------- | ------ | ------------------------------------------------------------------------------------- |
-| `project_url`         | URI    | Primary project URL (repository, docs)                                                |
-| `support_email`       | email  | Support/contact email                                                                 |
-| `license`             | string | SPDX license identifier (MIT, Apache-2.0, etc.)                                       |
-| `repository_category` | enum   | From Fulmen taxonomy: cli, workhorse, service, library, pipeline, codex, sdk          |
-| `telemetry_namespace` | string | Namespace for metrics/logging (defaults to binary_name)                               |
-| `registry_id`         | UUID   | Optional UUIDv7 for future registry (experimental)                                    |
-| `python`              | object | Python-specific packaging metadata (distribution_name, package_name, console_scripts) |
+| Field                 | Type   | Description                                                                            |
+| --------------------- | ------ | -------------------------------------------------------------------------------------- |
+| `project_url`         | URI    | Primary project URL (repository, docs)                                                 |
+| `support_email`       | email  | Support/contact email                                                                  |
+| `license`             | string | SPDX license identifier (MIT, Apache-2.0, etc.)                                        |
+| `repository_category` | enum   | From Fulmen taxonomy: cli, workhorse, service, library, pipeline, codex, sdk           |
+| `telemetry_namespace` | string | Namespace for metrics/logging (defaults to binary_name)                                |
+| `registry_id`         | UUID   | Optional UUIDv7 for future registry (experimental)                                     |
+| `python`              | object | Python-specific packaging metadata (distribution_name, package_name, console_scripts)  |
 | `typescript`          | object | TypeScript/npm packaging metadata (package_name, console_scripts → package.json `bin`) |
-| _(custom)_            | any    | Additional properties allowed for extensibility                                       |
+| _(custom)_            | any    | Additional properties allowed for extensibility                                        |
 
 **Full schema**: See `schemas/config/repository/app-identity/v1.0.0/app-identity.schema.json`
 
