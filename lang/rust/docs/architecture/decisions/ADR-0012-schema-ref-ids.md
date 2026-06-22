@@ -24,7 +24,7 @@ For cross-file references in Crucible schemas, **use absolute URLs pointing to t
 **Example:**
 
 ```json
-"$ref": "https://schemas.fulmenhq.dev/crucible/observability/logging/middleware-config-v1.0.0.json"
+"$ref": "https://schemas.fulmenhq.dev/crucible/observability/logging/v1.0.0/middleware-config.schema.json"
 ```
 
 ## Status
