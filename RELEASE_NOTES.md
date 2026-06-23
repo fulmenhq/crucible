@@ -5,71 +5,61 @@ For complete release history, see individual files in `release-notes/`.
 
 ---
 
-## v0.4.12 - Typed Role Catalog API
+## v0.4.15 - ADR-0012 Cross-Ref Completion & Upstream v0.1.14
 
-**Typed role catalog API across all four language implementations, three new roles, full schema field coverage, and slug regex alignment.**
+**Completes the ADR-0012 absolute-`$id` cross-reference rollout for the logging and module-manifest schemas, migrates the logging `$id`s to canonical version-in-path, and refreshes the vendored 3leaps/crucible pin to v0.1.14.**
 
 ### Why This Matters
 
-**For library consumers**: Agentic role data is now available via a typed, validated API in every Crucible language implementation. Before this release, consumers (gofulmen, tsfulmen, rsfulmen, pyfulmen, and application code) had to load and parse role YAMLs manually with no type safety. `LoadRole("devlead")` now returns a fully-typed `RolePrompt` with all schema fields populated.
+**For library consumers (tsfulmen, gofulmen, etc.)**: cross-schema `$ref`s in `observability/logging` and `library/module-manifest` now resolve in memory-based validators. Previously, relative cross-file refs left over from a partial ADR-0012 rollout failed to resolve without filesystem context — the exact breakage tsfulmen and gofulmen reported.
 
-**For the role catalog**: Three new roles land — `cxotech`, `deliverylead`, and `infraeng` — completing the governance tier introduced in v0.4.11. All three are `status: draft`.
-
-**For schema compliance**: Two cross-cutting bugs identified during library team review are fixed: slug validation now matches the canonical schema regex (`^[a-z][a-z0-9]*$`), and three schema-defined fields (`pre_push_checklist`, `required_reading`, `cross_role_note`) are now exposed by all typed implementations rather than silently discarded.
+**For schema identity**: the logging `$id`s move to the canonical version-in-path form so on-disk layout matches the canonical URI. This is an identity change within the existing `v1.0.0` files; external consumers resolving by the old version-in-filename URIs should switch to version-in-path (no in-repo consumers used the old URIs).
 
 ### Highlights
 
-- **Typed API in four languages**: `LoadRole` / `loadRole` / `load_role` + catalog + slugs
-- **Rust codegen**: `Role` enum + `RoleMetadata` struct generated at build time from YAML
-- **14-role catalog**: 11 approved + 3 new draft roles (cxotech, deliverylead, infraeng)
-- **Full field coverage**: `pre_push_checklist`, `required_reading` (typed struct), `cross_role_note`
-- **Slug regex fix**: `^[a-z][a-z0-9]*$` across all impls — aligned to schema
-- **Upstream v0.1.12**: Provenance bump, no schema content changes
+- **ADR-0012 completed**: 16 relative cross-file `$ref`s across 4 schemas converted to absolute canonical `$id` URLs, plus `logger-config`'s absolute ref repointed (finishing the rollout that had only covered `logger-config`)
+- **module-manifest off-by-one fixed**: `../../taxonomy/...` → absolute `taxonomy/language` `$id`
+- **logging `$id`s → version-in-path** within `v1.0.0` (matches corpus convention)
+- **Upstream v0.1.14**: vendored 3leaps/crucible pin bumped from v0.1.12 (schemas byte-identical; docs/provenance only)
+- **Tooling**: upstream-pull provenance "Synced By" made model-agnostic
 
 ### Changes
 
-| Area       | Change                                                                          |
-| ---------- | ------------------------------------------------------------------------------- |
-| Go         | Add `LoadRole`, `LoadRoleCatalog`, `ListRoleSlugs`, `RolePrompt` + sub-types    |
-| TypeScript | Add `loadRole`, `loadRoleCatalog`, `listRoleSlugs`, `RolePrompt` interface      |
-| Python     | Add `load_role`, `load_role_catalog`, `list_role_slugs`, `RolePrompt` dataclass |
-| Rust       | Add generated `Role` enum + `RoleMetadata` via `make codegen-roles`             |
-| Roles      | Add cxotech, deliverylead, infraeng (draft)                                     |
-| Bug fix    | Slug regex aligned to `^[a-z][a-z0-9]*$` in all impls                           |
-| Bug fix    | Add missing fields: `pre_push_checklist`, `required_reading`, `cross_role_note` |
-| Upstream   | Bump 3leaps/crucible from v0.1.10 to v0.1.12 (commit 96a17853ee48)              |
-| Deps       | glob 11.1.0, js-yaml 4.1.1, @biomejs/biome 2.4.2, @types/bun 1.3.9              |
+| Area     | Change                                                                                        |
+| -------- | --------------------------------------------------------------------------------------------- |
+| Schema   | Complete ADR-0012: 16 relative cross-file `$ref`s → absolute `$id` (logging, module-manifest) |
+| Schema   | `observability/logging` `$id`s → canonical version-in-path (within `v1.0.0`)                  |
+| Upstream | Bump vendored 3leaps/crucible `v0.1.12 → v0.1.14` (commit `18018788`)                         |
+| Tooling  | upstream-pull provenance "Synced By" made model-agnostic                                      |
+| Docs     | ADR-0012 status → phased-complete; lint-check action item recommended                         |
 
-**Full release notes**: [release-notes/v0.4.12.md](release-notes/v0.4.12.md)
+**No breaking changes** to public API or schema versions (all touched schemas stay `v1.0.0`). See the logging `$id` compatibility note in the full notes.
+
+**Full release notes**: [release-notes/v0.4.15.md](release-notes/v0.4.15.md)
 
 ---
 
-## v0.4.11 - Role Schema Compliance & Upstream v0.1.10
+## v0.4.14 - app-identity `metadata.typescript` & Codegen StrEnum
 
-**Updated all 11 agentic roles with `domains` property, synced 3leaps/crucible v0.1.10.** **(Condensed — see [release-notes/v0.4.11.md](release-notes/v0.4.11.md) for full details)**
+**Adds a `metadata.typescript` packaging section to app-identity, finishes the Python enum `StrEnum` modernization at the generator, and moves CI off the Node 20 runtime.** **(Condensed — see [release-notes/v0.4.14.md](release-notes/v0.4.14.md) for full details)**
 
 ### Highlights
 
-- All 11 agentic roles updated with required `domains` property (1-3 values per role)
-- 15 process domains defined: development, delivery, governance, quality, security, etc.
-- 3leaps/crucible v0.1.10 upstream sync: 28 files, formatted schemas, domains in role-prompt schema
-- New governance roles tracked upstream: deliverylead (sprint-quarter), cxotech (strategic)
-- Three-tier governance model: dispatch → deliverylead → cxotech
-- Minimum goneat v0.5.3 required for JSON Schema 2019-09 support
+- New optional `metadata.typescript` object on the app-identity `v1.0.0` schema (`package_name` + `console_scripts` → package.json `bin`), mirroring `metadata.python`; additive, schema stays `v1.0.0`
+- Codegen fix: fulpack/fulencode Python enum templates now emit `StrEnum` (ruff `UP042`), making regeneration idempotent
+- CI off Node 20: checkout v5, setup-go v6, setup-bun v2, setup-uv v7; rust-toolchain `@v1`; goneat pin `v0.5.13`
 
 ---
 
-## v0.4.10 - 3leaps/crucible Sync & Release Engineering Role
+## v0.4.13 - Agentic Role Catalog Contract-Parity
 
-**Galaxy-level data classification frameworks, foundation schemas, and release engineering infrastructure.** **(Condensed — see [release-notes/v0.4.10.md](release-notes/v0.4.10.md) for full details)**
+**Contract/schema/fixture parity focus across the `devlead`, `devrev`, and `qa` roles, plus YAML tooling stabilization.** **(Condensed — see [release-notes/v0.4.13.md](release-notes/v0.4.13.md) for full details)**
 
 ### Highlights
 
-- 3leaps/crucible v0.1.6 upstream sync with data classification framework
-- 7 classifier dimension definitions (sensitivity, volatility, access-tier, etc.)
-- Foundation schemas: types, error-response, lifecycle-phases
-- New `releng` agentic role for CI/CD-aware release coordination
-- Automated upstream sync tooling (`make upstream-sync-3leaps`)
+- `devlead`/`devrev`/`qa` roles (→ version 1.0.1) gain contract/schema/fixture parity guidance and checklists; guards against green-CI-only sign-off; propagated to all language wrappers
+- Tooling: goneat pin `v0.5.3 → v0.5.12` + repository YAML reformatted to its conventions, so downstream-synced assets arrive already-formatted
+- Added root `.yamllint` / `.yamlfmt` (2-space) aligned across the Fulmen galaxy
 
 ---
 
