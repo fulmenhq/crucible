@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
+## [0.4.15] - 2026-06-23
+
+### Fixed
+
+- **schemas: complete the ADR-0012 absolute `$id` cross-references** — ADR-0012 (use absolute `$id` URLs for cross-schema `$ref`) was only partially rolled out: an earlier commit fixed `logger-config.schema.json` but left relative cross-file `$ref`s in `observability/logging`'s `log-event`, `severity-filter`, and `middleware-config`, plus an off-by-one relative `$ref` in `library/module-manifest` (`../../taxonomy/...` resolved one level short). Relative cross-file refs fail to resolve in memory-based validators (reproduced from tsfulmen and gofulmen). All 16 remaining relative cross-file `$ref`s across those 4 schemas (12 in `log-event`, 2 in `severity-filter`, 1 in `middleware-config`, 1 in `module-manifest`) are now absolute canonical `$id` URLs, and `logger-config`'s existing absolute middleware ref was repointed to the new version-in-path `$id`; internal `#/$defs/...` refs stay relative (ADR-0012 permits).
+
+### Changed
+
+- **observability/logging: `$id`s migrated to canonical version-in-path** — the 6 logging `$id`s moved from the deprecated version-in-filename form (`.../logging/log-event-v1.0.0.json`) to canonical version-in-path (`.../logging/v1.0.0/log-event.schema.json`), matching on-disk layout and the rest of the corpus. Identity change **within** the existing `v1.0.0` files (contents/version unchanged); no in-repo consumers referenced the old URIs (verified). External consumers resolving by the old canonical URI should switch to the version-in-path URIs.
+- **upstream: vendored 3leaps/crucible `v0.1.12 → v0.1.14`** — refreshed to the just-released upstream (commit `18018788`). Minimal content delta within sync scope: vendored schemas (`classifiers`/`foundation`/`ailink`/`agentic` `v0`) are byte-identical; only 3 classifier docs got one-line wording reconciliations plus regenerated `PROVENANCE.md`. Upstream's new `auth/v0` schema and `dataeng` role are outside the sync scope and not vendored.
+- **tooling: upstream-pull provenance attribution made model-agnostic** — `scripts/3leaps-crucible-upstream-pull.ts` no longer hardcodes a model version in the generated `PROVENANCE.md` "Synced By" line (it went stale across model changes; the precise model lives in the commit trailer).
+- **docs: ADR-0012 status updated to phased-complete** — records the initial (logger-config) + completion (this release) rollout, notes the remaining deprecated version-in-filename `$id`s elsewhere in the corpus (migrate at next version bump), and upgrades the lint-check action item from optional to recommended.
+
 ## [0.4.14] - 2026-06-16
 
 ### Added
