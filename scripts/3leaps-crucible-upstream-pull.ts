@@ -231,6 +231,9 @@ function copyPath(source: string, dest: string, dryRun: boolean, verbose: boolea
   return count;
 }
 
+// NOTE: keep "Synced By" model-agnostic ("Claude Code", not a specific model
+// version) — the precise model is recorded in the commit attribution trailer,
+// and hardcoding a version here only goes stale.
 function generateProvenance(
   gitInfo: { commit: string; tag: string | null; date: string },
   fileCount: number,
@@ -249,7 +252,7 @@ function generateProvenance(
 | Tag        | ${tagLine.padEnd(40)} |
 | Commit     | ${gitInfo.commit} |
 | Date       | ${gitInfo.date.padEnd(40)} |
-| Synced By  | devlead (Claude Opus 4.5 via Claude Code)  |
+| Synced By  | devlead (Claude Code)                      |
 
 ## Structure
 
