@@ -21,6 +21,7 @@ Fulmen empowers teams to build enterprise systems that start fast and scale effo
 1. **Helper Libraries (\*fulmen)**: Idiomatic implementations of core data and utilities wrapping Crucible assets. Solves cross-project pains like config paths, schema validation, observability, and Foundry catalogs (countries, HTTP statuses, patterns). Current: `gofulmen`, `pyfulmen`, `tsfulmen`; planned: `rsfulmen` (Rust), `csfulmen` (C#) as ecosystem needs evolve.
 
 2. **Templates (Fulmens)**: Proven, production-ready starters embodying CRDL (Clone → Degit → Refit → Launch). Five specialized template types for different use cases:
+
    - **Workhorse**: General-purpose applications (servers, workers, long-running processes) - Examples: `forge-workhorse-groningen` (Go backend), `forge-workhorse-percheron` (Python backend)
    - **Codex**: Human-first documentation sites and knowledge hubs - Examples: `forge-codex-pulsar` (Astro-based documentation portal)
    - **Microtool**: Ultra-narrow, single-purpose CLI tools - Examples: `forge-microtool-anvil` (fixture deployment), `forge-microtool-chisel` (config synchronization)
@@ -29,6 +30,7 @@ Fulmen empowers teams to build enterprise systems that start fast and scale effo
      Gymnasiums (e.g., TUI experiments) modularize for future integration.
 
 3. **DX/Dev Tools**: Automation layer for governance and productivity. CLI-driven validation, formatting, sync, approvals, and orchestration. Key tools:
+
    - `goneat`: Quality enforcement (linting, schema validation, hooks; v0.3+ stricter assessments).
    - `fulward`: Protection and approval workflows (successor to guardian; centralizes commit/release policies).
    - `sumpter`: Build and CLI orchestration (emerging for streamlined compilation/packaging across layers).
@@ -126,23 +128,27 @@ graph TD
 Six specialized template categories, each optimized for different use cases:
 
 - **Workhorse Templates**: General-purpose applications (servers, workers, long-running processes)
+
   - **Current**: `forge-workhorse-groningen` (Go backend), `forge-workhorse-percheron` (Python backend)
   - **Binary naming**: Uses horse breed names (groningen, percheron, clydesdale)
   - **Use cases**: APIs, workers, services requiring reliable tooling out-of-the-box
 
 - **Codex Templates**: Human-first documentation sites and knowledge hubs
+
   - **Current**: `forge-codex-pulsar` (TypeScript/Astro documentation portal)
   - **Use cases**: API docs, developer hubs, knowledge portals, browsable spec viewers
   - **Features**: Multi-version support, schema ingestion, i18n-ready, lighthouse benchmarks
   - **Note**: Codex may layer browsable UI over a spec-host corpus for human consumption
 
 - **Microtool Templates**: Ultra-narrow, single-purpose CLI tools
+
   - **Current**: `forge-microtool-anvil` (fixture deployment), `forge-microtool-chisel` (config sync)
   - **Binary naming**: Uses tool/instrument names (anvil, chisel, grinder)
   - **Use cases**: Fixture deployment, config synchronization, asset management
   - **Philosophy**: One-way dependency flow (microtool → helper → SSOT, prevents circular dependencies)
 
 - **Spec-Host Templates**: Machine-first static hosting for specification artifacts
+
   - **Planned**: `forge-spec-host-crucible` (Crucible schema hosting)
   - **Use cases**: JSON Schema hosting, OpenAPI spec distribution, AsyncAPI catalogs
   - **Philosophy**: Canonical URL resolution as primary invariant; no build, CDN-first
@@ -150,12 +156,14 @@ Six specialized template categories, each optimized for different use cases:
   - **See also**: [Spec Publishing Standard](../standards/publishing/spec-publishing.md)
 
 - **Missive Templates**: Single-page promotional/CTA sites with minimal dependencies
+
   - **Planned**: `forge-missive-*` templates
   - **Use cases**: Event announcements, charity fundraisers, product launches
   - **Philosophy**: Vanilla HTML/CSS first; escalate to SSG only when justified
   - **Escalation**: Migrate to Codex when multi-page, search, or content collections needed
 
 - **Fixture Templates**: Test infrastructure with real-but-test-purpose implementations
+
   - **Naming**: `fixture-<mode>-<category>-<name>-<variant>` (e.g., `fixture-server-proving-gauntlet-001`)
   - **Modes**: `server`, `client`, `datastore`, `identity` (identity planned v0.4.3)
   - **Use cases**: Integration testing, AAA validation, resilience testing

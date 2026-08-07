@@ -127,16 +127,19 @@ pyfulmen/
 Helper libraries MUST follow this discovery order:
 
 1. **Explicit path parameter**: `LoadFrom(path)` / `load_identity(path=...)` / `loadFrom(path)`
+
    - Highest priority: Caller explicitly specifies path
    - Use case: Tests, multi-binary explicit selection
    - Behavior: Error if file doesn't exist
 
 2. **Environment variable override**: `FULMEN_APP_IDENTITY_PATH`
+
    - Second priority: Environment explicitly specifies path
    - Use case: CI/CD, containers, deployment overrides
    - Behavior: Error if file doesn't exist
 
 3. **Filesystem discovery**: Walk upward from CWD
+
    - Third priority: Search from `os.Getcwd()` / `process.cwd()` upward
    - Stop at first `.fulmen/app.yaml` found
    - Walk to filesystem root (or max 20 levels)
@@ -144,6 +147,7 @@ Helper libraries MUST follow this discovery order:
    - Optional: Implementations MAY include an executable-directory fallback as part of filesystem discovery, but it MUST run after the CWD ancestor walk.
 
 4. **Embedded identity fallback** (REQUIRED for distributed artifacts)
+
    - Used only when explicit path/env var are not set and filesystem discovery fails
    - Ensures standalone binaries/packages know their identity outside the repo
 

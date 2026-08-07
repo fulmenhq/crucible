@@ -82,12 +82,14 @@ logoPresentation: logo_left_text_right
 **Key Fields**:
 
 1. **themes** (required):
+
    - `light`/`dark` palettes with hex colors:
      - **Required core colors** (7): `background`, `foreground`, `accent`, `success`, `failure`, `warning`, `critical`
      - **Optional semantic colors** (3): `info`, `note`, `caution` (for callout boxes)
      - **Optional categorical array**: 5-12 hex colors for charts/data visualization (accessible sequences)
 
 2. **typography** (required):
+
    - `fonts` (object):
      - `body`/`code`/`heading` (required for body/code):
        - `family` – CSS font-family string (e.g., 'Inter, sans-serif')
@@ -98,6 +100,7 @@ logoPresentation: logo_left_text_right
    - `lineHeight` (number, 1.2-2.0, default: 1.5) – Base line-height
 
 3. **icons** (required):
+
    - `registry` (enum: mdi/heroicons/lucide/tabler) – Icon set registry
    - `prefix` – CSS class prefix
    - `size` (16-48px) – Default icon size
