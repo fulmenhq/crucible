@@ -1,13 +1,13 @@
 {
   "author": "FulmenHQ",
   "dependencies": {
-    "js-yaml": "^4.2.0"
+    "js-yaml": "^4.3.1"
   },
   "description": "Crucible - Where Scale is Forged. Standards and schemas for the FulmenHQ ecosystem.",
   "devDependencies": {
-    "@biomejs/biome": "^2.4.16",
+    "@biomejs/biome": "^2.5.7",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.19.41",
+    "@types/node": "^20.19.43",
     "@vitest/coverage-v8": "^1.6.0",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
