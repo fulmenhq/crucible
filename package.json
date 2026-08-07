@@ -5,11 +5,11 @@
   },
   "dependencies": {
     "glob": "^11.1.0",
-    "js-yaml": "^4.2.0"
+    "js-yaml": "^4.3.1"
   },
   "description": "Blueprints for Scale - Standards forge for the FulmenHQ ecosystem",
   "devDependencies": {
-    "@biomejs/biome": "^2.4.16",
+    "@biomejs/biome": "^2.5.7",
     "@types/bun": "^1.3.14",
     "@types/ejs": "^3.1.5",
     "@types/js-yaml": "^4.0.9",
