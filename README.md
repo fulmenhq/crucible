@@ -188,6 +188,7 @@ Guides:
 Crucible provides JSON schemas for cross-language consistency:
 
 - **Pathfinder** (`schemas/pathfinder/v1.0.0/`)
+
   - `find-query.schema.json` - File discovery parameters
   - `finder-config.schema.json` - Finder configuration
   - `path-result.schema.json` - Discovery results
@@ -196,17 +197,21 @@ Crucible provides JSON schemas for cross-language consistency:
   - `path-constraint.schema.json` - Safety boundaries
 
 - **ASCII** (`schemas/ascii/v1.0.0/`)
+
   - `string-analysis.schema.json` - Unicode-aware string analysis
   - `box-chars.schema.json` - Box drawing characters
 
 - **Schema Validation** (`schemas/schema-validation/v1.0.0/`)
+
   - `validator-config.schema.json` - Validator configuration
   - `schema-registry.schema.json` - Schema registry management
 
 - **Terminal** (`schemas/terminal/v1.0.0/`)
+
   - Terminal configuration catalog (iTerm2, Ghostty, Apple Terminal)
 
 - **Foundry Catalog** (`schemas/library/foundry/v1.0.0/`)
+
   - `country-codes.schema.json` - ISO 3166 country codes with alpha-2/alpha-3/numeric normalization
   - `http-status-groups.schema.json` - HTTP status code groupings and semantic meanings
   - `mime-types.schema.json` - Common MIME type classifications
@@ -215,10 +220,12 @@ Crucible provides JSON schemas for cross-language consistency:
   - `signals.schema.json` - Signal handling semantics with OS mappings and behavior definitions
 
 - **Observability** (`schemas/observability/`)
+
   - Logging schemas (`v1.0.0/`) - Logger configuration, log events, severity filters, middleware
   - Metrics schemas (`v1.0.0/`) - Metrics event structure
 
 - **Enact** (`schemas/enact/v1.0.0/`)
+
   - Experimental schema suite for guided, imperative, idempotent deployments (taxonomy, recipe, inventory, runlog, health-report)
 
 - **Fulencode** (`schemas/library/fulencode/v1.0.0/`, `schemas/taxonomy/library/fulencode/`)
@@ -230,20 +237,24 @@ Crucible provides JSON schemas for cross-language consistency:
 ### Standards & Documentation
 
 - **Coding Standards** (`docs/standards/coding/`)
+
   - Go coding practices (with schema-driven config hydration)
   - TypeScript coding practices
   - Python coding practices
 
 - **Testing Standards** (`docs/standards/testing/`)
+
   - Portable testing practices (cross-language patterns for deterministic tests)
   - Language-specific testing patterns (CLI isolation for Go Cobra, Python Typer/Click, TypeScript Commander/oclif, Rust, C#)
 
 - **Library Standards** (`docs/standards/library/`)
+
   - **Modules**: Crucible Shim, Docscribe, Config Path API, Three-Layer Config, Schema Validation, Signal Handling, Fulpack (archive operations), Fulencode (encoding/decoding/normalization)
   - **Catalogs**: Foundry (country codes, HTTP status, MIME types, text similarity, signal handling)
   - Helper library standard with Crucible Overview and version documentation requirements
 
 - **Repository Standards** (`docs/standards/`)
+
   - Frontmatter standard for documentation
   - Repository versioning (SemVer and CalVer)
   - Repository lifecycle (experimental → LTS)
@@ -252,11 +263,13 @@ Crucible provides JSON schemas for cross-language consistency:
   - Agentic attribution
 
 - **Architecture** (`docs/architecture/`)
+
   - Fulmen ecosystem guide and technical manifesto
   - Pseudo-monorepo strategy and sync model
   - Helper library standard
 
 - **SOPs** (`docs/sop/`)
+
   - Repository structure requirements and operations
   - Version adoption process
   - CI/CD operations
@@ -314,18 +327,22 @@ Templates consume Crucible via helper libraries and/or pull tooling.
 Crucible provides native libraries for multiple languages with an **asymmetric repository structure** optimized for each ecosystem:
 
 - **Go** (at repository root): `import "github.com/fulmenhq/crucible"`
+
   - Standard Go module structure for external `go get` installation
   - Embeds schemas/docs directly from root SSOT via `//go:embed`
   - Adopted SemVer (v0.2.0+) for Go module compatibility per [ADR-0010](docs/architecture/decisions/ADR-0010-semantic-versioning-adoption.md)
   - Previous CalVer tags (v2025.10.1-v2025.10.5) mapped to SemVer (v0.1.0-v0.1.4)
 
 - **TypeScript** (`lang/typescript/`): `import { ... } from '@fulmenhq/crucible'`
+
   - Standard npm package structure with synced assets
 
 - **Python** (`lang/python/`): `from crucible import ...`
+
   - Standard Python package structure with synced assets
 
 - **Rust** (`lang/rust/`): Rust crate with synced assets
+
   - Standard Cargo package structure
 
 - **Future**: C# (`csfulmen`) as ecosystem needs evolve
@@ -430,6 +447,7 @@ Crucible intentionally sits between a classic mono-repo and a pure package regis
 - **Single Source, Many Consumers** – `schemas/`, `docs/`, and `config/` live once at the root as the authoritative SSOT for all language implementations and downstream repos.
 
 - **Asymmetric Language Structure**:
+
   - **Go at root**: Go module (`go.mod`, `*.go`) lives at repository root, embedding SSOT directly via `//go:embed` directives
   - **Python/TypeScript in `lang/`**: Standard package structures with synced copies of SSOT assets
   - **Rationale**: Enables standard Go `go get` installation, Go embed support, while maintaining conventional package structures for other languages

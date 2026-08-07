@@ -33,6 +33,7 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
 ### Core Identity & Configuration Modules
 
 1. **App Identity Module** (REQUIRED)
+
    - **Purpose**: Standardized application metadata (binary name, vendor, environment prefix)
    - **Spec**: [App Identity Module](../standards/library/modules/app-identity.md)
    - **Compliance**: MUST implement `.fulmen/app.yaml` with:
@@ -47,6 +48,7 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
    - **Required Make targets**: forges MUST provide `make sync-embedded-identity` and `make verify-embedded-identity` (see [Fulmen Template CDRL Standard](fulmen-template-cdrl-standard.md))
 
 2. **Crucible Shim Module** (REQUIRED)
+
    - **Purpose**: Access Crucible SSOT assets (schemas, standards, documentation, configs, taxonomies) without direct sync
    - **Spec**: [Crucible Shim](../standards/library/modules/crucible-shim.md)
    - **Compliance**:
@@ -58,6 +60,7 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
    - **Documentation access**: Workhorses may need to access standards for runtime compliance validation, API documentation generation, or operational playbooks. See [Crucible Shim - Accessing General Documentation](../standards/library/modules/crucible-shim.md#accessing-general-documentation) for examples.
 
 3. **Enterprise Three-Layer Config Module** (REQUIRED)
+
    - **Purpose**: Layered configuration (Crucible SSOT defaults → User config → Runtime overrides)
    - **Spec**: [Enterprise Three-Layer Config](../standards/library/modules/enterprise-three-layer-config.md)
    - **Compliance**:
@@ -74,6 +77,7 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
    - **Precedence**: CLI flags → Env vars → Config file → Defaults
 
 4. **Config Path API Module** (REQUIRED)
+
    - **Purpose**: Discover Fulmen config directories (user, system, app-specific)
    - **Spec**: [Config Path API](../standards/library/modules/config-path-api.md)
    - **Compliance**: Use `get_app_config_dir({app_name})` from App Identity for Layer 2 paths
@@ -86,6 +90,7 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
 ### Observability & Resilience Modules
 
 6. **Telemetry/Metrics Module** (REQUIRED)
+
    - **Purpose**: Prometheus-compatible metrics export (counters, gauges, histograms)
    - **Spec**: [Telemetry/Metrics](../standards/library/modules/telemetry-metrics.md)
    - **Compliance**:
@@ -96,6 +101,7 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
    - **Application Metrics**: Use binary-prefixed names (e.g., `percheron_task_duration_ms`, `groningen_request_latency_ms`)
 
 7. **Logging Module** (REQUIRED)
+
    - **Purpose**: Structured logging with Crucible schema compliance
    - **Spec**: [Observability Logging](../standards/observability/logging.md)
    - **Compliance**:
@@ -105,6 +111,7 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
      - Support `{PREFIX}LOG_LEVEL` env var
 
 8. **Error Handling & Propagation Module** (REQUIRED)
+
    - **Purpose**: Standardized error types with severity, correlation, context wrapping
    - **Spec**: [Error Handling Propagation](../standards/library/modules/error-handling-propagation.md)
    - **Compliance**:
@@ -135,12 +142,14 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
 ### Data Processing Modules (Conditional)
 
 11. **Foundry Module** (RECOMMENDED for data-heavy workhorses)
+
     - **Purpose**: Catalogs for country codes, HTTP statuses, MIME types, text similarity
     - **Spec**: [Foundry Catalogs](../standards/library/foundry/README.md)
     - **Compliance**: Use `foundry.GetCountryCode()`, `foundry.GetHTTPStatus()`, etc. instead of hardcoded lookups
     - **Auto-Metrics**: Emits `foundry_mime_detections_total_*`, `foundry_mime_detection_ms_*` if MIME detection used
 
 12. **FulHash Module** (RECOMMENDED for content hashing)
+
     - **Purpose**: Standardized hashing (XXH3-128 for performance, SHA256 for security)
     - **Spec**: [FulHash](../standards/library/modules/fulhash.md)
     - **Compliance**: Use helper's hash APIs instead of language-native hashlib
@@ -179,6 +188,7 @@ Workhorse forges MUST pre-integrate these ecosystem components, providing a laun
 Implementers MUST comply with ecosystem standards in Crucible's `docs/standards/` (e.g., coding conventions, API patterns, repository structure) to ensure consistency.
 
 1. **Helper Library Integration (Primary Bootstrap)**
+
    - Depend on and bootstrap via language-specific Fulmen helper library (e.g., `go install gofulmen` or `uv add pyfulmen`).
    - Use helper library's Crucible Shim for all asset access (schemas, docs, configs)—no direct Crucible sync or goneat SSOT in forges.
    - Pre-configure Three-Layer Config (embed defaults via helper, load user overrides, support BYOC), Schema Validation, and Documentation Module.
@@ -188,18 +198,21 @@ Implementers MUST comply with ecosystem standards in Crucible's `docs/standards/
    - Refer to [Fulmen Helper Library Standard](docs/architecture/fulmen-helper-library-standard.md) for integration patterns.
 
 2. **Makefile (Mandatory)**
+
    - Always include Makefile following [Makefile Standard](docs/standards/makefile-standard.md).
    - Targets: `bootstrap` (helper install), `run` (CLI serve), `build` (binary), `test`, `lint`, `version-bump` (CalVer).
    - No SSOT sync targets; optional `dx` for goneat if included.
    - Ensure cross-platform (even for Python/TS via shell fallbacks).
 
 3. **Goneat as Optional DX Tool**
+
    - Optionally include `.goneat/tools.yaml` for local development (e.g., linting, validation via goneat tasks)—no `ssot-consumer.yaml` or sync config.
    - Provide `make bootstrap-dx` for goneat installation if desired, but do NOT implement SSOT sync targets (`make sync-ssot` prohibited to avoid confusion with libraries).
    - Local overrides (`.goneat/tools.local.yaml`) gitignored; use only for non-Crucible tooling.
    - Refer to [Goneat Bootstrap Guide](docs/guides/bootstrap-goneat.md) for optional setup.
 
 4. **Observability & Telemetry**
+
    - Pre-wire structured logging using Crucible logging schemas (SIMPLE/STRUCTURED profiles) via helper library.
    - Integrate metrics export (counters/gauges/histograms) via Telemetry/Metrics module.
    - Default middleware: Request ID correlation, severity mapping, throttling.
@@ -207,17 +220,20 @@ Implementers MUST comply with ecosystem standards in Crucible's `docs/standards/
    - Refer to [Observability Logging](docs/standards/observability/logging.md) and [Telemetry/Metrics](docs/standards/library/modules/telemetry-metrics.md).
 
 5. **Error Handling & Propagation**
+
    - Use standardized error types from Error Handling module (extend Pathfinder with severity/correlation).
    - Wrap errors uniformly for logging/export (JSON responses for APIs).
    - Refer to [Error Handling Standard](docs/standards/library/modules/error-handling-propagation.md).
 
 6. **Config Path & Management**
+
    - Use Config Path API from helper library for discovering Fulmen/app directories.
    - Implement Three-Layer Config explicitly: Layer 1 (Crucible defaults via helper), Layer 2 (user from app dir), Layer 3 (runtime BYOC).
    - Pre-load/validate configs against schemas; support env var overrides (e.g., `FULMEN_CONFIG_HOME`).
    - Refer to [Config Path API](docs/standards/library/modules/config-path-api.md) and [Three-Layer Config](docs/standards/library/modules/enterprise-three-layer-config.md).
 
 7. **Env Var & .env Support**
+
    - Use a required env var prefix based on breed name (e.g., `{BREED_NAME}_` where BREED*NAME is uppercase, default `GRONINGEN*` for groningen breed).
    - Include `.env.example` with standard vars (e.g., `GRONINGEN_PORT=8080`, `GRONINGEN_LOG_LEVEL=info`, `GRONINGEN_CONFIG_PATH=./config/groningen.yaml`); gitcommitted, user copies to `.env` (gitignored).
    - Load .env via three-layer (Layer 2: from app config dir; parse with helper or lang-native like python-dotenv).
@@ -227,11 +243,13 @@ Implementers MUST comply with ecosystem standards in Crucible's `docs/standards/
    - Refer to Three-Layer Config for integration.
 
 8. **Docscribe Module Integration**
+
    - Embed examples using docscribe module for frontmatter parsing and clean doc reads.
    - Include runtime doc serving (e.g., /docs endpoint) for self-documenting apps.
    - Refer to [Docscribe Standard](docs/standards/library/modules/docscribe.md).
 
 9. **Standard Endpoints & Message Patterns**
+
    - **HTTP/gRPC Patterns**: Implement REST/gRPC backends with standard routes/methods:
      - `/health`: Liveness/readiness (JSON: `{status: "healthy", version: str}`).
      - `/version`: Full version info (integrate Crucible/SSOT versions from helper).
@@ -244,6 +262,7 @@ Implementers MUST comply with ecosystem standards in Crucible's `docs/standards/
    - Refer to [API Standards](docs/standards/protocol/README.md).
 
 10. **CLI Surface for Server Invocation**
+
     - Provide a standard CLI wrapper (e.g., via cobra/click/argparse) for backend server:
       - `{breed-name} serve [flags]`: Starts server (e.g., `groningen serve`, `percheron serve`).
       - Standard flags: `--config <path>` (Three-Layer), `--port <int>`, `--log-level <str>` (trace/debug/info/warn/error), `--metrics-port <int>`, `--health-port <int>`, `--env-prefix <str>` (default from breed name), `--version` (print and exit), `--help`.
@@ -428,22 +447,26 @@ Workhorse forges MUST comply with the [Fulmen Template CDRL Standard](fulmen-tem
 ### Required CDRL Implementation
 
 1. **App Identity Module** (PRIMARY CUSTOMIZATION POINT)
+
    - Implement `.fulmen/app.yaml` as documented in [App Identity Module](../standards/library/modules/app-identity.md)
    - All parameterization points (binary name, env prefix, config paths, telemetry namespaces) MUST derive from App Identity
    - No hardcoded breed names in source code (except `.fulmen/app.yaml` itself)
 
 2. **CDRL Validation Targets** (REQUIRED MAKEFILE TARGETS)
+
    - Implement `make validate-app-identity` per [Makefile Standard Annex B](../standards/makefile-standard.md#annex-b-template-repository-cdrl-targets)
    - Implement `make doctor` (or `make validate-cdrl-ready`) for comprehensive refit validation
    - Both targets MUST be documented in Makefile help output
 
 3. **CDRL Workflow Guide** (REQUIRED DOCUMENTATION)
+
    - Provide `docs/development/fulmen_cdrl_guide.md` with template-specific CDRL instructions
    - Document all parameterization points (binary name, module path, env vars, config files)
    - Include verification checklist and troubleshooting guide
    - Link to ecosystem CDRL guide: [CDRL Workflow Guide](../standards/cdrl/workflow-guide.md)
 
 4. **Directory Structure CDRL Readiness**
+
    - `.fulmen/app.yaml` MUST exist with breed name as default identity
    - `.env.example` MUST use breed-prefixed environment variables
    - `config/{breed}.yaml` MUST be named with breed identifier (users rename during refit)

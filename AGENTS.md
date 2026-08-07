@@ -44,6 +44,7 @@ See [Role Catalog](config/agentic/roles/README.md) for full role definitions and
 This repository (fulmenhq/crucible) has a **bidirectional relationship** with upstream:
 
 - **UPSTREAM SOURCE (3leaps/crucible)**: Foundation schemas, classifiers, AILink, agentic role schemas
+
   - Synced TO: `schemas/upstream/3leaps/crucible/`
   - Command: `make upstream-sync-3leaps`
   - Guide: [Upstream Sync Consumer Guide](docs/ops/upstream-sync-consumer.md)
@@ -123,11 +124,13 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
 ### Before Changes
 
 1. **Context Review**
+
    - Read `MAINTAINERS.md`, `REPOSITORY_SAFETY_PROTOCOLS.md`
    - Read `Makefile` to understand sync patterns
    - Understand that `lang/*/docs/`, `lang/*/schemas/`, `lang/*/config/` are synced FROM root SSOT
 
 2. **Environment Check**
+
    - Confirm required tools (`bun >= 1.2`, `go >= 1.21`)
    - Run `make bootstrap` if tools are missing
 

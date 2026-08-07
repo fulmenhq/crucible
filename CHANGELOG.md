@@ -78,6 +78,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 ### Added
 
 - **Typed role catalog API** across all four language implementations
+
   - Go: `LoadRole(slug)`, `LoadRoleCatalog()`, `ListRoleSlugs()` + `RolePrompt` struct
   - TypeScript: `loadRole`, `loadRoleCatalog`, `listRoleSlugs` + `RolePrompt` interface
   - Python: `load_role`, `load_role_catalog`, `list_role_slugs` + `RolePrompt` dataclass
@@ -86,12 +87,14 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
   - `RoleRequiredReading` / `RoleRequiredReadingFile` typed structs for structured `required_reading`
 
 - **Three new agentic roles** (`status: draft`):
+
   - `cxotech` — Chief Experience Technology Officer (strategic governance, 6-18mo timeline)
   - `deliverylead` — Delivery Lead (project coordination, sprint-quarter timeline)
   - `infraeng` — Infrastructure Engineer (cloud infrastructure, platform reliability)
   - Catalog grows from 11 approved roles to 14 total (11 approved + 3 draft)
 
 - **Rust role codegen infrastructure**:
+
   - `scripts/codegen/generate-role-types.ts` — Bun/TypeScript script rendering EJS → Rust source
   - `scripts/codegen/verify-role-types.ts` — drift detection for CI (`verify-codegen` target)
   - `scripts/codegen/role-types/rust/template.ejs` — EJS template for Role enum + RoleMetadata
@@ -124,6 +127,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 ### Added
 
 - **Role catalog schema compliance**: All 11 agentic roles updated with `domains` property
+
   - Required by updated role-prompt.schema.json from 3leaps/crucible v0.1.10
   - Added `domains` to: cicd, dataeng, devlead, devrev, entarch, infoarch, prodmktg, qa, releng, secrev, uxdev
   - Domain assignments reflect business process organization (development, delivery, governance, etc.)
@@ -149,6 +153,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 ### Added
 
 - **Documentation Improvements for Upstream Sync**: Enhanced agent-facing documentation to clarify bidirectional repository relationship
+
   - Added "Repository Relationship" section to AGENTS.md explaining fulmenhq/crucible vs 3leaps/crucible
   - Updated Quick Reference table in AGENTS.md with `make upstream-sync-3leaps` entry
   - Enhanced DO/DO NOT section with explicit upstream sync guidance and link to consumer guide
@@ -158,6 +163,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
   - Prevents confusion between two crucible repositories (3leaps vs fulmenhq)
 
 - **3leaps/crucible Upstream Sync Infrastructure**: Automated sync tooling for galaxy-level standards
+
   - `scripts/3leaps-crucible-upstream-pull.ts` - Bun/TypeScript sync script with dry-run support
   - `make upstream-sync-3leaps` - Sync and validate in one command
   - `make upstream-check` - Check upstream content for format/lint issues (no auto-fix)
@@ -166,6 +172,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
   - PROVENANCE.md tracks source tag, commit, and date for audit trail
 
 - **Data Classification Framework** (from 3leaps/crucible v0.1.6): Enterprise-grade classification dimensions
+
   - **7 classifier dimension definitions** (`config/classifiers/dimensions/`)
     - `sensitivity` - Data sensitivity levels (UNKNOWN through 6-eyes-only)
     - `volatility` - Update cadence (static → streaming)
@@ -183,6 +190,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
   - Policy stance: Missing classification is an error; explicit `unknown` required
 
 - **Foundation Schemas** (from 3leaps/crucible v0.1.6): Universal type primitives
+
   - `types.schema.json` - 25 portable types (slug, semver, timestamp, URL, paths, etc.)
   - `error-response.schema.json` - Standard error structure for APIs and CLIs
   - `lifecycle-phases.schema.json` - Project maturity phases
@@ -200,6 +208,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 ### Changed
 
 - **Updated 3leaps/crucible to v0.1.6**: Synced latest upstream schemas and role definitions
+
   - Updated role-prompt.schema.json with new role categories: `analytics`, `consulting`, `marketing`
   - Added README.md to agentic schemas documentation
   - Updated PROVENANCE.md to track v0.1.6 (commit e2812cd)
@@ -221,6 +230,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 ### Added
 
 - **JSON Schema Meta-Schema Expansion**: Full draft coverage for offline schema validation
+
   - `schemas/meta/draft-04/schema.json` - Draft-04 meta-schema (single-file, uses `id`)
   - `schemas/meta/draft-06/schema.json` - Draft-06 meta-schema (single-file, introduced `$id`, `const`)
   - `schemas/meta/draft-2019-09/schema.json` - Draft 2019-09 with modular vocabulary refs
@@ -278,6 +288,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 ### Added
 
 - **OpenAPI Spec Coverage Standard**: Ecosystem-wide standard for OpenAPI documentation verification
+
   - `docs/architecture/decisions/ADR-0014-openapi-spec-coverage.md` - Decision record
   - Tiered requirements: Fixtures MUST, Workhorses SHOULD, DX tools MAY
   - Coverage test pattern comparing router registrations to spec paths
@@ -288,6 +299,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
   - Provenance metadata via `info.x-*` extensions
 
 - **OpenAPI Publication Section**: Added to Fixture Standard (`fulmen-fixture-standard.md`)
+
   - MUST requirements: generation, serving, coverage test, CI workflow
   - Build artifact patterns: `dist/` (gauntlet) and embedded (rampart) both acceptable
   - Coverage test implementation guidance
@@ -302,14 +314,17 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 ### Changed
 
 - **HTTP REST Standard**: Added OpenAPI Documentation section
+
   - SHOULD publish spec for HTTP APIs
   - Generator and serving recommendations
   - Coverage testing reference
 
 - **Workhorse Standard**: Added `/openapi.yaml` endpoint and ADR-0014 reference
+
   - SHOULD for workhorses exposing HTTP APIs
 
 - **Codex Standard**: Added cross-link in Pillar III
+
   - Upstream spec quality expectation for ingested OpenAPI specs
 
 - **Fixture Author Conformance Checklist**: Added OpenAPI items
@@ -321,6 +336,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 ### Added
 
 - **TUI Design System Schemas**: Layered architecture for terminal UI theming
+
   - Core semantic vocabulary (`schemas/design/core/v1.0.0/`)
     - `semantic-colors.schema.json` - Color roles (primary, secondary, success, etc.) with WCAG contrast
     - `spacing-scale.schema.json` - Spacing tokens (xs through xl) with responsive tiers
@@ -341,6 +357,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
   - Designed for future `design/web/` parallel implementation
 
 - **Standards Discoverability Architecture**: Guides now serve as compliance routing documents
+
   - `docs/guides/testing/README.md` - Testing guides family index
   - `docs/guides/testing/http-server-patterns.md` - Server/fixture implementation patterns with compliance checklists
   - `docs/guides/testing/http-client-patterns.md` - Client testing patterns with fixture usage
@@ -348,11 +365,13 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
   - Pre-Implementation and Pre-Review checklists for devlead and devrev roles
 
 - **Work-Type Standards Routing**: AGENTS.md now includes routing table
+
   - Maps work types (HTTP server, HTTP client, CLI, fixture, schema, release) to required reading
   - Enables agents and developers to discover applicable standards before implementation
   - "How to Use This Table" workflow guidance
 
 - **HTTP Server Anti-Patterns Documentation**: Go-specific patterns from fixture development
+
   - `json.Encoder.Encode()` error handling after `WriteHeader()`
   - Response body close patterns with per-file test helpers
   - Context-aware delay handlers (no bare `time.Sleep()`)
@@ -360,6 +379,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
   - Derived from 25+ lint fixes during rampart/gauntlet development
 
 - **HTTP Client Testing Patterns**: Comprehensive fixture-based testing guide
+
   - Timeout tier testing (connect vs header vs body)
   - Redirect handling with loop detection
   - Retry and backoff behavior patterns
@@ -368,6 +388,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
   - Multi-language examples (Go, Python, TypeScript, Rust)
 
 - **Cross-Linking**: Updated related documents with bidirectional links
+
   - `docs/standards/testing/README.md` - Links to testing guides
   - `docs/standards/coding/go.md` - Section 8 links to HTTP server patterns
   - `docs/architecture/fulmen-fixture-standard.md` - Links to both testing guides
@@ -394,6 +415,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 ### Added
 
 - **Signal Resolution Standard**: Ergonomic signal name resolution interfaces for helper libraries
+
   - `resolveSignal(name)` - normalize and lookup (exact, numeric, case-insensitive, ID fallback)
   - `listSignalNames()` - enumerate for CLI completion
   - `matchSignalNames(pattern)` - glob matching with `*` and `?` wildcards
@@ -420,6 +442,7 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 ### Added
 
 - **Ecosystem Brand Summary**: Added `config/branding/ecosystem.yaml` for consistent brand context
+
   - Accessible via helper libraries: `crucible.GetBrandSummary()`
   - Displayed by `<binary> version --extended`
   - Includes short, extended, and full summaries plus structured metadata
