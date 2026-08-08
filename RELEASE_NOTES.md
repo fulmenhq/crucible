@@ -5,6 +5,36 @@ For complete release history, see individual files in `release-notes/`.
 
 ---
 
+## v0.4.16 - Host Binary Identity Standard & Dependency Hygiene
+
+**Adds the cross-language host binary identity standard, hardens the dependency surface with a goneat v0.5.16 pin and minor/patch bumps, and aligns markdown formatting under the lifted toolchain.**
+
+### Why This Matters
+
+**For CLI and forge operators**: `version --extended` now has a shared contract across Go, Rust, TypeScript, and Python — dump build provenance, triage dirty binaries, and tell "what am I actually running" from "what SDK/SSOT was it built against". Host identity is cleanly separated from SDK/SSOT pins, dirty semantics are honest (true/false when determinable, unknown when not), and build-time injection recipes require no helper library (Phase A). Future resolver libraries are gated behind a documented Phase B.
+
+**For consumers**: the dependency surface is refreshed — goneat pinned to v0.5.16 and in-scope minor/patch bumps applied to the root and TypeScript wrapper manifests — and markdown is aligned to the goneat v0.5.16 formatter so synced docs stay deterministic.
+
+### Highlights
+
+- **Host Binary Identity Standard** (`host-identity`): canonical field contract for `version --extended`; host-vs-pins separation (pins extended-only, never host `Commit:`); explicit dirty semantics; `FULMEN_HOST_*` injection contract (CI may inject; no runtime git in released binaries); trust boundary (informational, not attestation — never for auth/integrity); Phase A recipes (Go ldflags, Rust `build.rs`, TS/Py build-time-stamp primary with env fallback); Phase B gate
+- **Deps** (`deps-refresh`): goneat pin `v0.5.13 → v0.5.16`; root + `lang/typescript` minor/patch pins (`js-yaml`, `@biomejs/biome`, `@types/node`); both Bun locks refreshed
+- **Tooling** (formatter): markdown aligned to goneat v0.5.16 (whitespace-only)
+
+### Changes
+
+| Area      | Change                                                                                                         |
+| --------- | -------------------------------------------------------------------------------------------------------------- |
+| Standards | Host Binary Identity Standard + Phase A `version --extended` recipes (Go/Rust/TS/Py); CLI + app-identity links |
+| Deps      | goneat pin `v0.5.13 → v0.5.16`; root + `lang/typescript` minor/patch pins; locks refreshed                     |
+| Tooling   | Markdown aligned to goneat v0.5.16 (whitespace-only)                                                           |
+
+**No breaking changes** to public API or schema versions — patch release; all schemas remain at their current versions. Pre-existing `bun audit` findings (via deferred major-track toolchains such as `glob`/`ejs`/`vitest`) are unchanged by this release and are deferred to those major bumps.
+
+**Full release notes**: [release-notes/v0.4.16.md](release-notes/v0.4.16.md)
+
+---
+
 ## v0.4.15 - ADR-0012 Cross-Ref Completion & Upstream v0.1.14
 
 **Completes the ADR-0012 absolute-`$id` cross-reference rollout for the logging and module-manifest schemas, migrates the logging `$id`s to canonical version-in-path, and refreshes the vendored 3leaps/crucible pin to v0.1.14.**
@@ -48,18 +78,6 @@ For complete release history, see individual files in `release-notes/`.
 - New optional `metadata.typescript` object on the app-identity `v1.0.0` schema (`package_name` + `console_scripts` → package.json `bin`), mirroring `metadata.python`; additive, schema stays `v1.0.0`
 - Codegen fix: fulpack/fulencode Python enum templates now emit `StrEnum` (ruff `UP042`), making regeneration idempotent
 - CI off Node 20: checkout v5, setup-go v6, setup-bun v2, setup-uv v7; rust-toolchain `@v1`; goneat pin `v0.5.13`
-
----
-
-## v0.4.13 - Agentic Role Catalog Contract-Parity
-
-**Contract/schema/fixture parity focus across the `devlead`, `devrev`, and `qa` roles, plus YAML tooling stabilization.** **(Condensed — see [release-notes/v0.4.13.md](release-notes/v0.4.13.md) for full details)**
-
-### Highlights
-
-- `devlead`/`devrev`/`qa` roles (→ version 1.0.1) gain contract/schema/fixture parity guidance and checklists; guards against green-CI-only sign-off; propagated to all language wrappers
-- Tooling: goneat pin `v0.5.3 → v0.5.12` + repository YAML reformatted to its conventions, so downstream-synced assets arrive already-formatted
-- Added root `.yamllint` / `.yamlfmt` (2-space) aligned across the Fulmen galaxy
 
 ---
 
