@@ -15,6 +15,10 @@ tags: ["app-identity", "modules", "configuration", "standards"]
 
 Provide a single source of truth for application identity metadata across the Fulmen ecosystem. Every project—from helper libraries to production forges—derives binary names, vendor namespaces, environment-variable prefixes, and config directories from `.fulmen/app.yaml`.
 
+> **Scope note:** this module defines **runtime** application identity (which app you are).
+> For **build** host identity (what build of a binary is on disk — version, commit, build
+> date, dirty, SDK/SSOT pins), see the [Host Binary Identity Standard](../../repository-structure/host-binary-identity.md).
+
 ## Background
 
 Fulmen templates (groningen, percheron, future breeds) historically embedded binary names and vendor prefixes throughout code, docs, and tooling, requiring manual search-and-replace during CDRL refits. This led to:
