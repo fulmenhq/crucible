@@ -11,13 +11,15 @@ For complete release history, see individual files in `release-notes/`.
 
 ### Why This Matters
 
-**For CLI and forge operators**: `version --extended` now has a shared contract across Go, Rust, TypeScript, and Python — dump build provenance, triage dirty binaries, and tell "what am I actually running" from "what SDK/SSOT was it built against". Host identity is cleanly separated from SDK/SSOT pins, dirty semantics are honest (true/false when determinable, unknown when not), and build-time injection recipes require no helper library (Phase A). Future resolver libraries are gated behind a documented Phase B.
+**For CLI and forge operators (support & incident triage):** one shared `version --extended` contract means a support dump or incident paste uses the same field names whether the binary is Go, Rust, TypeScript, or Python. You can tell a clean CI artifact from a dirty local dogfood binary, and you can tell **which build is on disk** apart from **which SDK/SSOT pins it was built against** — pins stay labeled and never overwrite the host `Commit:`. Dirty is honest (`true`/`false` when known, `unknown` when not — never a misleading clean). Host identity is **informational for ops**, not attestation: use it for triage, not auth or integrity decisions.
 
-**For consumers**: the dependency surface is refreshed — goneat pinned to v0.5.16 and in-scope minor/patch bumps applied to the root and TypeScript wrapper manifests — and markdown is aligned to the goneat v0.5.16 formatter so synced docs stay deterministic.
+**For implementers:** Phase A build-time recipes (Go ldflags, Rust `build.rs` + `env!`, TypeScript/Python build-time stamp with documented env fallback) require **no helper library**, so forge CLIs can adopt immediately. CI injects via `FULMEN_HOST_*`; released binaries are not forced to run `git` at runtime. Future `gofulmen`/`rsfulmen` resolvers remain a documented **Phase B** gate and are **not** shipped in this cut.
+
+**For SSOT and toolchain consumers:** the dependency surface is refreshed — goneat pinned to v0.5.16 and in-scope minor/patch bumps on the root and TypeScript wrapper manifests — and markdown is aligned to the goneat v0.5.16 formatter so synced docs stay deterministic.
 
 ### Highlights
 
-- **Host Binary Identity Standard** (`host-identity`): canonical field contract for `version --extended`; host-vs-pins separation (pins extended-only, never host `Commit:`); explicit dirty semantics; `FULMEN_HOST_*` injection contract (CI may inject; no runtime git in released binaries); trust boundary (informational, not attestation — never for auth/integrity); Phase A recipes (Go ldflags, Rust `build.rs`, TS/Py build-time-stamp primary with env fallback); Phase B gate
+- **Host Binary Identity Standard** (`host-identity`): shared `version --extended` field contract for support dumps and dirty-binary triage; host-vs-pins separation (pins extended-only, never host `Commit:`); explicit dirty semantics; `FULMEN_HOST_*` injection (CI may inject; no runtime git required in released binaries); trust boundary (informational, not attestation); Phase A recipes (Go ldflags, Rust `build.rs`, TS/Py build-time-stamp primary with env fallback); Phase B gate (resolvers not shipped)
 - **Deps** (`deps-refresh`): goneat pin `v0.5.13 → v0.5.16`; root + `lang/typescript` minor/patch pins (`js-yaml`, `@biomejs/biome`, `@types/node`); both Bun locks refreshed
 - **Tooling** (formatter): markdown aligned to goneat v0.5.16 (whitespace-only)
 
