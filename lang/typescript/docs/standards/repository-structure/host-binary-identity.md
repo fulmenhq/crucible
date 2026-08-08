@@ -361,9 +361,10 @@ fn host_identity() -> serde_json::Value {
         "version": env!("FULMEN_HOST_VERSION"),
         "commit": env!("FULMEN_HOST_COMMIT"),
         "buildDate": env!("FULMEN_HOST_BUILD_DATE"),
-        "dirty": match env!("FULMEN_HOST_DIRTY").is_empty() {
-            false => serde_json::Value::Bool(env!("FULMEN_HOST_DIRTY") == "true"),
-            true  => serde_json::Value::Null,
+        "dirty": match env!("FULMEN_HOST_DIRTY") {
+            "true"  => serde_json::Value::Bool(true),
+            "false" => serde_json::Value::Bool(false),
+            _       => serde_json::Value::Null, // empty or invalid -> unknown, never a misleading "false"
         },
         "runtime": format!("rustc {}", rustc_version()),
         "platform": format!("{}/{}", std::env::consts::OS, std::env::consts::ARCH),
@@ -429,19 +430,22 @@ possible.
 documented as **informational / caller-influenceable** (see §6 trust boundary).
 
 ```python
+import os
+import platform
 from importlib.metadata import PackageNotFoundError, version
 
 def _host():
     try:
         ver = version("my_dist")
     except PackageNotFoundError:
-        ver = None
-    dirty = os.environ.get("FULMEN_HOST_DIRTY")
+        ver = "dev"  # documented placeholder; JSON-serializable
+    dirty_raw = os.environ.get("FULMEN_HOST_DIRTY")
+    dirty = (dirty_raw == "true") if dirty_raw in ("true", "false") else None  # True/False/None
     return {
         "version":   ver,
         "commit":    os.environ.get("FULMEN_HOST_COMMIT", "unknown"),
         "buildDate": os.environ.get("FULMEN_HOST_BUILD_DATE", "unknown"),
-        "dirty":     dirty if dirty in ("true", "false") else None,  # "true"/"false"/None
+        "dirty":     dirty,
         "runtime":   f"python {platform.python_version()}",
         "platform":  f"{platform.system().lower()}/{platform.machine()}",
     }
