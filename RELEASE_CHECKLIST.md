@@ -49,7 +49,7 @@ Note: These are not secrets and typically aren't stored in encrypted env bundles
 - [ ] Go module module checks (`go list`, `go test`) on clean tree
 - [ ] npm package build (`cd lang/typescript && bun run build`)
 - [ ] Schema normalization helpers verified (`lang/go`, `lang/typescript`)
-- [ ] Pull script smoke test (optional) – `bun run scripts/crucible-pull.ts --validate`
+- [ ] Pull script smoke test (optional) – `bun run scripts/pull/crucible-pull.ts --dry-run`
 
 ## Tagging (Signed Tag Required)
 
