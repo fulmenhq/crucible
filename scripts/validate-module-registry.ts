@@ -19,7 +19,7 @@
  */
 
 import { existsSync, readFileSync } from "node:fs";
-import { glob } from "glob";
+import { globSync } from "glob";
 import { load as parseYAML } from "js-yaml";
 
 interface ModuleEntry {
@@ -123,7 +123,7 @@ function discoverModules(): EvidenceMap {
   // Scan schemas/* for module schemas
   // Note: Some schemas are nested (schemas/observability/logging/v1.0.0/)
   // We'll record the actual schema path for validation, not just top-level
-  const schemaDirs = glob.sync("schemas/**/v*/", {
+  const schemaDirs = globSync("schemas/**/v*/", {
     ignore: ["**/meta/**", "**/taxonomy/**", "**/node_modules/**"],
   });
   // Track unique schema paths for verification
@@ -131,7 +131,7 @@ function discoverModules(): EvidenceMap {
   const _schemaPathsFound = new Set(schemaDirs);
 
   // Scan config/* for module configs
-  const configDirs = glob.sync("config/**/v*/", { ignore: ["**/taxonomy/**", "**/sync/**"] });
+  const configDirs = globSync("config/**/v*/", { ignore: ["**/taxonomy/**", "**/sync/**"] });
   for (const configDir of configDirs) {
     const parts = configDir.split("/");
     if (parts.length >= 4 && parts[2]) {

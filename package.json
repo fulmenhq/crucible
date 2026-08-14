@@ -4,7 +4,7 @@
     "url": "https://github.com/fulmenhq/crucible/issues"
   },
   "dependencies": {
-    "glob": "^11.1.0",
+    "glob": "^13.0.6",
     "js-yaml": "^4.3.1"
   },
   "description": "Blueprints for Scale - Standards forge for the FulmenHQ ecosystem",
@@ -19,7 +19,7 @@
     "typescript": "^5.9.3"
   },
   "engines": {
-    "bun": "\u003e=1.2.0"
+    "bun": ">=1.2.0"
   },
   "homepage": "https://github.com/fulmenhq/crucible#readme",
   "keywords": [
