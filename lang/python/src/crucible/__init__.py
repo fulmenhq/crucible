@@ -1,4 +1,4 @@
-__version__ = "0.4.16"
+__version__ = "0.4.18"
 
 from crucible.agentic import (
     RoleEscalation,

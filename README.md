@@ -81,7 +81,7 @@ Layer 4: Apps/Services
 
 ```
 
-See [Fulmen Ecosystem Guide](docs/architecture/fulmen-ecosystem-guide.md) for detailed layer interactions—including the virtuous flywheel where Layer 0 refines → Layer 1 embeds → Layer 2 scaffolds → Layer 3 automates → Layer 4 deploys—and [Technical Manifesto](docs/architecture/fulmen-technical-manifesto.md) for core tenets.
+See [Fulmen Ecosystem Guide](docs/architecture/fulmen-ecosystem-guide.md) for detailed layer interactions—including the virtuous flywheel where Layer 0 refines → Layer 1 embeds → Layer 2 scaffolds → Layer 3 automates → Layer 4 deploys.
 
 **Crucible ensures**:
 
@@ -264,7 +264,7 @@ Crucible provides JSON schemas for cross-language consistency:
 
 - **Architecture** (`docs/architecture/`)
 
-  - Fulmen ecosystem guide and technical manifesto
+  - Fulmen ecosystem guide
   - Pseudo-monorepo strategy and sync model
   - Helper library standard
 

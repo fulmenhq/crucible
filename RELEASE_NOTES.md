@@ -5,6 +5,74 @@ For complete release history, see individual files in `release-notes/`.
 
 ---
 
+## v0.4.18 - Manifesto Retirement & Workhorse Standard Alignment
+
+**A documentation patch: the draft technical manifesto is removed (inbound links retargeted to live architecture docs; no replacement manifesto), and the forge workhorse standard is aligned with Roan, loopback-by-default, and required request-id middleware.**
+
+### Why This Matters
+
+**For readers and anyone landing from an old link:** the 2025-10 draft technical manifesto is no longer a front door. A bookmark or inbound link that used to open that draft should start at the [Fulmen Ecosystem Guide](docs/architecture/fulmen-ecosystem-guide.md). The layer cake, CRDL, helper/forge contracts, and coding/safety standards already live there (and in the documents it points to). There is no replacement manifesto. Historical release notes that mention the old file stay historical.
+
+**For forge implementers and operators:** the workhorse standard now names **Roan** (Rust / rsfulmen) and **Tuvan** (TypeScript / tsfulmen) in the same canonical breed set as Groningen and Percheron — a Rust or TypeScript workhorse is a first-class variant, not an unnamed cousin. New HTTP workhorses default `{PREFIX}HOST` to `127.0.0.1` (binding `0.0.0.0` is an explicit opt-in) and MUST honor, generate, and echo `X-Request-ID` so a support dump can correlate one request across logs and responses. This restates the existing logging and HTTP REST specs. The workhorse standard remains draft.
+
+### Highlights
+
+- **Manifesto retired**: draft technical manifesto deleted; inbound links retargeted to live architecture docs; no replacement manifesto
+- **Workhorse variants**: Roan (Rust / rsfulmen) and Tuvan (TypeScript / tsfulmen) in the same canonical breed set as Groningen and Percheron
+- **Loopback default**: `{PREFIX}HOST` defaults to `127.0.0.1`; bind `0.0.0.0` only as an explicit opt-in
+- **Request ID required**: HTTP workhorses MUST honor inbound `X-Request-ID`, generate a UUID when absent, and echo it on every response
+
+### Changes
+
+| Area | Change                                                                                     |
+| ---- | ------------------------------------------------------------------------------------------ |
+| Docs | Draft technical manifesto removed; inbound links retargeted to live architecture docs      |
+| Docs | Workhorse standard: Roan and Tuvan in the canonical breed set; Clydesdale example removed  |
+| Docs | Workhorse `{PREFIX}HOST` default `127.0.0.1`; `0.0.0.0` explicit opt-in                    |
+| Docs | Workhorse HTTP surface requires request-id / `X-Request-ID` honor/generate/echo middleware |
+
+**None** to public API or schema versions — patch release; all schemas remain at their current versions. Documentation-only.
+
+**Full release notes**: [release-notes/v0.4.18.md](release-notes/v0.4.18.md)
+
+---
+
+## v0.4.17 - Deferred Major Upgrades & Clean bun audit
+
+**Delivers a clean root and wrapper `bun audit` (no vulnerabilities found) by landing the three majors v0.4.16 deferred — wrapper vitest 4, root glob 13, root ejs 6 — by upgrade, not by pin. Also carries the post-release checklist path fix.**
+
+### Why This Matters
+
+**For maintainers and supply-chain consumers:** the deferred major-track dependency chains are now upgraded and their audit findings cleared. The root dependency graph reports **no vulnerabilities found** (root went 11 → 7 after glob 13, then 7 → 0 after ejs 6), and the TypeScript wrapper reports **no vulnerabilities found** (including the Vitest UI advisory) after the vitest 4 upgrade. This closes the deferral v0.4.16 disclosed: the majors are landed, not just logged.
+
+**For TypeScript wrapper implementers:** vitest 4 requires an explicit `@types/node` entry in the tsconfig `types` allowlist (it no longer pulls Node typings in transitively); the wrapper suite stays green (44 tests / 7 files) with obsolete exit-code snapshots cleaned up.
+
+**For toolchain and codegen consumers:** the glob and ejs upgrades are contained to build/test tooling — no API or schema changes. ejs 6 exposes its render API on the module default export; the five codegen scripts were migrated accordingly and regenerate byte-identical artifacts.
+
+### Highlights
+
+- **Audit clear**: root and wrapper `bun audit` report **no vulnerabilities found** — root finding counts 11 → 7 → **0**; wrapper cleared to **0** (incl. Vitest UI advisory); nothing pinned or overridden to force the result
+- **Wrapper vitest 1 → 4**: `vitest` + `@vitest/coverage-v8` to 4.1.10; tsconfig `@types/node`; obsolete exit-code snapshot cleanup
+- **Root glob 11 → 13**: `glob` to 13.0.6; `glob.sync` → canonical `globSync` at the module-registry validation call site; glob audit chain cleared
+- **Root ejs 3 → 6**: `ejs` to 6.0.1; five codegen scripts use the ejs 6 default-export API; byte-identical generated artifacts; ejs › jake › filelist › minimatch/brace-expansion chain pruned from the lockfile
+- **Docs fix**: release-checklist pull-script smoke-test path / `--dry-run` correction (post-v0.4.16, carried in)
+
+### Changes
+
+| Area | Change                                                                           |
+| ---- | -------------------------------------------------------------------------------- |
+| Deps | Wrapper `vitest`/coverage 1.x → 4.1.10; tsconfig `@types/node`; snapshot cleanup |
+| Deps | Root `glob` 11.x → 13.0.6; `glob.sync` → `globSync` at validation call site      |
+| Deps | Root `ejs` 3.x → 6.0.1; codegen scripts use the ejs 6 default-export API         |
+| Deps | Root `bun audit` 11 → 7 → **0**; wrapper cleared to **0**                        |
+| Docs | Release-checklist pull-script smoke-test path / `--dry-run` correction           |
+
+**No breaking changes** to public API or schema versions — patch release; all schemas remain at their current versions. Root and wrapper dependency graphs now report **no vulnerabilities found**.
+
+**Full release notes**: [release-notes/v0.4.17.md](release-notes/v0.4.17.md)
+
+---
+
 ## v0.4.16 - Host Binary Identity Standard & Dependency Hygiene
 
 **Adds the cross-language host binary identity standard, hardens the dependency surface with a goneat v0.5.16 pin and minor/patch bumps, and aligns markdown formatting under the lifted toolchain.**
@@ -34,52 +102,6 @@ For complete release history, see individual files in `release-notes/`.
 **No breaking changes** to public API or schema versions — patch release; all schemas remain at their current versions. Pre-existing `bun audit` findings (via deferred major-track toolchains such as `glob`/`ejs`/`vitest`) are unchanged by this release and are deferred to those major bumps.
 
 **Full release notes**: [release-notes/v0.4.16.md](release-notes/v0.4.16.md)
-
----
-
-## v0.4.15 - ADR-0012 Cross-Ref Completion & Upstream v0.1.14
-
-**Completes the ADR-0012 absolute-`$id` cross-reference rollout for the logging and module-manifest schemas, migrates the logging `$id`s to canonical version-in-path, and refreshes the vendored 3leaps/crucible pin to v0.1.14.**
-
-### Why This Matters
-
-**For library consumers (tsfulmen, gofulmen, etc.)**: cross-schema `$ref`s in `observability/logging` and `library/module-manifest` now resolve in memory-based validators. Previously, relative cross-file refs left over from a partial ADR-0012 rollout failed to resolve without filesystem context — the exact breakage tsfulmen and gofulmen reported.
-
-**For schema identity**: the logging `$id`s move to the canonical version-in-path form so on-disk layout matches the canonical URI. This is an identity change within the existing `v1.0.0` files; external consumers resolving by the old version-in-filename URIs should switch to version-in-path (no in-repo consumers used the old URIs).
-
-### Highlights
-
-- **ADR-0012 completed**: 16 relative cross-file `$ref`s across 4 schemas converted to absolute canonical `$id` URLs, plus `logger-config`'s absolute ref repointed (finishing the rollout that had only covered `logger-config`)
-- **module-manifest off-by-one fixed**: `../../taxonomy/...` → absolute `taxonomy/language` `$id`
-- **logging `$id`s → version-in-path** within `v1.0.0` (matches corpus convention)
-- **Upstream v0.1.14**: vendored 3leaps/crucible pin bumped from v0.1.12 (schemas byte-identical; docs/provenance only)
-- **Tooling**: upstream-pull provenance "Synced By" made model-agnostic
-
-### Changes
-
-| Area     | Change                                                                                        |
-| -------- | --------------------------------------------------------------------------------------------- |
-| Schema   | Complete ADR-0012: 16 relative cross-file `$ref`s → absolute `$id` (logging, module-manifest) |
-| Schema   | `observability/logging` `$id`s → canonical version-in-path (within `v1.0.0`)                  |
-| Upstream | Bump vendored 3leaps/crucible `v0.1.12 → v0.1.14` (commit `18018788`)                         |
-| Tooling  | upstream-pull provenance "Synced By" made model-agnostic                                      |
-| Docs     | ADR-0012 status → phased-complete; lint-check action item recommended                         |
-
-**No breaking changes** to public API or schema versions (all touched schemas stay `v1.0.0`). See the logging `$id` compatibility note in the full notes.
-
-**Full release notes**: [release-notes/v0.4.15.md](release-notes/v0.4.15.md)
-
----
-
-## v0.4.14 - app-identity `metadata.typescript` & Codegen StrEnum
-
-**Adds a `metadata.typescript` packaging section to app-identity, finishes the Python enum `StrEnum` modernization at the generator, and moves CI off the Node 20 runtime.** **(Condensed — see [release-notes/v0.4.14.md](release-notes/v0.4.14.md) for full details)**
-
-### Highlights
-
-- New optional `metadata.typescript` object on the app-identity `v1.0.0` schema (`package_name` + `console_scripts` → package.json `bin`), mirroring `metadata.python`; additive, schema stays `v1.0.0`
-- Codegen fix: fulpack/fulencode Python enum templates now emit `StrEnum` (ruff `UP042`), making regeneration idempotent
-- CI off Node 20: checkout v5, setup-go v6, setup-bun v2, setup-uv v7; rust-toolchain `@v1`; goneat pin `v0.5.13`
 
 ---
 

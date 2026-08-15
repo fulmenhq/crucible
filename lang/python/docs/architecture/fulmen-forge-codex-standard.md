@@ -415,7 +415,7 @@ Codex forges also need to follow the shared [Portable Testing Practices](../stan
 - [Repository Category Taxonomy](../../config/taxonomy/repository-categories.yaml)
 - [Ecosystem Brand Summary](../../config/branding/ecosystem.yaml) - For `version --extended` or `about` endpoint
 - [Frontmatter Standard](../standards/frontmatter-standard.md)
-- [Fulmen Technical Manifesto](fulmen-technical-manifesto.md)
+- [Schema Normalization](../standards/schema-normalization.md)
 
 ---
 
