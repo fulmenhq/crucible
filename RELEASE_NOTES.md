@@ -11,14 +11,14 @@ For complete release history, see individual files in `release-notes/`.
 
 ### Why This Matters
 
-**For readers and onboarding:** the aging draft manifesto is no longer a destination. Inbound links now point at the live architecture documents that already describe the ecosystem. Historical release notes that mention the manifesto are left as-is.
+**For readers and anyone landing from an old link:** the 2025-10 draft technical manifesto is no longer a front door. A bookmark or inbound link that used to open that draft should start at the [Fulmen Ecosystem Guide](docs/architecture/fulmen-ecosystem-guide.md). The layer cake, CRDL, helper/forge contracts, and coding/safety standards already live there (and in the documents it points to). There is no replacement manifesto. Historical release notes that mention the old file stay historical.
 
-**For forge implementers:** the workhorse standard now lists Roan (Rust / rsfulmen) as a canonical language variant and Tuvan (TypeScript / tsfulmen) alongside Groningen and Percheron. The unused Clydesdale example is gone. New HTTP workhorses default `{PREFIX}HOST` to `127.0.0.1` (`0.0.0.0` remains an explicit opt-in) and MUST honor, generate, and echo `X-Request-ID` using the existing logging and HTTP REST specs. The standard remains draft.
+**For forge implementers and operators:** the workhorse standard now names **Roan** (Rust / rsfulmen) and **Tuvan** (TypeScript / tsfulmen) in the same canonical breed set as Groningen and Percheron — a Rust or TypeScript workhorse is a first-class variant, not an unnamed cousin. New HTTP workhorses default `{PREFIX}HOST` to `127.0.0.1` (binding `0.0.0.0` is an explicit opt-in) and MUST honor, generate, and echo `X-Request-ID` so a support dump can correlate one request across logs and responses. This restates the existing logging and HTTP REST specs. The workhorse standard remains draft.
 
 ### Highlights
 
 - **Manifesto retired**: draft technical manifesto deleted; inbound links retargeted to live architecture docs; no replacement manifesto
-- **Workhorse variants**: Roan (Rust / rsfulmen) canonical; Tuvan (TypeScript / tsfulmen) listed; unused Clydesdale example removed
+- **Workhorse variants**: Roan (Rust / rsfulmen) and Tuvan (TypeScript / tsfulmen) in the same canonical breed set as Groningen and Percheron
 - **Loopback default**: `{PREFIX}HOST` defaults to `127.0.0.1`; bind `0.0.0.0` only as an explicit opt-in
 - **Request ID required**: HTTP workhorses MUST honor inbound `X-Request-ID`, generate a UUID when absent, and echo it on every response
 
@@ -27,11 +27,11 @@ For complete release history, see individual files in `release-notes/`.
 | Area | Change                                                                                     |
 | ---- | ------------------------------------------------------------------------------------------ |
 | Docs | Draft technical manifesto removed; inbound links retargeted to live architecture docs      |
-| Docs | Workhorse standard: Roan canonical, Tuvan listed, Clydesdale example removed               |
+| Docs | Workhorse standard: Roan and Tuvan in the canonical breed set; Clydesdale example removed  |
 | Docs | Workhorse `{PREFIX}HOST` default `127.0.0.1`; `0.0.0.0` explicit opt-in                    |
 | Docs | Workhorse HTTP surface requires request-id / `X-Request-ID` honor/generate/echo middleware |
 
-**No breaking changes** to public API or schema versions — patch release; all schemas remain at their current versions. Documentation-only.
+**None** to public API or schema versions — patch release; all schemas remain at their current versions. Documentation-only.
 
 **Full release notes**: [release-notes/v0.4.18.md](release-notes/v0.4.18.md)
 

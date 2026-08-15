@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **docs: forge workhorse standard aligned** — records Roan (Rust / rsfulmen) as a canonical language variant and lists Tuvan (TypeScript / tsfulmen); removes the unused Clydesdale example; defaults `{PREFIX}HOST` to `127.0.0.1` (`0.0.0.0` remains an explicit opt-in); requires request-id / `X-Request-ID` honor/generate/echo middleware on the HTTP surface (existing logging and HTTP REST specs). Status remains draft.
+- **docs: forge workhorse standard aligned** — records Roan (Rust / rsfulmen) and Tuvan (TypeScript / tsfulmen) in the same canonical breed set as Groningen and Percheron; removes the unused Clydesdale example; defaults `{PREFIX}HOST` to `127.0.0.1` (`0.0.0.0` remains an explicit opt-in); requires request-id / `X-Request-ID` honor/generate/echo middleware on the HTTP surface (existing logging and HTTP REST specs). Status remains draft.
 
 ## [0.4.17] - 2026-08-14
 
