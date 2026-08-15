@@ -113,7 +113,7 @@ const outputPath =
 const shouldFormat = args.includes("--format");
 
 // Render template
-const ejs = await import("ejs");
+const ejs = (await import("ejs")).default;
 const templatePath = resolve("scripts/codegen/role-types/rust/template.ejs");
 const templateContent = readFileSync(templatePath, "utf-8");
 const rendered = ejs.render(templateContent, { roles, rustStr, rustDoc });

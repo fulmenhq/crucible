@@ -581,7 +581,7 @@ async function renderTemplate(lang: string, templateType: string, data: any): Pr
     return env.renderString(templateContent, data);
   } else if (lang === "typescript" || lang === "go" || lang === "rust") {
     // Use EJS for TypeScript, Go, and Rust
-    const ejs = await import("ejs");
+    const ejs = (await import("ejs")).default;
     // rustDoc wraps single-quoted strings in backticks to silence clippy::doc_link_with_quotes
     const rustDoc = (desc: unknown) =>
       typeof desc === "string" ? desc.replace(/'([^']+)'/g, "`'$1'`") : "";

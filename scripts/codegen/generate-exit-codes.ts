@@ -188,7 +188,7 @@ async function renderTemplate(lang: string): Promise<string> {
 
   if (lang === "typescript" || lang === "go" || lang === "rust") {
     // Use EJS for TypeScript, Go, and Rust
-    const ejs = await import("ejs");
+    const ejs = (await import("ejs")).default;
     return ejs.render(templateContent, { ...data, JSON });
   } else if (lang === "python") {
     // Use Nunjucks for Python (Jinja2-compatible)

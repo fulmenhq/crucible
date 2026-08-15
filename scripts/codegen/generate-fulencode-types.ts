@@ -254,7 +254,7 @@ async function renderTemplate(lang: string, templateType: string, data: any): Pr
     return env.renderString(templateContent, data);
   } else if (lang === "typescript" || lang === "go" || lang === "rust") {
     // Use EJS for TypeScript, Go, and Rust
-    const ejs = await import("ejs");
+    const ejs = (await import("ejs")).default;
     return ejs.render(templateContent, { ...data, JSON });
   }
 
