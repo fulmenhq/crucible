@@ -14,7 +14,7 @@
     "@types/ejs": "^3.1.5",
     "@types/js-yaml": "^4.0.9",
     "@types/nunjucks": "^3.2.6",
-    "ejs": "^3.1.10",
+    "ejs": "^6.0.1",
     "nunjucks": "^3.2.4",
     "typescript": "^5.9.3"
   },
