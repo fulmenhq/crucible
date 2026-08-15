@@ -104,7 +104,8 @@ Adopt Option B for clarity: Direct SSOT nesting (e.g., `gofulmen/crucible/loggin
 ## Related Docs
 
 - [Fulmen Layer Cake Guide](fulmen-ecosystem-guide.md)
-- [Technical Manifesto (Principles)](fulmen-technical-manifesto.md)
+- [Schema Normalization](../standards/schema-normalization.md)
+- [Coding Standards](../standards/coding/README.md)
 - [Helper Library Standard](fulmen-helper-library-standard.md)
 - [Config Path Standard](../standards/config/fulmen-config-paths.md)
 - [Makefile Standard](../standards/makefile-standard.md)

@@ -245,7 +245,7 @@ doc_content = crucible.get_documentation('standards/observability/logging')
 schema = crucible.load_schema('observability', 'logging', 'v1.0.0', 'logger-config')
 
 # Streaming for large content
-with crucible.open_asset('docs/architecture/fulmen-technical-manifesto.md') as stream:
+with crucible.open_asset('docs/architecture/fulmen-ecosystem-guide.md') as stream:
     for chunk in stream:
         process(chunk)
 ```
@@ -490,7 +490,7 @@ When implementing a new module or capability that requires telemetry, follow thi
   **Where to Learn More:**
 
   - [Crucible Repository](https://github.com/fulmenhq/crucible) - SSOT schemas, docs, and configs
-  - [Fulmen Technical Manifesto](../crucible-<lang>/architecture/fulmen-technical-manifesto.md) - Philosophy and design principles
+  - [Fulmen Ecosystem Guide](../crucible-<lang>/architecture/fulmen-ecosystem-guide.md) - Layer cake and ecosystem design
   - [SSOT Sync Standard](../crucible-<lang>/standards/library/modules/ssot-sync.md) - How libraries stay synchronized
 
   ## Module Catalog

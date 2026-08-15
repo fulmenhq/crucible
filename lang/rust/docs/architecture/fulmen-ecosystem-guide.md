@@ -179,7 +179,7 @@ Six specialized template categories, each optimized for different use cases:
 
 - **Roadmap**: Vertical expansions (automation, gateways, ingestion); default Crucible/goneat integration. Tie to `config/taxonomy/repository-categories.yaml` for role advertisement.
 
-- **Docs**: Align forge READMEs with this guide/manifesto for consistency.
+- **Docs**: Align forge READMEs with this guide for consistency.
 
 ### 4. Apps/Services (Operational & Production)
 
@@ -214,13 +214,24 @@ The flywheel: Layer 0 refines → Layer 1 embeds → Layer 2 scaffolds → Layer
 3. **Update forges** → incorporate new library releases, add instructions for clone →
    degit → refit flows.
 4. **Validate automation** → ensure goneat tasks and Fulward policies support the new patterns.
-5. **Communicate** → document in ecosystem guide/manifesto, publish release notes, loop
+5. **Communicate** → document in this ecosystem guide, publish release notes, loop
    in AI agents for maintenance.
 
 ## Where This Content Lives
 
-- `docs/architecture/fulmen-technical-manifesto.md` – Deep dive on philosophy, design
-  principles, and implementation examples.
+- Layer cake / CRDL: this guide; helper and forge contracts in
+  [fulmen-helper-library-standard.md](fulmen-helper-library-standard.md),
+  [fulmen-forge-workhorse-standard.md](fulmen-forge-workhorse-standard.md), and
+  [fulmen-forge-codex-standard.md](fulmen-forge-codex-standard.md).
+- [Schema Normalization](../standards/schema-normalization.md),
+  [ADR-0010](decisions/ADR-0010-semantic-versioning-adoption.md), and
+  [ADR-0012](decisions/ADR-0012-schema-ref-ids.md).
+- [Coding](../standards/coding/README.md) and [testing](../standards/testing/README.md)
+  standards; [repository safety framework](../standards/repository-safety-framework.md).
+- Observability ADRs
+  [0003](decisions/ADR-0003-progressive-logging-profiles.md),
+  [0007](decisions/ADR-0007-telemetry-default-histogram-buckets.md), and
+  [0008](decisions/ADR-0008-helper-library-instrumentation-patterns.md).
 - `docs/guides/` – Task-oriented docs (bootstrap guides, sync instructions).
 - `docs/standards/` – Normative requirements (logging, library modules, repository
   safety).

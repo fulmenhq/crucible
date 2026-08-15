@@ -394,7 +394,7 @@ For Fulmen implementations (template clones), **only OSS-licensed assets are per
 
 - [Foundry Library README](../standards/library/foundry/README.md) – Core library patterns
 - [Forge Codex Standard](https://github.com/fulmenhq/forge-codex-pulsar) – Web template requirements
-- [Technical Manifesto](../architecture/technical-manifesto.md) – Core principles
+- [Fulmen Ecosystem Guide](fulmen-ecosystem-guide.md) – Layer cake and ecosystem design
 
 ---
 
