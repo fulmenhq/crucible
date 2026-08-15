@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
+## [0.4.18] - 2026-08-15
+
+### Removed
+
+- **docs: draft technical manifesto removed** — deletes the aging draft technical manifesto and retargets inbound links to live architecture documents. No replacement manifesto is introduced. Historical release notes are unchanged.
+
+### Changed
+
+- **docs: forge workhorse standard aligned** — records Roan (Rust / rsfulmen) as a canonical language variant and lists Tuvan (TypeScript / tsfulmen); removes the unused Clydesdale example; defaults `{PREFIX}HOST` to `127.0.0.1` (`0.0.0.0` remains an explicit opt-in); requires request-id / `X-Request-ID` honor/generate/echo middleware on the HTTP surface (existing logging and HTTP REST specs). Status remains draft.
+
 ## [0.4.17] - 2026-08-14
 
 ### Changed
@@ -284,12 +294,3 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
     - Security-focused profile for log-safe and UI-safe text
     - Prevents bidi injection, zero-width hiding, control character attacks
     - Deterministic algorithm: NFC → reject disallowed → combining mark cap
-
-## [0.4.8] - 2026-01-19
-
-### Fixed
-
-- **Biome Schema Version**: Updated `biome.json` schema from 2.3.2 to 2.3.10 to match CLI
-- **Lang Sync Process**: Added explicit `sync-to-lang` dependency to `precommit` target
-  - Ensures synced assets in `lang/*/config/` are current before commits
-  - Fixes gap where v0.4.7 tag was missing `qa.yaml` in lang directories

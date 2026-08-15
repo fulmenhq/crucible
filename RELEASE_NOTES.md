@@ -5,6 +5,38 @@ For complete release history, see individual files in `release-notes/`.
 
 ---
 
+## v0.4.18 - Manifesto Retirement & Workhorse Standard Alignment
+
+**A documentation patch: the draft technical manifesto is removed (inbound links retargeted to live architecture docs; no replacement manifesto), and the forge workhorse standard is aligned with Roan, loopback-by-default, and required request-id middleware.**
+
+### Why This Matters
+
+**For readers and onboarding:** the aging draft manifesto is no longer a destination. Inbound links now point at the live architecture documents that already describe the ecosystem. Historical release notes that mention the manifesto are left as-is.
+
+**For forge implementers:** the workhorse standard now lists Roan (Rust / rsfulmen) as a canonical language variant and Tuvan (TypeScript / tsfulmen) alongside Groningen and Percheron. The unused Clydesdale example is gone. New HTTP workhorses default `{PREFIX}HOST` to `127.0.0.1` (`0.0.0.0` remains an explicit opt-in) and MUST honor, generate, and echo `X-Request-ID` using the existing logging and HTTP REST specs. The standard remains draft.
+
+### Highlights
+
+- **Manifesto retired**: draft technical manifesto deleted; inbound links retargeted to live architecture docs; no replacement manifesto
+- **Workhorse variants**: Roan (Rust / rsfulmen) canonical; Tuvan (TypeScript / tsfulmen) listed; unused Clydesdale example removed
+- **Loopback default**: `{PREFIX}HOST` defaults to `127.0.0.1`; bind `0.0.0.0` only as an explicit opt-in
+- **Request ID required**: HTTP workhorses MUST honor inbound `X-Request-ID`, generate a UUID when absent, and echo it on every response
+
+### Changes
+
+| Area | Change                                                                                     |
+| ---- | ------------------------------------------------------------------------------------------ |
+| Docs | Draft technical manifesto removed; inbound links retargeted to live architecture docs      |
+| Docs | Workhorse standard: Roan canonical, Tuvan listed, Clydesdale example removed               |
+| Docs | Workhorse `{PREFIX}HOST` default `127.0.0.1`; `0.0.0.0` explicit opt-in                    |
+| Docs | Workhorse HTTP surface requires request-id / `X-Request-ID` honor/generate/echo middleware |
+
+**No breaking changes** to public API or schema versions — patch release; all schemas remain at their current versions. Documentation-only.
+
+**Full release notes**: [release-notes/v0.4.18.md](release-notes/v0.4.18.md)
+
+---
+
 ## v0.4.17 - Deferred Major Upgrades & Clean bun audit
 
 **Delivers a clean root and wrapper `bun audit` (no vulnerabilities found) by landing the three majors v0.4.16 deferred — wrapper vitest 4, root glob 13, root ejs 6 — by upgrade, not by pin. Also carries the post-release checklist path fix.**
@@ -70,40 +102,6 @@ For complete release history, see individual files in `release-notes/`.
 **No breaking changes** to public API or schema versions — patch release; all schemas remain at their current versions. Pre-existing `bun audit` findings (via deferred major-track toolchains such as `glob`/`ejs`/`vitest`) are unchanged by this release and are deferred to those major bumps.
 
 **Full release notes**: [release-notes/v0.4.16.md](release-notes/v0.4.16.md)
-
----
-
-## v0.4.15 - ADR-0012 Cross-Ref Completion & Upstream v0.1.14
-
-**Completes the ADR-0012 absolute-`$id` cross-reference rollout for the logging and module-manifest schemas, migrates the logging `$id`s to canonical version-in-path, and refreshes the vendored 3leaps/crucible pin to v0.1.14.**
-
-### Why This Matters
-
-**For library consumers (tsfulmen, gofulmen, etc.)**: cross-schema `$ref`s in `observability/logging` and `library/module-manifest` now resolve in memory-based validators. Previously, relative cross-file refs left over from a partial ADR-0012 rollout failed to resolve without filesystem context — the exact breakage tsfulmen and gofulmen reported.
-
-**For schema identity**: the logging `$id`s move to the canonical version-in-path form so on-disk layout matches the canonical URI. This is an identity change within the existing `v1.0.0` files; external consumers resolving by the old version-in-filename URIs should switch to version-in-path (no in-repo consumers used the old URIs).
-
-### Highlights
-
-- **ADR-0012 completed**: 16 relative cross-file `$ref`s across 4 schemas converted to absolute canonical `$id` URLs, plus `logger-config`'s absolute ref repointed (finishing the rollout that had only covered `logger-config`)
-- **module-manifest off-by-one fixed**: `../../taxonomy/...` → absolute `taxonomy/language` `$id`
-- **logging `$id`s → version-in-path** within `v1.0.0` (matches corpus convention)
-- **Upstream v0.1.14**: vendored 3leaps/crucible pin bumped from v0.1.12 (schemas byte-identical; docs/provenance only)
-- **Tooling**: upstream-pull provenance "Synced By" made model-agnostic
-
-### Changes
-
-| Area     | Change                                                                                        |
-| -------- | --------------------------------------------------------------------------------------------- |
-| Schema   | Complete ADR-0012: 16 relative cross-file `$ref`s → absolute `$id` (logging, module-manifest) |
-| Schema   | `observability/logging` `$id`s → canonical version-in-path (within `v1.0.0`)                  |
-| Upstream | Bump vendored 3leaps/crucible `v0.1.12 → v0.1.14` (commit `18018788`)                         |
-| Tooling  | upstream-pull provenance "Synced By" made model-agnostic                                      |
-| Docs     | ADR-0012 status → phased-complete; lint-check action item recommended                         |
-
-**No breaking changes** to public API or schema versions (all touched schemas stay `v1.0.0`). See the logging `$id` compatibility note in the full notes.
-
-**Full release notes**: [release-notes/v0.4.15.md](release-notes/v0.4.15.md)
 
 ---
 
