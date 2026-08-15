@@ -20,7 +20,7 @@ This directory contains **authoritative documentation** for the FulmenHQ ecosyst
 
 Documentation that applies across **all** Fulmen projects:
 
-- **Architecture** (`architecture/`) - Ecosystem design, technical manifesto, sync model
+- **Architecture** (`architecture/`) - Ecosystem design, layer cake, sync model
 - **Standards** (`standards/`) - Cross-language coding standards, API patterns, security
 - **Guides** (`guides/`) - Integration guides, sync workflows, bootstrap procedures
 - **SOPs** (`sop/`) - Operational procedures for repository management, CI/CD
