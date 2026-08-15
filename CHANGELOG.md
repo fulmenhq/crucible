@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
+## [0.4.17] - 2026-08-14
+
+### Changed
+
+- **deps: wrapper `vitest` upgraded 1.x → 4.x** — `lang/typescript` moves `vitest` and `@vitest/coverage-v8` to 4.1.10; extends the wrapper tsconfig `types` allowlist with `@types/node` (vitest 4 no longer pulls Node typings in transitively, restoring `node:fs`/`node:path`/`Buffer` typings without loosening compiler options) and removes two obsolete exit-code snapshots (retained values byte-identical). Clears the wrapper audit chain including the Vitest UI advisory; wrapper `bun audit` now reports no vulnerabilities found. TypeScript stays on 5.x.
+- **deps: root `glob` upgraded 11.x → 13.x** — clears the glob-path audit chain (minimatch ReDoS / brace-expansion DoS); root `glob` to 13.0.6 (resolves to the fixed minimatch 10.2.x / brace-expansion 5 chain); migrates the one call site (`scripts/validate-module-registry.ts`) from the `glob.sync` shim to the canonical `globSync` export.
+- **deps: root `ejs` upgraded 3.x → 6.x** — clears the remaining root audit chain; root `ejs` to 6.0.1 (drops the `jake` runtime dependency tree, pruning the vulnerable `filelist › minimatch` / `brace-expansion` chain); migrates the five codegen scripts (exit-codes, fulencode/fulhash/fulpack-types, role-types) to ejs 6's default-export API (`(await import("ejs")).default`). Regenerated codegen artifacts are byte-identical (`verify-codegen` green across Go / Python / TypeScript / Rust); `@types/ejs` 3.1.5 retained (ejs 6 ships no bundled types).
+- **deps: root `bun audit` now clean** — root 11 → 7 → **0** vulnerabilities; no new findings introduced and no dependency pinned or overridden to force the clean graph.
+
+### Fixed
+
+- **docs: release-checklist pull-script smoke-test reference corrected** — the documented pull-script path and `--dry-run` behavior now match the shipped script (post-v0.4.16 fix carried into this cut).
+
 ## [0.4.16] - 2026-08-08
 
 ### Added
@@ -280,16 +293,3 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 - **Lang Sync Process**: Added explicit `sync-to-lang` dependency to `precommit` target
   - Ensures synced assets in `lang/*/config/` are current before commits
   - Fixes gap where v0.4.7 tag was missing `qa.yaml` in lang directories
-
-## [0.4.7] - 2026-01-19
-
-### Added
-
-- **Quality Assurance Role**: New `qa` agentic role for testing and validation
-  - `config/agentic/roles/qa.yaml` - Full role definition
-  - Layer-cake validation across Crucible SSOT, helper libraries, and templates
-  - Coverage targets by language: Go ≥95%, TypeScript ≥85%, Python ≥90%
-  - Fixture-based integration testing emphasis (real execution over mocks)
-  - Dogfooding workflows and acceptance testing patterns
-  - Quality gate enforcement via goneat/fulward
-  - Escalation paths to devlead, secrev, entarch, and human maintainers

@@ -5,6 +5,42 @@ For complete release history, see individual files in `release-notes/`.
 
 ---
 
+## v0.4.17 - Deferred Major Upgrades & Clean bun audit
+
+**Delivers a clean root and wrapper `bun audit` (no vulnerabilities found) by landing the three majors v0.4.16 deferred — wrapper vitest 4, root glob 13, root ejs 6 — by upgrade, not by pin. Also carries the post-release checklist path fix.**
+
+### Why This Matters
+
+**For maintainers and supply-chain consumers:** the deferred major-track dependency chains are now upgraded and their audit findings cleared. The root dependency graph reports **no vulnerabilities found** (root went 11 → 7 after glob 13, then 7 → 0 after ejs 6), and the TypeScript wrapper reports **no vulnerabilities found** (including the Vitest UI advisory) after the vitest 4 upgrade. This closes the deferral v0.4.16 disclosed: the majors are landed, not just logged.
+
+**For TypeScript wrapper implementers:** vitest 4 requires an explicit `@types/node` entry in the tsconfig `types` allowlist (it no longer pulls Node typings in transitively); the wrapper suite stays green (44 tests / 7 files) with obsolete exit-code snapshots cleaned up.
+
+**For toolchain and codegen consumers:** the glob and ejs upgrades are contained to build/test tooling — no API or schema changes. ejs 6 exposes its render API on the module default export; the five codegen scripts were migrated accordingly and regenerate byte-identical artifacts.
+
+### Highlights
+
+- **Audit clear**: root and wrapper `bun audit` report **no vulnerabilities found** — root finding counts 11 → 7 → **0**; wrapper cleared to **0** (incl. Vitest UI advisory); nothing pinned or overridden to force the result
+- **Wrapper vitest 1 → 4**: `vitest` + `@vitest/coverage-v8` to 4.1.10; tsconfig `@types/node`; obsolete exit-code snapshot cleanup
+- **Root glob 11 → 13**: `glob` to 13.0.6; `glob.sync` → canonical `globSync` at the module-registry validation call site; glob audit chain cleared
+- **Root ejs 3 → 6**: `ejs` to 6.0.1; five codegen scripts use the ejs 6 default-export API; byte-identical generated artifacts; ejs › jake › filelist › minimatch/brace-expansion chain pruned from the lockfile
+- **Docs fix**: release-checklist pull-script smoke-test path / `--dry-run` correction (post-v0.4.16, carried in)
+
+### Changes
+
+| Area | Change                                                                           |
+| ---- | -------------------------------------------------------------------------------- |
+| Deps | Wrapper `vitest`/coverage 1.x → 4.1.10; tsconfig `@types/node`; snapshot cleanup |
+| Deps | Root `glob` 11.x → 13.0.6; `glob.sync` → `globSync` at validation call site      |
+| Deps | Root `ejs` 3.x → 6.0.1; codegen scripts use the ejs 6 default-export API         |
+| Deps | Root `bun audit` 11 → 7 → **0**; wrapper cleared to **0**                        |
+| Docs | Release-checklist pull-script smoke-test path / `--dry-run` correction           |
+
+**No breaking changes** to public API or schema versions — patch release; all schemas remain at their current versions. Root and wrapper dependency graphs now report **no vulnerabilities found**.
+
+**Full release notes**: [release-notes/v0.4.17.md](release-notes/v0.4.17.md)
+
+---
+
 ## v0.4.16 - Host Binary Identity Standard & Dependency Hygiene
 
 **Adds the cross-language host binary identity standard, hardens the dependency surface with a goneat v0.5.16 pin and minor/patch bumps, and aligns markdown formatting under the lifted toolchain.**
@@ -68,18 +104,6 @@ For complete release history, see individual files in `release-notes/`.
 **No breaking changes** to public API or schema versions (all touched schemas stay `v1.0.0`). See the logging `$id` compatibility note in the full notes.
 
 **Full release notes**: [release-notes/v0.4.15.md](release-notes/v0.4.15.md)
-
----
-
-## v0.4.14 - app-identity `metadata.typescript` & Codegen StrEnum
-
-**Adds a `metadata.typescript` packaging section to app-identity, finishes the Python enum `StrEnum` modernization at the generator, and moves CI off the Node 20 runtime.** **(Condensed — see [release-notes/v0.4.14.md](release-notes/v0.4.14.md) for full details)**
-
-### Highlights
-
-- New optional `metadata.typescript` object on the app-identity `v1.0.0` schema (`package_name` + `console_scripts` → package.json `bin`), mirroring `metadata.python`; additive, schema stays `v1.0.0`
-- Codegen fix: fulpack/fulencode Python enum templates now emit `StrEnum` (ruff `UP042`), making regeneration idempotent
-- CI off Node 20: checkout v5, setup-go v6, setup-bun v2, setup-uv v7; rust-toolchain `@v1`; goneat pin `v0.5.13`
 
 ---
 
