@@ -13,7 +13,7 @@ This guide establishes standards for web styling in Fulmen templates (e.g., Forg
 
 **Scope**: Applies to web forges (Astro/Starlight preferred); covers branding/styling schemas, CSS organization, asset licensing, and enforcement. Not a visual design spec (no fixed palettes)—focus on _how_ to define/implement for consistency across Fulmen apps.
 
-**Principles** (from Technical Manifesto):
+**Principles** (see [Coding Standards](../standards/coding/README.md)):
 
 - **Embrace Simplicity**: Declarative configs over complex overrides
 - **Persnickety About Code**: Validate at build (tsfulmen/ajv, a11y checks)
