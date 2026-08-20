@@ -5,6 +5,39 @@ For complete release history, see individual files in `release-notes/`.
 
 ---
 
+## v0.4.19 - File-Backed Schema Catalogs & rsfulmen Active
+
+**A documentation patch: helper libraries gain a file-backed JSON Schema instance-validation contract (on-disk catalogs, offline `$ref`, path containment), forge module tables point at that contract, and overview docs mark rsfulmen as an active language foundation at Rust 1.88.**
+
+### Why This Matters
+
+**For helper-library implementers (Go, TypeScript, Python, Rust):** there is one contract for instance checks against schemas that live beside the binary. Do not wrap jsonschema/AJV in each application, and do not subprocess goneat at runtime for those checks. `http(s)` `$id` values are catalog keys, not network fetches.
+
+**For forge and application authors:** Workhorse and Codex must use the helper for both Fulmen embeds and application schema trees. Microtools that validate structured JSON/YAML use the same APIs. Do not supply an open-filesystem resolver that bypasses catalog-root containment.
+
+**For readers of the ecosystem map:** rsfulmen is a current language foundation (Roan is the Rust workhorse breed), not a planned item. The published Rust minimum is 1.88, matching the rsfulmen crate.
+
+### Highlights
+
+- **File-backed catalogs**: instance validation against on-disk schema trees the helper does not embed; offline `$ref`; same diagnostics as embed-id APIs
+- **Containment**: `file://` and relative refs stay inside the canonical schema directory and `RefDirs`; traversal, symlink escape, and unsupported schemes fail at compile time
+- **Forge tables**: Workhorse/Codex REQUIRED via the helper; Microtool OPTIONAL (helper when used)
+- **rsfulmen Active**: overview docs match `languages.yaml`; published Rust minimum 1.88
+
+### Changes
+
+| Area     | Change                                                                                        |
+| -------- | --------------------------------------------------------------------------------------------- |
+| Standard | File-backed instance validation + `$ref` containment in the schema validation helper contract |
+| Docs     | Workhorse, Codex, Microtool, and the module matrix point at embed + on-disk helper APIs       |
+| Docs     | rsfulmen listed as an active language foundation; published Rust minimum 1.88                 |
+
+**None** to public API or schema versions — patch release; all schemas remain at their current versions. Documentation-only. Language-library implementations follow this tag.
+
+**Full release notes**: [release-notes/v0.4.19.md](release-notes/v0.4.19.md)
+
+---
+
 ## v0.4.18 - Manifesto Retirement & Workhorse Standard Alignment
 
 **A documentation patch: the draft technical manifesto is removed (inbound links retargeted to live architecture docs; no replacement manifesto), and the forge workhorse standard is aligned with Roan, loopback-by-default, and required request-id middleware.**
@@ -70,38 +103,6 @@ For complete release history, see individual files in `release-notes/`.
 **No breaking changes** to public API or schema versions — patch release; all schemas remain at their current versions. Root and wrapper dependency graphs now report **no vulnerabilities found**.
 
 **Full release notes**: [release-notes/v0.4.17.md](release-notes/v0.4.17.md)
-
----
-
-## v0.4.16 - Host Binary Identity Standard & Dependency Hygiene
-
-**Adds the cross-language host binary identity standard, hardens the dependency surface with a goneat v0.5.16 pin and minor/patch bumps, and aligns markdown formatting under the lifted toolchain.**
-
-### Why This Matters
-
-**For CLI and forge operators (support & incident triage):** one shared `version --extended` contract means a support dump or incident paste uses the same field names whether the binary is Go, Rust, TypeScript, or Python. You can tell a clean CI artifact from a dirty local dogfood binary, and you can tell **which build is on disk** apart from **which SDK/SSOT pins it was built against** — pins stay labeled and never overwrite the host `Commit:`. Dirty is honest (`true`/`false` when known, `unknown` when not — never a misleading clean). Host identity is **informational for ops**, not attestation: use it for triage, not auth or integrity decisions.
-
-**For implementers:** Phase A build-time recipes (Go ldflags, Rust `build.rs` + `env!`, TypeScript/Python build-time stamp with documented env fallback) require **no helper library**, so forge CLIs can adopt immediately. CI injects via `FULMEN_HOST_*`; released binaries are not forced to run `git` at runtime. Future `gofulmen`/`rsfulmen` resolvers remain a documented **Phase B** gate and are **not** shipped in this cut.
-
-**For SSOT and toolchain consumers:** the dependency surface is refreshed — goneat pinned to v0.5.16 and in-scope minor/patch bumps on the root and TypeScript wrapper manifests — and markdown is aligned to the goneat v0.5.16 formatter so synced docs stay deterministic.
-
-### Highlights
-
-- **Host Binary Identity Standard** (`host-identity`): shared `version --extended` field contract for support dumps and dirty-binary triage; host-vs-pins separation (pins extended-only, never host `Commit:`); explicit dirty semantics; `FULMEN_HOST_*` injection (CI may inject; no runtime git required in released binaries); trust boundary (informational, not attestation); Phase A recipes (Go ldflags, Rust `build.rs`, TS/Py build-time-stamp primary with env fallback); Phase B gate (resolvers not shipped)
-- **Deps** (`deps-refresh`): goneat pin `v0.5.13 → v0.5.16`; root + `lang/typescript` minor/patch pins (`js-yaml`, `@biomejs/biome`, `@types/node`); both Bun locks refreshed
-- **Tooling** (formatter): markdown aligned to goneat v0.5.16 (whitespace-only)
-
-### Changes
-
-| Area      | Change                                                                                                         |
-| --------- | -------------------------------------------------------------------------------------------------------------- |
-| Standards | Host Binary Identity Standard + Phase A `version --extended` recipes (Go/Rust/TS/Py); CLI + app-identity links |
-| Deps      | goneat pin `v0.5.13 → v0.5.16`; root + `lang/typescript` minor/patch pins; locks refreshed                     |
-| Tooling   | Markdown aligned to goneat v0.5.16 (whitespace-only)                                                           |
-
-**No breaking changes** to public API or schema versions — patch release; all schemas remain at their current versions. Pre-existing `bun audit` findings (via deferred major-track toolchains such as `glob`/`ejs`/`vitest`) are unchanged by this release and are deferred to those major bumps.
-
-**Full release notes**: [release-notes/v0.4.16.md](release-notes/v0.4.16.md)
 
 ---
 

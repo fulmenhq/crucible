@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
+## [0.4.19] - 2026-08-20
+
+### Added
+
+- **standards: file-backed schema catalog instance validation** — helper libraries must validate JSON/YAML instances against caller-supplied on-disk schema trees (offline `$ref`, no network, no goneat at runtime) in addition to embedded Crucible ids. `file://` and relative refs stay inside the canonical root-schema directory and `RefDirs`; traversal, symlink escape, unsupported URI schemes, and non-local `file:` hosts are compile failures. `http(s)` `$id` values are catalog keys, not fetches.
+
+### Changed
+
+- **docs: forge schema-validation notes** — Workhorse and Codex stay REQUIRED via the language helper (embed ids and on-disk application catalogs). Microtool stays OPTIONAL and must use the helper when it validates. Applications must not wrap jsonschema/AJV independently or supply an open-filesystem resolver.
+- **docs: rsfulmen is an active language foundation** — overview docs match `config/taxonomy/languages.yaml`; published Rust minimum is **1.88** (the rsfulmen crate `rust-version`). `csfulmen` stays planned.
+
 ## [0.4.18] - 2026-08-15
 
 ### Removed
@@ -258,39 +269,3 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 - **Legacy Role-Prompt Schema**: `schemas/upstream/3leaps/crucible/schemas/agentic/v0/role-prompt.schema.json`
   - Role definitions now sourced from 3leaps/crucible upstream
   - Local vendored schema no longer needed
-
-## [0.4.9] - 2026-01-22
-
-### Added
-
-- **JSON Schema Meta-Schema Expansion**: Full draft coverage for offline schema validation
-
-  - `schemas/meta/draft-04/schema.json` - Draft-04 meta-schema (single-file, uses `id`)
-  - `schemas/meta/draft-06/schema.json` - Draft-06 meta-schema (single-file, introduced `$id`, `const`)
-  - `schemas/meta/draft-2019-09/schema.json` - Draft 2019-09 with modular vocabulary refs
-  - `schemas/meta/draft-2019-09/offline.schema.json` - Subset for offline validation (no external refs)
-  - `schemas/meta/draft-2019-09/meta/` - Modular vocabularies (core, applicator, validation, meta-data, format, content)
-  - `schemas/meta/fixtures/` - Test fixtures for all five drafts (draft-04 through draft-2020-12)
-  - Aligns with goneat v0.5.2 meta-schema expansion
-  - Enables helper libraries to implement MetaSchemaRegistry API
-  - Supports SchemaStore and legacy tooling validation without network access
-  - Updated `schemas/meta/README.md` with draft selection guidance table
-  - Synced to Python, TypeScript, and Rust wrappers
-
-- **Fulencode Module Contracts**: SSOT schemas for encoding/decoding/normalization operations
-  - **Method option schemas** (`schemas/library/fulencode/v1.0.0/`):
-    - `encode-options.schema.json`, `decode-options.schema.json`
-    - `detect-options.schema.json`, `normalize-options.schema.json`
-  - **Result schemas**:
-    - `encoding-result.schema.json`, `decoding-result.schema.json`
-    - `detection-result.schema.json`, `normalization-result.schema.json`
-    - `bom-result.schema.json`
-  - **Error envelope**: `fulencode-error.schema.json`
-  - **Parity test fixtures** (`config/library/fulencode/fixtures/`):
-    - `valid-encodings/base64.yaml`, `invalid-encodings/base64.yaml`
-    - `bom/bom.yaml`, `detection/detection.yaml`
-    - `normalization/text-safe.yaml`, `telemetry/telemetry-test-cases.yaml`
-  - **text_safe normalization profile** (`docs/standards/library/modules/fulencode-text-safe.md`):
-    - Security-focused profile for log-safe and UI-safe text
-    - Prevents bidi injection, zero-width hiding, control character attacks
-    - Deterministic algorithm: NFC → reject disallowed → combining mark cap

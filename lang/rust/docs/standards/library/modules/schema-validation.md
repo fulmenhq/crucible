@@ -44,11 +44,11 @@ config, foundry, …).
 Some consumers validate payloads against a schema family that lives **beside the binary** (application or
 sibling-repo trees). Those files are not Fulmen Crucible embeds and MUST NOT be vendored into the helper.
 
-| Function                           | Description                                                                                          |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `ValidateInstance(schema, data, resolver)` | Validate an in-memory instance against an in-memory schema with a catalog resolver.           |
-| `ValidateInstanceWithSchemaFile(schemaPath, data, opts)` | Load the root schema from disk; resolve `$ref` via `opts`.                     |
-| `ValidateInstanceFile(schemaPath, dataPath, opts)` | Same, with the instance loaded from a JSON/YAML file.                               |
+| Function                                                 | Description                                                                         |
+| -------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `ValidateInstance(schema, data, resolver)`               | Validate an in-memory instance against an in-memory schema with a catalog resolver. |
+| `ValidateInstanceWithSchemaFile(schemaPath, data, opts)` | Load the root schema from disk; resolve `$ref` via `opts`.                          |
+| `ValidateInstanceFile(schemaPath, dataPath, opts)`       | Same, with the instance loaded from a JSON/YAML file.                               |
 
 Names MAY follow language conventions. **Do not** overload `ValidateFile(id, dataPath)` so that `id` sometimes
 means an embed key and sometimes a filesystem path.

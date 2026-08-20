@@ -41,13 +41,13 @@ Layer 0: SSOT (Crucible, Cosmography) ──┐
 
 Layer 1 libraries follow a shared roadmap, aligning with Core Fulmen Principles (e.g., type safety, schemas first). This table lists canonical support for 2025.10.4+.
 
-| Language   | Library Name | Status  | Minimum Runtime    | Notes                                                                 |
-| ---------- | ------------ | ------- | ------------------ | --------------------------------------------------------------------- |
-| Go         | gofulmen     | Active  | Go 1.23+           | Reference for standards; implements config paths, observability.      |
-| Python     | pyfulmen     | Active  | Python 3.12+       | Focus on logging/context; Pydantic for schema validation.             |
-| TypeScript | tsfulmen     | Active  | TS 5.0+ (Bun/Node) | ESM bundles; Zod for runtime types; aligns with web/service patterns. |
+| Language   | Library Name | Status  | Minimum Runtime    | Notes                                                                                    |
+| ---------- | ------------ | ------- | ------------------ | ---------------------------------------------------------------------------------------- |
+| Go         | gofulmen     | Active  | Go 1.23+           | Reference for standards; implements config paths, observability.                         |
+| Python     | pyfulmen     | Active  | Python 3.12+       | Focus on logging/context; Pydantic for schema validation.                                |
+| TypeScript | tsfulmen     | Active  | TS 5.0+ (Bun/Node) | ESM bundles; Zod for runtime types; aligns with web/service patterns.                    |
 | Rust       | rsfulmen     | Active  | Rust 1.88+         | Matches `config/taxonomy/languages.yaml` and the rsfulmen crate MSRV; serde for schemas. |
-| C#         | csfulmen     | Planned | .NET 8.0+          | For ASP.NET/workers; nullable types for safety.                       |
+| C#         | csfulmen     | Planned | .NET 8.0+          | For ASP.NET/workers; nullable types for safety.                                          |
 
 Updates sync from `config/taxonomy/languages.yaml`. New languages require principle-aligned modules (e.g., observability) before standards reference them. See `docs/standards/repository-structure/` for repo expectations.
 
