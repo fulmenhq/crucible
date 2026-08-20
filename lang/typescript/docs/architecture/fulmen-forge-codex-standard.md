@@ -125,7 +125,7 @@ Codex forges MUST integrate these Fulmen helper library modules to ensure ecosys
    - **Compliance**:
      - Call the language helper. Do not wrap jsonschema/AJV independently.
      - Embedded catalog IDs for Fulmen contracts (frontmatter, site config).
-     - File-backed catalog APIs for ingested OpenAPI/AsyncAPI/JSON Schema artefacts on disk.
+     - File-backed catalog APIs for ingested OpenAPI/AsyncAPI/JSON Schema artefacts on disk, including helper `$ref` containment (no open-filesystem resolver).
      - Validate all frontmatter against [Frontmatter Standard](../standards/frontmatter-standard.md)
      - Fail builds on validation errors (CI gate)
 

@@ -88,7 +88,7 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
    - **Compliance**:
      - Call the language helper (`gofulmen` / `tsfulmen` / `pyfulmen` / `rsfulmen`). Do not wrap jsonschema/AJV in the application and do not subprocess goneat at runtime for instance checks.
      - Embedded catalog IDs for Fulmen contracts (app identity, logging, layered config).
-     - File-backed catalog APIs for application schema trees that live beside the binary. Do not vendor those trees into the helper.
+     - File-backed catalog APIs for application schema trees that live beside the binary. Do not vendor those trees into the helper. `$ref` / `file://` containment is the helper contract (allowed roots only; no app-supplied open-filesystem resolver).
      - Validate config files on load, API payloads on ingress
 
 

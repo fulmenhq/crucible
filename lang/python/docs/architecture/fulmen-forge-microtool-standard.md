@@ -310,7 +310,7 @@ Microtool forges that import the helper library MUST integrate these modules to 
 11. **Schema Validation Module** (OPTIONAL)
     - **When to use**: If the tool reads/writes structured JSON/YAML
     - **Example**: Fixture manifest validation
-    - **When used**: MUST call the language helper’s embedded and/or file-backed APIs ([schema-validation.md](../standards/library/modules/schema-validation.md)). MUST NOT ship a parallel jsonschema/AJV wrap or subprocess goneat at runtime for instance checks.
+    - **When used**: MUST call the language helper’s embedded and/or file-backed APIs ([schema-validation.md](../standards/library/modules/schema-validation.md)), including file-backed `$ref` containment. MUST NOT ship a parallel jsonschema/AJV wrap, an open-filesystem resolver, or subprocess goneat at runtime for instance checks.
 
 > **Documentation requirement**: Optional integrations (Crucible shim, telemetry, schema validation, etc.) MUST be documented in `docs/development/fulmen_cdrl_guide.md` with clear “keep vs. remove” guidance for teams refitting the template.
 
