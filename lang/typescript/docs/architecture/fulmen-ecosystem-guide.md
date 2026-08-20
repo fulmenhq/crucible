@@ -3,7 +3,7 @@ title: "Fulmen Ecosystem Guide"
 description: "How the Fulmen ecosystem fits together—from schemas and tooling to libraries, forges, and operational standards"
 author: "Schema Cartographer"
 date: "2025-10-10"
-last_updated: "2026-01-06"
+last_updated: "2026-08-20"
 status: "draft"
 tags: ["fulmen", "architecture", "ecosystem", "v0.4.2"]
 ---
@@ -18,11 +18,11 @@ Fulmen empowers teams to build enterprise systems that start fast and scale effo
 
 0. **Crucible (Infoarch SSOT)**: Foundational layer for datamodels/schemas, processes/SOPs, and specs/standards. Authoritative contracts, policies, docs, coding rules (e.g., TS barrel exports, logging adapters), and devsecops (pre-commit gates, security scans)—ensuring persnickety excellence and zero silos. Refines practices through rigorous validation, powering the entire cake.
 
-1. **Helper Libraries (\*fulmen)**: Idiomatic implementations of core data and utilities wrapping Crucible assets. Solves cross-project pains like config paths, schema validation, observability, and Foundry catalogs (countries, HTTP statuses, patterns). Current: `gofulmen`, `pyfulmen`, `tsfulmen`; planned: `rsfulmen` (Rust), `csfulmen` (C#) as ecosystem needs evolve.
+1. **Helper Libraries (\*fulmen)**: Idiomatic implementations of core data and utilities wrapping Crucible assets. Solves cross-project pains like config paths, schema validation, observability, and Foundry catalogs (countries, HTTP statuses, patterns). Current: `gofulmen`, `pyfulmen`, `tsfulmen`, `rsfulmen` (Rust); planned: `csfulmen` (C#) as ecosystem needs evolve.
 
 2. **Templates (Fulmens)**: Proven, production-ready starters embodying CRDL (Clone → Degit → Refit → Launch). Five specialized template types for different use cases:
 
-   - **Workhorse**: General-purpose applications (servers, workers, long-running processes) - Examples: `forge-workhorse-groningen` (Go backend), `forge-workhorse-percheron` (Python backend)
+   - **Workhorse**: General-purpose applications (servers, workers, long-running processes) - Examples: `forge-workhorse-groningen` (Go / gofulmen), `forge-workhorse-percheron` (Python / pyfulmen), `forge-workhorse-roan` (Rust / rsfulmen), `forge-workhorse-tuvan` (TypeScript / tsfulmen)
    - **Codex**: Human-first documentation sites and knowledge hubs - Examples: `forge-codex-pulsar` (Astro-based documentation portal)
    - **Microtool**: Ultra-narrow, single-purpose CLI tools - Examples: `forge-microtool-anvil` (fixture deployment), `forge-microtool-chisel` (config synchronization)
    - **Spec-Host**: Machine-first static hosting for specification artifacts (JSON Schema, OpenAPI, AsyncAPI) with canonical URL resolution - Examples: (planned) `forge-spec-host-crucible`
@@ -115,7 +115,7 @@ graph TD
 
 ### 1. Helper Libraries (\*fulmen)
 
-- **Repositories**: `gofulmen`, `pyfulmen`, `tsfulmen`; planned: `rsfulmen` (Rust), `csfulmen` (C#) as needs evolve.
+- **Repositories**: `gofulmen`, `pyfulmen`, `tsfulmen`, `rsfulmen`; planned: `csfulmen` (C#) as needs evolve.
 
 - **Core Modules**: Config path API, three-layer config, schema validation, Crucible shim, SSOT sync, observability logging, Foundry catalogs (patterns, HTTP statuses, countries, MIME types).
 
