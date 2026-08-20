@@ -3,7 +3,7 @@ title: "Fulmen Forge Microtool Standard"
 description: "Standard structure and capabilities for Fulmen Microtool forges - production-ready templates for ultra-narrow, single-purpose CLI deployment tools"
 author: "Schema Cartographer (@schema-cartographer)"
 date: "2025-11-15"
-last_updated: "2025-12-18"
+last_updated: "2026-08-20"
 status: "draft"
 tags: ["architecture", "forge", "microtool", "template", "2025.10.2"]
 ---
@@ -308,8 +308,9 @@ Microtool forges that import the helper library MUST integrate these modules to 
 - **Typically skip**: Most microtools are short-lived CLI operations
 
 11. **Schema Validation Module** (OPTIONAL)
-    - **When to use**: If tool reads/writes structured data
+    - **When to use**: If the tool reads/writes structured JSON/YAML
     - **Example**: Fixture manifest validation
+    - **When used**: MUST call the language helper’s embedded and/or file-backed APIs ([schema-validation.md](../standards/library/modules/schema-validation.md)), including file-backed `$ref` containment. MUST NOT ship a parallel jsonschema/AJV wrap, an open-filesystem resolver, or subprocess goneat at runtime for instance checks.
 
 > **Documentation requirement**: Optional integrations (Crucible shim, telemetry, schema validation, etc.) MUST be documented in `docs/development/fulmen_cdrl_guide.md` with clear “keep vs. remove” guidance for teams refitting the template.
 
@@ -326,7 +327,7 @@ Microtool forges that import the helper library MUST integrate these modules to 
 | Pathfinder        | REQUIRED    | Safe discovery & checksum data     | Any filesystem interaction        | [pathfinder.md](../standards/library/extensions/pathfinder.md)                              |
 | Crucible Shim     | CONDITIONAL | SSOT asset access                  | Schema validators, taxonomy tools | [crucible-shim.md](../standards/library/modules/crucible-shim.md)                           |
 | Config Path API   | OPTIONAL    | Config directory discovery         | Tools with optional config files  | [config-path-api.md](../standards/library/modules/config-path-api.md)                       |
-| Schema Validation | OPTIONAL    | Data validation                    | Tools reading/writing YAML/JSON   | [schema-validation.md](../standards/library/modules/schema-validation.md)                   |
+| Schema Validation | OPTIONAL    | Data validation (helper embed + on-disk catalogs) | Tools reading/writing YAML/JSON | [schema-validation.md](../standards/library/modules/schema-validation.md)                   |
 | Telemetry/Metrics | OPTIONAL    | Metrics export                     | Long-running operations (rare)    | [telemetry-metrics.md](../standards/library/modules/telemetry-metrics.md)                   |
 
 **Key Differences from Workhorse**:

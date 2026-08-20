@@ -2,7 +2,7 @@
 
 **Purpose**: Quick reference for module requirements across Workhorse, Codex, and Microtool forges.
 
-**Last Updated**: 2025-11-09
+**Last Updated**: 2026-08-20
 
 ---
 
@@ -14,7 +14,7 @@
 | **Crucible Shim**      | REQUIRED    | REQUIRED    | RECOMMENDED | Microtools: only if using SSOT      |
 | **Three-Layer Config** | REQUIRED    | REQUIRED    | RECOMMENDED | Microtools: only if config-heavy    |
 | **Config Path API**    | REQUIRED    | REQUIRED    | RECOMMENDED | Microtools: only if using config    |
-| **Schema Validation**  | REQUIRED    | REQUIRED    | OPTIONAL    | Microtools: only if reading/writing |
+| **Schema Validation**  | REQUIRED    | REQUIRED    | OPTIONAL    | Helper APIs: embed IDs + on-disk catalogs. Microtools: only if reading/writing |
 | **Logging**            | REQUIRED    | OPTIONAL    | REQUIRED    | Codex: build-time only              |
 | **Exit Codes**         | N/A         | N/A         | REQUIRED    | Microtools: critical for CI/CD      |
 | **Signal Handling**    | REQUIRED    | N/A         | REQUIRED    | Codex: static builds don't need     |

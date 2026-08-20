@@ -3,7 +3,7 @@ title: "Fulmen Forge Workhorse Standard"
 description: "Standard structure and capabilities for Fulmen Workhorse forges - production-ready templates for robust, general-purpose applications"
 author: "Fulmen Enterprise Architect (@fulmen-ea-steward)"
 date: "2025-10-20"
-last_updated: "2026-08-15"
+last_updated: "2026-08-20"
 status: "draft"
 tags: ["architecture", "forge", "workhorse", "template", "2025.10.2"]
 ---
@@ -83,9 +83,14 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
    - **Compliance**: Use `get_app_config_dir({app_name})` from App Identity for Layer 2 paths
 
 5. **Schema Validation Module** (REQUIRED)
-   - **Purpose**: Runtime validation of configs, requests, responses against Crucible schemas
+   - **Purpose**: Runtime validation of configs, requests, and responses against JSON Schema
    - **Spec**: [Schema Validation](../standards/library/modules/schema-validation.md)
-   - **Compliance**: Validate config files on load, API payloads on ingress
+   - **Compliance**:
+     - Call the language helper (`gofulmen` / `tsfulmen` / `pyfulmen` / `rsfulmen`). Do not wrap jsonschema/AJV in the application and do not subprocess goneat at runtime for instance checks.
+     - Embedded catalog IDs for Fulmen contracts (app identity, logging, layered config).
+     - File-backed catalog APIs for application schema trees that live beside the binary. Do not vendor those trees into the helper. `$ref` / `file://` containment is the helper contract (allowed roots only; no app-supplied open-filesystem resolver).
+     - Validate config files on load, API payloads on ingress
+
 
 ### Observability & Resilience Modules
 
@@ -170,7 +175,7 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
 | Crucible Shim                 | REQUIRED    | SSOT asset access                        | None                               | [crucible-shim.md](../standards/library/modules/crucible-shim.md)                                 |
 | Enterprise Three-Layer Config | REQUIRED    | Layered configuration                    | None                               | [enterprise-three-layer-config.md](../standards/library/modules/enterprise-three-layer-config.md) |
 | Config Path API               | REQUIRED    | Config directory discovery               | None                               | [config-path-api.md](../standards/library/modules/config-path-api.md)                             |
-| Schema Validation             | REQUIRED    | Runtime schema validation                | None                               | [schema-validation.md](../standards/library/modules/schema-validation.md)                         |
+| Schema Validation             | REQUIRED    | Runtime schema validation (embed + on-disk catalogs) | None                     | [schema-validation.md](../standards/library/modules/schema-validation.md)                         |
 | Telemetry/Metrics             | REQUIRED    | Prometheus metrics export                | Yes (7 exporter metrics)           | [telemetry-metrics.md](../standards/library/modules/telemetry-metrics.md)                         |
 | Logging                       | REQUIRED    | Structured logging                       | None                               | [logging.md](../standards/observability/logging.md)                                               |
 | Request ID / Correlation      | REQUIRED    | HTTP `X-Request-ID` honor/generate/echo  | None                               | [logging.md](../standards/observability/logging.md)                                               |
@@ -546,5 +551,6 @@ make test                   # Exit 0: All tests pass
 
 ## Changelog
 
+- **2026-08-20**: Schema validation stays REQUIRED via the language helper. Distinguish embedded Crucible IDs from file-backed application catalogs; forbid app-level jsonschema wraps and goneat subprocesses at runtime. Contract: [schema-validation.md](../standards/library/modules/schema-validation.md).
 - **2026-08-15**: Align with landed Rust workhorse (`forge-workhorse-roan`) and secrev loopback defaults. Add Roan (Rust / rsfulmen) and Tuvan (TypeScript / tsfulmen) as canonical language variants. Default `{PREFIX}HOST` to `127.0.0.1` (`0.0.0.0` remains an explicit opt-in). Require request-id / correlation middleware on the HTTP surface (existing logging and HTTP REST specs). Leave status draft.
 - **2025-10-20**: Initial draft for workhorse category.
