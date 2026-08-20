@@ -63,13 +63,31 @@ means an embed key and sometimes a filesystem path.
 `$ref` rules:
 
 - Relative refs resolve against the schema file’s directory and/or `RefDirs`.
-- Absolute `$id` URLs resolve inside `RefDirs` by `$id` (`PreferId`) or by path suffix (`PathOnly`).
+- Absolute `$id` URLs (`https://…`, `http://…`) are **catalog keys**, never network fetches. They resolve inside
+  `RefDirs` by `$id` (`PreferId`) or by path suffix (`PathOnly`). Missing key → compile failure.
 - `#/…` pointers stay with the language JSON Schema engine.
-- `file://` MUST work in this mode (embedded mode MAY still reject it).
+- `file://` MUST work in this mode for **local paths only** (embedded mode MAY still reject `file://`).
 - Compile failure is distinct from instance issues.
 - Draft comes from the schema’s `$schema` (2020-12 default; draft-07 when declared) — same as `select_draft` /
   equivalent today.
 - No network. No goneat subprocess at runtime.
+
+#### Containment (file-backed only)
+
+Allowed roots are the **canonical** (realpath) directory of the root schema file and the canonical path of each
+`RefDirs` entry. After resolving a `file://` or relative `$ref` to a filesystem path, the helper MUST
+canonicalize (including `..`) and accept the target only if it is equal to or strictly inside an allowed root.
+
+Reject as **compile failure** (not instance issues):
+
+- Path traversal that leaves every allowed root (`../` and equivalent).
+- Symlink escape: any symlink component or final target whose realpath is outside every allowed root
+  (`lstat` / no-follow on components; same posture as fulpack destination bounds).
+- Unsupported URI schemes (anything other than relative, in-document `#`, `file:`, or `$id` catalog keys
+  `http:`/`https:` as above). `file:` with a non-local host is unsupported.
+- Absolute filesystem paths outside every allowed root.
+
+Applications MUST NOT supply an open “read any path” resolver that bypasses these rules.
 
 Constructs that MUST work: `additionalProperties: false`, `const` `$id` pins, `oneOf`, `allOf`, `if`/`then`,
 sibling `$ref` across files.
@@ -145,6 +163,8 @@ Expose helper to render results as table, JSON, or human text.
 - Cross-language parity tests (Go vs Python vs TypeScript vs Rust) using shared sample payloads.
 - File-backed tests MUST use a catalog that exists **only on disk** (not in the embed): conforming instance →
   empty issues; extra property → `additionalProperties`; sibling `$ref` across two files via `RefDirs`.
+- File-backed containment tests: `../` escape, symlink-outside-root, unsupported scheme, and `file:` with a
+  non-local host MUST compile-fail; a sibling file inside an allowed root MUST succeed.
 
 ## Related Documents
 
