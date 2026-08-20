@@ -91,7 +91,6 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
      - File-backed catalog APIs for application schema trees that live beside the binary. Do not vendor those trees into the helper. `$ref` / `file://` containment is the helper contract (allowed roots only; no app-supplied open-filesystem resolver).
      - Validate config files on load, API payloads on ingress
 
-
 ### Observability & Resilience Modules
 
 6. **Telemetry/Metrics Module** (REQUIRED)
@@ -169,22 +168,22 @@ Workhorse forges MUST integrate these Fulmen helper library modules to ensure ec
 
 ### Module Integration Summary
 
-| Module                        | Status      | Purpose                                  | Auto-Metrics                       | Spec Link                                                                                         |
-| ----------------------------- | ----------- | ---------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------- |
-| App Identity                  | REQUIRED    | Binary name, env prefix, vendor metadata | None                               | [app-identity.md](../standards/library/modules/app-identity.md)                                   |
-| Crucible Shim                 | REQUIRED    | SSOT asset access                        | None                               | [crucible-shim.md](../standards/library/modules/crucible-shim.md)                                 |
-| Enterprise Three-Layer Config | REQUIRED    | Layered configuration                    | None                               | [enterprise-three-layer-config.md](../standards/library/modules/enterprise-three-layer-config.md) |
-| Config Path API               | REQUIRED    | Config directory discovery               | None                               | [config-path-api.md](../standards/library/modules/config-path-api.md)                             |
-| Schema Validation             | REQUIRED    | Runtime schema validation (embed + on-disk catalogs) | None                     | [schema-validation.md](../standards/library/modules/schema-validation.md)                         |
-| Telemetry/Metrics             | REQUIRED    | Prometheus metrics export                | Yes (7 exporter metrics)           | [telemetry-metrics.md](../standards/library/modules/telemetry-metrics.md)                         |
-| Logging                       | REQUIRED    | Structured logging                       | None                               | [logging.md](../standards/observability/logging.md)                                               |
-| Request ID / Correlation      | REQUIRED    | HTTP `X-Request-ID` honor/generate/echo  | None                               | [logging.md](../standards/observability/logging.md)                                               |
-| Error Handling                | REQUIRED    | Error wrapping, propagation              | Yes (`error_handling_wraps_total`) | [error-handling-propagation.md](../standards/library/modules/error-handling-propagation.md)       |
-| Signal Handling               | REQUIRED    | Graceful shutdown, signals               | None                               | [signal-handling.md](../standards/library/modules/signal-handling.md)                             |
-| Docscribe                     | REQUIRED    | Documentation access                     | None                               | [docscribe.md](../standards/library/modules/docscribe.md)                                         |
-| Foundry                       | RECOMMENDED | Catalogs (country, HTTP, MIME)           | Yes (12 MIME detection metrics)    | [foundry/README.md](../standards/library/foundry/README.md)                                       |
-| FulHash                       | RECOMMENDED | Content hashing                          | Yes (5 hash operation metrics)     | [fulhash.md](../standards/library/modules/fulhash.md)                                             |
-| Server Management             | RECOMMENDED | Multi-server orchestration               | None                               | [server-management.md](../standards/library/modules/server-management.md)                         |
+| Module                        | Status      | Purpose                                              | Auto-Metrics                       | Spec Link                                                                                         |
+| ----------------------------- | ----------- | ---------------------------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------- |
+| App Identity                  | REQUIRED    | Binary name, env prefix, vendor metadata             | None                               | [app-identity.md](../standards/library/modules/app-identity.md)                                   |
+| Crucible Shim                 | REQUIRED    | SSOT asset access                                    | None                               | [crucible-shim.md](../standards/library/modules/crucible-shim.md)                                 |
+| Enterprise Three-Layer Config | REQUIRED    | Layered configuration                                | None                               | [enterprise-three-layer-config.md](../standards/library/modules/enterprise-three-layer-config.md) |
+| Config Path API               | REQUIRED    | Config directory discovery                           | None                               | [config-path-api.md](../standards/library/modules/config-path-api.md)                             |
+| Schema Validation             | REQUIRED    | Runtime schema validation (embed + on-disk catalogs) | None                               | [schema-validation.md](../standards/library/modules/schema-validation.md)                         |
+| Telemetry/Metrics             | REQUIRED    | Prometheus metrics export                            | Yes (7 exporter metrics)           | [telemetry-metrics.md](../standards/library/modules/telemetry-metrics.md)                         |
+| Logging                       | REQUIRED    | Structured logging                                   | None                               | [logging.md](../standards/observability/logging.md)                                               |
+| Request ID / Correlation      | REQUIRED    | HTTP `X-Request-ID` honor/generate/echo              | None                               | [logging.md](../standards/observability/logging.md)                                               |
+| Error Handling                | REQUIRED    | Error wrapping, propagation                          | Yes (`error_handling_wraps_total`) | [error-handling-propagation.md](../standards/library/modules/error-handling-propagation.md)       |
+| Signal Handling               | REQUIRED    | Graceful shutdown, signals                           | None                               | [signal-handling.md](../standards/library/modules/signal-handling.md)                             |
+| Docscribe                     | REQUIRED    | Documentation access                                 | None                               | [docscribe.md](../standards/library/modules/docscribe.md)                                         |
+| Foundry                       | RECOMMENDED | Catalogs (country, HTTP, MIME)                       | Yes (12 MIME detection metrics)    | [foundry/README.md](../standards/library/foundry/README.md)                                       |
+| FulHash                       | RECOMMENDED | Content hashing                                      | Yes (5 hash operation metrics)     | [fulhash.md](../standards/library/modules/fulhash.md)                                             |
+| Server Management             | RECOMMENDED | Multi-server orchestration                           | None                               | [server-management.md](../standards/library/modules/server-management.md)                         |
 
 **Total Auto-Emitted Metrics**: 24 (7 exporter + 1 error handling + 12 MIME + 4 hash) when all modules active.
 
