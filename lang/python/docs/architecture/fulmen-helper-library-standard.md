@@ -3,7 +3,7 @@ title: "Fulmen Helper Library Standard"
 description: "Standard structure and capabilities for gofulmen, tsfulmen, and future language helpers"
 author: "Schema Cartographer"
 date: "2025-10-02"
-last_updated: "2025-11-11"
+last_updated: "2026-08-20"
 status: "draft"
 tags: ["architecture", "helper-library", "multi-language", "local-development"]
 ---
@@ -17,7 +17,7 @@ consult that table before proposing new foundations or changing lifecycle state.
 
 ## Scope
 
-Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulmen, csfulmen, rufulmen, etc.). Excludes SSOT repos (Crucible, Cosmography) and application/tool repos (Fulward, goneat).
+Applies to language-specific Fulmen helper libraries (gofulmen, tsfulmen, pyfulmen, rsfulmen, csfulmen, etc.). Excludes SSOT repos (Crucible, Cosmography) and application/tool repos (Fulward, goneat).
 
 ## Canonical Façade Principle
 
@@ -176,8 +176,9 @@ Examples:
 
 6. **Schema Validation Utilities**
 
-   - Provide helpers to load, parse, and validate schemas shipped in Crucible.
-   - Optional but recommended: integrate with language-native validation libraries.
+   - Provide helpers to load, parse, and validate schemas shipped in Crucible (embedded catalog, keyed by logical id).
+   - Provide file-backed instance validation against caller-supplied schema directories (offline `$ref`, no network). Application schema families MUST NOT be vendored into the helper embed.
+   - Use a language-native JSON Schema engine. Goneat remains a CLI/CI tool; helpers MUST NOT require it at runtime for instance checks.
    - Refer to the [Schema Validation Helper Standard](../standards/library/modules/schema-validation.md).
 
 7. **Docscribe Module**
