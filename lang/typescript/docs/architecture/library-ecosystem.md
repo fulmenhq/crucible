@@ -46,7 +46,7 @@ Layer 1 libraries follow a shared roadmap, aligning with Core Fulmen Principles 
 | Go         | gofulmen     | Active  | Go 1.23+           | Reference for standards; implements config paths, observability.      |
 | Python     | pyfulmen     | Active  | Python 3.12+       | Focus on logging/context; Pydantic for schema validation.             |
 | TypeScript | tsfulmen     | Active  | TS 5.0+ (Bun/Node) | ESM bundles; Zod for runtime types; aligns with web/service patterns. |
-| Rust       | rsfulmen     | Active  | Rust 1.70+         | Matches `config/taxonomy/languages.yaml`; serde for schemas.          |
+| Rust       | rsfulmen     | Active  | Rust 1.88+         | Matches `config/taxonomy/languages.yaml` and the rsfulmen crate MSRV; serde for schemas. |
 | C#         | csfulmen     | Planned | .NET 8.0+          | For ASP.NET/workers; nullable types for safety.                       |
 
 Updates sync from `config/taxonomy/languages.yaml`. New languages require principle-aligned modules (e.g., observability) before standards reference them. See `docs/standards/repository-structure/` for repo expectations.
@@ -84,8 +84,8 @@ Updates sync from `config/taxonomy/languages.yaml`. New languages require princi
 ### rsfulmen (Rust Foundation, Layer 1)
 
 - Idiomatic Rust APIs for Layer 0 assets (schema validation, config paths, Foundry catalogs).
-- Feature-gated modules; serde for schemas. Canonical workhorse breed: Roan.
-- Aligns with the helper library standard and `languages.yaml` (`status: active`).
+- Feature-gated modules; serde for schemas. Canonical workhorse breed: Roan. Crate MSRV 1.88.
+- Aligns with the helper library standard and `languages.yaml` (`status: active`, `minimumRuntime: 1.88`).
 
 ### goneat (Layer 3 Tool, Not Library)
 
