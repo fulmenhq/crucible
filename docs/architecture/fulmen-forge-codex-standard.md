@@ -3,7 +3,7 @@ title: "Fulmen Forge Codex Standard"
 description: "Standard architecture and capabilities for Fulmen Codex forges – documentation-first templates for canonical knowledge bases"
 author: "Fulmen Enterprise Architect (@fulmen-ea-steward)"
 date: "2025-10-31"
-last_updated: "2025-12-20"
+last_updated: "2026-08-20"
 status: "draft"
 tags: ["architecture", "forge", "codex", "template", "v0.2.26"]
 ---
@@ -123,8 +123,10 @@ Codex forges MUST integrate these Fulmen helper library modules to ensure ecosys
    - **Purpose**: Runtime validation of ingested schemas, frontmatter, config files
    - **Spec**: [Schema Validation](../standards/library/modules/schema-validation.md)
    - **Compliance**:
+     - Call the language helper. Do not wrap jsonschema/AJV independently.
+     - Embedded catalog IDs for Fulmen contracts (frontmatter, site config).
+     - File-backed catalog APIs for ingested OpenAPI/AsyncAPI/JSON Schema artefacts on disk.
      - Validate all frontmatter against [Frontmatter Standard](../standards/frontmatter-standard.md)
-     - Validate ingested OpenAPI/AsyncAPI/JSON Schema artefacts
      - Fail builds on validation errors (CI gate)
 
 ### Content & Documentation Modules
