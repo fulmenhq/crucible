@@ -131,8 +131,9 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
 
 2. **Environment Check**
 
-   - Confirm required tools (`bun >= 1.2`, `go >= 1.21`)
-   - Run `make bootstrap` if tools are missing
+   - Confirm required tools (`bun >= 1.2`, `go >= 1.26.9`)
+   - Run `make bootstrap` if tools are missing (installs pinned sfetch and goneat into `bin/`)
+   - Run quality gates with the reference Go: `PATH="$HOME/sdk/go1.26.9/bin:$PATH" GOTOOLCHAIN=go1.26.9 make prepush` (goneat's gosec does not yet support newer Go)
 
 3. **Plan**
    - Outline steps in `.plans/` before modifying files — `.plans/` is always gitignored, never commit from it

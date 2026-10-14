@@ -3,17 +3,34 @@ TOOLS_MANIFEST := .goneat/tools.yaml
 VERSION_FILE := VERSION
 
 # External tooling bootstrap
-# NOTE: `goneat` is expected to be installed globally (user-space) via `sfetch --install`.
-# If you need to use a repo-local build for development, invoke targets with:
-#   make <target> GONEAT=./bin/goneat
-GONEAT ?= goneat
-GONEAT_VERSION ?= v0.5.16
-SFETCH_INSTALL_URL ?= https://github.com/3leaps/sfetch/releases/latest/download/install-sfetch.sh
+# Trust chain: curl -> digest-pinned sfetch bootstrap engine -> sfetch -> goneat.
+# sfetch and goneat are installed repo-locally into bin/ at exact pins; quality
+# targets prefer those pins and fall back to PATH for a pre-provisioned machine.
+# Override with: make <target> GONEAT=/path/to/goneat
+SFETCH_VERSION := v0.4.12
+# Immutable sfetch revision containing bootstrap-sfetch-verified.sh, coupled to
+# SFETCH_VERSION through the engine's fail-closed supported-version range.
+SFETCH_ENGINE_SHA := bd0e7a0e68ef5a3dc7cda862fc74e4e8bc5125f8
+SFETCH_ENGINE_SHA256 := 6114b7b6c1b4f01b5dcab55de635127301a09bc456eb9094656810300b363532
+SFETCH_ENGINE_REPO := 3leaps/sfetch
+SFETCH_CACHE_DIR ?= $(CURDIR)/.cache/sfetch
+GONEAT_VERSION ?= v0.6.4
+# Validate meta-schemas against goneat's embedded copies; no network fetches.
+GONEAT_OFFLINE_SCHEMA_VALIDATION ?= true
+export GONEAT_OFFLINE_SCHEMA_VALIDATION
+# Go floor is 1.26.9 (go.mod and CI). goneat's gosec does not yet support newer
+# Go, so run gates on the floor toolchain:
+#   PATH="$$HOME/sdk/go1.26.9/bin:$$PATH" GOTOOLCHAIN=go1.26.9 make prepush
+
+SFETCH_LOCAL := $(BIN_DIR)/sfetch
+GONEAT_LOCAL := $(BIN_DIR)/goneat
+SFETCH = $(shell [ -x "$(SFETCH_LOCAL)" ] && echo "$(SFETCH_LOCAL)" || command -v sfetch 2>/dev/null)
+GONEAT ?= $(shell [ -x "$(GONEAT_LOCAL)" ] && echo "$(GONEAT_LOCAL)" || command -v goneat 2>/dev/null)
 
 # Crucible Makefile
 # Standards forge for the FulmenHQ ecosystem
 
-.PHONY: all help bootstrap tools sync test build build-all clean version fmt fmt-check lint lint-fix lint-config upstream-validate upstream-sync-3leaps upstream-check typecheck
+.PHONY: all help bootstrap bootstrap-sfetch bootstrap-goneat bootstrap-force test-bootstrap-engine-verification tools sync test build build-all clean version fmt fmt-check lint lint-fix lint-config upstream-validate upstream-sync-3leaps upstream-check typecheck
 .PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python test-rust build-python build-rust lint-python lint-rust fmt-rust
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare release-clean
@@ -32,16 +49,53 @@ help: ## Show this help message
 	@grep -E '^[a-zA-Z_:-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  %-20s %s\n", $$1, $$2}'
 	@echo ""
 
-bootstrap: ## Install required external tools (sfetch, goneat, and manifest tools)
-	@echo "Installing external tools..."
+bootstrap-sfetch: ## Install the pinned sfetch into bin/ through the digest-verified engine
+	@command -v curl >/dev/null 2>&1 || { echo "❌ curl is required to bootstrap sfetch"; exit 1; }
 	@mkdir -p "$(BIN_DIR)"
-	@if ! command -v sfetch >/dev/null 2>&1; then echo "→ Installing sfetch (trust anchor)..."; if command -v curl >/dev/null 2>&1; then curl -sSfL "$(SFETCH_INSTALL_URL)" | bash -s -- --yes; elif command -v wget >/dev/null 2>&1; then wget -qO- "$(SFETCH_INSTALL_URL)" | bash -s -- --yes; else echo "❌ curl or wget is required to bootstrap sfetch"; exit 1; fi; fi
-	@if ! command -v goneat >/dev/null 2>&1; then echo "→ Installing goneat ($(GONEAT_VERSION)) via sfetch..."; if [ "$(GONEAT_VERSION)" = "latest" ]; then sfetch --repo fulmenhq/goneat --latest --install; else sfetch --repo fulmenhq/goneat --tag "$(GONEAT_VERSION)" --install; fi; fi
+	@if [ -x "$(SFETCH_LOCAL)" ] && [ "$$($(SFETCH_LOCAL) --version 2>&1 | head -n1)" != "sfetch $(patsubst v%,%,$(SFETCH_VERSION))" ]; then \
+		echo "→ Repo-local sfetch does not match $(SFETCH_VERSION); reinstalling..."; \
+		rm -f "$(SFETCH_LOCAL)"; \
+	fi
+	@if [ ! -x "$(SFETCH_LOCAL)" ]; then \
+		echo "→ Installing sfetch $(SFETCH_VERSION) with verified engine @ $(SFETCH_ENGINE_SHA)..."; \
+		./scripts/install-sfetch-verified.sh \
+			--version "$(SFETCH_VERSION)" \
+			--dir "$(BIN_DIR)" \
+			--engine-sha "$(SFETCH_ENGINE_SHA)" \
+			--engine-sha256 "$(SFETCH_ENGINE_SHA256)" \
+			--repo "$(SFETCH_ENGINE_REPO)"; \
+	fi
+	@if [ "$$($(SFETCH_LOCAL) --version 2>&1 | head -n1)" != "sfetch $(patsubst v%,%,$(SFETCH_VERSION))" ]; then \
+		echo "❌ sfetch version mismatch after bootstrap (expected $(SFETCH_VERSION))"; exit 1; \
+	fi
+
+bootstrap-goneat: bootstrap-sfetch ## Install the pinned goneat into bin/ via verified sfetch (replaces a mismatched binary)
+	@if [ -x "$(GONEAT_LOCAL)" ] && ! "$(GONEAT_LOCAL)" version 2>&1 | head -n1 | grep -Fq "$(GONEAT_VERSION)"; then \
+		echo "→ Repo-local goneat does not match $(GONEAT_VERSION); reinstalling..."; \
+		rm -f "$(GONEAT_LOCAL)"; \
+	fi
+	@if [ ! -x "$(GONEAT_LOCAL)" ]; then \
+		echo "→ Installing goneat $(GONEAT_VERSION) via verified sfetch..."; \
+		"$(SFETCH_LOCAL)" --repo fulmenhq/goneat --tag "$(GONEAT_VERSION)" \
+			--dest-dir "$(BIN_DIR)" --cache-dir "$(SFETCH_CACHE_DIR)" --require-minisign; \
+	fi
+	@if ! "$(GONEAT_LOCAL)" version 2>&1 | head -n1 | grep -Fq "$(GONEAT_VERSION)"; then \
+		echo "❌ goneat version mismatch after bootstrap (expected $(GONEAT_VERSION))"; exit 1; \
+	fi
+
+bootstrap: bootstrap-goneat ## Install required external tools (sfetch, goneat, and manifest tools)
 	@bun run scripts/bootstrap-tools.ts --install --manifest $(TOOLS_MANIFEST)
 
+bootstrap-force: ## Force reinstall repo-local sfetch and goneat
+	@rm -f "$(SFETCH_LOCAL)" "$(GONEAT_LOCAL)"
+	@$(MAKE) bootstrap
+
+test-bootstrap-engine-verification: ## Prove a mismatched sfetch bootstrap engine digest fails before execution
+	@./scripts/test-bootstrap-engine-verification.sh
+
 tools: ## Verify external tooling is available
-	@if ! command -v sfetch >/dev/null 2>&1; then echo "❌ sfetch not found. Run 'make bootstrap' first."; exit 1; fi
-	@if ! command -v goneat >/dev/null 2>&1; then echo "❌ goneat not found. Run 'make bootstrap' first."; exit 1; fi
+	@if [ -z "$(SFETCH)" ]; then echo "❌ sfetch not found. Run 'make bootstrap' first."; exit 1; fi
+	@if [ -z "$(GONEAT)" ]; then echo "❌ goneat not found. Run 'make bootstrap' first."; exit 1; fi
 	@bun run scripts/bootstrap-tools.ts --verify --manifest $(TOOLS_MANIFEST)
 	@echo "✅ All tools verified"
 
@@ -110,8 +164,8 @@ lint: | bootstrap ## Run linting (check only, no auto-fix - use 'make lint-fix' 
 	@cd lang/typescript && bun run lint
 	@cd lang/python && uv run ruff check .
 	@cd lang/rust && cargo clippy -- -D warnings
-	@$(GONEAT) assess --categories format,security --check --include "**/*.go"
-	@$(GONEAT) assess --categories format --check --exclude "lang/**" --exclude "**/*.go"
+	@$(GONEAT) assess --categories format --check --fail-on low --exclude "lang/**"
+	@$(GONEAT) assess --categories security --check
 
 lint-check: | bootstrap ## Non-mutating format+lint check via goneat for CI prep (no auto-fix, no mutation)
 	@$(GONEAT) assess --categories format,lint --check
@@ -128,7 +182,7 @@ lint-rust: ## Lint Rust code (matches GitHub Actions)
 
 lint-config: ## Validate config data files against schemas (excludes upstream/)
 	@echo "Validating config data files..."
-	@if command -v $(GONEAT) >/dev/null 2>&1; then \
+	@if [ -n "$(GONEAT)" ] && [ -x "$(GONEAT)" ]; then \
 		for f in config/agentic/roles/*.yaml; do \
 			[ -f "$$f" ] || continue; \
 			echo "  Validating $$f..."; \
@@ -141,7 +195,7 @@ lint-config: ## Validate config data files against schemas (excludes upstream/)
 
 upstream-validate: ## Validate vendored upstream files (bypasses .goneatignore)
 	@echo "Validating vendored upstream files..."
-	@if command -v $(GONEAT) >/dev/null 2>&1; then \
+	@if [ -n "$(GONEAT)" ] && [ -x "$(GONEAT)" ]; then \
 		echo "  Validating vendored schemas against meta-schemas..."; \
 		$(GONEAT) validate schemas/upstream/ --force-include "schemas/upstream/**/*.schema.json" || exit 1; \
 		echo "✅ Upstream validation complete"; \
@@ -160,7 +214,7 @@ upstream-sync-3leaps: ## Sync from 3leaps/crucible and check for issues
 
 upstream-check: ## Check upstream content for format/lint issues (no auto-fix)
 	@echo "Checking upstream content (format + lint)..."
-	@if command -v $(GONEAT) >/dev/null 2>&1; then \
+	@if [ -n "$(GONEAT)" ] && [ -x "$(GONEAT)" ]; then \
 		$(GONEAT) assess schemas/upstream/ --check --categories format,lint \
 			--force-include "schemas/upstream/**" || \
 		(echo "❌ Upstream content has format/lint issues - fix at source"; exit 1); \

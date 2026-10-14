@@ -1,16 +1,16 @@
 {
   "author": "FulmenHQ",
   "dependencies": {
-    "js-yaml": "^4.3.1"
+    "js-yaml": "^4.3.2"
   },
   "description": "Crucible - Where Scale is Forged. Standards and schemas for the FulmenHQ ecosystem.",
   "devDependencies": {
-    "@biomejs/biome": "^2.5.7",
+    "@biomejs/biome": "2.5.14",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.19.43",
-    "@vitest/coverage-v8": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.11",
     "typescript": "^5.0.0",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   },
   "files": [
     "dist",
@@ -34,7 +34,7 @@
     "build": "tsc",
     "format": "bunx biome format --write .",
     "lint": "bunx biome check .",
-    "prepublishOnly": "bun run build \u0026\u0026 bun run test",
+    "prepublishOnly": "bun run build && bun run test",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest"

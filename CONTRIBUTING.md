@@ -81,7 +81,7 @@ powershell -c "irm bun.sh/install.ps1 | iex"
 
 **Language-specific tools:**
 
-- Go >= 1.21 (for Go package development)
+- Go >= 1.26.9 (for Go package development)
 - Node.js or Bun (for TypeScript package development)
 
 ## Development Setup

@@ -63,3 +63,6 @@ lang/*/coverage/
 
 # macOS
 .DS_Store
+
+# Repo-local tool cache (sfetch)
+/.cache/
