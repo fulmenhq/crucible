@@ -6,7 +6,8 @@ set -euo pipefail
 # Environment variables (FULMENHQ_CRUCIBLE_* preferred, CRUCIBLE_* legacy):
 #   FULMENHQ_CRUCIBLE_RELEASE_TAG  - Override tag (default: v<VERSION>)
 #   FULMENHQ_CRUCIBLE_GPG_HOMEDIR  - Dedicated signing keyring directory
-#   FULMENHQ_CRUCIBLE_MINISIGN_PUB - Minisign public key path (verifies sidecar)
+#   FULMENHQ_CRUCIBLE_MINISIGN_PUB - Minisign public key path for the sidecar
+#                                    (default: docs/security/release-minisign.pub)
 #
 # Legacy aliases (will be removed in future release):
 #   CRUCIBLE_RELEASE_TAG, CRUCIBLE_GPG_HOMEDIR, CRUCIBLE_MINISIGN_PUB
@@ -61,25 +62,24 @@ main() {
 
 	echo "→ Verifying tag signature: $tag"
 	git verify-tag "$tag" >/dev/null
+	# Pinned-key check: estate signing subkey, anchors and tagger identity are
+	# read from the tagged commit, not the working tree.
+	./scripts/verify-pinned-tag.sh "$tag"
 	echo "✅ Tag verified: $tag"
 
-	# Minisign pub: FULMENHQ_CRUCIBLE_MINISIGN_PUB > CRUCIBLE_MINISIGN_PUB (legacy)
-	local minisign_pub="${FULMENHQ_CRUCIBLE_MINISIGN_PUB:-${CRUCIBLE_MINISIGN_PUB:-}}"
-	if [ -n "${minisign_pub}" ]; then
+	# Minisign pub: FULMENHQ_CRUCIBLE_MINISIGN_PUB > CRUCIBLE_MINISIGN_PUB (legacy) > committed pin
+	local minisign_pub="${FULMENHQ_CRUCIBLE_MINISIGN_PUB:-${CRUCIBLE_MINISIGN_PUB:-docs/security/release-minisign.pub}}"
+	local payload="dist/release/${tag}.tag.txt"
+	local sig="${payload}.minisig"
+	if [ -f "${payload}" ] && [ -f "${sig}" ]; then
 		if ! command -v minisign >/dev/null 2>&1; then
-			echo "error: FULMENHQ_CRUCIBLE_MINISIGN_PUB is set but minisign is not found in PATH" >&2
+			echo "error: minisign attestation present at ${sig} but minisign is not found in PATH" >&2
 			exit 1
 		fi
-
-		local sig_dir="dist/release"
-		local payload="${sig_dir}/${tag}.tag.txt"
-		local sig="${payload}.minisig"
-		if [ -f "${payload}" ] && [ -f "${sig}" ]; then
-			minisign -Vm "${payload}" -p "${minisign_pub}" >/dev/null
-			echo "✅ Minisign tag attestation verified: ${sig}"
-		else
-			echo "note: minisign pubkey set but no attestation found at ${sig}" >&2
-		fi
+		minisign -Vm "${payload}" -p "${minisign_pub}" >/dev/null
+		echo "✅ Minisign tag attestation verified: ${sig}"
+	else
+		echo "note: no minisign tag attestation at ${sig}" >&2
 	fi
 }
 

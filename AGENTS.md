@@ -209,9 +209,8 @@ Follow [`docs/ops/repository/release-checklist.md`](docs/ops/repository/release-
 ```bash
 make prepush                          # Comprehensive checks
 make version-set VERSION=<version>    # Update version
-git tag -a v$(cat VERSION)            # After approval
-git push origin main
-git push origin v$(cat VERSION)
+make release-tag                      # After approval; signed, verified against the pinned key
+make release-push-tag                 # Push only the tag; confirms GitHub verification
 ```
 
 ## Reference Documents

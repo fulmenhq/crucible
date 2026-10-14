@@ -34,7 +34,7 @@ GONEAT ?= $(shell [ -x "$(GONEAT_LOCAL)" ] && echo "$(GONEAT_LOCAL)" || command 
 .PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python test-rust build-python build-rust lint-python lint-rust fmt-rust
 .PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare release-clean
-.PHONY: release-guard-tag-version release-tag release-verify-tag release-verify-remote-tag release-publish-assets
+.PHONY: release-guard-tag-version release-tag release-verify-tag release-push-tag release-tag-push release-verify-remote-tag release-publish-assets test-release-tooling
 .PHONY: lint-check pr-final pr-final-drift-check
 .PHONY: prepush precommit check-all
 .PHONY: validate-schemas verify-codegen codegen-exit-codes codegen-fulpack codegen-fulpack-python codegen-fulencode codegen-roles codegen-all
@@ -129,6 +129,9 @@ test-python: ## Run Python wrapper tests (matches GitHub Actions)
 
 test-rust: ## Run Rust crate tests (matches GitHub Actions)
 	@cd lang/rust && cargo test
+
+test-release-tooling: ## Prove the pinned release-tag verifier rejects unpinned, unsigned and tampered tags
+	@./scripts/test-release-tooling.sh
 
 # Build targets
 build: sync-to-lang fmt build-go build-ts build-python build-rust ## Build language wrappers (matches GitHub Actions)
@@ -370,7 +373,7 @@ release-prepare: sync-to-lang test ## Prepare release (sync, test, ready for tag
 	@echo "  3. Build artifacts: make release-build"
 	@echo "  4. Tag (requires approval): make release-tag"
 	@echo "  5. Verify tag: make release-verify-tag"
-	@echo "  6. Push (requires approval): git push origin main && git push origin v$$(cat $(VERSION_FILE))"
+	@echo "  6. Push tag (requires approval): make release-push-tag"
 
 release-clean: ## Remove local release artifacts (dist/release)
 	@echo "Cleaning release artifacts..."
@@ -380,13 +383,18 @@ release-clean: ## Remove local release artifacts (dist/release)
 release-guard-tag-version: ## Guard: ensure tag matches VERSION (CI-friendly)
 	@./scripts/release-guard-tag-version.sh
 
-release-tag: ## Create and verify a signed git tag for VERSION (optional minisign attestation)
+release-tag: ## Create a signed git tag for VERSION and verify it against the pinned release key
 	@./scripts/release-tag.sh
 
-release-verify-tag: ## Verify the signed git tag for VERSION (optional minisign attestation)
+release-verify-tag: ## Verify the signed git tag for VERSION against the pinned release key (and minisign attestation if present)
 	@./scripts/release-verify-tag.sh
 
-release-verify-remote-tag: ## Verify tag signature status via GitHub API (gh required)
+release-push-tag: ## Verify and push the signed version tag, then confirm the remote tag and GitHub verification
+	@./scripts/release-push-tag.sh
+
+release-tag-push: release-push-tag
+
+release-verify-remote-tag: ## Verify GitHub reports the tag verified (gh required; fails if not verified)
 	@./scripts/release-verify-remote-tag.sh
 
 release-publish-assets: ## Publish GitHub Release assets (minisign attestations) for the current tag (gh required)

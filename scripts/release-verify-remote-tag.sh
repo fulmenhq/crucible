@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # Verify tag signature via GitHub API for fulmenhq/crucible
+# Exits non-zero unless GitHub reports the tag object verified.
 #
 # Environment variables (FULMENHQ_CRUCIBLE_* preferred, CRUCIBLE_* legacy):
 #   FULMENHQ_CRUCIBLE_RELEASE_TAG  - Override tag (default: v<VERSION>)
@@ -50,14 +51,21 @@ detect_repo() {
 
 	# Supports:
 	# - git@github.com:owner/repo.git
+	# - git@<ssh-host-alias>:owner/repo.git (e.g. ~/.ssh/config Host aliases)
+	# - ssh://git@github.com/owner/repo.git
 	# - https://github.com/owner/repo.git
-	local path="${origin}"
-	path="${path#git@github.com:}"
-	path="${path#https://github.com/}"
-	path="${path#http://github.com/}"
-	path="${path%.git}"
+	local path="${origin%.git}"
+	case "$path" in
+	https://* | http://* | ssh://*)
+		path="${path#*://}"
+		path="${path#*/}"
+		;;
+	*:*)
+		path="${path#*:}"
+		;;
+	esac
 
-	if [[ "$path" == */* ]]; then
+	if [[ "$path" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
 		printf '%s' "$path"
 		return 0
 	fi
@@ -93,7 +101,15 @@ main() {
 	local tag_sha
 	tag_sha="$(gh api "repos/${repo}/git/ref/tags/${tag}" --jq .object.sha)"
 
-	gh api "repos/${repo}/git/tags/${tag_sha}" --jq .verification
+	local verified reason
+	read -r verified reason < <(gh api "repos/${repo}/git/tags/${tag_sha}" --jq '"\(.verification.verified) \(.verification.reason)"')
+	echo "  verified: ${verified} (reason: ${reason})"
+
+	if [ "${verified}" != "true" ]; then
+		echo "error: GitHub does not report ${tag} verified" >&2
+		exit 1
+	fi
+	echo "✅ GitHub reports ${tag} verified"
 }
 
 main "$@"

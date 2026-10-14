@@ -143,9 +143,14 @@ async function syncToTypeScript(options: SyncOptions) {
 
   await syncDirectory(join(ROOT, "schemas"), join(tsRoot, "schemas"), "schemas/", options);
 
-  await syncDirectory(join(ROOT, "config"), join(tsRoot, "config"), "config/", options);
+  await syncDirectory(join(ROOT, "config"), join(tsRoot, "config"), "config/", options, [
+    "release",
+  ]);
 
-  await syncDirectory(join(ROOT, "docs"), join(tsRoot, "docs"), "docs/", options, ["ops"]);
+  await syncDirectory(join(ROOT, "docs"), join(tsRoot, "docs"), "docs/", options, [
+    "ops",
+    "security",
+  ]);
 }
 
 async function syncToPython(options: SyncOptions) {
@@ -155,9 +160,14 @@ async function syncToPython(options: SyncOptions) {
 
   await syncDirectory(join(ROOT, "schemas"), join(pythonRoot, "schemas"), "schemas/", options);
 
-  await syncDirectory(join(ROOT, "config"), join(pythonRoot, "config"), "config/", options);
+  await syncDirectory(join(ROOT, "config"), join(pythonRoot, "config"), "config/", options, [
+    "release",
+  ]);
 
-  await syncDirectory(join(ROOT, "docs"), join(pythonRoot, "docs"), "docs/", options, ["ops"]);
+  await syncDirectory(join(ROOT, "docs"), join(pythonRoot, "docs"), "docs/", options, [
+    "ops",
+    "security",
+  ]);
 }
 
 async function syncToRust(options: SyncOptions) {
@@ -173,9 +183,14 @@ async function syncToRust(options: SyncOptions) {
 
   await syncDirectory(join(ROOT, "schemas"), join(rustRoot, "schemas"), "schemas/", options);
 
-  await syncDirectory(join(ROOT, "config"), join(rustRoot, "config"), "config/", options);
+  await syncDirectory(join(ROOT, "config"), join(rustRoot, "config"), "config/", options, [
+    "release",
+  ]);
 
-  await syncDirectory(join(ROOT, "docs"), join(rustRoot, "docs"), "docs/", options, ["ops"]);
+  await syncDirectory(join(ROOT, "docs"), join(rustRoot, "docs"), "docs/", options, [
+    "ops",
+    "security",
+  ]);
 }
 
 async function syncDirectory(

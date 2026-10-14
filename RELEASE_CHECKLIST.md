@@ -12,11 +12,12 @@
 - `FULMENHQ_CRUCIBLE_GPG_HOMEDIR`: dedicated signing keyring directory (recommended)
 - `FULMENHQ_CRUCIBLE_PGP_KEY_ID`: key id/email/fingerprint for signing
 - `FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN`: set to `1` to allow tagging from non-main branch
+- `FULMENHQ_CRUCIBLE_TAGGER_NAME` / `FULMENHQ_CRUCIBLE_TAGGER_EMAIL`: optional; must equal `config/release/tagger-identity.txt` (the tagger is always taken from that file)
 
 Optional minisign sidecar attestation:
 
-- `FULMENHQ_CRUCIBLE_MINISIGN_KEY`: minisign secret key path
-- `FULMENHQ_CRUCIBLE_MINISIGN_PUB`: minisign public key path
+- `FULMENHQ_CRUCIBLE_MINISIGN_KEY`: minisign secret key path (fulmenhq org release key)
+- `FULMENHQ_CRUCIBLE_MINISIGN_PUB`: minisign public key path (default: `docs/security/release-minisign.pub`)
 
 Legacy aliases (deprecated, will be removed):
 
@@ -81,22 +82,24 @@ The script performs these safety checks before creating the tag:
 - Must be on `main` branch (set `FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN=1` to override)
 - Tag must not already exist
 - GPG signing key availability verified
-- Automatic signature verification after creation
+- Tagger name and email stamped from `config/release/tagger-identity.txt`
+- Automatic verification against the pinned release key after creation (`scripts/verify-pinned-tag.sh`); a tag that fails is deleted locally
 
 ### 3. Verify the signed tag (optional manual check)
 
 ```bash
 make release-verify-tag
-# or:
-git tag -v v$(cat VERSION)
 ```
 
 ### 4. Push
 
+The release commit is already on `main`. Push only the tag:
+
 ```bash
-git push origin main
-git push origin v$(cat VERSION)
+make release-push-tag
 ```
+
+This verifies the local signature against the pin, requires the tagged commit to be on `origin/main` and the remote tag to be absent, pushes the tag ref, and confirms the remote tag object and GitHub's verified flag (when `gh` is available).
 
 ## Post-Release Validation
 
@@ -107,18 +110,17 @@ git push origin v$(cat VERSION)
 
 ### Verify tag signature (optional)
 
-**Local git** (most reliable):
+**Pinned key** (authoritative):
 
 ```bash
 git fetch --tags origin
-git tag -v v$(cat VERSION)
+make release-verify-tag
 ```
 
-**GitHub API** (CI-friendly):
+**GitHub API**:
 
 ```bash
-TAG_SHA=$(gh api repos/fulmenhq/crucible/git/ref/tags/v$(cat VERSION) --jq .object.sha)
-gh api repos/fulmenhq/crucible/git/tags/$TAG_SHA --jq .verification
+make release-verify-remote-tag
 ```
 
 **GitHub Web UI note**: A green "Verified" badge only appears if:
@@ -126,7 +128,26 @@ gh api repos/fulmenhq/crucible/git/tags/$TAG_SHA --jq .verification
 1. The signing public key is uploaded to the GitHub account
 2. The tagger email matches a verified email on that account
 
-Otherwise GitHub may show "Unverified" even though `git tag -v` succeeds locally.
+`config/release/tagger-identity.txt` holds a UID email on the estate signing key, so both conditions hold once the key is on the tagger account.
+
+## Release keys
+
+`scripts/verify-pinned-tag.sh` accepts a tag only when it carries one good, unexpired signature by the pinned signing subkey and the committed tagger identity. It reads these files from the tagged commit, not the working tree:
+
+| File                                     | Holds                                                            |
+| ---------------------------------------- | ---------------------------------------------------------------- |
+| `docs/security/release-signing-keys.asc` | Estate GPG public primary plus exactly one signing subkey        |
+| `docs/security/release-minisign.pub`     | fulmenhq org minisign public key                                 |
+| `keys/expected-fingerprints.txt`         | `gpg <primary fingerprint>` then `minisign <sha256 of key blob>` |
+| `config/release/tagger-identity.txt`     | Required tagger name and email                                   |
+
+The GPG files are the same bytes across estate repositories, and the minisign files are the same across fulmenhq repositories; copy them from a sibling rather than re-exporting. Tags created before these files were committed (v0.4.19 and earlier) do not pass the pinned check; `git tag -v` still verifies them against the key that signed them.
+
+When the release key rotates:
+
+- [ ] Update the pin and `keys/expected-fingerprints.txt` together by reviewed PR **before** creating the first tag signed by the new key
+- [ ] Upload the new public key to the maintainer GitHub account (keeps the Verified badge green)
+- [ ] The verifier accepts exactly one signing subkey, so the pin switches in the same PR; tags already pushed under the old key are unaffected
 
 ## Communication
 
@@ -154,11 +175,14 @@ git revert <commit-hash>
 
 ### Make Targets
 
-| Target                           | Purpose                                       |
-| -------------------------------- | --------------------------------------------- |
-| `make release-tag`               | Create signed git tag with all safety checks  |
-| `make release-verify-tag`        | Verify an existing signed tag                 |
-| `make release-guard-tag-version` | Verify tag matches VERSION file (CI-friendly) |
+| Target                           | Purpose                                                  |
+| -------------------------------- | -------------------------------------------------------- |
+| `make release-tag`               | Create signed git tag with all safety checks             |
+| `make release-verify-tag`        | Verify an existing signed tag against the pinned key     |
+| `make release-push-tag`          | Verify, push and confirm the signed version tag          |
+| `make release-verify-remote-tag` | Confirm GitHub reports the tag verified                  |
+| `make release-guard-tag-version` | Verify tag matches VERSION file (CI-friendly)            |
+| `make test-release-tooling`      | Prove the pinned verifier rejects unpinned/tampered tags |
 
 ### Scripts
 
@@ -171,8 +195,8 @@ All scripts are in `scripts/` and can be run directly if needed.
 3. Ensures on `main` branch (override with `FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN=1`)
 4. Ensures tag doesn't already exist
 5. Verifies GPG signing key is available
-6. Creates signed annotated tag
-7. Automatically verifies signature after creation
+6. Creates signed annotated tag with the committed tagger identity
+7. Verifies the tag against the pinned release key (deletes the local tag on failure)
 
 **`scripts/release-guard-tag-version.sh`** - Version consistency check:
 
@@ -183,7 +207,15 @@ All scripts are in `scripts/` and can be run directly if needed.
 **`scripts/release-verify-tag.sh`** - Signature verification:
 
 - Verifies GPG signature on the tag for `VERSION` (or `FULMENHQ_CRUCIBLE_RELEASE_TAG`)
+- Runs `scripts/verify-pinned-tag.sh` (pinned subkey, anchors, tagger identity)
+- Verifies the minisign attestation in `dist/release/` against the committed public key when present
 - Respects `FULMENHQ_CRUCIBLE_GPG_HOMEDIR` for dedicated keyrings
+
+**`scripts/release-push-tag.sh`** - Tag push with confirmation:
+
+- Re-verifies the local tag, requires the tagged commit on `origin/main` and no existing remote tag
+- Pushes only the tag ref and confirms the remote tag object matches local
+- Confirms GitHub reports the tag verified (`scripts/release-verify-remote-tag.sh`) when `gh` is available
 
 ---
 

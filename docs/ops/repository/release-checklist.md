@@ -193,8 +193,11 @@ Optional: enable minisign sidecar attestation (recommended when available):
 
 ```bash
 export FULMENHQ_CRUCIBLE_MINISIGN_KEY=/path/to/fulmenhq.minisign.key
+# Optional; defaults to the committed fulmenhq org key at docs/security/release-minisign.pub
 export FULMENHQ_CRUCIBLE_MINISIGN_PUB=/path/to/fulmenhq.minisign.pub
 ```
+
+The tagger name and email are taken from `config/release/tagger-identity.txt`. After signing, `make release-tag` verifies the tag against the pinned release key (`scripts/verify-pinned-tag.sh`) and deletes the local tag if it does not pass. See `RELEASE_CHECKLIST.md` (Release keys) for the pinned files.
 
 ```bash
 make release-guard-tag-version
@@ -205,7 +208,7 @@ make release-tag
 
 - [ ] Tag created successfully
 - [ ] Tag name follows `v<VERSION>` format (must match `VERSION`)
-- [ ] Tag is signed and verifies locally (`make release-verify-tag`)
+- [ ] Tag is signed and verifies against the pinned release key (`make release-verify-tag`)
 
 #### 4.2 Verify Tag
 
@@ -228,10 +231,11 @@ Optional: verify GitHub’s interpretation (CI-friendly; requires `gh` auth):
 make release-verify-remote-tag
 ```
 
-**Note (expected during key bootstrap)**:
+**Note**:
 
-- If GitHub reports `.verification.verified=false` with `.verification.reason="unknown_key"`, it usually means the release signing **public** key has not been uploaded to the GitHub release identity (or the tagger email doesn’t map to a verified email on that identity).
-- This does **not** invalidate the cryptographic signature. The authoritative check remains local: `make release-verify-tag` / `git tag -v v<VERSION>`.
+- If GitHub reports `.verification.verified=false` with `.verification.reason="unknown_key"`, the release signing **public** key is not on the GitHub account that owns the tagger email in `config/release/tagger-identity.txt`.
+- This does **not** invalidate the cryptographic signature. The authoritative check remains the pinned-key verification: `make release-verify-tag`.
+- Tags v0.4.19 and earlier were signed by a retired key with a different tagger and report `unknown_key`; they do not pass the pinned check.
 - Do **not** rewrite/retag already-published versions just to “make GitHub green”; fix the key visibility and let future tags verify in GitHub UI/API.
 
 ### Phase 5: Push to Remote (REQUIRES APPROVAL)
@@ -242,7 +246,6 @@ make release-verify-remote-tag
 
 ```bash
 git push --dry-run origin main
-git push --dry-run origin v$(cat VERSION)
 ```
 
 **Verify**:
@@ -266,12 +269,14 @@ git push origin main
 #### 5.3 Push Tag
 
 ```bash
-git push origin v$(cat VERSION)
+make release-push-tag
 ```
+
+This re-verifies the tag against the pinned key, requires the tagged commit on `origin/main` and no existing remote tag, pushes only the tag ref, and confirms the remote tag object and GitHub's verified flag.
 
 **Verify**:
 
-- [ ] Tag push succeeded
+- [ ] Tag push succeeded and GitHub reports the tag verified
 - [ ] Check GitHub releases page
 - [ ] Tag visible in web UI
 
@@ -333,7 +338,7 @@ git tag -l "v*" | tail -3
 5. Commit version changes (if any)
 6. Create signed tag: `make release-tag`
 7. **Get approval from @3leapsdave**
-8. Push: `git push origin main && git push origin v$(cat VERSION)`
+8. Push: `git push origin main` (if not merged by PR), then `make release-push-tag`
 9. Create GitHub release
 10. Notify downstream consumers
 
