@@ -18,9 +18,9 @@ GONEAT_VERSION ?= v0.6.4
 # Validate meta-schemas against goneat's embedded copies; no network fetches.
 GONEAT_OFFLINE_SCHEMA_VALIDATION ?= true
 export GONEAT_OFFLINE_SCHEMA_VALIDATION
-# Go floor is 1.26.9 (go.mod and CI). goneat's gosec does not yet support newer
+# Go floor is 1.26.11 (go.mod and CI). goneat's gosec does not yet support newer
 # Go, so run gates on the floor toolchain:
-#   PATH="$$HOME/sdk/go1.26.9/bin:$$PATH" GOTOOLCHAIN=go1.26.9 make prepush
+#   GOTOOLCHAIN=go1.26.11 make prepush
 
 SFETCH_LOCAL := $(BIN_DIR)/sfetch
 GONEAT_LOCAL := $(BIN_DIR)/goneat
@@ -52,7 +52,7 @@ help: ## Show this help message
 bootstrap-sfetch: ## Install the pinned sfetch into bin/ through the digest-verified engine
 	@command -v curl >/dev/null 2>&1 || { echo "❌ curl is required to bootstrap sfetch"; exit 1; }
 	@mkdir -p "$(BIN_DIR)"
-	@if [ -x "$(SFETCH_LOCAL)" ] && [ "$$($(SFETCH_LOCAL) --version 2>&1 | head -n1)" != "sfetch $(patsubst v%,%,$(SFETCH_VERSION))" ]; then \
+	@if [ -x "$(SFETCH_LOCAL)" ] && ! ./scripts/tool-version-matches.sh "$(SFETCH_LOCAL)" "sfetch $(patsubst v%,%,$(SFETCH_VERSION))" --version; then \
 		echo "→ Repo-local sfetch does not match $(SFETCH_VERSION); reinstalling..."; \
 		rm -f "$(SFETCH_LOCAL)"; \
 	fi
@@ -65,21 +65,22 @@ bootstrap-sfetch: ## Install the pinned sfetch into bin/ through the digest-veri
 			--engine-sha256 "$(SFETCH_ENGINE_SHA256)" \
 			--repo "$(SFETCH_ENGINE_REPO)"; \
 	fi
-	@if [ "$$($(SFETCH_LOCAL) --version 2>&1 | head -n1)" != "sfetch $(patsubst v%,%,$(SFETCH_VERSION))" ]; then \
+	@if ! ./scripts/tool-version-matches.sh "$(SFETCH_LOCAL)" "sfetch $(patsubst v%,%,$(SFETCH_VERSION))" --version; then \
 		echo "❌ sfetch version mismatch after bootstrap (expected $(SFETCH_VERSION))"; exit 1; \
 	fi
 
 bootstrap-goneat: bootstrap-sfetch ## Install the pinned goneat into bin/ via verified sfetch (replaces a mismatched binary)
-	@if [ -x "$(GONEAT_LOCAL)" ] && ! "$(GONEAT_LOCAL)" version 2>&1 | head -n1 | grep -Fq "$(GONEAT_VERSION)"; then \
+	@if [ -x "$(GONEAT_LOCAL)" ] && ! ./scripts/tool-version-matches.sh "$(GONEAT_LOCAL)" "goneat $(GONEAT_VERSION)" version; then \
 		echo "→ Repo-local goneat does not match $(GONEAT_VERSION); reinstalling..."; \
 		rm -f "$(GONEAT_LOCAL)"; \
 	fi
 	@if [ ! -x "$(GONEAT_LOCAL)" ]; then \
 		echo "→ Installing goneat $(GONEAT_VERSION) via verified sfetch..."; \
 		"$(SFETCH_LOCAL)" --repo fulmenhq/goneat --tag "$(GONEAT_VERSION)" \
-			--dest-dir "$(BIN_DIR)" --cache-dir "$(SFETCH_CACHE_DIR)" --require-minisign; \
+			--dest-dir "$(BIN_DIR)" --cache-dir "$(SFETCH_CACHE_DIR)" --require-minisign \
+			--minisign-key "$(CURDIR)/docs/security/fulmenhq-goneat-minisign.pub"; \
 	fi
-	@if ! "$(GONEAT_LOCAL)" version 2>&1 | head -n1 | grep -Fq "$(GONEAT_VERSION)"; then \
+	@if ! ./scripts/tool-version-matches.sh "$(GONEAT_LOCAL)" "goneat $(GONEAT_VERSION)" version; then \
 		echo "❌ goneat version mismatch after bootstrap (expected $(GONEAT_VERSION))"; exit 1; \
 	fi
 
@@ -92,6 +93,8 @@ bootstrap-force: ## Force reinstall repo-local sfetch and goneat
 
 test-bootstrap-engine-verification: ## Prove a mismatched sfetch bootstrap engine digest fails before execution
 	@./scripts/test-bootstrap-engine-verification.sh
+	@./scripts/test-tool-version-matches.sh
+	@./scripts/test-goneat-bootstrap-key.sh
 
 tools: ## Verify external tooling is available
 	@if [ -z "$(SFETCH)" ]; then echo "❌ sfetch not found. Run 'make bootstrap' first."; exit 1; fi
@@ -131,7 +134,13 @@ test-rust: ## Run Rust crate tests (matches GitHub Actions)
 	@cd lang/rust && cargo test
 
 test-release-tooling: ## Prove the pinned release-tag verifier rejects unpinned, unsigned and tampered tags
+	@./scripts/test-release-env.sh
 	@./scripts/test-release-tooling.sh
+	@$(MAKE) test-release-publication
+
+.PHONY: test-release-publication release-stage-assets release-publish
+test-release-publication: ## Verify draft staging and immutable publication with isolated fixtures
+	@python3 scripts/release-publication-test.py
 
 # Build targets
 build: sync-to-lang fmt build-go build-ts build-python build-rust ## Build language wrappers (matches GitHub Actions)
@@ -163,12 +172,16 @@ fmt-rust: ## Format Rust code (matches GitHub Actions)
 fmt-check: | bootstrap ## Check if files are formatted without modifying
 	@$(GONEAT) format --check --verbose
 
-lint: | bootstrap ## Run linting (check only, no auto-fix - use 'make lint-fix' to auto-fix)
+lint: lint-schema-contracts | bootstrap ## Run linting (check only, no auto-fix - use 'make lint-fix' to auto-fix)
 	@cd lang/typescript && bun run lint
 	@cd lang/python && uv run ruff check .
 	@cd lang/rust && cargo clippy -- -D warnings
 	@$(GONEAT) assess --categories format --check --fail-on low --exclude "lang/**"
 	@$(GONEAT) assess --categories security --check
+
+.PHONY: lint-schema-contracts
+lint-schema-contracts: | bootstrap ## Assess the isolated validator module from its own module root
+	@GONEAT_BIN="$(GONEAT)" ./scripts/assess-schema-contracts.sh format,lint,security
 
 lint-check: | bootstrap ## Non-mutating format+lint check via goneat for CI prep (no auto-fix, no mutation)
 	@$(GONEAT) assess --categories format,lint --check
@@ -264,9 +277,25 @@ clean: ## Clean any build artifacts
 	@rm -rf dist/ lang/*/dist/ bin/
 	@echo "✅ Clean completed"
 
-validate-schemas: | bootstrap ## Validate all schemas (meta + semantic validation)
-	@echo "🔍 Phase 1: Meta-validating all .schema.json files..."
-	@bun run scripts/validate-all-schemas.ts
+SCHEMA_CONTRACT_ROOT ?= $(CURDIR)
+SCHEMA_CONTRACT_MANIFEST ?= $(CURDIR)/scripts/schema-contracts/inventory.json
+
+.PHONY: bootstrap-schema-contracts validate-schema-contracts test-schema-contracts
+bootstrap-schema-contracts: ## Build the independently pinned strict schema validator
+	@cd scripts/schema-contracts && GOWORK=off GOFLAGS=-mod=readonly go mod download
+	@cd scripts/schema-contracts && GOWORK=off GOFLAGS=-mod=readonly go mod verify
+	@mkdir -p "$(BIN_DIR)"
+	@cd scripts/schema-contracts && GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly go build -trimpath -o "$(BIN_DIR)/schema-contracts" .
+	@echo "Strict validator executable: $(BIN_DIR)/schema-contracts"
+	@go version -m "$(BIN_DIR)/schema-contracts"
+
+validate-schema-contracts: bootstrap-schema-contracts ## Require exact inventory, strict compilation, offline references and wrapper parity
+	@"$(BIN_DIR)/schema-contracts" -root "$(SCHEMA_CONTRACT_ROOT)" -manifest "$(SCHEMA_CONTRACT_MANIFEST)"
+
+test-schema-contracts: ## Exercise strict validator discovery, rejection and ADR use controls
+	@cd scripts/schema-contracts && GOWORK=off GOFLAGS=-mod=readonly go test ./...
+
+validate-schemas: validate-schema-contracts test-schema-contracts | bootstrap ## Validate all schemas (strict contracts + semantic validation)
 	@echo ""
 	@echo "🔍 Phase 2: Semantic validation of data files..."
 	@bun run scripts/validate-schemas.ts
@@ -383,10 +412,10 @@ release-clean: ## Remove local release artifacts (dist/release)
 release-guard-tag-version: ## Guard: ensure tag matches VERSION (CI-friendly)
 	@./scripts/release-guard-tag-version.sh
 
-release-tag: ## Create a signed git tag for VERSION and verify it against the pinned release key
+release-tag: ## Create the explicit signed release tag and verify independent authorization
 	@./scripts/release-tag.sh
 
-release-verify-tag: ## Verify the signed git tag for VERSION against the pinned release key (and minisign attestation if present)
+release-verify-tag: ## Verify the explicit release tag against independent authorization and committed pins
 	@./scripts/release-verify-tag.sh
 
 release-push-tag: ## Verify and push the signed version tag, then confirm the remote tag and GitHub verification
@@ -397,5 +426,10 @@ release-tag-push: release-push-tag
 release-verify-remote-tag: ## Verify GitHub reports the tag verified (gh required; fails if not verified)
 	@./scripts/release-verify-remote-tag.sh
 
-release-publish-assets: ## Publish GitHub Release assets (minisign attestations) for the current tag (gh required)
-	@./scripts/release-publish-assets.sh
+release-publish-assets: release-stage-assets ## Stage and verify release assets; does not publish
+
+release-stage-assets: ## Stage draft assets with explicit FULMENHQ_CRUCIBLE_RELEASE_LATEST and FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE
+	@./scripts/release-publish-assets.sh stage --latest="$(FULMENHQ_CRUCIBLE_RELEASE_LATEST)" --prerelease="$(FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE)"
+
+release-publish: ## Explicitly publish a verified draft and verify the immutable result
+	@./scripts/release-publish-assets.sh publish --latest="$(FULMENHQ_CRUCIBLE_RELEASE_LATEST)" --prerelease="$(FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE)"

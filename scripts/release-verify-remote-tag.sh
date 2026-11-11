@@ -1,45 +1,23 @@
 #!/usr/bin/env bash
 set -euo pipefail
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=scripts/release-env.sh
+source "$script_dir/release-env.sh"
 
-# Verify tag signature via GitHub API for fulmenhq/crucible
-# Exits non-zero unless GitHub reports the tag object verified.
+# Authenticate the existing local object before checking GitHub's exact object,
+# commit, tag name and verified status. Never fetches or executes candidate code.
 #
-# Environment variables (FULMENHQ_CRUCIBLE_* preferred, CRUCIBLE_* legacy):
-#   FULMENHQ_CRUCIBLE_RELEASE_TAG  - Override tag (default: v<VERSION>)
+# Environment variables (plus shared trust inputs in release-env.sh):
+#   FULMENHQ_CRUCIBLE_RELEASE_TAG  - Required explicit canonical tag
 #   FULMENHQ_CRUCIBLE_GITHUB_REPO  - Override repo (default: auto-detect from origin)
 #
-# Legacy aliases (will be removed in future release):
-#   CRUCIBLE_RELEASE_TAG, CRUCIBLE_GITHUB_REPO
-
 repo_root() {
 	git rev-parse --show-toplevel
 }
 
-read_version() {
-	if [ ! -f VERSION ]; then
-		echo "error: VERSION file not found" >&2
-		exit 1
-	fi
-	tr -d ' \t\r\n' <VERSION
-}
-
-normalize_tag() {
-	local raw="${1:-}"
-	if [ -z "$raw" ]; then
-		printf '%s' ""
-		return 0
-	fi
-	if [[ "$raw" == v* ]]; then
-		printf '%s' "$raw"
-	else
-		printf 'v%s' "$raw"
-	fi
-}
-
 detect_repo() {
-	# FULMENHQ_CRUCIBLE_GITHUB_REPO > CRUCIBLE_GITHUB_REPO (legacy) > auto-detect
-	if [ -n "${FULMENHQ_CRUCIBLE_GITHUB_REPO:-${CRUCIBLE_GITHUB_REPO:-}}" ]; then
-		printf '%s' "${FULMENHQ_CRUCIBLE_GITHUB_REPO:-${CRUCIBLE_GITHUB_REPO:-}}"
+	if [ -n "${FULMENHQ_CRUCIBLE_GITHUB_REPO:-}" ]; then
+		printf '%s' "$FULMENHQ_CRUCIBLE_GITHUB_REPO"
 		return 0
 	fi
 
@@ -83,12 +61,16 @@ main() {
 		exit 1
 	fi
 
-	local version
-	version="$(read_version)"
-
-	# Tag: FULMENHQ_CRUCIBLE_RELEASE_TAG > CRUCIBLE_RELEASE_TAG (legacy) > v<VERSION>
-	local tag
-	tag="$(normalize_tag "${FULMENHQ_CRUCIBLE_RELEASE_TAG:-${CRUCIBLE_RELEASE_TAG:-v${version}}}")"
+	refuse_legacy_release_env
+	local tag local_object target
+	tag="$(require_release_tag)"
+	local_object=$(git rev-parse --verify "refs/tags/$tag")
+	"$script_dir/verify-pinned-tag.sh" "$tag" "$local_object"
+	target=$(git rev-parse "$local_object^{commit}")
+	[[ "$tag" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || {
+		echo 'error: canonical release tag required' >&2
+		exit 1
+	}
 
 	local repo
 	if ! repo="$(detect_repo)"; then
@@ -100,15 +82,21 @@ main() {
 
 	local tag_sha
 	tag_sha="$(gh api "repos/${repo}/git/ref/tags/${tag}" --jq .object.sha)"
+	[[ "$(git cat-file -t "$local_object")" == tag && "$tag_sha" == "$local_object" ]] || {
+		echo 'error: remote tag object differs from local annotated tag' >&2
+		exit 1
+	}
 
-	local verified reason
-	read -r verified reason < <(gh api "repos/${repo}/git/tags/${tag_sha}" --jq '"\(.verification.verified) \(.verification.reason)"')
-	echo "  verified: ${verified} (reason: ${reason})"
-
-	if [ "${verified}" != "true" ]; then
+	local binding
+	binding=$(gh api "repos/${repo}/git/tags/${tag_sha}" --jq '[.sha,.tag,.object.type,.object.sha,.verification.verified,.verification.reason] | @tsv')
+	if [[ "$binding" != "$(printf '%s\t%s\tcommit\t%s\ttrue\tvalid' "$local_object" "$tag" "$target")" ]]; then
 		echo "error: GitHub does not report ${tag} verified" >&2
 		exit 1
 	fi
+	[[ "$(git rev-parse "refs/tags/$tag")" == "$local_object" ]] || {
+		echo 'error: local tag changed during remote verification' >&2
+		exit 1
+	}
 	echo "✅ GitHub reports ${tag} verified"
 }
 

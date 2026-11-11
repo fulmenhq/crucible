@@ -8,18 +8,20 @@
 
 ## Variables (Quick Reference)
 
-- `FULMENHQ_CRUCIBLE_RELEASE_TAG`: optional override tag (e.g., `v0.3.0`)
-- `FULMENHQ_CRUCIBLE_GPG_HOMEDIR`: dedicated signing keyring directory (recommended)
+- `FULMENHQ_CRUCIBLE_RELEASE_TAG`: required explicit canonical tag (e.g., `v0.4.20`); never derived from `VERSION`
+- `FULMENHQ_CRUCIBLE_GPG_SIGNING_FINGERPRINT`: independently provisioned approved GPG primary fingerprint
+- `FULMENHQ_CRUCIBLE_DECERNOR_BIN`: required absolute path to a trusted published decernor executable, version 0.1.8 or newer; no PATH fallback
+- `FULMENHQ_CRUCIBLE_GPG_HOMEDIR`: dedicated signing keyring directory
 - `FULMENHQ_CRUCIBLE_PGP_KEY_ID`: key id/email/fingerprint for signing
 - `FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN`: set to `1` to allow tagging from non-main branch
 - `FULMENHQ_CRUCIBLE_TAGGER_NAME` / `FULMENHQ_CRUCIBLE_TAGGER_EMAIL`: optional; must equal `config/release/tagger-identity.txt` (the tagger is always taken from that file)
 
-Optional minisign sidecar attestation:
+Required minisign sidecar attestation for the declared release asset profile:
 
 - `FULMENHQ_CRUCIBLE_MINISIGN_KEY`: minisign secret key path (fulmenhq org release key)
-- `FULMENHQ_CRUCIBLE_MINISIGN_PUB`: minisign public key path (default: `docs/security/release-minisign.pub`)
+- The minisign public key is read from the verified tagged commit; public-key overrides are refused.
 
-Legacy aliases (deprecated, will be removed):
+Retired aliases are refused:
 
 - `CRUCIBLE_RELEASE_TAG`, `CRUCIBLE_GPG_HOMEDIR`, `CRUCIBLE_PGP_KEY_ID`, `CRUCIBLE_ALLOW_NON_MAIN`
 
@@ -61,7 +63,11 @@ Note: These are not secrets and typically aren't stored in encrypted env bundles
 export GPG_TTY="$(tty)"
 gpg-connect-agent updatestartuptty /bye
 
-# Point to dedicated signing keyring (recommended)
+# Independently provision the approved primary and trusted checker first.
+# Run the ceremony from a trusted reviewed checkout, never candidate code.
+export FULMENHQ_CRUCIBLE_RELEASE_TAG="v<VERSION>"
+
+# Point to a dedicated signing keyring
 export FULMENHQ_CRUCIBLE_GPG_HOMEDIR="/path/to/signing-keyring"
 export FULMENHQ_CRUCIBLE_PGP_KEY_ID="your-key-id"
 
@@ -85,7 +91,7 @@ The script performs these safety checks before creating the tag:
 - Tagger name and email stamped from `config/release/tagger-identity.txt`
 - Automatic verification against the pinned release key after creation (`scripts/verify-pinned-tag.sh`); a tag that fails is deleted locally
 
-### 3. Verify the signed tag (optional manual check)
+### 3. Verify the signed tag
 
 ```bash
 make release-verify-tag
@@ -101,6 +107,22 @@ make release-push-tag
 
 This verifies the local signature against the pin, requires the tagged commit to be on `origin/main` and the remote tag to be absent, pushes the tag ref, and confirms the remote tag object and GitHub's verified flag (when `gh` is available).
 
+### 5. Stage, verify, and publish the immutable release
+
+- [ ] Confirm version-tag protections and immutable-release enablement
+- [ ] Create a draft for the verified tag; implicit tag creation is forbidden
+- [ ] Upload only the asset set declared in the verified tagged commit
+- [ ] Enumerate and download the draft assets; verify exact names, bytes and signatures
+- [ ] Retain the pre-publication verification record bound to the tag object and commit
+- [ ] Recheck the draft against that record immediately before explicit publication
+- [ ] Verify the published release is not a draft and reports `immutable: true`
+- [ ] Verify published tag, assets, latest/prerelease intent and forge attestation against the same record
+
+Uploads and replacements finish while the release is a draft. A successful
+upload, repository setting or CI run alone does not establish a completed release.
+Report staging, publication failure and published-but-verification-failed outcomes
+separately. Never upload replacements into a published release.
+
 ## Post-Release Validation
 
 - [ ] `go get github.com/fulmenhq/crucible@v<VERSION>` succeeds
@@ -108,9 +130,9 @@ This verifies the local signature against the pin, requires the tagged commit to
 - [ ] Downstream sync script succeeds against the tagged version
 - [ ] Monitoring/telemetry updated with release info
 
-### Verify tag signature (optional)
+### Verify tag signature
 
-**Pinned key** (authoritative):
+**Independent approved primary plus committed key pin**:
 
 ```bash
 git fetch --tags origin
@@ -134,18 +156,27 @@ make release-verify-remote-tag
 
 `scripts/verify-pinned-tag.sh` accepts a tag only when it carries one good, unexpired signature by the pinned signing subkey and the committed tagger identity. It reads these files from the tagged commit, not the working tree:
 
+The approved primary is provisioned independently through the maintainer's trusted
+channel. The trusted verifier constrains the committed primary to that value;
+decernor checks committed pin/anchor consistency. Under this delegation model,
+valid signing subkeys certified by the approved primary can authenticate the
+signed commit's minisign and tagger policy. This does not independently restrict
+authorization to a separately provisioned exact subkey or minisign fingerprint.
+
 | File                                     | Holds                                                            |
 | ---------------------------------------- | ---------------------------------------------------------------- |
 | `docs/security/release-signing-keys.asc` | Estate GPG public primary plus exactly one signing subkey        |
 | `docs/security/release-minisign.pub`     | fulmenhq org minisign public key                                 |
 | `keys/expected-fingerprints.txt`         | `gpg <primary fingerprint>` then `minisign <sha256 of key blob>` |
+| `keys/expected-fingerprints.ndjson`      | Corresponding records from the designated decernor checker       |
 | `config/release/tagger-identity.txt`     | Required tagger name and email                                   |
 
 The GPG files are the same bytes across estate repositories, and the minisign files are the same across fulmenhq repositories; copy them from a sibling rather than re-exporting. Tags created before these files were committed (v0.4.19 and earlier) do not pass the pinned check; `git tag -v` still verifies them against the key that signed them.
 
 When the release key rotates:
 
-- [ ] Update the pin and `keys/expected-fingerprints.txt` together by reviewed PR **before** creating the first tag signed by the new key
+- [ ] Approve a new primary independently before changing the provisioned fingerprint; candidate contents never authorize primary rotation
+- [ ] Update the pin and both anchor files together by reviewed PR **before** creating the first tag signed by the new key; derive anchors with decernor twice and compare
 - [ ] Upload the new public key to the maintainer GitHub account (keeps the Verified badge green)
 - [ ] The verifier accepts exactly one signing subkey, so the pin switches in the same PR; tags already pushed under the old key are unaffected
 
@@ -154,20 +185,13 @@ When the release key rotates:
 - [ ] Release announcement shared (internal + community channels)
 - [ ] Follow-up issues filed for deferred items
 
-## Rollback
+## Corrections after publication
 
-If issues are discovered after release:
-
-```bash
-# Delete remote tag
-git push origin --delete v<VERSION>
-
-# Delete local tag
-git tag -d v<VERSION>
-
-# If VERSION file needs revert
-git revert <commit-hash>
-```
+Retain the published release and tag, add a correction or withdrawal notice,
+and publish a corrected version. Never move, delete or reuse a version tag as
+the routine repair path. A takedown requires separate maintainer authorization
+and retention of the original verification evidence; it does not authorize tag
+reuse or remove copies from downstream caches.
 
 ---
 
@@ -200,15 +224,15 @@ All scripts are in `scripts/` and can be run directly if needed.
 
 **`scripts/release-guard-tag-version.sh`** - Version consistency check:
 
-- Compares current git tag (or `FULMENHQ_CRUCIBLE_RELEASE_TAG` env var) against `VERSION` file
-- Use in CI with `FULMENHQ_CRUCIBLE_REQUIRE_TAG=1` to enforce tag presence
+- Compares required explicit `FULMENHQ_CRUCIBLE_RELEASE_TAG` against `VERSION`
+- Refuses missing, derived, noncanonical or legacy tag inputs
 - Exits 0 if match, exits 1 if mismatch
 
 **`scripts/release-verify-tag.sh`** - Signature verification:
 
-- Verifies GPG signature on the tag for `VERSION` (or `FULMENHQ_CRUCIBLE_RELEASE_TAG`)
+- Verifies GPG signature on the explicit `FULMENHQ_CRUCIBLE_RELEASE_TAG`
 - Runs `scripts/verify-pinned-tag.sh` (pinned subkey, anchors, tagger identity)
-- Verifies the minisign attestation in `dist/release/` against the committed public key when present
+- Requires the minisign attestation in `dist/release/` and verifies it against the committed public key
 - Respects `FULMENHQ_CRUCIBLE_GPG_HOMEDIR` for dedicated keyrings
 
 **`scripts/release-push-tag.sh`** - Tag push with confirmation:

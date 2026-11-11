@@ -1,0 +1,64 @@
+name: Release trust verification
+on:
+  push:
+    tags:
+      - 'v*'
+# This is a consistency signal, not release publication authority.
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      FULMENHQ_CRUCIBLE_RELEASE_TAG: ${{ github.ref_name }}
+      # Provision through an independently approved maintainer channel, never
+      # by copying the candidate's anchor into this repository variable.
+      FULMENHQ_CRUCIBLE_GPG_SIGNING_FINGERPRINT: ${{ vars.FULMENHQ_CRUCIBLE_GPG_SIGNING_FINGERPRINT }}
+    steps:
+      - name: Checkout reviewed verifier from the protected default branch
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
+        with:
+          ref: main
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Install digest-pinned designated checker
+        shell: bash
+        run: |
+          set -euo pipefail
+          source scripts/release-env.sh
+          refuse_legacy_release_env
+          require_release_tag >/dev/null
+          require_approved_primary
+          archive=decernor_0.1.9_linux_amd64.tar.gz
+          tool_dir="$(mktemp -d "$RUNNER_TEMP/decernor.XXXXXX")"
+          awk -v name="$archive" '$2 == name {print}' config/release/decernor-ci-sha256.txt > "$tool_dir/checksum"
+          test "$(wc -l < "$tool_dir/checksum")" -eq 1
+          curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
+            "https://github.com/3leaps/decernor/releases/download/v0.1.9/$archive" -o "$tool_dir/$archive"
+          (cd "$tool_dir" && sha256sum --check checksum)
+          tar -xzf "$tool_dir/$archive" -C "$tool_dir" decernor
+          echo "FULMENHQ_CRUCIBLE_DECERNOR_BIN=$tool_dir/decernor" >> "$GITHUB_ENV"
+      - name: Verify candidate as inert objects in a private namespace
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_COMMIT: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          source scripts/release-env.sh
+          tag="$(require_release_tag)"
+          require_approved_primary
+          resolve_release_decernor
+          remote_object="$(git ls-remote --exit-code origin "refs/tags/$tag" | awk '{print $1}')"
+          [[ "$remote_object" =~ ^[0-9a-f]{40}$ ]]
+          ref="refs/crucible-verify/${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}"
+          trap 'git update-ref -d "$ref"' EXIT
+          git fetch --no-tags origin "refs/tags/$tag:$ref"
+          [[ "$(git rev-parse "$ref")" == "$remote_object" ]]
+          ./scripts/verify-pinned-tag.sh "$tag" "$remote_object"
+          target="$(git rev-parse "$remote_object^{commit}")"
+          [[ "$target" == "$EXPECTED_COMMIT" ]]
+          # GitHub attribution is additional to the independent-primary check.
+          binding="$(gh api "repos/fulmenhq/crucible/git/tags/$remote_object" --jq '[.sha,.tag,.object.type,.object.sha,.verification.verified,.verification.reason] | @tsv')"
+          [[ "$binding" == "$(printf '%s\t%s\tcommit\t%s\ttrue\tvalid' "$remote_object" "$tag" "$target")" ]]
+          [[ "$(git ls-remote --exit-code origin "refs/tags/$tag" | awk '{print $1}')" == "$remote_object" ]]
