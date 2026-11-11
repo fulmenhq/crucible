@@ -12,8 +12,8 @@ cp "$ROOT/Makefile" "$work/Makefile"
 cp "$ROOT/scripts/tool-version-matches.sh" "$work/scripts/"
 minisign -G -W -s "$work/trusted.key" -p "$work/docs/security/fulmenhq-goneat-minisign.pub" >/dev/null
 minisign -G -W -s "$work/foreign.key" -p "$work/foreign.pub" >/dev/null
-printf 'controlled release checksums\n' > "$work/checksums"
-cat > "$work/bin/sfetch" <<'EOF'
+printf 'controlled release checksums\n' >"$work/checksums"
+cat >"$work/bin/sfetch" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 if [[ "$1" == --version ]]; then echo 'sfetch 0.4.12' >&2; exit 0; fi
@@ -35,15 +35,15 @@ chmod +x "$dest/goneat"
 EOF
 chmod +x "$work/bin/sfetch"
 minisign -Sm "$work/checksums" -s "$work/foreign.key" >/dev/null
-if make --no-print-directory -C "$work" bootstrap-goneat > "$work/result" 2>&1; then
-  echo 'foreign release signature accepted' >&2
-  exit 1
+if make --no-print-directory -C "$work" bootstrap-goneat >"$work/result" 2>&1; then
+	echo 'foreign release signature accepted' >&2
+	exit 1
 fi
 [[ ! -e "$work/bin/goneat" ]]
 minisign -Sm "$work/checksums" -s "$work/trusted.key" >/dev/null
-if ! make --no-print-directory -C "$work" bootstrap-goneat > "$work/result" 2>&1; then
-  cat "$work/result" >&2
-  exit 1
+if ! make --no-print-directory -C "$work" bootstrap-goneat >"$work/result" 2>&1; then
+	cat "$work/result" >&2
+	exit 1
 fi
 [[ -x "$work/bin/goneat" ]]
 echo '[ok] bootstrap supplies pinned key: foreign signature rejected, trusted signature accepted'

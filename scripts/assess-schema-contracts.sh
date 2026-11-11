@@ -4,8 +4,11 @@ set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 categories="${1:-format,lint,security}"
 case "$categories" in
-  format,lint|format,lint,security) ;;
-  *) echo 'error: unsupported module assessment categories' >&2; exit 1 ;;
+format,lint | format,lint,security) ;;
+*)
+	echo 'error: unsupported module assessment categories' >&2
+	exit 1
+	;;
 esac
 candidate="${GONEAT_BIN:-$root/bin/goneat}"
 binary="$(command -v "$candidate")"

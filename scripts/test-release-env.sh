@@ -49,15 +49,15 @@ echo '[ok] explicit checker identity, version floor and path controls'
 
 mkdir -p "$work/repo/scripts"
 cp "$script_dir/release-guard-tag-version.sh" "$script_dir/release-env.sh" "$work/repo/scripts/"
-printf '1.2.3\n' > "$work/repo/VERSION"
+printf '1.2.3\n' >"$work/repo/VERSION"
 FULMENHQ_CRUCIBLE_RELEASE_TAG=v1.2.3 bash "$work/repo/scripts/release-guard-tag-version.sh"
 for tag in '' 1.2.3 v1.2.4; do
-	if FULMENHQ_CRUCIBLE_RELEASE_TAG="$tag" bash "$work/repo/scripts/release-guard-tag-version.sh" > "$work/log" 2>&1; then
+	if FULMENHQ_CRUCIBLE_RELEASE_TAG="$tag" bash "$work/repo/scripts/release-guard-tag-version.sh" >"$work/log" 2>&1; then
 		echo "error: invalid version guard input accepted: $tag" >&2
 		exit 1
 	fi
 done
-if FULMENHQ_CRUCIBLE_RELEASE_TAG=v1.2.3 CRUCIBLE_RELEASE_TAG=v1.2.3 bash "$work/repo/scripts/release-guard-tag-version.sh" > "$work/log" 2>&1; then
+if FULMENHQ_CRUCIBLE_RELEASE_TAG=v1.2.3 CRUCIBLE_RELEASE_TAG=v1.2.3 bash "$work/repo/scripts/release-guard-tag-version.sh" >"$work/log" 2>&1; then
 	echo 'error: legacy guard input accepted' >&2
 	exit 1
 fi

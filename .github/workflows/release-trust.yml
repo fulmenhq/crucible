@@ -1,5 +1,5 @@
 name: Release trust verification
-on:
+'on':
   push:
     tags:
       - 'v*'
@@ -59,6 +59,8 @@ jobs:
           target="$(git rev-parse "$remote_object^{commit}")"
           [[ "$target" == "$EXPECTED_COMMIT" ]]
           # GitHub attribution is additional to the independent-primary check.
-          binding="$(gh api "repos/fulmenhq/crucible/git/tags/$remote_object" --jq '[.sha,.tag,.object.type,.object.sha,.verification.verified,.verification.reason] | @tsv')"
+          binding="$(gh api "repos/fulmenhq/crucible/git/tags/$remote_object" \
+            --jq '[.sha,.tag,.object.type,.object.sha,
+                   .verification.verified,.verification.reason] | @tsv')"
           [[ "$binding" == "$(printf '%s\t%s\tcommit\t%s\ttrue\tvalid' "$remote_object" "$tag" "$target")" ]]
           [[ "$(git ls-remote --exit-code origin "refs/tags/$tag" | awk '{print $1}')" == "$remote_object" ]]
