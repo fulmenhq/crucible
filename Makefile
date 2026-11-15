@@ -305,7 +305,7 @@ test-schema-contracts: ## Exercise strict validator discovery, rejection and ADR
 validate-schemas: validate-schema-contracts test-schema-contracts | bootstrap ## Validate all schemas (strict contracts + semantic validation)
 	@echo ""
 	@echo "🔍 Phase 2: Semantic validation of data files..."
-	@bun run scripts/validate-schemas.ts
+	@GONEAT="$(GONEAT)" bun run scripts/validate-schemas.ts
 	@bun run scripts/validate-taxonomy-version.ts
 	@bun run scripts/validate-module-registry.ts
 
