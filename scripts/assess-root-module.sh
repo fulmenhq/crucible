@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # Run a full-root, check-only assessment without staged package selection crossing
-# into the separately assessed tooling module.
+# into the separately assessed tooling module. The --exclude for that module is
+# honoured by format and lint; goneat's security (gosec) conversion can skip it,
+# so the module's own findings carry in-source justifications (see
+# scripts/schema-contracts/main.go) instead of relying on the exclude.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 case "${1:-}" in

@@ -225,6 +225,7 @@ func discover(root string, roots []string) (map[string]bool, error) {
 
 func loadManifest(path string) (Manifest, error) {
 	var m Manifest
+	// #nosec G304 -- path is the operator-supplied -manifest flag; reading it is the tool's purpose.
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return m, err
@@ -378,6 +379,7 @@ func validate(root string, m Manifest) (map[string]*jsonschema.Schema, error) {
 		if e.Provenance != "canonical" && e.Provenance != "vendor" && e.Provenance != "wrapper" {
 			return nil, fmt.Errorf("invalid provenance: %s", e.Path)
 		}
+		// #nosec G304 -- e.Path must already match the inventory walk, which rejects symlinks and non-regular files, so the manifest cannot widen the read set.
 		b, err := os.ReadFile(filepath.Join(root, e.Path))
 		if err != nil {
 			return nil, err

@@ -36,7 +36,7 @@ GONEAT ?= $(shell [ -x "$(GONEAT_LOCAL)" ] && echo "$(GONEAT_LOCAL)" || command 
 .PHONY: release-check release-build release-prepare release-clean
 .PHONY: release-guard-tag-version release-tag release-verify-tag release-push-tag release-tag-push release-verify-remote-tag release-publish-assets test-release-tooling
 .PHONY: lint-check pr-final pr-final-drift-check
-.PHONY: prepush precommit check-all
+.PHONY: prepush precommit check-all bun-install
 .PHONY: validate-schemas verify-codegen codegen-exit-codes codegen-fulpack codegen-fulpack-python codegen-fulencode codegen-roles codegen-all
 
 # Default target
@@ -265,7 +265,11 @@ pr-final-drift-check: ## Verify PR-final validation left tracked files unchanged
 	fi
 	@echo "✅ No tracked-file drift"
 
-precommit: sync-to-lang check-all ## Run pre-commit hooks (sync + check-all)
+bun-install: ## Install JS dependencies strictly from committed lockfiles (no unlocked resolution)
+	@bun install --frozen-lockfile
+	@cd lang/typescript && bun install --frozen-lockfile
+
+precommit: bun-install sync-to-lang check-all ## Run pre-commit hooks (install locked deps + sync + check-all)
 	@echo "✅ Pre-commit checks passed"
 
 check-all: validate-schemas lint-config verify-codegen build lint test typecheck ## Run all checks (lint, test, typecheck) after ensuring build/sync
