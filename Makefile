@@ -269,7 +269,10 @@ bun-install: ## Install JS dependencies strictly from committed lockfiles (no un
 	@bun install --frozen-lockfile
 	@cd lang/typescript && bun install --frozen-lockfile
 
-precommit: bun-install sync-to-lang check-all ## Run pre-commit hooks (install locked deps + sync + check-all)
+precommit: ## Run pre-commit hooks (install locked deps, then sync, then check-all; serialized under make -j)
+	@$(MAKE) bun-install
+	@$(MAKE) sync-to-lang
+	@$(MAKE) check-all
 	@echo "✅ Pre-commit checks passed"
 
 check-all: validate-schemas lint-config verify-codegen build lint test typecheck ## Run all checks (lint, test, typecheck) after ensuring build/sync
