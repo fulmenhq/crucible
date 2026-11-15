@@ -14,7 +14,7 @@ SFETCH_ENGINE_SHA := bd0e7a0e68ef5a3dc7cda862fc74e4e8bc5125f8
 SFETCH_ENGINE_SHA256 := 6114b7b6c1b4f01b5dcab55de635127301a09bc456eb9094656810300b363532
 SFETCH_ENGINE_REPO := 3leaps/sfetch
 SFETCH_CACHE_DIR ?= $(CURDIR)/.cache/sfetch
-GONEAT_VERSION ?= v0.6.4
+GONEAT_VERSION ?= v0.6.8
 # Validate meta-schemas against goneat's embedded copies; no network fetches.
 GONEAT_OFFLINE_SCHEMA_VALIDATION ?= true
 export GONEAT_OFFLINE_SCHEMA_VALIDATION

@@ -30,7 +30,7 @@ while [[ $# -gt 0 ]]; do
 done
 [[ "$required" == 1 && "$key" == "$PWD/docs/security/fulmenhq-goneat-minisign.pub" ]]
 minisign -Vm "$PWD/checksums" -p "$key" >/dev/null
-printf '#!/usr/bin/env bash\necho "goneat v0.6.4"\n' > "$dest/goneat"
+printf '#!/usr/bin/env bash\necho "goneat v0.6.8"\n' > "$dest/goneat"
 chmod +x "$dest/goneat"
 EOF
 chmod +x "$work/bin/sfetch"
