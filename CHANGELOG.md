@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **schemas: `similarity` v1.0.0** — categories are `distance`, `normalization` and `suggestions` with a single distance case definition; the split-metric contract remains in v2.0.0.
 - **config: signals fixture** — `fallback_behavior`, `log_template` and `operation_hint` used consistently.
 - **deps: toolchain refresh** — goneat v0.6.8 (installed through a verified sfetch v0.4.12 bootstrap), Go 1.26.11, Bun 1.4.3, `js-yaml` 4.3.2, `@biomejs/biome` 2.5.14, `vitest` and `@vitest/coverage-v8` 4.1.11, `ruff` 0.17.0; GitHub Actions pinned by commit SHA.
+- **typescript: version exports** — `VERSION` and `CRUCIBLE_VERSION` in the TypeScript wrapper report the release SemVer (they previously reported `2025.10.0`); the version helper updates both quote styles.
 - **make: `precommit`** installs locked JavaScript dependencies, then runs sync and checks in order.
 - **docs: trademark notice** states that 3 Leaps, LLC is a North Carolina LLC.
 

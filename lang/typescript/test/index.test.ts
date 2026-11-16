@@ -1,17 +1,24 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import * as crucible from "../src/index.js";
+
+const packageVersion: string = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf-8"),
+).version;
 
 describe("index exports", () => {
   it("should export VERSION constant", () => {
     expect(crucible.VERSION).toBeDefined();
     expect(typeof crucible.VERSION).toBe("string");
-    expect(crucible.VERSION).toMatch(/^\d{4}\.\d{1,2}\.\d+$/);
+    expect(crucible.VERSION).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(crucible.VERSION).toBe(packageVersion);
   });
 
   it("should export CRUCIBLE_VERSION constant", () => {
     expect(crucible.CRUCIBLE_VERSION).toBeDefined();
     expect(typeof crucible.CRUCIBLE_VERSION).toBe("string");
-    expect(crucible.CRUCIBLE_VERSION).toMatch(/^\d{4}\.\d{1,2}\.\d+$/);
+    expect(crucible.CRUCIBLE_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(crucible.CRUCIBLE_VERSION).toBe(packageVersion);
   });
 
   it("should export schema utility functions", () => {
