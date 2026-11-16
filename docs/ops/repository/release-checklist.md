@@ -182,19 +182,30 @@ export GPG_TTY="$(tty)"
 gpg-connect-agent updatestartuptty /bye
 ```
 
-Optional: use a dedicated signing keyring (recommended for org-wide release keys):
+Run from a trusted reviewed operator checkout. Provision the approved primary
+fingerprint independently of the candidate, bind a trusted published decernor
+executable by absolute path, and use a dedicated signing keyring:
 
 ```bash
 export FULMENHQ_CRUCIBLE_GPG_HOMEDIR=/path/to/gnupg-fulmenhq
-export FULMENHQ_CRUCIBLE_PGP_KEY_ID="<key-id-or-email>" # optional; uses default git signing key if unset
+export FULMENHQ_CRUCIBLE_RELEASE_TAG="v<VERSION>"
+export FULMENHQ_CRUCIBLE_GPG_SIGNING_FINGERPRINT="<approved-primary-fingerprint>"
+export FULMENHQ_CRUCIBLE_DECERNOR_BIN="/path/to/trusted/decernor"
 ```
 
-Optional: enable minisign sidecar attestation (recommended when available):
+The release declaration requires the minisign sidecar pair. Supply its signing
+key before tag creation; the public pin is read only from the verified commit:
 
 ```bash
 export FULMENHQ_CRUCIBLE_MINISIGN_KEY=/path/to/fulmenhq.minisign.key
-export FULMENHQ_CRUCIBLE_MINISIGN_PUB=/path/to/fulmenhq.minisign.pub
 ```
+
+The tagger name and email come from committed `config/release/tagger-identity.txt`.
+The signer is the exact committed signing subkey under the independently approved
+primary; there is no default Git signing-key fallback. `make release-tag` verifies
+the tag and required sidecars and rolls back its newly created state on failure.
+Public-pin overrides and legacy tag variables are refused. See
+`RELEASE_CHECKLIST.md` (Release keys) for the identity delegation boundary.
 
 ```bash
 make release-guard-tag-version
@@ -205,7 +216,7 @@ make release-tag
 
 - [ ] Tag created successfully
 - [ ] Tag name follows `v<VERSION>` format (must match `VERSION`)
-- [ ] Tag is signed and verifies locally (`make release-verify-tag`)
+- [ ] Tag is signed and verifies against the pinned release key (`make release-verify-tag`)
 
 #### 4.2 Verify Tag
 
@@ -228,50 +239,30 @@ Optional: verify GitHub’s interpretation (CI-friendly; requires `gh` auth):
 make release-verify-remote-tag
 ```
 
-**Note (expected during key bootstrap)**:
+**Note**:
 
-- If GitHub reports `.verification.verified=false` with `.verification.reason="unknown_key"`, it usually means the release signing **public** key has not been uploaded to the GitHub release identity (or the tagger email doesn’t map to a verified email on that identity).
-- This does **not** invalidate the cryptographic signature. The authoritative check remains local: `make release-verify-tag` / `git tag -v v<VERSION>`.
+- If GitHub reports `.verification.verified=false` with `.verification.reason="unknown_key"`, the release signing **public** key is not on the GitHub account that owns the tagger email in `config/release/tagger-identity.txt`.
+- This does **not** invalidate the cryptographic signature. The authoritative check remains the pinned-key verification: `make release-verify-tag`.
+- Tags v0.4.19 and earlier were signed by a retired key with a different tagger and report `unknown_key`; they do not pass the pinned check.
 - Do **not** rewrite/retag already-published versions just to “make GitHub green”; fix the key visibility and let future tags verify in GitHub UI/API.
 
-### Phase 5: Push to Remote (REQUIRES APPROVAL)
+### Phase 5: Publish Tag (REQUIRES APPROVAL)
 
-**⚠️ IMPORTANT**: Get explicit approval from @3leapsdave before pushing to main.
+Complete the reviewed PR and required checks before the release commit is merged
+to `main`. Obtain explicit maintainer approval for tag publication. Push only the
+verified tag object; do not combine a direct main-branch push with this ceremony.
 
-#### 5.1 Dry Run Push
+#### 5.1 Push Tag
 
 ```bash
-git push --dry-run origin main
-git push --dry-run origin v$(cat VERSION)
+make release-push-tag
 ```
+
+This re-verifies the tag against the pinned key, requires the tagged commit on `origin/main` and no existing remote tag, pushes only the tag ref, and confirms the remote tag object and GitHub's verified flag.
 
 **Verify**:
 
-- [ ] Dry run shows expected refs
-- [ ] No unexpected commits being pushed
-- [ ] Tag push looks correct
-
-#### 5.2 Push Commits
-
-```bash
-git push origin main
-```
-
-**Verify**:
-
-- [ ] Push succeeded
-- [ ] Check GitHub web UI for commits
-- [ ] CI/CD triggered (if configured)
-
-#### 5.3 Push Tag
-
-```bash
-git push origin v$(cat VERSION)
-```
-
-**Verify**:
-
-- [ ] Tag push succeeded
+- [ ] Tag push succeeded and GitHub reports the tag verified
 - [ ] Check GitHub releases page
 - [ ] Tag visible in web UI
 
@@ -291,23 +282,47 @@ git tag -l "v*" | tail -3
 - [ ] Tag visible remotely
 - [ ] No divergence
 
-#### 6.2 Create GitHub Release (if applicable)
+#### 6.2 Stage and Verify the Draft
 
-**Manual steps**:
+The tagged `config/release/release-assets.json` declares the exact required pair
+`<tag>.tag.txt` and `<tag>.tag.txt.minisig`. Notes come from the verified commit's
+`release-notes/<tag>.md`. Forge-generated source archives are separate and are
+not claimed as maintainer-signed assets.
 
-1. Go to GitHub releases page
-2. Draft new release from tag `v$(cat VERSION)`
-3. Paste contents of `release-notes/$(cat VERSION).md`
-4. Attach any artifacts (if applicable)
-5. Publish release
+Choose an external verification-record path and explicit release intent:
 
-**Verify**:
+```bash
+export FULMENHQ_CRUCIBLE_RELEASE_RECORD="/path/outside/checkout/release-record.json"
+make release-stage-assets FULMENHQ_CRUCIBLE_RELEASE_LATEST=true FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE=false
+```
 
-- [ ] GitHub release created
-- [ ] Release notes visible
-- [ ] Assets attached (if applicable)
+- [ ] Tag object and commit are independently authorized and match the remote
+- [ ] Release remains a draft with reviewed tagged notes and intended metadata
+- [ ] Downloaded draft assets match the exact declared set and verify cryptographically
+- [ ] External pre-publication record retains identity, sizes and byte digests
 
-#### 6.3 Notify Downstream Consumers
+Missing, unexpected or changed assets fail the ceremony. Complete every upload
+while the release is a draft; never clobber a published release.
+
+#### 6.3 Publish and Verify the Immutable Result
+
+After explicit maintainer publication approval, use the same tag, record and intent:
+
+```bash
+make release-publish FULMENHQ_CRUCIBLE_RELEASE_LATEST=true FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE=false
+```
+
+- [ ] Final draft readback still matches the retained record and verified tag
+- [ ] Published release is not a draft and its own `immutable` field is true
+- [ ] Downloaded published bytes match the same pre-publication record
+- [ ] Latest/prerelease intent matches and required forge attestation verifies
+
+Staged-but-unpublished, publication-failed and published-but-verification-failed
+are distinct incomplete outcomes. On interruption, inspect actual state before
+retrying. Neither the repository setting nor a green CI run proves publication
+completed. Do not bypass these gates with the GitHub web publication button.
+
+#### 6.4 Notify Downstream Consumers
 
 **Notify maintainers of**:
 
@@ -333,8 +348,8 @@ git tag -l "v*" | tail -3
 5. Commit version changes (if any)
 6. Create signed tag: `make release-tag`
 7. **Get approval from @3leapsdave**
-8. Push: `git push origin main && git push origin v$(cat VERSION)`
-9. Create GitHub release
+8. After the approved PR is merged, publish the verified tag: `make release-push-tag`
+9. Stage/read back the declared pair, explicitly publish, and verify the immutable result using the same retained record
 10. Notify downstream consumers
 
 ---
@@ -343,23 +358,14 @@ git tag -l "v*" | tail -3
 
 **If release has issues AFTER push**:
 
-### Option 1: Revert Commits (Preferred)
+Retain the public tag and release, add a clear withdrawal or correction notice,
+and prepare a corrected release through the reviewed PR process. Public tags
+may already have reached caches or module proxies; absence of known consumers
+is not evidence that deletion is safe. Never move, delete or reuse a version
+tag as the normal correction path. A takedown needs separate maintainer approval
+and retained evidence, and does not authorize tag reuse.
 
-```bash
-git revert <commit-sha>
-git push origin main
-```
-
-### Option 2: Delete Tag (If Not Published)
-
-```bash
-git tag -d v<version>
-git push origin :refs/tags/v<version>
-```
-
-**⚠️ WARNING**: Only delete tags that haven't been pulled by consumers.
-
-### Option 3: Create Patch Release
+### Create a Corrected Release
 
 ```bash
 # Fix the issue

@@ -1,19 +1,43 @@
 #!/usr/bin/env bash
 set -euo pipefail
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# shellcheck source=scripts/release-env.sh
+source "$script_dir/release-env.sh"
 
 # Release tag creation script for fulmenhq/crucible
 #
-# Environment variables (FULMENHQ_CRUCIBLE_* preferred, CRUCIBLE_* legacy):
-#   FULMENHQ_CRUCIBLE_RELEASE_TAG   - Override tag (default: v<VERSION>)
+# Environment variables (see release-env.sh for shared explicit trust inputs):
+#   FULMENHQ_CRUCIBLE_RELEASE_TAG   - Required canonical tag, matching VERSION
 #   FULMENHQ_CRUCIBLE_GPG_HOMEDIR   - Dedicated signing keyring directory
-#   FULMENHQ_CRUCIBLE_PGP_KEY_ID    - GPG key id/email/fingerprint for signing
-#   FULMENHQ_CRUCIBLE_MINISIGN_KEY  - Minisign secret key path (optional sidecar)
-#   FULMENHQ_CRUCIBLE_MINISIGN_PUB  - Minisign public key path (optional sidecar)
+#   FULMENHQ_CRUCIBLE_PGP_KEY_ID    - Optional exact pinned subkey fingerprint + !
+#   FULMENHQ_CRUCIBLE_MINISIGN_KEY  - Required minisign secret key path
+#   FULMENHQ_CRUCIBLE_TAGGER_NAME   - Tagger name; must match config/release/tagger-identity.txt
+#   FULMENHQ_CRUCIBLE_TAGGER_EMAIL  - Tagger email; must match config/release/tagger-identity.txt
 #   FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN - Set to 1 to allow tagging from non-main branch
 #
-# Legacy aliases (will be removed in future release):
-#   CRUCIBLE_RELEASE_TAG, CRUCIBLE_GPG_HOMEDIR, CRUCIBLE_PGP_KEY_ID,
-#   CRUCIBLE_MINISIGN_KEY, CRUCIBLE_MINISIGN_PUB, CRUCIBLE_ALLOW_NON_MAIN
+# The tagger identity is read from config/release/tagger-identity.txt so it
+# matches a UID on the pinned estate signing key (required for GitHub to show
+# the tag Verified). After signing, scripts/verify-pinned-tag.sh must accept the
+# tag; otherwise the local tag is deleted.
+
+TAGGER_IDENTITY_FILE="config/release/tagger-identity.txt"
+created_tag_ref=""
+created_tag_object=""
+created_payload=""
+trust_work=""
+
+rollback_release_tag() {
+	local status=$?
+	if [ "$status" -ne 0 ] && [ -n "$created_tag_object" ]; then
+		# Compare-and-delete: never remove a ref another process replaced.
+		git update-ref -d "$created_tag_ref" "$created_tag_object" || echo "error: tag rollback failed; inspect $created_tag_ref" >&2
+		if [ -n "$created_payload" ]; then
+			rm -f -- "$created_payload" "$created_payload.minisig"
+		fi
+	fi
+	if [[ -n "$trust_work" ]]; then rm -rf "$trust_work"; fi
+	return "$status"
+}
 
 repo_root() {
 	git rev-parse --show-toplevel
@@ -25,19 +49,6 @@ read_version() {
 		exit 1
 	fi
 	tr -d ' \t\r\n' <VERSION
-}
-
-normalize_tag() {
-	local raw="${1:-}"
-	if [ -z "$raw" ]; then
-		printf '%s' ""
-		return 0
-	fi
-	if [[ "$raw" == v* ]]; then
-		printf '%s' "$raw"
-	else
-		printf 'v%s' "$raw"
-	fi
 }
 
 setup_gpg_tty() {
@@ -58,17 +69,69 @@ setup_gpg_tty() {
 	fi
 }
 
+ensure_gpg_signing_ready() {
+	local key_id="${1:-}"
+	if ! command -v gpg >/dev/null 2>&1; then
+		echo "error: gpg not found in PATH (required for signed tags)" >&2
+		exit 1
+	fi
+	PINNED_SIGNING_SUBKEY=$("$script_dir/pinned-signing-subkey.sh")
+	if [[ -n "$key_id" && "$key_id" != "${PINNED_SIGNING_SUBKEY}!" ]]; then
+		echo 'error: PGP_KEY_ID must equal the exact pinned signing subkey fingerprint followed by !' >&2
+		exit 1
+	fi
+	local listing
+	listing=$(gpg --batch --with-colons --with-subkey-fingerprint --list-secret-keys -- "${key_id:-$PINNED_SIGNING_SUBKEY}" 2>/dev/null) || listing=""
+	if ! awk -F: -v pin="$PINNED_SIGNING_SUBKEY" -v now="$(date +%s)" '
+		$1=="ssb" {eligible=($2 !~ /^[red]$/ && $12 ~ /s/ && $15 != "#" && ($7=="" || $7==0 || $7>now)); next}
+		$1=="fpr" {if (eligible && $10==pin) found=1; eligible=0}
+		END {exit !found}
+	' <<<"$listing"; then
+		echo "error: pinned signing subkey is not available${key_id:+ for key id: ${key_id}}" >&2
+		echo "hint: set FULMENHQ_CRUCIBLE_GPG_HOMEDIR to your signing keyring directory" >&2
+		echo "hint: run: gpg --list-secret-keys --keyid-format=long" >&2
+		exit 1
+	fi
+}
+
+# Sets TAGGER_NAME and TAGGER_EMAIL from the committed identity file.
+read_tagger_identity() {
+	if [[ "$(git ls-tree HEAD -- "$TAGGER_IDENTITY_FILE" | awk '{print $1}')" != 100644 ]]; then
+		echo "error: ${TAGGER_IDENTITY_FILE} not found or empty" >&2
+		exit 1
+	fi
+	local identity
+	identity="$(git cat-file blob "HEAD:$TAGGER_IDENTITY_FILE")"
+	if ! [[ "${identity}" =~ ^(.+)\ \<([^<>]+)\>$ ]]; then
+		echo "error: ${TAGGER_IDENTITY_FILE} must hold 'Name <email>'" >&2
+		exit 1
+	fi
+	TAGGER_NAME="${BASH_REMATCH[1]}"
+	TAGGER_EMAIL="${BASH_REMATCH[2]}"
+
+	local env_name="${FULMENHQ_CRUCIBLE_TAGGER_NAME:-}"
+	local env_email="${FULMENHQ_CRUCIBLE_TAGGER_EMAIL:-}"
+	if { [ -n "${env_name}" ] && [ "${env_name}" != "${TAGGER_NAME}" ]; } ||
+		{ [ -n "${env_email}" ] && [ "${env_email}" != "${TAGGER_EMAIL}" ]; }; then
+		echo "error: FULMENHQ_CRUCIBLE_TAGGER_NAME/EMAIL differ from ${TAGGER_IDENTITY_FILE} (${identity})" >&2
+		exit 1
+	fi
+}
+
 main() {
 	local root
 	root="$(repo_root)"
 	cd "$root"
+	refuse_legacy_release_env
+	require_approved_primary
+	resolve_release_decernor
 
 	local version
 	version="$(read_version)"
 
-	# Tag: FULMENHQ_CRUCIBLE_RELEASE_TAG > CRUCIBLE_RELEASE_TAG (legacy) > v<VERSION>
+	# Explicit input; VERSION is only a consistency constraint.
 	local tag
-	tag="$(normalize_tag "${FULMENHQ_CRUCIBLE_RELEASE_TAG:-${CRUCIBLE_RELEASE_TAG:-v${version}}}")"
+	tag="$(require_release_tag)"
 
 	if [ "$tag" != "v${version}" ]; then
 		echo "error: release tag/version mismatch" >&2
@@ -87,11 +150,12 @@ main() {
 		git status --porcelain >&2
 		exit 1
 	fi
+	local creation_target
+	creation_target="$(git rev-parse HEAD)"
 
 	local branch
 	branch="$(git branch --show-current 2>/dev/null || true)"
-	# Allow non-main: FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN > CRUCIBLE_ALLOW_NON_MAIN (legacy)
-	if [ "$branch" != "main" ] && [ "${FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN:-${CRUCIBLE_ALLOW_NON_MAIN:-}}" != "1" ]; then
+	if [ "$branch" != "main" ] && [ "${FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN:-}" != "1" ]; then
 		echo "error: refusing to tag from branch '$branch' (set FULMENHQ_CRUCIBLE_ALLOW_NON_MAIN=1 to override)" >&2
 		exit 1
 	fi
@@ -101,56 +165,72 @@ main() {
 		exit 1
 	fi
 
-	# GPG homedir: FULMENHQ_CRUCIBLE_GPG_HOMEDIR > CRUCIBLE_GPG_HOMEDIR (legacy)
-	local gpg_homedir="${FULMENHQ_CRUCIBLE_GPG_HOMEDIR:-${CRUCIBLE_GPG_HOMEDIR:-}}"
+	require_signing_keyring
+	require_signing_program
+	local pgp_key_id="${FULMENHQ_CRUCIBLE_PGP_KEY_ID:-}"
+	trust_work="$(mktemp -d)"
+	trap rollback_release_tag EXIT
+	"$script_dir/release-verify-anchors.sh" "$creation_target" "$trust_work"
 
-	if [ -n "${gpg_homedir}" ]; then
-		if [ ! -d "${gpg_homedir}" ]; then
-			echo "error: FULMENHQ_CRUCIBLE_GPG_HOMEDIR=${gpg_homedir} is not a directory" >&2
+	read_tagger_identity
+
+	ensure_gpg_signing_ready "${pgp_key_id}"
+	setup_gpg_tty
+
+	local minisign_key="${FULMENHQ_CRUCIBLE_MINISIGN_KEY:-}"
+	local minisign_pub="$trust_work/minisign.pub"
+	[[ -n "$minisign_key" ]] || {
+		echo 'error: FULMENHQ_CRUCIBLE_MINISIGN_KEY is required for the release asset profile' >&2
+		exit 1
+	}
+	if [ -n "$minisign_key" ]; then
+		command -v minisign >/dev/null 2>&1 || {
+			echo 'error: minisign requested but unavailable' >&2
 			exit 1
-		fi
-		export GNUPGHOME="${gpg_homedir}"
+		}
+		[ -f "$minisign_key" ] && [ -f "$minisign_pub" ] || {
+			echo 'error: minisign key files unavailable' >&2
+			exit 1
+		}
+		for existing in "dist/release/${tag}.tag.txt" "dist/release/${tag}.tag.txt.minisig"; do
+			[ ! -e "$existing" ] && [ ! -L "$existing" ] || {
+				echo "error: refusing to overwrite $existing" >&2
+				exit 1
+			}
+		done
 	fi
 
-	# PGP key ID: FULMENHQ_CRUCIBLE_PGP_KEY_ID > CRUCIBLE_PGP_KEY_ID (legacy)
-	local pgp_key_id="${FULMENHQ_CRUCIBLE_PGP_KEY_ID:-${CRUCIBLE_PGP_KEY_ID:-}}"
-	if [ -n "${pgp_key_id}" ] && [ -z "${gpg_homedir}" ]; then
-		echo "error: FULMENHQ_CRUCIBLE_PGP_KEY_ID is set but FULMENHQ_CRUCIBLE_GPG_HOMEDIR is not; set a dedicated signing homedir" >&2
+	echo "→ Creating signed tag: $tag (tagger: ${TAGGER_NAME} <${TAGGER_EMAIL}>)"
+
+	# The tag object takes its tagger from the committer identity.
+	export GIT_COMMITTER_NAME="${TAGGER_NAME}"
+	export GIT_COMMITTER_EMAIL="${TAGGER_EMAIL}"
+
+	trap rollback_release_tag EXIT
+	[[ "$(git rev-parse HEAD)" == "$creation_target" ]] || {
+		echo 'error: HEAD changed during tag preflight' >&2
+		exit 1
+	}
+	release_signing_git tag -s -a "$tag" "$creation_target" -u "${PINNED_SIGNING_SUBKEY}!" -m "Release $tag"
+	created_tag_ref="refs/tags/$tag"
+	created_tag_object=$(git rev-parse "$created_tag_ref")
+
+	echo "→ Verifying tag signature against the pinned estate key: $tag"
+	if ! "$script_dir/verify-pinned-tag.sh" "$tag" "$created_tag_object"; then
+		echo "error: $tag is not signed by the pinned release key; rolling back local tag" >&2
 		exit 1
 	fi
 
-	setup_gpg_tty
-
-	echo "→ Creating signed tag: $tag"
-
-	if [ -n "${pgp_key_id}" ]; then
-		git tag -s -a "$tag" -u "${pgp_key_id}" -m "Release $tag"
-	else
-		git tag -s -a "$tag" -m "Release $tag"
-	fi
-
-	echo "→ Verifying tag signature: $tag"
-	git verify-tag "$tag" >/dev/null
-
-	echo "✅ Created and verified signed tag: $tag"
-
-	# Minisign: FULMENHQ_CRUCIBLE_MINISIGN_* > CRUCIBLE_MINISIGN_* (legacy)
-	local minisign_key="${FULMENHQ_CRUCIBLE_MINISIGN_KEY:-${CRUCIBLE_MINISIGN_KEY:-}}"
-	local minisign_pub="${FULMENHQ_CRUCIBLE_MINISIGN_PUB:-${CRUCIBLE_MINISIGN_PUB:-}}"
-
-	if [ -n "${minisign_key}" ] || [ -n "${minisign_pub}" ]; then
+	if [ -n "${minisign_key}" ]; then
 		if ! command -v minisign >/dev/null 2>&1; then
 			echo "error: minisign requested but not found in PATH" >&2
-			exit 1
-		fi
-		if [ -z "${minisign_key}" ] || [ -z "${minisign_pub}" ]; then
-			echo "error: minisign requires both FULMENHQ_CRUCIBLE_MINISIGN_KEY and FULMENHQ_CRUCIBLE_MINISIGN_PUB" >&2
 			exit 1
 		fi
 
 		local out_dir="dist/release"
 		mkdir -p "${out_dir}"
 		local payload="${out_dir}/${tag}.tag.txt"
+		created_payload="$payload"
 
 		local tag_object
 		tag_object="$(git rev-parse "${tag}^{tag}")"
@@ -166,15 +246,21 @@ EOF
 		echo "→ Minisign tag attestation: ${payload}"
 		minisign -Sm "${payload}" -s "${minisign_key}"
 		minisign -Vm "${payload}" -p "${minisign_pub}" >/dev/null
+		"$script_dir/verify-tag-attestation.sh" "$tag" "$created_tag_object"
 		echo "✅ Minisign signature verified: ${payload}.minisig"
 	fi
 
+	rm -rf "$trust_work"
+	trust_work=""
+	trap - EXIT
+	echo "✅ Created and verified signed tag: $tag"
 	echo "Next:"
-	echo "  git push origin main"
-	echo "  git push origin $tag"
+	echo "  make release-push-tag"
 	if [ -f "dist/release/${tag}.tag.txt.minisig" ]; then
-		echo "  # Optional: publish dist/release/${tag}.tag.txt* as release assets"
+		echo "  # Stage and verify both required sidecars before explicit publication"
 	fi
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+	main "$@"
+fi

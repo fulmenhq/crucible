@@ -131,8 +131,9 @@ Committer-of-Record: Dave Thompson <dave.thompson@3leaps.net> [@3leapsdave]
 
 2. **Environment Check**
 
-   - Confirm required tools (`bun >= 1.2`, `go >= 1.21`)
-   - Run `make bootstrap` if tools are missing
+   - Confirm required tools (`bun >= 1.2`, `go >= 1.26.11`)
+   - Run `make bootstrap` if tools are missing (installs pinned sfetch and goneat into `bin/`)
+   - Run quality gates with the reference Go: `GOTOOLCHAIN=go1.26.11 make prepush` (goneat's gosec does not yet support newer Go)
 
 3. **Plan**
    - Outline steps in `.plans/` before modifying files — `.plans/` is always gitignored, never commit from it
@@ -208,9 +209,8 @@ Follow [`docs/ops/repository/release-checklist.md`](docs/ops/repository/release-
 ```bash
 make prepush                          # Comprehensive checks
 make version-set VERSION=<version>    # Update version
-git tag -a v$(cat VERSION)            # After approval
-git push origin main
-git push origin v$(cat VERSION)
+make release-tag                      # After approval; signed, verified against the pinned key
+make release-push-tag                 # Push only the tag; confirms GitHub verification
 ```
 
 ## Reference Documents

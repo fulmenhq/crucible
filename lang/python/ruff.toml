@@ -36,6 +36,10 @@ indent-width = 4
 target-version = "py312"
 
 [format]
+# docs/, schemas/ and config/ are synced verbatim from the repository root
+# (scripts/sync-to-lang.ts); formatting their code blocks here would drift from
+# the SSOT on every sync.
+exclude = ["docs/**", "schemas/**", "config/**"]
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false

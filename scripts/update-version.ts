@@ -91,15 +91,21 @@ function updateTypeScriptSources(version: string): boolean {
 
   const changedIndex = replaceInFile(idxPath, (contents) =>
     contents
-      .replace(/export const VERSION = '[^']+';/, `export const VERSION = '${version}';`)
       .replace(
-        /export const CRUCIBLE_VERSION = '[^']+';/,
-        `export const CRUCIBLE_VERSION = '${version}';`,
+        /export const VERSION = (["'])[^"']+\1;/,
+        (_match, quote: string) => `export const VERSION = ${quote}${version}${quote};`,
+      )
+      .replace(
+        /export const CRUCIBLE_VERSION = (["'])[^"']+\1;/,
+        (_match, quote: string) => `export const CRUCIBLE_VERSION = ${quote}${version}${quote};`,
       ),
   );
 
   const changedSchemas = replaceInFile(schemasPath, (contents) =>
-    contents.replace(/export const VERSION = '[^']+';/, `export const VERSION = '${version}';`),
+    contents.replace(
+      /export const VERSION = (["'])[^"']+\1;/,
+      (_match, quote: string) => `export const VERSION = ${quote}${version}${quote};`,
+    ),
   );
 
   return changedIndex || changedSchemas;

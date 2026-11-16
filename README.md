@@ -9,8 +9,8 @@
 _Single source of truth for schemas, standards, templates, and quality enforcement—foundational infoarch (level 0) in Fulmen's layer cake, powering libraries (level 1), templates (level 2), and apps/analytics (level 3+)._
 
 [![Lifecycle: Alpha](https://img.shields.io/badge/lifecycle-alpha-yellow)](docs/standards/repository-lifecycle.md)
-[![Version](https://img.shields.io/badge/version-0.4.12-blue)](VERSION)
-[![License](https://img.shields.io/badge/license-Hybrid-green)](LICENSE)
+[![Version](https://img.shields.io/badge/version-0.5.0-blue)](VERSION)
+[![License](https://img.shields.io/badge/license-MIT%20%2B%20CC0-green)](NOTICE)
 
 [![Test Go](https://github.com/fulmenhq/crucible/actions/workflows/test-go.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-go.yml)
 [![Test TypeScript](https://github.com/fulmenhq/crucible/actions/workflows/test-typescript.yml/badge.svg)](https://github.com/fulmenhq/crucible/actions/workflows/test-typescript.yml)
@@ -510,9 +510,9 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for deta
 
 ## Licensing
 
-Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete details.
+Crucible uses a hybrid license model: code is MIT ([LICENSE](LICENSE)) and creative works, schemas and documentation are CC0 1.0 ([LICENSE-CC0](LICENSE-CC0)). See [NOTICE](NOTICE) for the scope boundary and complete details.
 
-**Trademarks**: "Fulmen" and "3 Leaps" are trademarks of 3 Leaps, LLC. While code is open source, please use distinct names for derivative works to prevent confusion. See LICENSE for full guidelines.
+**Trademarks**: "Fulmen" and "3 Leaps" are trademarks of 3 Leaps, LLC. While code is open source, please use distinct names for derivative works to prevent confusion. See [NOTICE](NOTICE) for full guidelines.
 
 ### OSS Policies (Organization-wide)
 
@@ -528,7 +528,7 @@ Crucible uses a hybrid license model - see [LICENSE](LICENSE) for complete detai
 **Versioning**: SemVer (`MAJOR.MINOR.PATCH`)
 
 - Current version: see [`VERSION`](VERSION)
-- Latest tagged release: `v0.4.12` (see `release-notes/v0.4.12.md`)
+- Latest tagged release: `v0.5.0` (see `release-notes/v0.5.0.md`)
 - Full history: `CHANGELOG.md` and `release-notes/`
 
 Crucible is the SSOT for Fulmen schemas, standards, and catalogs. Most consumers should access Crucible through the language helper libraries (`gofulmen`, `tsfulmen`, `pyfulmen`, `rsfulmen`) rather than vendoring assets manually.
