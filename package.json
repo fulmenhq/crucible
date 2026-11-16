@@ -29,7 +29,7 @@
     "fulmen",
     "fulmenhq"
   ],
-  "license": "SEE LICENSE IN LICENSE",
+  "license": "(MIT AND CC0-1.0)",
   "name": "@fulmenhq/crucible",
   "repository": {
     "type": "git",
@@ -60,5 +60,5 @@
     "version:set": "make version:set"
   },
   "type": "module",
-  "version": "0.4.19"
+  "version": "0.4.20"
 }

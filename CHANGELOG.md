@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
+## [0.4.20] - 2026-11-16
+
+### Added
+
+- **schemas: offline contract enforcement** — `make validate-schema-contracts` compiles every published schema offline under its declared dialect and checks an explicit inventory of schemas, data files and wrapper copies (`scripts/schema-contracts/inventory.json`); wrapper copies must match their source byte for byte. A `Schema Contracts` workflow runs the validator and its tests.
+- **schemas: `branding/v1.0.0/ecosystem`** — describes `config/branding/ecosystem.yaml` (motto-based summary with structured attribution metadata).
+- **schemas: `taxonomy/fixture/v2.0.0/fixture-catalog`** — scenario-array fixture catalogs with optional fixture `description`; the v1.0.0 schema is unchanged.
+- **release: committed public pins and verified publication** — OpenPGP release key, minisign public key, fingerprint anchors and tagger identity are committed; `make release-tag`, `release-verify-tag`, `release-push-tag` and staged `release-publish-assets` verify against them; a read-only `Release trust verification` workflow runs on `v*` tags and requires an independently supplied approved OpenPGP primary. The retired OpenPGP identity and historical tag ranges are recorded in `docs/security/README.md`.
+- **licensing: `LICENSE-CC0` and `NOTICE`** — `LICENSE` is the plain MIT text; `LICENSE-CC0` carries the CC0 1.0 text; `NOTICE` carries the dual-license scope and the trademark notice.
+
+### Changed
+
+- **schemas: ADR lifecycle metadata moved** — `/definitions/statusDescriptions` and `/definitions/sortOrder` are now `/x-adr-metadata/statusDescriptions` and `/x-adr-metadata/sortOrder`. `$id`, dialect, the seven status values and the metadata payload are unchanged; raw-schema readers must use the new pointers.
+- **schemas: optional fields** — exit-code entries accept `signal_catalog`, `linux_calculation`, `macos_calculation`; server-management, site-branding and site-styling accept optional root `$schema`, `version`, `description`.
+- **schemas: `similarity` v1.0.0** — categories are `distance`, `normalization` and `suggestions` with a single distance case definition; the split-metric contract remains in v2.0.0.
+- **config: signals fixture** — `fallback_behavior`, `log_template` and `operation_hint` used consistently.
+- **deps: toolchain refresh** — goneat v0.6.8 (installed through a verified sfetch v0.4.12 bootstrap), Go 1.26.11, Bun 1.4.3, `js-yaml` 4.3.2, `@biomejs/biome` 2.5.14, `vitest` and `@vitest/coverage-v8` 4.1.11, `ruff` 0.17.0; GitHub Actions pinned by commit SHA.
+- **make: `precommit`** installs locked JavaScript dependencies, then runs sync and checks in order.
+- **docs: trademark notice** states that 3 Leaps, LLC is a North Carolina LLC.
+
 ## [0.4.19] - 2026-08-20
 
 ### Added
@@ -192,80 +212,3 @@ Conservative minor/patch wave (no majors; TypeScript 6, vitest 4, pytest 9, glob
 
 - **Schema validation**: All role files now validate against updated schema with domains requirement
 - **Upstream provenance**: Bumped from v0.1.6 to v0.1.10
-
-## [0.4.10] - 2026-02-04
-
-### Added
-
-- **Documentation Improvements for Upstream Sync**: Enhanced agent-facing documentation to clarify bidirectional repository relationship
-
-  - Added "Repository Relationship" section to AGENTS.md explaining fulmenhq/crucible vs 3leaps/crucible
-  - Updated Quick Reference table in AGENTS.md with `make upstream-sync-3leaps` entry
-  - Enhanced DO/DO NOT section with explicit upstream sync guidance and link to consumer guide
-  - Added bidirectional relationship context to `docs/architecture/sync-model.md`
-  - Added upstream sync to high-risk operations table in `docs/sop/repository-operations-sop.md`
-  - Added clarifying comments to Makefile `upstream-sync-3leaps` target
-  - Prevents confusion between two crucible repositories (3leaps vs fulmenhq)
-
-- **3leaps/crucible Upstream Sync Infrastructure**: Automated sync tooling for galaxy-level standards
-
-  - `scripts/3leaps-crucible-upstream-pull.ts` - Bun/TypeScript sync script with dry-run support
-  - `make upstream-sync-3leaps` - Sync and validate in one command
-  - `make upstream-check` - Check upstream content for format/lint issues (no auto-fix)
-  - New directory structure: `schemas/upstream/<org>/<repo>/` for clear provenance
-  - Synced content mirrors source structure: `schemas/`, `config/`, `docs/` subdirectories
-  - PROVENANCE.md tracks source tag, commit, and date for audit trail
-
-- **Data Classification Framework** (from 3leaps/crucible v0.1.6): Enterprise-grade classification dimensions
-
-  - **7 classifier dimension definitions** (`config/classifiers/dimensions/`)
-    - `sensitivity` - Data sensitivity levels (UNKNOWN through 6-eyes-only)
-    - `volatility` - Update cadence (static → streaming)
-    - `access-tier` - Distribution control (public → eyes-only)
-    - `retention-lifecycle` - Retention policy (transient → legal-hold)
-    - `schema-stability` - Schema evolution stage (experimental → deprecated)
-    - `volume-tier` - Data scale planning (tiny → massive)
-    - `velocity-mode` - Processing pattern (batch/streaming/hybrid)
-  - **Classification meta-schemas** (`schemas/classifiers/v0/`)
-    - `dimension-definition.schema.json` - Meta-schema for classifier dimensions
-    - `sensitivity-level.schema.json` - Sensitivity enum schema
-  - **8 classification standards** (`docs/standards/`)
-    - Decision trees, handling matrices, and operational guidance per dimension
-  - **Classifiers catalog** (`docs/catalog/classifiers/`)
-  - Policy stance: Missing classification is an error; explicit `unknown` required
-
-- **Foundation Schemas** (from 3leaps/crucible v0.1.6): Universal type primitives
-
-  - `types.schema.json` - 25 portable types (slug, semver, timestamp, URL, paths, etc.)
-  - `error-response.schema.json` - Standard error structure for APIs and CLIs
-  - `lifecycle-phases.schema.json` - Project maturity phases
-  - `release-phase.schema.json` - Release cadence (dev, rc, ga, hotfix)
-
-- **Release Engineering Role**: New `releng` agentic role for release coordination with CI/CD validation
-  - `config/agentic/roles/releng.yaml` - Full role definition
-  - Version management and semantic versioning enforcement
-  - Changelog and release notes maintenance
-  - CI/CD workflow validation before push (actionlint, shellcheck)
-  - Platform matrix enforcement and runner availability verification
-  - Cross-repository release coordination
-  - Key distinction: releng orchestrates releases while cicd handles mechanical execution
-
-### Changed
-
-- **Updated 3leaps/crucible to v0.1.6**: Synced latest upstream schemas and role definitions
-
-  - Updated role-prompt.schema.json with new role categories: `analytics`, `consulting`, `marketing`
-  - Added README.md to agentic schemas documentation
-  - Updated PROVENANCE.md to track v0.1.6 (commit e2812cd)
-
-- **Upstream Content Location**: Restructured from flat to hierarchical
-  - Old: `schemas/upstream/3leaps/{ailink,agentic}/`
-  - New: `schemas/upstream/3leaps/crucible/{schemas,config,docs}/`
-  - Enables future multi-repo upstream support with clear provenance
-  - Updated all path references in Makefile and documentation
-
-### Removed
-
-- **Legacy Role-Prompt Schema**: `schemas/upstream/3leaps/crucible/schemas/agentic/v0/role-prompt.schema.json`
-  - Role definitions now sourced from 3leaps/crucible upstream
-  - Local vendored schema no longer needed

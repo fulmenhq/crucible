@@ -5,6 +5,43 @@ For complete release history, see individual files in `release-notes/`.
 
 ---
 
+## v0.4.20 - Schema Contract Enforcement & Verified Release Provenance
+
+**Schema contracts are enforced offline against an exact inventory of every published schema and wrapper copy, the ADR lifecycle schema moves its metadata under `x-adr-metadata`, several published configuration shapes gain schemas or optional fields, and tag signing and release publication run against committed public pins.**
+
+### Why This Matters
+
+**For raw-schema readers:** `adr-lifecycle-status.json` metadata moved from `/definitions/statusDescriptions` and `/definitions/sortOrder` to `/x-adr-metadata/statusDescriptions` and `/x-adr-metadata/sortOrder`. Instance validation is unchanged; the `$id`, dialect and the seven status values are unchanged.
+
+**For fixture and configuration consumers:** `taxonomy/fixture` v2.0.0 (scenario arrays) and `branding/v1.0.0/ecosystem` are new schemas; `similarity` v1.0.0 returns to the distance, normalization and suggestions categories (split metrics stay in v2.0.0); exit-codes, server-management, site-branding and site-styling gain optional fields.
+
+**For release operators:** signing, verification and publication read committed key pins, anchors and tagger identity, and require an independently supplied approved OpenPGP primary fingerprint.
+
+### Highlights
+
+- **Offline schema contracts**: every published schema compiles offline under its declared dialect; an exact inventory covers schemas, data files and byte-identical wrapper copies; `Schema Contracts` workflow
+- **Configuration contracts**: new ecosystem branding and fixture-catalog v2.0.0 schemas; optional fields on four existing schemas; signals fixture field names aligned
+- **Signed tags and publication**: committed pins and anchors, `make release-tag` / `release-push-tag`, required minisign attestation pair, staged release publication, `Release trust verification` workflow; retired OpenPGP identity recorded
+- **Toolchain**: goneat v0.6.8 via verified sfetch v0.4.12 bootstrap, Go 1.26.11, Bun 1.4.3, refreshed JavaScript and Python tooling, actions pinned by commit SHA
+- **Docs**: trademark notice states North Carolina LLC; `LICENSE` is plain MIT with `LICENSE-CC0` and `NOTICE` carrying the dual-license scope
+
+### Changes
+
+| Area      | Change                                                                                    |
+| --------- | ----------------------------------------------------------------------------------------- |
+| Schemas   | ADR lifecycle metadata to `x-adr-metadata`; new ecosystem and fixture-catalog v2.0.0      |
+| Schemas   | Optional fields on exit-codes, server-management, site-branding, site-styling             |
+| Schemas   | `similarity` v1.0.0 distance, normalization and suggestions categories                    |
+| Tooling   | Offline schema contract validator; signed-tag, attestation and staged publication tooling |
+| Toolchain | goneat v0.6.8, Go 1.26.11, Bun 1.4.3, refreshed JS/Python tooling                         |
+| Docs      | Release security and publication documents; license layout; North Carolina LLC            |
+
+**No change** to schema ids or version paths. Raw-schema readers of `adr-lifecycle-status.json` use the new JSON pointers above.
+
+**Full release notes**: [release-notes/v0.4.20.md](release-notes/v0.4.20.md)
+
+---
+
 ## v0.4.19 - File-Backed Schema Catalogs & rsfulmen Active
 
 **A documentation patch: helper libraries gain a file-backed JSON Schema instance-validation contract (on-disk catalogs, offline `$ref`, path containment), forge module tables point at that contract, and overview docs mark rsfulmen as an active language foundation at Rust 1.88.**
@@ -67,42 +104,6 @@ For complete release history, see individual files in `release-notes/`.
 **None** to public API or schema versions — patch release; all schemas remain at their current versions. Documentation-only.
 
 **Full release notes**: [release-notes/v0.4.18.md](release-notes/v0.4.18.md)
-
----
-
-## v0.4.17 - Deferred Major Upgrades & Clean bun audit
-
-**Delivers a clean root and wrapper `bun audit` (no vulnerabilities found) by landing the three majors v0.4.16 deferred — wrapper vitest 4, root glob 13, root ejs 6 — by upgrade, not by pin. Also carries the post-release checklist path fix.**
-
-### Why This Matters
-
-**For maintainers and supply-chain consumers:** the deferred major-track dependency chains are now upgraded and their audit findings cleared. The root dependency graph reports **no vulnerabilities found** (root went 11 → 7 after glob 13, then 7 → 0 after ejs 6), and the TypeScript wrapper reports **no vulnerabilities found** (including the Vitest UI advisory) after the vitest 4 upgrade. This closes the deferral v0.4.16 disclosed: the majors are landed, not just logged.
-
-**For TypeScript wrapper implementers:** vitest 4 requires an explicit `@types/node` entry in the tsconfig `types` allowlist (it no longer pulls Node typings in transitively); the wrapper suite stays green (44 tests / 7 files) with obsolete exit-code snapshots cleaned up.
-
-**For toolchain and codegen consumers:** the glob and ejs upgrades are contained to build/test tooling — no API or schema changes. ejs 6 exposes its render API on the module default export; the five codegen scripts were migrated accordingly and regenerate byte-identical artifacts.
-
-### Highlights
-
-- **Audit clear**: root and wrapper `bun audit` report **no vulnerabilities found** — root finding counts 11 → 7 → **0**; wrapper cleared to **0** (incl. Vitest UI advisory); nothing pinned or overridden to force the result
-- **Wrapper vitest 1 → 4**: `vitest` + `@vitest/coverage-v8` to 4.1.10; tsconfig `@types/node`; obsolete exit-code snapshot cleanup
-- **Root glob 11 → 13**: `glob` to 13.0.6; `glob.sync` → canonical `globSync` at the module-registry validation call site; glob audit chain cleared
-- **Root ejs 3 → 6**: `ejs` to 6.0.1; five codegen scripts use the ejs 6 default-export API; byte-identical generated artifacts; ejs › jake › filelist › minimatch/brace-expansion chain pruned from the lockfile
-- **Docs fix**: release-checklist pull-script smoke-test path / `--dry-run` correction (post-v0.4.16, carried in)
-
-### Changes
-
-| Area | Change                                                                           |
-| ---- | -------------------------------------------------------------------------------- |
-| Deps | Wrapper `vitest`/coverage 1.x → 4.1.10; tsconfig `@types/node`; snapshot cleanup |
-| Deps | Root `glob` 11.x → 13.0.6; `glob.sync` → `globSync` at validation call site      |
-| Deps | Root `ejs` 3.x → 6.0.1; codegen scripts use the ejs 6 default-export API         |
-| Deps | Root `bun audit` 11 → 7 → **0**; wrapper cleared to **0**                        |
-| Docs | Release-checklist pull-script smoke-test path / `--dry-run` correction           |
-
-**No breaking changes** to public API or schema versions — patch release; all schemas remain at their current versions. Root and wrapper dependency graphs now report **no vulnerabilities found**.
-
-**Full release notes**: [release-notes/v0.4.17.md](release-notes/v0.4.17.md)
 
 ---
 
