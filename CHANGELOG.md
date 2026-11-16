@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
-## [0.4.20] - 2026-11-16
+## [0.5.0] - 2026-11-16
 
 ### Added
 

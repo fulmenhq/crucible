@@ -45,7 +45,7 @@ decernor alone derives and verifies the fingerprint anchors, including the
 minisign SHA-256 of the decoded public blob (not the comment or whole file).
 
 ```bash
-export FULMENHQ_CRUCIBLE_RELEASE_TAG=v0.4.20
+export FULMENHQ_CRUCIBLE_RELEASE_TAG=v0.5.0
 # Set the independently approved primary and absolute checker path first.
 /path/to/reviewed-checkout/scripts/release-verify-tag.sh
 # Low-level verification also accepts an explicit argument, never a derived tag:

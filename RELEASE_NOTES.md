@@ -5,7 +5,7 @@ For complete release history, see individual files in `release-notes/`.
 
 ---
 
-## v0.4.20 - Schema Contract Enforcement & Verified Release Provenance
+## v0.5.0 - Schema Contract Enforcement & Verified Release Provenance
 
 **Schema contracts are enforced offline against an exact inventory of every published schema and wrapper copy, the ADR lifecycle schema moves its metadata under `x-adr-metadata`, several published configuration shapes gain schemas or optional fields, and tag signing and release publication run against committed public pins.**
 
@@ -38,7 +38,7 @@ For complete release history, see individual files in `release-notes/`.
 
 **No change** to schema ids or version paths. Raw-schema readers of `adr-lifecycle-status.json` use the new JSON pointers above.
 
-**Full release notes**: [release-notes/v0.4.20.md](release-notes/v0.4.20.md)
+**Full release notes**: [release-notes/v0.5.0.md](release-notes/v0.5.0.md)
 
 ---
 

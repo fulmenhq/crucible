@@ -8,7 +8,7 @@
 
 ## Variables (Quick Reference)
 
-- `FULMENHQ_CRUCIBLE_RELEASE_TAG`: required explicit canonical tag (e.g., `v0.4.20`); never derived from `VERSION`
+- `FULMENHQ_CRUCIBLE_RELEASE_TAG`: required explicit canonical tag (e.g., `v0.5.0`); never derived from `VERSION`
 - `FULMENHQ_CRUCIBLE_GPG_SIGNING_FINGERPRINT`: independently provisioned approved GPG primary fingerprint
 - `FULMENHQ_CRUCIBLE_DECERNOR_BIN`: required absolute path to a trusted published decernor executable, version 0.1.8 or newer; no PATH fallback
 - `FULMENHQ_CRUCIBLE_GPG_HOMEDIR`: dedicated signing keyring directory
