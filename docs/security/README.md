@@ -87,6 +87,31 @@ PDR-0008 is the accepted upstream identity policy. Upstream PDR-0010 remains
 separately before claiming immutable-publication conformance. This tooling change
 does not establish a first published adoption release or forge settings.
 
-Tags v0.4.19 and earlier predate these pins and used a retired OpenPGP identity.
-Do not re-sign historical tags. Verify them under their historical policy;
-retain retired identity fingerprints and last-signed-tag records during rotation.
+## Retired OpenPGP identity
+
+Tags v0.4.19 and earlier predate these pins. Do not re-sign historical tags.
+Verify them under their historical policy, not against the pins above. For a
+retired OpenPGP key the recorded fingerprint is the pin; no retired public export
+is committed.
+
+| Field                 | Value                                                                        |
+| --------------------- | ---------------------------------------------------------------------------- |
+| Retired primary       | `E33FE149923314AFF3BC64723E0AD9999CF3D418`                                   |
+| Identity              | FulmenHQ Release Signing (Organization Master Key) `<security@fulmenhq.dev>` |
+| Signing subkey        | `0A5FBDD451D444B8A5551D8C448A539320A397AF`                                   |
+| Other signing subkey  | `7B4F93B138A0257A24755E3545342521E9536A31` (signed no release tag)           |
+| Subkey expiry         | Both signing subkeys expired 2026-10-31; verifiers report an expired key     |
+| Signed tags           | v0.2.26 (2025-12-20) through v0.4.19 (2026-08-20), 25 tags                   |
+| Last tag signed by it | v0.4.19                                                                      |
+| Tagger on those tags  | Dave Thompson `<dave.thompson@3leaps.net>`                                   |
+
+Tags v0.1.0 through v0.2.25 (31 tags) carry no OpenPGP signature. Minisign
+sidecar attestation was optional before the pinned scheme and no minisign pin is
+recorded for those tags. The first tag under the current pins is the first
+release after v0.4.19.
+
+Verify a historical tag by obtaining the retired public key from the maintainers,
+checking its primary fingerprint against the table above, and running `git tag -v`.
+A verifier never tries both identities for one tag. Any signing subkey of the
+retired primary would verify a tag, so a tag signed by a subkey not listed above
+is outside this record.
