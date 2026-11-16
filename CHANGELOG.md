@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **typescript: version exports** — `VERSION` and `CRUCIBLE_VERSION` in the TypeScript wrapper report the release SemVer (they previously reported `2025.10.0`); the version helper updates both quote styles.
 - **make: `precommit`** installs locked JavaScript dependencies, then runs sync and checks in order.
 - **docs: trademark notice** states that 3 Leaps, LLC is a North Carolina LLC.
+- **docs: consumer hook profile** — the bootstrap guide and repository operations SOP describe the check-only `precommit` and `prepush` profile for consumer repositories and defer Go toolchain selection to the consumer's declared reference toolchain.
 
 ## [0.4.19] - 2026-08-20
 

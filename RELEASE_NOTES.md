@@ -24,6 +24,7 @@ For complete release history, see individual files in `release-notes/`.
 - **Signed tags and publication**: committed pins and anchors, `make release-tag` / `release-push-tag`, required minisign attestation pair, staged release publication, `Release trust verification` workflow; retired OpenPGP identity recorded
 - **Toolchain**: goneat v0.6.8 via verified sfetch v0.4.12 bootstrap, Go 1.26.11, Bun 1.4.3, refreshed JavaScript and Python tooling, actions pinned by commit SHA
 - **Docs**: trademark notice states North Carolina LLC; `LICENSE` is plain MIT with `LICENSE-CC0` and `NOTICE` carrying the dual-license scope
+- **Consumer guidance**: bootstrap guide and operations SOP describe the check-only `precommit`/`prepush` profile and the consumer's declared reference toolchain
 
 ### Changes
 
