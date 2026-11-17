@@ -21,6 +21,14 @@ Required minisign sidecar attestation for the declared release asset profile:
 - `FULMENHQ_CRUCIBLE_MINISIGN_KEY`: minisign secret key path (fulmenhq org release key)
 - The minisign public key is read from the verified tagged commit; public-key overrides are refused.
 
+Publication (stage and publish) additionally requires these per-release variables, set explicitly each time:
+
+- `FULMENHQ_CRUCIBLE_RELEASE_RECORD`: absolute path of the verification record, in an existing directory outside the checkout; use the same path for stage and publish
+- `FULMENHQ_CRUCIBLE_RELEASE_LATEST`: `true` or `false`; there is no default
+- `FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE`: `true` or `false`; a prerelease cannot be latest
+
+`make release-stage-assets` and `make release-publish` name any of these (and the release tag) that is unset.
+
 Retired aliases are refused:
 
 - `CRUCIBLE_RELEASE_TAG`, `CRUCIBLE_GPG_HOMEDIR`, `CRUCIBLE_PGP_KEY_ID`, `CRUCIBLE_ALLOW_NON_MAIN`
@@ -117,6 +125,17 @@ This verifies the local signature against the pin, requires the tagged commit to
 - [ ] Recheck the draft against that record immediately before explicit publication
 - [ ] Verify the published release is not a draft and reports `immutable: true`
 - [ ] Verify published tag, assets, latest/prerelease intent and forge attestation against the same record
+
+```bash
+# FULMENHQ_CRUCIBLE_RELEASE_TAG/_RECORD/_LATEST/_PRERELEASE set as above
+make release-stage-assets   # creates the draft and retains the verification record
+# review the record and the draft, then:
+make release-publish        # publishes and verifies the immutable release
+```
+
+`dist/release/` must contain exactly `v<VERSION>.tag.txt` and `v<VERSION>.tag.txt.minisig`
+for the release being staged; move any earlier tag's pair out of it first. If staging
+stops after the draft is created, re-run the same stage command with the same variables.
 
 Uploads and replacements finish while the release is a draft. A successful
 upload, repository setting or CI run alone does not establish a completed release.
