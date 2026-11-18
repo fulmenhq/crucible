@@ -11,6 +11,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -227,6 +228,16 @@ class Ceremony:
         )
         return release
 
+    def release_after_create(self):
+        # A just-created draft can be briefly absent from the release listing.
+        release = self.release()
+        for _ in range(5):
+            if release is not None:
+                break
+            time.sleep(2)
+            release = self.release()
+        return release
+
     def metadata(self, release, draft):
         require(release is not None, "release absent")
         require(
@@ -440,7 +451,7 @@ class Ceremony:
                 f"--prerelease={str(self.args.prerelease).lower()}",
                 f"--latest={str(self.args.latest).lower()}",
             )
-            release = self.release()
+            release = self.release_after_create()
         self.metadata(release, True)
         existing = self.inventory(release, partial=True)
         self.download(existing, self.evidence / "existing")
@@ -610,8 +621,27 @@ class Ceremony:
                 message = (
                     f"{self.observed}: {error}; evidence retained: {self.evidence}"
                 )
+                if (
+                    self.args.mode == "stage"
+                    and self.observed == "staged-but-unpublished"
+                ):
+                    message += (
+                        "; a draft exists: re-run the same stage command with the"
+                        " same FULMENHQ_CRUCIBLE_RELEASE_* variables"
+                    )
                 (self.evidence / "failure.txt").write_text(message + "\n")
                 raise Refusal(message) from error
+
+
+def boolean(variable):
+    def parse(value):
+        if value not in ("true", "false"):
+            raise argparse.ArgumentTypeError(
+                f"must be true or false (set {variable} to true or false)"
+            )
+        return value == "true"
+
+    return parse
 
 
 def main():
@@ -619,11 +649,15 @@ def main():
     parser.add_argument(
         "mode", choices=("stage", "publish"), nargs="?", default="stage"
     )
-    parser.add_argument("--latest", choices=("true", "false"), required=True)
-    parser.add_argument("--prerelease", choices=("true", "false"), required=True)
+    parser.add_argument(
+        "--latest", type=boolean("FULMENHQ_CRUCIBLE_RELEASE_LATEST"), required=True
+    )
+    parser.add_argument(
+        "--prerelease",
+        type=boolean("FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE"),
+        required=True,
+    )
     args = parser.parse_args()
-    args.latest = args.latest == "true"
-    args.prerelease = args.prerelease == "true"
     try:
         require(not (args.latest and args.prerelease), "a prerelease cannot be latest")
         Ceremony(args).run()

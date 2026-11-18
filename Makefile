@@ -138,7 +138,7 @@ test-release-tooling: ## Prove the pinned release-tag verifier rejects unpinned,
 	@./scripts/test-release-tooling.sh
 	@$(MAKE) test-release-publication
 
-.PHONY: test-release-publication release-stage-assets release-publish
+.PHONY: test-release-publication release-publication-inputs release-stage-assets release-publish
 test-release-publication: ## Verify draft staging and immutable publication with isolated fixtures
 	@python3 scripts/release-publication-test.py
 
@@ -435,8 +435,13 @@ release-verify-remote-tag: ## Verify GitHub reports the tag verified (gh require
 
 release-publish-assets: release-stage-assets ## Stage and verify release assets; does not publish
 
-release-stage-assets: ## Stage draft assets with explicit FULMENHQ_CRUCIBLE_RELEASE_LATEST and FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE
+release-publication-inputs: ## Verify the per-release publication variables are set (names each missing one)
+	@miss=0; for v in FULMENHQ_CRUCIBLE_RELEASE_TAG FULMENHQ_CRUCIBLE_RELEASE_RECORD FULMENHQ_CRUCIBLE_RELEASE_LATEST FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE; do \
+		eval "val=\$$$$v"; [ -n "$$val" ] || { echo "error: $$v is required (see RELEASE_CHECKLIST.md)" >&2; miss=1; }; \
+	done; [ "$$miss" = 0 ]
+
+release-stage-assets: release-publication-inputs ## Stage draft assets with explicit FULMENHQ_CRUCIBLE_RELEASE_LATEST and FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE
 	@./scripts/release-publish-assets.sh stage --latest="$(FULMENHQ_CRUCIBLE_RELEASE_LATEST)" --prerelease="$(FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE)"
 
-release-publish: ## Explicitly publish a verified draft and verify the immutable result
+release-publish: release-publication-inputs ## Explicitly publish a verified draft and verify the immutable result
 	@./scripts/release-publish-assets.sh publish --latest="$(FULMENHQ_CRUCIBLE_RELEASE_LATEST)" --prerelease="$(FULMENHQ_CRUCIBLE_RELEASE_PRERELEASE)"
