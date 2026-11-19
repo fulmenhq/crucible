@@ -89,7 +89,7 @@ Standardized histogram bucket definitions for latency and size metrics across al
 
 Crucible publishes the format-neutral Tabular Exchange Standard (`tabular-exchange/0.1.0`) under a new `data` domain: value grammar, table schema, rows encoding, conversion policy and conversion result, with schemas, fixtures, vectors and a reference checker.
 
-**Impact**: New schemas under `schemas/data/tabular-exchange/v0.1.0/`; consumers pin an exact Crucible release below 1.0.
+**Impact**: New schemas under `schemas/data/tabular-exchange/v0.1.0/`; consumers pin the exact contract revision below 1.0.
 
 **Related**: [ADR-0012](ADR-0012-schema-ref-ids.md)
 

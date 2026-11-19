@@ -63,8 +63,11 @@ format-neutral data contracts: `library/` holds helper-library modules and
    incompatible change to one document's shape is a new wire-format revision,
    also below 1.0. Format identifiers an implementation used before adopting
    the standard are different formats, not aliases.
-3. The family starts at 0.1.0. Below 1.0, consumers pin an exact Crucible
-   release; a published revision is never changed.
+3. The family starts at contract revision `tabular-exchange/0.1.0`. Below
+   1.0, consumers pin an exact contract revision; a published revision is never
+   changed. A Crucible release distributes contract revisions and is versioned
+   separately: a consumer obtains the pinned revision from a Crucible release
+   that contains it.
 4. Implementation detail travels in one bounded, namespaced `extensions`
    object. A result consumer ignores unknown namespaces; a policy reader
    refuses them. Every mandatory interpretation works without extension
@@ -77,8 +80,9 @@ format-neutral data contracts: `library/` holds helper-library modules and
      `valid/` and schema-valid `semantic-invalid/` fixtures against them, and
      locks every intentionally invalid fixture by SHA-256 in the inventory;
    - `make validate-tabular-exchange` runs a standard-library reference
-     checker over every fixture and vector and is part of
-     `validate-schemas`.
+     checker over every fixture and vector, fails on any disagreement or
+     missing expectation, runs regression controls for both, and is part of
+     `validate-schemas` and the `Schema Contracts` workflow.
 
 ## Relationship to the data artifact contract
 

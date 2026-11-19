@@ -304,6 +304,7 @@ test-schema-contracts: ## Exercise strict validator discovery, rejection and ADR
 
 validate-tabular-exchange: ## Run the tabular exchange reference checker over its fixtures and vectors
 	@python3 -B scripts/tabular-exchange-reference-check.py
+	@python3 -B scripts/test-tabular-exchange-reference-check.py
 
 validate-schemas: validate-schema-contracts test-schema-contracts validate-tabular-exchange | bootstrap ## Validate all schemas (strict contracts + semantic validation)
 	@echo ""

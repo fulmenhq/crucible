@@ -1611,7 +1611,7 @@ def compare(outcomes, report_path=None, out=sys.stdout):
             if computed.get(k) is not None
         )
         s["dist"][sig] = s["dist"].get(sig, 0) + 1
-        if agree is False:
+        if agree is not True:
             s["bad"].append((name, computed, expected))
         report.append(
             {
@@ -1625,7 +1625,8 @@ def compare(outcomes, report_path=None, out=sys.stdout):
     failed = 0
     for suite in order:
         s = suites[suite]
-        failed += s["disagree"]
+        # A case without a recorded expectation is a failure, not a pass.
+        failed += s["disagree"] + s["none"]
         out.write(
             "%-20s total %4d  agree %4d  disagree %4d  no-expectation %4d\n"
             % (suite, s["total"], s["agree"], s["disagree"], s["none"])
@@ -1634,8 +1635,9 @@ def compare(outcomes, report_path=None, out=sys.stdout):
             out.write("    %4d  %s\n" % (s["dist"][sig], sig))
         for name, computed, expected in s["bad"]:
             out.write(
-                "  DISAGREE %s\n    computed: %s\n    expected: %s\n"
+                "  %s %s\n    computed: %s\n    expected: %s\n"
                 % (
+                    "DISAGREE" if expected is not None else "NO-EXPECTATION",
                     name,
                     json.dumps(computed, sort_keys=True),
                     json.dumps(expected, sort_keys=True),
