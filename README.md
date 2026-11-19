@@ -253,6 +253,10 @@ Crucible provides JSON schemas for cross-language consistency:
   - **Catalogs**: Foundry (country codes, HTTP status, MIME types, text similarity, signal handling)
   - Helper library standard with Crucible Overview and version documentation requirements
 
+- **Data Standards** (`docs/standards/data/`)
+
+  - Tabular Exchange Standard: typed table schema, rows encoding, conversion policy and conversion result (`tabular-exchange/0.1.0`)
+
 - **Repository Standards** (`docs/standards/`)
 
   - Frontmatter standard for documentation

@@ -287,7 +287,7 @@ clean: ## Clean any build artifacts
 SCHEMA_CONTRACT_ROOT ?= $(CURDIR)
 SCHEMA_CONTRACT_MANIFEST ?= $(CURDIR)/scripts/schema-contracts/inventory.json
 
-.PHONY: bootstrap-schema-contracts validate-schema-contracts test-schema-contracts
+.PHONY: bootstrap-schema-contracts validate-schema-contracts test-schema-contracts validate-tabular-exchange
 bootstrap-schema-contracts: ## Build the independently pinned strict schema validator
 	@cd scripts/schema-contracts && GOWORK=off GOFLAGS=-mod=readonly go mod download
 	@cd scripts/schema-contracts && GOWORK=off GOFLAGS=-mod=readonly go mod verify
@@ -302,7 +302,10 @@ validate-schema-contracts: bootstrap-schema-contracts ## Require exact inventory
 test-schema-contracts: ## Exercise strict validator discovery, rejection and ADR use controls
 	@cd scripts/schema-contracts && GOWORK=off GOFLAGS=-mod=readonly go test ./...
 
-validate-schemas: validate-schema-contracts test-schema-contracts | bootstrap ## Validate all schemas (strict contracts + semantic validation)
+validate-tabular-exchange: ## Run the tabular exchange reference checker over its fixtures and vectors
+	@python3 -B scripts/tabular-exchange-reference-check.py
+
+validate-schemas: validate-schema-contracts test-schema-contracts validate-tabular-exchange | bootstrap ## Validate all schemas (strict contracts + semantic validation)
 	@echo ""
 	@echo "🔍 Phase 2: Semantic validation of data files..."
 	@GONEAT="$(GONEAT)" bun run scripts/validate-schemas.ts
