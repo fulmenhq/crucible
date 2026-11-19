@@ -80,7 +80,8 @@ A consumer of results is checked by executing the result fixtures and
 or one member, and comparing the category and rule, or the verdict and rule,
 with the expected ones.
 
-`reference_check.py` (Python 3, standard library only) accompanies this
+The reference checker `scripts/tabular-exchange-reference-check.py` (Python 3,
+standard library only; `make validate-tabular-exchange`) accompanies this
 revision. It reads the three documents strictly, applies the rules of
 `semantic-validation.md` that can be applied to documents alone, runs the
 matching procedure with caller expectations, and compares its outcomes with

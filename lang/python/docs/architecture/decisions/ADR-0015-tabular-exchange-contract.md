@@ -87,8 +87,9 @@ format-neutral data contracts: `library/` holds helper-library modules and
 ## Relationship to the data artifact contract
 
 Tabular exchange defines typed conversion and request-bound completion. A
-data artifact descriptor (`data-artifact/v0`, published separately) can
-describe and link the produced file for discovery, provenance and
+data artifact descriptor (`data-artifact/v0`, published in 3leaps/crucible as
+the [data artifact contract](https://github.com/3leaps/crucible/blob/3636a79f7ea507bccfa6534655764d7b36c2ea05/docs/standards/data-artifact-contract.md),
+v0.2.12) can describe and link the produced file for discovery, provenance and
 protection. Either contract can be used without the other; conversion
 completion and artifact completeness stay independent.
 

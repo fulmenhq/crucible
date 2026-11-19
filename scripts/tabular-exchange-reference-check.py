@@ -10,7 +10,7 @@ consistent with one reading of the standard. It comes from the same authors
 as the vectors and is weaker evidence than a consumer written by a third
 party; it does not qualify an implementation.
 
-Usage: python3 reference_check.py [DATA_DIR] [--report FILE]
+Usage: python3 scripts/tabular-exchange-reference-check.py [DATA_DIR] [--report FILE]
 
 Layout of this file:
   1. strict byte-level document reader
@@ -1661,7 +1661,9 @@ def main(argv):
         report_path = args[i + 1]
         del args[i : i + 2]
     if len(args) > 1:
-        sys.stderr.write("usage: reference_check.py [DATA_DIR] [--report FILE]\n")
+        sys.stderr.write(
+            "usage: tabular-exchange-reference-check.py [DATA_DIR] [--report FILE]\n"
+        )
         return 2
     here = os.path.dirname(os.path.abspath(__file__))
     data_dir = (
