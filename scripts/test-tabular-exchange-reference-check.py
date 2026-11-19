@@ -40,17 +40,46 @@ def flip_matching_verdict(document):
     case["verdict"] = "not-" + str(case["verdict"])
 
 
+def flip(entry):
+    entry["verdict"] = "refuse" if entry["verdict"] == "accept" else "accept"
+
+
+def flip_fixture_verdict(document):
+    flip(document["fixtures"][0])
+
+
+def drop_fixture_verdict(document):
+    del document["fixtures"][0]["verdict"]
+
+
+def flip_case_verdict(document):
+    flip(document["cases"][0])
+
+
+def drop_case_verdict(document):
+    del document["cases"][0]["verdict"]
+
+
+def flip_value_verdict(document):
+    flip(document["integer"][0])
+
+
+def drop_value_verdict(document):
+    del document["integer"][0]["verdict"]
+
+
+# One missing and one wrong expectation per suite.
 CONTROLS = [
-    (
-        "matching case without an expectation",
-        "matching-vectors.json",
-        drop_matching_verdict,
-    ),
-    (
-        "matching case with a wrong expectation",
-        "matching-vectors.json",
-        flip_matching_verdict,
-    ),
+    ("matching: no expectation", "matching-vectors.json", drop_matching_verdict),
+    ("matching: wrong expectation", "matching-vectors.json", flip_matching_verdict),
+    ("fixture: no expectation", "fixtures/manifest.json", drop_fixture_verdict),
+    ("fixture: wrong expectation", "fixtures/manifest.json", flip_fixture_verdict),
+    ("document: no expectation", "document-vectors.json", drop_case_verdict),
+    ("document: wrong expectation", "document-vectors.json", flip_case_verdict),
+    ("row: no expectation", "row-vectors.json", drop_case_verdict),
+    ("row: wrong expectation", "row-vectors.json", flip_case_verdict),
+    ("value: no expectation", "value-vectors.json", drop_value_verdict),
+    ("value: wrong expectation", "value-vectors.json", flip_value_verdict),
 ]
 
 
@@ -67,8 +96,15 @@ def main():
             shutil.copytree(DATA, copy)
             edit_json(copy / name, change)
             result = run(copy)
+            marker = "NO-EXPECTATION" if "no expectation" in label else "DISAGREE"
             if result.returncode == 0:
                 sys.stderr.write("error: control passed but must fail: %s\n" % label)
+                failures += 1
+            elif result.returncode != 1 or marker not in result.stdout:
+                sys.stderr.write(
+                    "error: control failed without reporting %s: %s\n%s"
+                    % (marker, label, result.stderr)
+                )
                 failures += 1
             else:
                 print("ok: control fails as required: %s" % label)
