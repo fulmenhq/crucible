@@ -7,7 +7,8 @@
  *   - lang/go/schemas.go (const Version)
  *   - lang/typescript/src/index.ts (VERSION, CRUCIBLE_VERSION)
  *   - lang/typescript/src/schemas.ts (VERSION)
- *   - lang/typescript/package.json (version field)
+ *   - package.json and lang/typescript/package.json (version field; rewritten
+ *     with JSON.stringify so escaped characters are restored)
  *   - lang/python/src/crucible/__init__.py (__version__)
  *
  * Usage:
@@ -111,14 +112,20 @@ function updateTypeScriptSources(version: string): boolean {
   return changedIndex || changedSchemas;
 }
 
-function updateTypeScriptPackage(version: string): boolean {
-  const pkgPath = join(ROOT, "lang/typescript/package.json");
-  const pkg = JSON.parse(readFileSync(pkgPath, "utf-8"));
-  if (pkg.version === version) {
+function updatePackageJson(relPath: string, version: string): boolean {
+  const pkgPath = join(ROOT, relPath);
+  if (!existsSync(pkgPath)) {
+    throw new Error(`required manifest missing: ${relPath}`);
+  }
+  const original = readFileSync(pkgPath, "utf-8");
+  const pkg = JSON.parse(original);
+  pkg.version = version;
+  // Re-serializing also restores characters an earlier writer escaped (e.g. \u0026 for &).
+  const updated = `${JSON.stringify(pkg, null, 2)}\n`;
+  if (updated === original) {
     return false;
   }
-  pkg.version = version;
-  writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
+  writeFileSync(pkgPath, updated);
   return true;
 }
 
@@ -161,7 +168,8 @@ function main() {
   const mutations = [
     updateGo(version) && "schemas.go",
     updateTypeScriptSources(version) && "lang/typescript/src/*.ts",
-    updateTypeScriptPackage(version) && "lang/typescript/package.json",
+    updatePackageJson("package.json", version) && "package.json",
+    updatePackageJson("lang/typescript/package.json", version) && "lang/typescript/package.json",
     updatePython(version) && "lang/python/src/crucible/__init__.py",
     updateTaxonomy(version) && "config/taxonomy/metrics.yaml",
   ].filter(Boolean) as string[];

@@ -53,6 +53,8 @@ git log --oneline
 
 #### 1.3 Update VERSION File
 
+Run version changes on `main` or a `release/*` branch (for example `release/v0.5.2`), as `.goneat/version-policy.yaml` requires. On any other branch the targets stop before VERSION is changed.
+
 **Semantic Versioning (current strategy)**:
 
 ```bash

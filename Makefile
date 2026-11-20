@@ -32,7 +32,7 @@ GONEAT ?= $(shell [ -x "$(GONEAT_LOCAL)" ] && echo "$(GONEAT_LOCAL)" || command 
 
 .PHONY: all help bootstrap bootstrap-sfetch bootstrap-goneat bootstrap-force test-bootstrap-engine-verification tools sync test build build-all clean version fmt fmt-check lint lint-fix lint-config upstream-validate upstream-sync-3leaps upstream-check typecheck
 .PHONY: sync-schemas sync-to-lang generate-snapshots test-go test-ts test-python test-rust build-python build-rust lint-python lint-rust fmt-rust
-.PHONY: version-set version-propagate version-bump-major version-bump-minor version-bump-patch
+.PHONY: version-guard version-set version-propagate version-bump-major version-bump-minor version-bump-patch
 .PHONY: release-check release-build release-prepare release-clean
 .PHONY: release-guard-tag-version release-tag release-verify-tag release-push-tag release-tag-push release-verify-remote-tag release-publish-assets test-release-tooling
 .PHONY: lint-check pr-final pr-final-drift-check
@@ -357,7 +357,13 @@ codegen-all: codegen-exit-codes codegen-fulpack codegen-fulencode codegen-fulhas
 version: ## Print current repository version
 	@cat $(VERSION_FILE)
 
-version-set: | bootstrap ## Update VERSION and propagate to package.json (usage: make version-set VERSION=0.2.26)
+version-guard: | bootstrap ## Check the version policy (branch guard) before VERSION is changed
+	@out="$$($(GONEAT) version propagate --dry-run 2>&1)" || { \
+		printf '%s\n' "$$out" >&2; \
+		echo "❌ version preflight failed (goneat version propagate --dry-run); VERSION not changed. Version changes run on branches allowed by .goneat/version-policy.yaml (main, release/*)." >&2; \
+		exit 1; }
+
+version-set: | bootstrap version-guard ## Update VERSION and propagate to package.json (usage: make version-set VERSION=0.2.26)
 ifndef VERSION
 	$(error VERSION is required. Usage: make version-set VERSION=0.2.26)
 endif
@@ -370,17 +376,17 @@ version-propagate: | bootstrap ## Propagate VERSION to package managers (package
 	@bun run scripts/update-version.ts
 	@echo "✅ Version propagated to package managers and taxonomy"
 
-version-bump-major: | bootstrap ## Bump major version (SemVer)
+version-bump-major: | bootstrap version-guard ## Bump major version (SemVer)
 	@$(GONEAT) version bump major
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (major) and propagated"
 
-version-bump-minor: | bootstrap ## Bump minor version (SemVer)
+version-bump-minor: | bootstrap version-guard ## Bump minor version (SemVer)
 	@$(GONEAT) version bump minor
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (minor) and propagated"
 
-version-bump-patch: | bootstrap ## Bump patch version (SemVer)
+version-bump-patch: | bootstrap version-guard ## Bump patch version (SemVer)
 	@$(GONEAT) version bump patch
 	@$(MAKE) version-propagate
 	@echo "✅ Version bumped (patch) and propagated"
