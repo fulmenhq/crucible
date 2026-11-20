@@ -115,7 +115,7 @@ function updateTypeScriptSources(version: string): boolean {
 function updatePackageJson(relPath: string, version: string): boolean {
   const pkgPath = join(ROOT, relPath);
   if (!existsSync(pkgPath)) {
-    return false;
+    throw new Error(`required manifest missing: ${relPath}`);
   }
   const original = readFileSync(pkgPath, "utf-8");
   const pkg = JSON.parse(original);

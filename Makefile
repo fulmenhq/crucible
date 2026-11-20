@@ -357,10 +357,10 @@ codegen-all: codegen-exit-codes codegen-fulpack codegen-fulencode codegen-fulhas
 version: ## Print current repository version
 	@cat $(VERSION_FILE)
 
-version-guard: | bootstrap ## Check the version-policy branch guard before VERSION is changed
+version-guard: | bootstrap ## Check the version policy (branch guard) before VERSION is changed
 	@out="$$($(GONEAT) version propagate --dry-run 2>&1)" || { \
-		printf '%s\n' "$$out" | grep -i 'guard' >&2; \
-		echo "❌ version changes run only on branches allowed by .goneat/version-policy.yaml (main, release/*); VERSION not changed" >&2; \
+		printf '%s\n' "$$out" >&2; \
+		echo "❌ version preflight failed (goneat version propagate --dry-run); VERSION not changed. Version changes run on branches allowed by .goneat/version-policy.yaml (main, release/*)." >&2; \
 		exit 1; }
 
 version-set: | bootstrap version-guard ## Update VERSION and propagate to package.json (usage: make version-set VERSION=0.2.26)
