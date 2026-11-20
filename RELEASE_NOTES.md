@@ -5,6 +5,38 @@ For complete release history, see individual files in `release-notes/`.
 
 ---
 
+## v0.5.1 - Tabular Exchange Contract
+
+**A new `data` domain publishes the Tabular Exchange Standard, contract revision `tabular-exchange/0.1.0` (experimental, ADR-0015): schemas for typed tables, rows, conversion policies and conversion results, with vectors and a fixture corpus that a reference checker validates in CI.**
+
+### Why This Matters
+
+**For converter authors and consumers:** one published description of a typed table, its values, a conversion request and a conversion result. A caller matches a result to the output and to the request, with separate verdicts for output agreement and run completion. Pin the exact contract revision `tabular-exchange/0.1.0` from a Crucible release that contains it; no implementation is qualified against it yet.
+
+### Highlights
+
+- **Tabular Exchange Standard**: `docs/standards/data/tabular-exchange.md`; wire formats `tabular-exchange.schema/0`, `.policy/0`, `.result/0`
+- **Schemas**: `schemas/data/tabular-exchange/v0.1.0/` (draft 2020-12): table schema, row, conversion policy, conversion result, plus semantic rules
+- **Vectors and fixtures**: `config/data/tabular-exchange/v0.1.0/`: contract manifest, value, row, document and matching vectors, `valid/`, `invalid/`, `semantic-invalid/` fixtures
+- **Validation**: `make validate-tabular-exchange` reference checker with regression controls, in `validate-schemas` and the `Schema Contracts` workflow
+- **Release tooling**: publication commands name each unset per-release variable
+
+### Changes
+
+| Area    | Change                                                                                  |
+| ------- | --------------------------------------------------------------------------------------- |
+| Docs    | New `data` domain; Tabular Exchange Standard; ADR-0015 (experimental)                   |
+| Schemas | `data/tabular-exchange/v0.1.0`: table schema, row, conversion policy, conversion result |
+| Config  | `data/tabular-exchange/v0.1.0`: contract manifest, vectors and fixture corpus           |
+| Tooling | Reference checker with regression controls; `make validate-tabular-exchange`            |
+| Release | Publication commands name each unset per-release variable; checklist documents them     |
+
+**None** breaking — the release adds a new schema family; existing schemas, ids and version paths are unchanged.
+
+**Full release notes**: [release-notes/v0.5.1.md](release-notes/v0.5.1.md)
+
+---
+
 ## v0.5.0 - Schema Contract Enforcement & Verified Release Provenance
 
 **Schema contracts are enforced offline against an exact inventory of every published schema and wrapper copy, the ADR lifecycle schema moves its metadata under `x-adr-metadata`, several published configuration shapes gain schemas or optional fields, and tag signing and release publication run against committed public pins.**
@@ -73,38 +105,6 @@ For complete release history, see individual files in `release-notes/`.
 **None** to public API or schema versions — patch release; all schemas remain at their current versions. Documentation-only. Language-library implementations follow this tag.
 
 **Full release notes**: [release-notes/v0.4.19.md](release-notes/v0.4.19.md)
-
----
-
-## v0.4.18 - Manifesto Retirement & Workhorse Standard Alignment
-
-**A documentation patch: the draft technical manifesto is removed (inbound links retargeted to live architecture docs; no replacement manifesto), and the forge workhorse standard is aligned with Roan, loopback-by-default, and required request-id middleware.**
-
-### Why This Matters
-
-**For readers and anyone landing from an old link:** the 2025-10 draft technical manifesto is no longer a front door. A bookmark or inbound link that used to open that draft should start at the [Fulmen Ecosystem Guide](docs/architecture/fulmen-ecosystem-guide.md). The layer cake, CRDL, helper/forge contracts, and coding/safety standards already live there (and in the documents it points to). There is no replacement manifesto. Historical release notes that mention the old file stay historical.
-
-**For forge implementers and operators:** the workhorse standard now names **Roan** (Rust / rsfulmen) and **Tuvan** (TypeScript / tsfulmen) in the same canonical breed set as Groningen and Percheron — a Rust or TypeScript workhorse is a first-class variant, not an unnamed cousin. New HTTP workhorses default `{PREFIX}HOST` to `127.0.0.1` (binding `0.0.0.0` is an explicit opt-in) and MUST honor, generate, and echo `X-Request-ID` so a support dump can correlate one request across logs and responses. This restates the existing logging and HTTP REST specs. The workhorse standard remains draft.
-
-### Highlights
-
-- **Manifesto retired**: draft technical manifesto deleted; inbound links retargeted to live architecture docs; no replacement manifesto
-- **Workhorse variants**: Roan (Rust / rsfulmen) and Tuvan (TypeScript / tsfulmen) in the same canonical breed set as Groningen and Percheron
-- **Loopback default**: `{PREFIX}HOST` defaults to `127.0.0.1`; bind `0.0.0.0` only as an explicit opt-in
-- **Request ID required**: HTTP workhorses MUST honor inbound `X-Request-ID`, generate a UUID when absent, and echo it on every response
-
-### Changes
-
-| Area | Change                                                                                     |
-| ---- | ------------------------------------------------------------------------------------------ |
-| Docs | Draft technical manifesto removed; inbound links retargeted to live architecture docs      |
-| Docs | Workhorse standard: Roan and Tuvan in the canonical breed set; Clydesdale example removed  |
-| Docs | Workhorse `{PREFIX}HOST` default `127.0.0.1`; `0.0.0.0` explicit opt-in                    |
-| Docs | Workhorse HTTP surface requires request-id / `X-Request-ID` honor/generate/echo middleware |
-
-**None** to public API or schema versions — patch release; all schemas remain at their current versions. Documentation-only.
-
-**Full release notes**: [release-notes/v0.4.18.md](release-notes/v0.4.18.md)
 
 ---
 

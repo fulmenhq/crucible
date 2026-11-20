@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 const SCHEMAS_ROOT = join(__dirname, "../schemas");
 const DOCS_ROOT = join(__dirname, "../docs");
 
-export const VERSION = "0.5.0";
+export const VERSION = "0.5.1";
 
 export interface TerminalCatalogConfig {
   name: string;
