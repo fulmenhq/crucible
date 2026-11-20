@@ -19,3 +19,6 @@ jobs:
       - name: Adversarial controls and ADR runtime contracts
         if: ${{ !cancelled() }}
         run: make test-schema-contracts
+      - name: Tabular exchange reference checker and controls
+        if: ${{ !cancelled() }}
+        run: make validate-tabular-exchange

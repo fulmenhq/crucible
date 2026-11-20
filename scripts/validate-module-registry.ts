@@ -213,6 +213,7 @@ function checkOrphans(registry: ModuleRegistry, evidence: EvidenceMap) {
   // Known non-module artifacts that should not be in any module registry
   const knownNonModules = new Set([
     "app-identity", // Application identity config - used by appidentity module but not a module itself
+    "tabular-exchange", // Data contract family (docs/standards/data) - not a helper-library module
   ]);
 
   const platformModules = new Set(registry.modules.map((m) => m.module_name));

@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Retention Policy**: This file contains the 10 most recent releases plus `[Unreleased]`. Older entries are preserved in individual `release-notes/v*.md` files. This policy keeps the changelog navigable while maintaining complete history in the release-notes archive.
 
+## [Unreleased]
+
+### Added
+
+- **data: Tabular Exchange Standard `tabular-exchange/0.1.0`** — new `data` domain with the standard (`docs/standards/data/tabular-exchange.md`), four draft 2020-12 schemas (`schemas/data/tabular-exchange/v0.1.0/`: table schema, row, conversion policy, conversion result), semantic rules, contract manifest, value/row/document/matching vectors and 160 fixtures (`config/data/tabular-exchange/v0.1.0/`). `make validate-tabular-exchange` runs a standard-library reference checker over every fixture and vector, fails on any disagreement or missing expectation, and runs in `validate-schemas` and the `Schema Contracts` workflow. ADR-0015 records the decision.
+
+### Changed
+
+- **release: publication inputs** — `make release-stage-assets` and `make release-publish` name each unset `FULMENHQ_CRUCIBLE_RELEASE_*` variable; the release listing is retried after the draft is created; `RELEASE_CHECKLIST.md` documents the publication variables, steps and `dist/release/` contents.
+
 ## [0.5.0] - 2026-11-16
 
 ### Added
