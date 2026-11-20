@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **make: version targets** — `make version-set` and `make version-bump-*` check the version-policy branch guard before changing VERSION, so a disallowed branch no longer leaves VERSION changed and package files unchanged. Version propagation rewrites `package.json` and `lang/typescript/package.json` with `JSON.stringify`, restoring characters escaped by an earlier writer.
+
 ## [0.5.1] - 2026-11-20
 
 ### Added
